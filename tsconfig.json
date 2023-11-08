@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2016",
+    "target": "es2022",
     "lib": ["esnext"],
 
     /* Modules */
-    "module": "commonjs",
+    "module": "nodenext",
     "rootDir": "./src",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
 
     /* Emit */
