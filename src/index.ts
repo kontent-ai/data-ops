@@ -10,6 +10,7 @@ const commandsToRegister: ReadonlyArray<RegisterCommand> = [
 ];
 
 const initialYargs = yargs(hideBin(process.argv))
+  .env("KAI")
   .demandCommand()
   .strict()
   .help();
