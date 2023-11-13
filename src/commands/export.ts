@@ -1,10 +1,14 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import * as fsPromises from "fs/promises";
+import JSZip from "jszip";
 
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
-import { collectionExportEntity } from "./export/entities/collections.js";
+import { collectionsExportEntity } from "./export/entities/collections.js";
+import { spacesExportEntity } from "./export/entities/spaces.js";
 import { EntityDefinition } from "./export/entityDefinition.js";
+
+const zip = new JSZip();
 
 export const register: RegisterCommand = yargs => yargs.command({
   command: "export <environmentId>",
@@ -28,7 +32,8 @@ export const register: RegisterCommand = yargs => yargs.command({
 });
 
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
-  collectionExportEntity,
+  collectionsExportEntity,
+  spacesExportEntity,
 ];
 
 type ExportEntitiesParams = Readonly<{
@@ -47,15 +52,19 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
   await serially(entityDefinitions.map(def => async () => {
     console.log(`Exporting ${def.name}...`);
-    const result = await createExportEntity(client, params.fileName ?? `./export-${params.environmentId}.json`)(def);
+    const result = await createExportEntity(client)(def);
     console.log(`${def.name} exported.`);
-    return result;
+    zip.file(`${def.name}.json`, result);
   }));
 
-  console.log("All entities exported.");
+  const fileName = params.fileName ?? `export-${params.environmentId}.zip`;
+
+  await zip.generateAsync({ type: "nodebuffer" })
+    .then(content => fsPromises.writeFile(fileName, content));
+
+  console.log(`All entities exported into ${fileName}.`);
 };
 
-const createExportEntity = (client: ManagementClient, fileName: string) =>
+const createExportEntity = (client: ManagementClient) =>
   (definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
-      .then(definition.serializeEntities)
-      .then(content => fsPromises.writeFile(`./${fileName}`, content, "utf8"));
+      .then(definition.serializeEntities);
