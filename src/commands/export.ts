@@ -6,6 +6,7 @@ import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { collectionsExportEntity } from "./export/entities/collections.js";
 import { spacesExportEntity } from "./export/entities/spaces.js";
+import { taxonomiesExportEntity } from "./export/entities/taxonomies.js";
 import { EntityDefinition } from "./export/entityDefinition.js";
 
 const zip = new JSZip();
@@ -34,6 +35,7 @@ export const register: RegisterCommand = yargs => yargs.command({
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsExportEntity,
   spacesExportEntity,
+  taxonomiesExportEntity,
 ];
 
 type ExportEntitiesParams = Readonly<{
