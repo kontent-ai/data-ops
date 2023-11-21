@@ -61,7 +61,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     zip.file(`${def.name}.json`, result);
   }));
 
-  const fileName = params.fileName ?? `export-${params.environmentId}.zip`;
+  const fileName = params.fileName ?? `${new Date().toISOString()}-export-${params.environmentId}.zip`;
 
   await zip.generateAsync({ type: "nodebuffer" })
     .then(content => fsPromises.writeFile(fileName, content));
