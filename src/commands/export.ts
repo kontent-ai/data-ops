@@ -56,9 +56,15 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
   await serially(entityDefinitions.map(def => async () => {
     console.log(`Exporting ${def.name}...`);
-    const result = await createExportEntity(client)(def);
-    console.log(`${def.name} exported.`);
-    zip.file(`${def.name}.json`, result);
+    try {
+      const result = await createExportEntity(client, def);
+      console.log(`${def.name} exported.`);
+      zip.file(`${def.name}.json`, result);
+    }
+    catch (err) {
+      console.error(`Could not export the project with environment id ${params.environmentId} due to ${err}`);
+      process.exit(1);
+    }
   }));
 
   const fileName = params.fileName ?? `${new Date().toISOString()}-export-${params.environmentId}.zip`;
@@ -70,4 +76,4 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 };
 
 const createExportEntity = (client: ManagementClient, definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
-      .then(definition.serializeEntities);
+  .then(definition.serializeEntities);
