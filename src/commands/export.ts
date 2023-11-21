@@ -69,6 +69,5 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   console.log(`All entities exported into ${fileName}.`);
 };
 
-const createExportEntity = (client: ManagementClient) =>
-  (definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
+const createExportEntity = (client: ManagementClient, definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
       .then(definition.serializeEntities);
