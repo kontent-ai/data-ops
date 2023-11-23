@@ -4,8 +4,8 @@ import JSZip from "jszip";
 
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
-import { assetFoldersExportEntity } from "./export/entities/assetFolders.js";
 import { collectionsExportEntity } from "./export/entities/collections.js";
+import { languagesExportEntity } from "./export/entities/languages.js";
 import { spacesExportEntity } from "./export/entities/spaces.js";
 import { taxonomiesExportEntity } from "./export/entities/taxonomies.js";
 import { EntityDefinition } from "./export/entityDefinition.js";
@@ -37,7 +37,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsExportEntity,
   spacesExportEntity,
   taxonomiesExportEntity,
-  assetFoldersExportEntity,
+  languagesExportEntity,
 ];
 
 type ExportEntitiesParams = Readonly<{
