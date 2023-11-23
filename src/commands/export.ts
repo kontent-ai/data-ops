@@ -7,6 +7,7 @@ import { serially } from "../utils/requests.js";
 import { collectionsExportEntity } from "./export/entities/collections.js";
 import { languagesExportEntity } from "./export/entities/languages.js";
 import { previewUrlsExportEntity } from "./export/entities/previewUrls.js";
+import { rolesExportEntity } from "./export/entities/roles.js";
 import { spacesExportEntity } from "./export/entities/spaces.js";
 import { taxonomiesExportEntity } from "./export/entities/taxonomies.js";
 import { EntityDefinition } from "./export/entityDefinition.js";
@@ -39,7 +40,8 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   spacesExportEntity,
   taxonomiesExportEntity,
   languagesExportEntity,
-  previewUrlsExportEntity
+  previewUrlsExportEntity,
+  rolesExportEntity
 ];
 
 type ExportEntitiesParams = Readonly<{
