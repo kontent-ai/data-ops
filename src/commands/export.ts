@@ -15,6 +15,7 @@ import { spacesExportEntity } from "./export/entities/spaces.js";
 import { taxonomiesExportEntity } from "./export/entities/taxonomies.js";
 import { workflowsExportEntity } from "./export/entities/workflows.js";
 import { EntityDefinition } from "./export/entityDefinition.js";
+import { languageVariantsExportEntity } from "./export/entities/languageVariants.js";
 
 const zip = new JSZip();
 
@@ -49,7 +50,8 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   workflowsExportEntity,
   contentTypesSnippetsExportEntity,
   contentTypesExportEntity,
-  contentItemsExportEntity
+  contentItemsExportEntity,
+  languageVariantsExportEntity
 ];
 
 type ExportEntitiesParams = Readonly<{
