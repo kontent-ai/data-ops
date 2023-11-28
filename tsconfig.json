@@ -6,7 +6,6 @@
 
     /* Modules */
     "module": "nodenext",
-    "rootDir": "./src",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
 
