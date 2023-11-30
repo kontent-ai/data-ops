@@ -6,6 +6,7 @@ import packageFile from "../../package.json" assert { type: "json" };
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersExportEntity } from "./export/entities/assetFolders.js";
+import { assetsExportEntity } from "./export/entities/assets.js";
 import { collectionsExportEntity } from "./export/entities/collections.js";
 import { contentItemsExportEntity } from "./export/entities/contentItems.js";
 import { contentTypesExportEntity } from "./export/entities/contentTypes.js";
@@ -59,6 +60,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   contentItemsExportEntity,
   languageVariantsExportEntity,
   assetFoldersExportEntity,
+  assetsExportEntity,
 ];
 
 type ExportEntitiesParams = Readonly<{
@@ -78,7 +80,10 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   await serially(entityDefinitions.map(def => async () => {
     console.log(`Exporting ${def.name}...`);
     try {
-      const result = await createExportEntity(client, def);
+      const entities = await def.fetchEntities(client);
+      await def.addOtherFiles?.(entities, zip);
+      const result = def.serializeEntities(entities);
+
       console.log(`${def.name} exported.`);
       zip.file(`${def.name}.json`, result);
     }
@@ -107,6 +112,3 @@ const exportMetadata = async (environmentId: string) => {
   
   zip.file('metadata.json', JSON.stringify(metadata));
 };
-
-const createExportEntity = (client: ManagementClient, definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
-  .then(definition.serializeEntities);
