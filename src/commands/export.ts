@@ -5,6 +5,7 @@ import JSZip from "jszip";
 import packageFile from "../../package.json" assert { type: "json" };
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
+import { assetFoldersExportEntity } from "./export/entities/assetFolders.js";
 import { collectionsExportEntity } from "./export/entities/collections.js";
 import { contentItemsExportEntity } from "./export/entities/contentItems.js";
 import { contentTypesExportEntity } from "./export/entities/contentTypes.js";
@@ -56,7 +57,8 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   contentTypesSnippetsExportEntity,
   contentTypesExportEntity,
   contentItemsExportEntity,
-  languageVariantsExportEntity
+  languageVariantsExportEntity,
+  assetFoldersExportEntity,
 ];
 
 type ExportEntitiesParams = Readonly<{
