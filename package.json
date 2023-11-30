@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/kontent-ai/data-ops#readme",
   "dependencies": {
-    "@kontent-ai/management-sdk": "^5.5.0",
+    "@kontent-ai/management-sdk": "^5.6.0",
     "jszip": "^3.10.1",
     "yargs": "^17.7.2"
   },
