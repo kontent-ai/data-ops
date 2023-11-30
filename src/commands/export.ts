@@ -106,7 +106,7 @@ const exportMetadata = async (environmentId: string) => {
   }
   
   zip.file('metadata.json', JSON.stringify(metadata));
+};
 
-  const createExportEntity = (client: ManagementClient, definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
-    .then(definition.serializeEntities);
-}
+const createExportEntity = (client: ManagementClient, definition: EntityDefinition<unknown>) => definition.fetchEntities(client)
+  .then(definition.serializeEntities);
