@@ -9,4 +9,6 @@ export const contentTypesExportEntity: EntityDefinition<ReadonlyArray<ContentTyp
     .toAllPromise()
     .then(res => res.data.items.map(t => t._raw)),
   serializeEntities: collections => JSON.stringify(collections),
+  importEntities: () => { throw new Error("Not supported yet.")},
+  deserializeEntities: () => { throw new Error("Not supported yet.")},
 };
