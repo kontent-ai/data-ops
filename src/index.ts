@@ -7,6 +7,7 @@ import { RegisterCommand } from "./types/yargs.js";
 
 const commandsToRegister: ReadonlyArray<RegisterCommand> = [
   (await import("./commands/export.js")).register,
+  (await import("./commands/import.js")).register,
 ];
 
 const initialYargs = yargs(hideBin(process.argv))
