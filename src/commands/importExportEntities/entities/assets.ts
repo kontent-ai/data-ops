@@ -15,6 +15,8 @@ export const assetsExportEntity: EntityDefinition<ReadonlyArray<AssetContracts.I
     }
     await serially(assets.map(a => () => saveAsset(assetsZip, a)))
   },
+  importEntities: () => { throw new Error("Not supported yet.")},
+  deserializeEntities: () => { throw new Error("Not supported yet.")},
 };
 
 const saveAsset = async (zip: JSZip, asset: AssetContracts.IAssetModelContract) => {

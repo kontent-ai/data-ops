@@ -6,4 +6,6 @@ export const assetFoldersExportEntity: EntityDefinition<ReadonlyArray<AssetFolde
   name: "assetFolders",
   fetchEntities: client => client.listAssetFolders().toPromise().then(res => res.rawData.folders),
   serializeEntities: JSON.stringify,
+  importEntities: () => { throw new Error("Not supported yet.")},
+  deserializeEntities: () => { throw new Error("Not supported yet.")},
 };

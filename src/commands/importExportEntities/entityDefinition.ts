@@ -6,4 +6,6 @@ export type EntityDefinition<T> = Readonly<{
   fetchEntities: (client: ManagementClient) => Promise<T>;
   serializeEntities: (entities: T) => string;
   addOtherFiles?: (loadedEntities: T, zip: JSZip) => Promise<void>;
+  deserializeEntities: (serialized: string) => T;
+  importEntities: (client: ManagementClient, entities: T, zip: JSZip) => Promise<void>;
 }>;
