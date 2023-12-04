@@ -88,7 +88,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
       zip.file(`${def.name}.json`, result);
     }
     catch (err) {
-      console.error(`Could not export the project with environment id ${params.environmentId} due to ${err}`);
+      console.error(`Failed to export entity ${def.name} due to error ${err}. Stopping export...`);
       process.exit(1);
     }
   }));
@@ -100,7 +100,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   await zip.generateAsync({ type: "nodebuffer" })
     .then(content => fsPromises.writeFile(fileName, content));
 
-  console.log(`All entities exported into ${fileName}.`);
+  console.log(`All entities from environment ${params.environmentId} were successfully exported into ${fileName}.`);
 };
 
 const exportMetadata = async (environmentId: string) => {

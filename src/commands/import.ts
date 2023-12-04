@@ -1,7 +1,10 @@
+import { ManagementClient } from "@kontent-ai/management-sdk";
 import * as fsPromises from "fs/promises";
 import JSZip from "jszip";
 
 import { RegisterCommand } from "../types/yargs.js";
+import { serially } from "../utils/requests.js";
+import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs => yargs.command({
   command: "import <fileName> <environmentId>",
@@ -25,13 +28,42 @@ export const register: RegisterCommand = yargs => yargs.command({
   handler: args => importEntities(args),
 });
 
+// The entities will be imported in the order specified here.
+// Keep in mind that there are dependencies between entities so the order is important.
+const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
+];
+
 type ImportEntitiesParams = Readonly<{
   environmentId: string;
   fileName: string;
+  apiKey: string;
 }>;
 
 const importEntities = async (params: ImportEntitiesParams) => {
   const root = await fsPromises.readFile(params.fileName).then(JSZip.loadAsync);
+  const client = new ManagementClient({
+    environmentId: params.environmentId,
+    apiKey: params.apiKey,
+  });
 
-  console.log("assets: ", await root.file("assets.json")?.async("string"));
+  console.log("Importing entities...");
+
+  await serially(entityDefinitions.map(def => async () => {
+    console.log(`Importing ${def.name}...`);
+
+    try {
+      await root.file(`${def.name}.json`)
+        ?.async("string")
+        .then(def.deserializeEntities)
+        .then(e => def.importEntities(client, e, root));
+
+      console.log(`${def.name} imported`);
+
+      console.log(`All entities were successfully imported into environment ${params.environmentId}.`);
+    }
+    catch (err) {
+      console.error(`Failed to import entity ${def.name} due to error ${err}. Stopping import...`);
+      process.exit(1);
+    }
+  }));
 };
