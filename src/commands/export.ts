@@ -11,7 +11,7 @@ import { collectionsEntity } from "./importExportEntities/entities/collections.j
 import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
 import { contentTypesExportEntity } from "./importExportEntities/entities/contentTypes.js";
 import { contentTypesSnippetsExportEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
-import { languagesExportEntity } from "./importExportEntities/entities/languages.js";
+import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { languageVariantsExportEntity } from "./importExportEntities/entities/languageVariants.js";
 import { previewUrlsExportEntity } from "./importExportEntities/entities/previewUrls.js";
 import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
@@ -51,7 +51,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsEntity,
   spacesExportEntity,
   taxonomiesExportEntity,
-  languagesExportEntity,
+  languagesEntity,
   previewUrlsExportEntity,
   rolesExportEntity,
   workflowsExportEntity,
@@ -88,7 +88,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
       zip.file(`${def.name}.json`, result);
     }
     catch (err) {
-      console.error(`Failed to export entity ${def.name} due to error ${err}. Stopping export...`);
+      console.error(`Failed to export entity ${def.name} due to error ${JSON.stringify(err)}. Stopping export...`);
       process.exit(1);
     }
   }));

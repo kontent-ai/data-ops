@@ -5,6 +5,7 @@ import JSZip from "jszip";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
+import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { EntityDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs => yargs.command({
@@ -33,6 +34,7 @@ export const register: RegisterCommand = yargs => yargs.command({
 // Keep in mind that there are dependencies between entities so the order is important.
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsEntity,
+  languagesEntity
 ];
 
 type ImportEntitiesParams = Readonly<{
@@ -48,10 +50,12 @@ const importEntities = async (params: ImportEntitiesParams) => {
     apiKey: params.apiKey,
   });
 
+
   console.log("Importing entities...");
 
   let context: ImportContext = {
     collectionIdsByOldIds: new Map(),
+    languageIdsByOldIds: new Map()
   };
 
   await serially(entityDefinitions.map(def => async () => {
@@ -69,7 +73,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
       console.log(`All entities were successfully imported into environment ${params.environmentId}.`);
     }
     catch (err) {
-      console.error(`Failed to import entity ${def.name} due to error ${err}. Stopping import...`);
+      console.error(`Failed to import entity ${def.name} due to error ${JSON.stringify(err)}. Stopping import...`);
       process.exit(1);
     }
   }));
