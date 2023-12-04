@@ -7,7 +7,7 @@ import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersExportEntity } from "./importExportEntities/entities/assetFolders.js";
 import { assetsExportEntity } from "./importExportEntities/entities/assets.js";
-import { collectionsExportEntity } from "./importExportEntities/entities/collections.js";
+import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
 import { contentTypesExportEntity } from "./importExportEntities/entities/contentTypes.js";
 import { contentTypesSnippetsExportEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
@@ -48,7 +48,7 @@ export const register: RegisterCommand = yargs => yargs.command({
 });
 
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
-  collectionsExportEntity,
+  collectionsEntity,
   spacesExportEntity,
   taxonomiesExportEntity,
   languagesExportEntity,

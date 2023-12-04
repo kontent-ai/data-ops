@@ -4,6 +4,7 @@ import JSZip from "jszip";
 
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
+import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs => yargs.command({
@@ -31,6 +32,7 @@ export const register: RegisterCommand = yargs => yargs.command({
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
+  collectionsEntity,
 ];
 
 type ImportEntitiesParams = Readonly<{
