@@ -1,5 +1,6 @@
 import { CollectionContracts } from "@kontent-ai/management-sdk";
 
+import { notNull } from "../../../utils/typeguards.js";
 import { compareExternalIds } from "../../import/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
@@ -7,7 +8,7 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
   name: "collections",
   fetchEntities: client => client.listCollections().toPromise().then(res => res.rawData.collections),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: async (client, fileCollections) => {
+  importEntities: async (client, fileCollections, context) => {
     const existingCollections = await client.listCollections().toPromise().then(res => res.rawData.collections);
     const matchResults = findCollectionMatches(fileCollections, existingCollections);
     const matchErrors = matchResults.filter(isMatchError);
@@ -19,7 +20,7 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
       .filter(c => !collectionsToUpdate.find(m => m.fileCollection.id === c.id))
       .map((c: Collection) => ({ ...c, external_id: c.external_id ?? c.codename }));
 
-    await client
+    const newCollections = await client
       .setCollections()
       .withData([
         ...collectionsToUpdate.map(match => ({
@@ -37,7 +38,21 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
           },
         })),
       ])
-      .toPromise();
+      .toPromise()
+      .then(res => res.data.collections);
+
+    return {
+      ...context,
+      collectionIdsByOldIds: new Map([
+        ...collectionsToUpdate.map(match => [match.fileCollection.id, match.projectCollection.id] as const),
+        ...newCollections
+          .map(c => {
+            const newC = collectionsToAdd.find(oldC => oldC.codename === c.codename);
+            return newC ? [c.id, newC.id] as const : null;
+          })
+          .filter(notNull),
+      ]),
+    };
   },
   deserializeEntities: JSON.parse,
 };
@@ -57,13 +72,13 @@ const isMatch = (matchResult: MatchResult): matchResult is Readonly<{ match: tru
   "match" in matchResult && !!matchResult.match;
 
 const matchCollections = (fileCollection: Collection, projectCollection: Collection): MatchResult => {
-  const hasSameCollection = fileCollection.codename === projectCollection.codename;
+  const hasSameCodename = fileCollection.codename === projectCollection.codename;
   const externalIdComparison = compareExternalIds(projectCollection.external_id, fileCollection.external_id);
 
-  if (!hasSameCollection && externalIdComparison === "Same") {
+  if (!hasSameCodename && externalIdComparison === "Same") {
     return { error: `Cannot update codename of collections. Collections with external id "${fileCollection.external_id}" have different codenames (file: "${fileCollection.codename}", project: "${projectCollection.codename}").` };
   }
-  if (!hasSameCollection) {
+  if (!hasSameCodename) {
     return { match: false };
   }
   switch (externalIdComparison) {
