@@ -16,7 +16,7 @@ import { languageVariantsExportEntity } from "./importExportEntities/entities/la
 import { previewUrlsExportEntity } from "./importExportEntities/entities/previewUrls.js";
 import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
 import { spacesExportEntity } from "./importExportEntities/entities/spaces.js";
-import { taxonomiesExportEntity } from "./importExportEntities/entities/taxonomies.js";
+import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsExportEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
 
@@ -50,7 +50,7 @@ export const register: RegisterCommand = yargs => yargs.command({
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsEntity,
   spacesExportEntity,
-  taxonomiesExportEntity,
+  taxonomiesEntity,
   languagesEntity,
   previewUrlsExportEntity,
   rolesExportEntity,
