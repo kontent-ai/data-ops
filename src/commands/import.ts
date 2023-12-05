@@ -6,6 +6,7 @@ import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
+import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { EntityDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs => yargs.command({
@@ -34,7 +35,8 @@ export const register: RegisterCommand = yargs => yargs.command({
 // Keep in mind that there are dependencies between entities so the order is important.
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsEntity,
-  languagesEntity
+  languagesEntity,
+  taxonomiesEntity,
 ];
 
 type ImportEntitiesParams = Readonly<{
@@ -69,12 +71,12 @@ const importEntities = async (params: ImportEntitiesParams) => {
         ?? context;
 
       console.log(`${def.name} imported`);
-
-      console.log(`All entities were successfully imported into environment ${params.environmentId}.`);
     }
     catch (err) {
       console.error(`Failed to import entity ${def.name} due to error ${JSON.stringify(err)}. Stopping import...`);
       process.exit(1);
     }
   }));
+
+  console.log(`All entities were successfully imported into environment ${params.environmentId}.`);
 };
