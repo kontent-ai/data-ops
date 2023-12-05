@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
+import { EntityDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs => yargs.command({
   command: "import <fileName> <environmentId>",
@@ -50,14 +50,19 @@ const importEntities = async (params: ImportEntitiesParams) => {
 
   console.log("Importing entities...");
 
+  let context: ImportContext = {
+    collectionIdsByOldIds: new Map(),
+  };
+
   await serially(entityDefinitions.map(def => async () => {
     console.log(`Importing ${def.name}...`);
 
     try {
-      await root.file(`${def.name}.json`)
+      context = await root.file(`${def.name}.json`)
         ?.async("string")
         .then(def.deserializeEntities)
-        .then(e => def.importEntities(client, e, root));
+        .then(e => def.importEntities(client, e, context, root))
+        ?? context;
 
       console.log(`${def.name} imported`);
 

@@ -7,5 +7,9 @@ export type EntityDefinition<T> = Readonly<{
   serializeEntities: (entities: T) => string;
   addOtherFiles?: (loadedEntities: T, zip: JSZip) => Promise<void>;
   deserializeEntities: (serialized: string) => T;
-  importEntities: (client: ManagementClient, entities: T, zip: JSZip) => Promise<void>;
+  importEntities: (client: ManagementClient, entities: T, context: ImportContext, zip: JSZip) => Promise<void | ImportContext>;
+}>;
+
+export type ImportContext = Readonly<{
+  collectionIdsByOldIds: ReadonlyMap<string, string>;
 }>;
