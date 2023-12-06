@@ -16,6 +16,7 @@ export type ImportContext = Readonly<{
   taxonomyGroupIdsByOldIds: IdsMap;
   taxonomyTermIdsByOldIds: IdsMap;
   assetFolderIdsByOldIds: IdsMap;
+  assetIdsByOldIds: IdsMap;
 }>;
 
 type IdsMap = ReadonlyMap<string, string>;

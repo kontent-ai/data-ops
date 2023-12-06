@@ -5,6 +5,7 @@ import JSZip from "jszip";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
+import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
@@ -39,6 +40,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   languagesEntity,
   taxonomiesEntity,
   assetFoldersEntity,
+  assetsEntity,
 ];
 
 type ImportEntitiesParams = Readonly<{
@@ -86,4 +88,5 @@ const createInitialContext = (): ImportContext => ({
   taxonomyGroupIdsByOldIds: new Map(),
   taxonomyTermIdsByOldIds: new Map(),
   assetFolderIdsByOldIds: new Map(),
+  assetIdsByOldIds: new Map(),
 });

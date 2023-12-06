@@ -6,7 +6,7 @@ import packageFile from "../../package.json" assert { type: "json" };
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
-import { assetsExportEntity } from "./importExportEntities/entities/assets.js";
+import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
 import { contentTypesExportEntity } from "./importExportEntities/entities/contentTypes.js";
@@ -60,7 +60,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   contentItemsExportEntity,
   languageVariantsExportEntity,
   assetFoldersEntity,
-  assetsExportEntity,
+  assetsEntity,
 ];
 
 type ExportEntitiesParams = Readonly<{
