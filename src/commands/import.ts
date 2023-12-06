@@ -4,6 +4,7 @@ import JSZip from "jszip";
 
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
+import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
@@ -37,6 +38,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   collectionsEntity,
   languagesEntity,
   taxonomiesEntity,
+  assetFoldersEntity,
 ];
 
 type ImportEntitiesParams = Readonly<{
@@ -55,12 +57,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
 
   console.log("Importing entities...");
 
-  let context: ImportContext = {
-    collectionIdsByOldIds: new Map(),
-    languageIdsByOldIds: new Map(),
-    taxonomyGroupIdsByOldIds: new Map(),
-    taxonomyTermIdsByOldIds: new Map(),
-  };
+  let context = createInitialContext();
 
   await serially(entityDefinitions.map(def => async () => {
     console.log(`Importing ${def.name}...`);
@@ -82,3 +79,11 @@ const importEntities = async (params: ImportEntitiesParams) => {
 
   console.log(`All entities were successfully imported into environment ${params.environmentId}.`);
 };
+
+const createInitialContext = (): ImportContext => ({
+  collectionIdsByOldIds: new Map(),
+  languageIdsByOldIds: new Map(),
+  taxonomyGroupIdsByOldIds: new Map(),
+  taxonomyTermIdsByOldIds: new Map(),
+  assetFolderIdsByOldIds: new Map(),
+});
