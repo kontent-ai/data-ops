@@ -13,4 +13,8 @@ export type EntityDefinition<T> = Readonly<{
 export type ImportContext = Readonly<{
   collectionIdsByOldIds: ReadonlyMap<string, string>;
   languageIdsByOldIds: ReadonlyMap<string, string>;
+  taxonomyGroupIdsByOldIds: IdsMap;
+  taxonomyTermIdsByOldIds: IdsMap;
 }>;
+
+type IdsMap = ReadonlyMap<string, string>;

@@ -57,7 +57,9 @@ const importEntities = async (params: ImportEntitiesParams) => {
 
   let context: ImportContext = {
     collectionIdsByOldIds: new Map(),
-    languageIdsByOldIds: new Map()
+    languageIdsByOldIds: new Map(),
+    taxonomyGroupIdsByOldIds: new Map(),
+    taxonomyTermIdsByOldIds: new Map(),
   };
 
   await serially(entityDefinitions.map(def => async () => {
