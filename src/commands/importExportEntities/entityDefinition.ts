@@ -39,6 +39,8 @@ export type ImportContext = Readonly<{
   >;
   contentTypeIdsWithElementsByOldIds: ReadonlyMap<string, Readonly<{ selfId: string; elementIdsByOldIds: IdsMap }>>;
   contentItemIdsByOldIds: IdsMap;
+  workflowIdsByOldIds: IdsMap;
+  worfklowStepsIdsByOldIds: IdsMap;
 }>;
 
 type IdsMap = ReadonlyMap<string, string>;

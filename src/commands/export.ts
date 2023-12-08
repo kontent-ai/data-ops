@@ -17,7 +17,7 @@ import { previewUrlsExportEntity } from "./importExportEntities/entities/preview
 import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
 import { spacesExportEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { workflowsExportEntity } from "./importExportEntities/entities/workflows.js";
+import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityExportDefinition } from "./importExportEntities/entityDefinition.js";
 
 const zip = new JSZip();
@@ -56,7 +56,7 @@ const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
   languagesEntity,
   previewUrlsExportEntity,
   rolesExportEntity,
-  workflowsExportEntity,
+  workflowsEntity,
   contentTypesSnippetsEntity,
   contentTypesEntity,
   contentItemsExportEntity,
