@@ -5,6 +5,7 @@ import { serially } from "../../../utils/requests.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const assetsBinariesFolderName = "assets";
+const createFileName = (asset: AssetContracts.IAssetModelContract) => `${asset.id}-${asset.file_name}`;
 
 type AssetWithElements = AssetContracts.IAssetModelContract & { readonly elements: ReadonlyArray<unknown> };
 
@@ -45,12 +46,12 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
 
 const saveAsset = async (zip: JSZip, asset: AssetContracts.IAssetModelContract) => {
   const file = await fetch(asset.url).then(res => res.blob()).then(res => res.arrayBuffer());
-  zip.file(asset.file_name, file);
+  zip.file(createFileName(asset), file);
 };
 
 const createImportAssetFetcher = (zip: JSZip, client: ManagementClient, context: ImportContext) =>
   (fileAsset: AssetContracts.IAssetModelContract) => async (): Promise<readonly [string, string]> => {
-    const binary = await zip.file(fileAsset.file_name)?.async("nodebuffer");
+    const binary = await zip.file(createFileName(fileAsset))?.async("nodebuffer");
 
     if (!binary) {
       throw new Error(`Failed to load a binary file "${fileAsset.file_name}" for asset "${fileAsset.id}".`);
