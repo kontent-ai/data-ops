@@ -18,6 +18,7 @@ import {
 } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
+import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs =>
@@ -57,7 +58,8 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   contentItemsExportEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
-];
+  workflowsEntity,
+;
 
 type ImportEntitiesParams = Readonly<{
   environmentId: string;
@@ -106,4 +108,6 @@ const createInitialContext = (): ImportContext => ({
   contentTypeSnippetIdsWithElementsByOldIds: new Map(),
   contentItemIdsByOldIds: new Map(),
   contentTypeIdsWithElementsByOldIds: new Map(),
+  workflowIdsByOldIds: new Map(),
+  worfklowStepsIdsByOldIds: new Map(),
 });
