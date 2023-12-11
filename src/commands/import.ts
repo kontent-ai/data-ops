@@ -7,9 +7,12 @@ import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
+import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
+import { contentTypesExportEntity } from "./importExportEntities/entities/contentTypes.js";
+import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { EntityDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
+import { DependentImportAction, EntityDefinition, ImportContext, validateEntityDefinitions } from "./importExportEntities/entityDefinition.js";
 
 export const register: RegisterCommand = yargs => yargs.command({
   command: "import <fileName> <environmentId>",
@@ -41,7 +44,15 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   taxonomiesEntity,
   assetFoldersEntity,
   assetsEntity,
+  contentTypesSnippetsEntity,
+  contentTypesExportEntity,
+  contentItemsExportEntity,
 ];
+
+const entityDefinitionValidationErrors = validateEntityDefinitions(entityDefinitions);
+if (entityDefinitionValidationErrors.length) {
+  throw new Error(`Invalid entityDefinitions for import command. Found errors:\n${entityDefinitionValidationErrors.join("; ")}`);
+}
 
 type ImportEntitiesParams = Readonly<{
   environmentId: string;
@@ -60,6 +71,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
   console.log("Importing entities...");
 
   let context = createInitialContext();
+  let waitingDependentActions: ReadonlyArray<WaitingDependentActions<unknown>> = [];
 
   await serially(entityDefinitions.map(def => async () => {
     console.log(`Importing ${def.name}...`);
@@ -68,14 +80,42 @@ const importEntities = async (params: ImportEntitiesParams) => {
       context = await root.file(`${def.name}.json`)
         ?.async("string")
         .then(def.deserializeEntities)
+        .then(fileEntities => {
+          if (def.dependentImportActions?.length) {
+            waitingDependentActions = [...waitingDependentActions, ...def.dependentImportActions.map(action => ({ action, fileEntities }))];
+          }
+          return fileEntities;
+        })
         .then(e => def.importEntities(client, e, context, root))
         ?? context;
 
       console.log(`${def.name} imported`);
     }
     catch (err) {
-      console.error(`Failed to import entity ${def.name} due to error ${JSON.stringify(err)}. Stopping import...`);
+      console.error(`Failed to import entity ${def.name}.`, err, "\nStopping import...");
       process.exit(1);
+    }
+
+    try {
+      waitingDependentActions = waitingDependentActions.map(a => ({
+        ...a,
+        action: {
+          ...a.action,
+          dependentOnEntities: a.action.dependentOnEntities.filter(e => e.name !== def.name),
+        },
+      }));
+
+      const postActions = waitingDependentActions
+        .filter(a => !a.action.dependentOnEntities.length)
+        .map(a => () => a.action.action(client, a.fileEntities, context));
+
+      await serially(postActions);
+
+      waitingDependentActions = waitingDependentActions.filter(a => a.action.dependentOnEntities.length);
+    }
+    catch (err) {
+      console.error(`Failed to execute a ${def.name} post-import action.`, err, "\nStopping import...");
+      process.exit(2);
     }
   }));
 
@@ -89,4 +129,12 @@ const createInitialContext = (): ImportContext => ({
   taxonomyTermIdsByOldIds: new Map(),
   assetFolderIdsByOldIds: new Map(),
   assetIdsByOldIds: new Map(),
+  contentTypeSnippetIdsWithElementsByOldIds: new Map(),
+  contentItemIdsByOldIds: new Map(),
+  contentTypeIdsWithElementsByOldIds: new Map(),
 });
+
+type WaitingDependentActions<T> = Readonly<{
+  action: DependentImportAction<T>;
+  fileEntities: T;
+}>;

@@ -6,6 +6,6 @@ export const contentItemsExportEntity: EntityDefinition<ReadonlyArray<ContentIte
   name: "contentItems",
   fetchEntities: client => client.listContentItems().toAllPromise().then(res => res.data.items.map(i => i._raw)),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: () => { throw new Error("Not supported yet.")},
-  deserializeEntities: () => { throw new Error("Not supported yet.")},
+  importEntities: () => Promise.resolve(),
+  deserializeEntities: JSON.parse,
 };
