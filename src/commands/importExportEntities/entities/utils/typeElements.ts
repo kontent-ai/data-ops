@@ -134,6 +134,7 @@ export const createTransformTypeElement =
         });
       }
       case "snippet": {
+        // check if the provided builder is for a type not a snippet
         if (!("snippetElement" in params.builder)) {
           throw new Error(
             `Type snippet with codename "${params.typeOrSnippetCodename}" has an element (codename: "${element.codename}") of type snippet which is not allowed.`,
@@ -191,12 +192,14 @@ export const createTransformTypeElement =
         });
       }
       case "url_slug": {
-        const typedElement = element as ContentTypeElements.IUrlSlugElement;
+        // check if the provided builder is for a type not a snippet
         if (!("urlSlugElement" in params.builder)) {
           throw new Error(
             `Type snippet with codename "${params.typeOrSnippetCodename}" has en element (codename: "${element.codename}") of type url_slug which is not allowed.`,
           );
         }
+        const typedElement = element as ContentTypeElements.IUrlSlugElement;
+
         return params.builder.urlSlugElement({
           ...typedElement,
           type: "url_slug",
