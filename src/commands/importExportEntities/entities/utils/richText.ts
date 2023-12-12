@@ -2,7 +2,7 @@ import { ImportContext } from "../../entityDefinition.js";
 
 export const replaceRichTextReferences = (richText: string, context: ImportContext): string =>
   richText
-    .replaceAll(assetRegex, (_, assetId) => {
+    .replaceAll(assetRegex, (_, assetId /* from the regex capture group*/) => {
       const newAssetId = context.assetIdsByOldIds.get(assetId);
       if (!newAssetId) {
         console.warn(`Found asset id "${assetId}" in rich text that doesn't exist.`);
@@ -10,7 +10,7 @@ export const replaceRichTextReferences = (richText: string, context: ImportConte
 
       return `${assetAtributeName}="${newAssetId}"`;
     })
-    .replaceAll(itemRegex, (_, itemId) => {
+    .replaceAll(itemRegex, (_, itemId /* from the regex capture group*/) => {
       const newItemId = context.contentItemIdsByOldIds.get(itemId);
       if (!newItemId) {
         console.warn(`Found item id "${itemId}" in rich text that doesn't exist.`);
