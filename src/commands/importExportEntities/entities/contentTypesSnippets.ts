@@ -1,9 +1,10 @@
 import { ContentTypeSnippetContracts, ManagementClient } from "@kontent-ai/management-sdk";
 
+import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { contentItemsExportEntity } from "./contentItems.js";
-import { contentTypesExportEntity } from "./contentTypes.js";
+import { contentTypesEntity } from "./contentTypes.js";
 import { createPatchItemAndTypeReferencesInTypeElement, createTransformTypeElement } from "./utils/typeElements.js";
 
 export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>> = {
@@ -15,14 +16,24 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<ContentT
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileSnippets, context) => {
-    await serially(fileSnippets.map(createInsertSnippetFetcher({
-      context,
-      client,
-    })));
+    const projectSnippets = await serially(fileSnippets.map(createInsertSnippetFetcher({ context, client })));
+
+    return {
+      ...context,
+      contentTypeSnippetIdsWithElementsByOldIds: new Map(
+        zip(fileSnippets, projectSnippets)
+          .map(([fileSnippet, projectSnippet]) => {
+            const elementIdEntries = zip(fileSnippet.elements, projectSnippet.elements)
+              .map(([fileEl, projectEl]) => [fileEl.id ?? "", projectEl.id ?? ""] as const);
+
+            return [fileSnippet.id, { selfId: projectSnippet.id, elementIdsByOldIds: new Map(elementIdEntries) }];
+          })
+      ),
+    };
   },
   dependentImportActions: [
     {
-      dependentOnEntities: [contentItemsExportEntity, contentTypesExportEntity],
+      dependentOnEntities: [contentItemsExportEntity, contentTypesEntity],
       action: async (client, fileSnippets, context) => {
         await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context })));
       },
@@ -50,16 +61,25 @@ const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Co
         contentGroupExternalIdByOldId: new Map(),
       })),
     }))
-    .toPromise();
+    .toPromise()
+    .then(res => res.rawData);
 
 type UpdateSnippetParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
 }>;
 
-const createUpdateSnippetItemAndTypeReferencesFetcher = (params: UpdateSnippetParams) => (snippet: ContentTypeSnippetContracts.IContentTypeSnippetContract) => async () =>
-  params.client
+const createUpdateSnippetItemAndTypeReferencesFetcher = (params: UpdateSnippetParams) => (snippet: ContentTypeSnippetContracts.IContentTypeSnippetContract) => () => {
+  const patchOps = snippet.elements
+    .flatMap(createPatchItemAndTypeReferencesInTypeElement(params.context, c => c.contentTypeSnippetIdsWithElementsByOldIds.get(snippet.id)?.elementIdsByOldIds))
+
+  if (!patchOps.length) {
+    return Promise.resolve();
+  }
+
+  return params.client
     .modifyContentTypeSnippet()
-    .byTypeId(snippet.id)
-    .withData(snippet.elements.flatMap(createPatchItemAndTypeReferencesInTypeElement(params.context, c => c.contentTypeSnippetIdsWithElementsByOldIds.get(snippet.id)?.elementIdsByOldIds)))
+    .byTypeId(params.context.contentTypeSnippetIdsWithElementsByOldIds.get(snippet.id)?.selfId ?? "")
+    .withData(patchOps)
     .toPromise();
+};

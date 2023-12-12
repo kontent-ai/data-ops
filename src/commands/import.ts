@@ -8,7 +8,7 @@ import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
-import { contentTypesExportEntity } from "./importExportEntities/entities/contentTypes.js";
+import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
@@ -45,7 +45,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   assetFoldersEntity,
   assetsEntity,
   contentTypesSnippetsEntity,
-  contentTypesExportEntity,
+  contentTypesEntity,
   contentItemsExportEntity,
 ];
 
