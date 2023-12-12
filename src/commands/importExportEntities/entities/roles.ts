@@ -6,6 +6,10 @@ export const rolesExportEntity: EntityDefinition<ReadonlyArray<RoleContracts.IRo
   name: "roles",
   fetchEntities: client => client.listRoles().toPromise().then(res => res.rawData.roles),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: () => { throw new Error("Not supported yet.")},
-  deserializeEntities: () => { throw new Error("Not supported yet.")},
+  importEntities: () => {
+    throw new Error("Not supported yet.");
+  },
+  deserializeEntities: () => {
+    throw new Error("Not supported yet.");
+  },
 };

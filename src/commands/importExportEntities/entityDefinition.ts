@@ -1,7 +1,7 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import JSZip from "jszip";
 
-export type EntityDefinition<T> =  EntityExportDefinition<T> & EntityImportDefinition<T>;
+export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T>;
 
 export type EntityExportDefinition<T> = Readonly<{
   name: string;
@@ -13,7 +13,12 @@ export type EntityExportDefinition<T> = Readonly<{
 export type EntityImportDefinition<T> = Readonly<{
   name: string;
   deserializeEntities: (serialized: string) => T;
-  importEntities: (client: ManagementClient, entities: T, context: ImportContext, zip: JSZip) => Promise<void | ImportContext>;
+  importEntities: (
+    client: ManagementClient,
+    entities: T,
+    context: ImportContext,
+    zip: JSZip,
+  ) => Promise<void | ImportContext>;
 }>;
 
 export type DependentImportAction<T> = Readonly<{
@@ -28,7 +33,10 @@ export type ImportContext = Readonly<{
   taxonomyTermIdsByOldIds: IdsMap;
   assetFolderIdsByOldIds: IdsMap;
   assetIdsByOldIds: IdsMap;
-  contentTypeSnippetIdsWithElementsByOldIds: ReadonlyMap<string, Readonly<{ selfId: string; elementIdsByOldIds: IdsMap }>>;
+  contentTypeSnippetIdsWithElementsByOldIds: ReadonlyMap<
+    string,
+    Readonly<{ selfId: string; elementIdsByOldIds: IdsMap }>
+  >;
   contentTypeIdsWithElementsByOldIds: ReadonlyMap<string, Readonly<{ selfId: string; elementIdsByOldIds: IdsMap }>>;
   contentItemIdsByOldIds: IdsMap;
 }>;

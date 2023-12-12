@@ -57,18 +57,25 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
   deserializeEntities: JSON.parse,
 };
 
-const findCollectionMatches = (fileCollections: ReadonlyArray<Collection>, projectCollections: ReadonlyArray<Collection>) =>
-  fileCollections.flatMap(fileCollection => projectCollections.map(projectCollection => matchCollections(fileCollection, projectCollection)));
+const findCollectionMatches = (
+  fileCollections: ReadonlyArray<Collection>,
+  projectCollections: ReadonlyArray<Collection>,
+) =>
+  fileCollections.flatMap(fileCollection =>
+    projectCollections.map(projectCollection => matchCollections(fileCollection, projectCollection))
+  );
 
 type MatchResult = Readonly<
-  { match: false } |
-  { match: true; fileCollection: Collection; projectCollection: Collection } |
-  { error: string }
+  | { match: false }
+  | { match: true; fileCollection: Collection; projectCollection: Collection }
+  | { error: string }
 >;
 
 const isMatchError = (matchResult: MatchResult): matchResult is Readonly<{ error: string }> => "error" in matchResult;
 
-const isMatch = (matchResult: MatchResult): matchResult is Readonly<{ match: true; fileCollection: Collection; projectCollection: Collection }> =>
+const isMatch = (
+  matchResult: MatchResult,
+): matchResult is Readonly<{ match: true; fileCollection: Collection; projectCollection: Collection }> =>
   "match" in matchResult && !!matchResult.match;
 
 const matchCollections = (fileCollection: Collection, projectCollection: Collection): MatchResult => {
@@ -76,7 +83,10 @@ const matchCollections = (fileCollection: Collection, projectCollection: Collect
   const externalIdComparison = compareExternalIds(projectCollection.external_id, fileCollection.external_id);
 
   if (!hasSameCodename && externalIdComparison === "Same") {
-    return { error: `Cannot update codename of collections. Collections with external id "${fileCollection.external_id}" have different codenames (file: "${fileCollection.codename}", project: "${projectCollection.codename}").` };
+    return {
+      error:
+        `Cannot update codename of collections. Collections with external id "${fileCollection.external_id}" have different codenames (file: "${fileCollection.codename}", project: "${projectCollection.codename}").`,
+    };
   }
   if (!hasSameCodename) {
     return { match: false };
@@ -88,13 +98,21 @@ const matchCollections = (fileCollection: Collection, projectCollection: Collect
       return { match: true, fileCollection, projectCollection };
 
     case "Different":
-      return { error: `Cannot update external id of collections. Collections with codename "${fileCollection.codename}" have different external ids (file: "${fileCollection.external_id}", project: "${projectCollection.external_id}")` };
+      return {
+        error:
+          `Cannot update external id of collections. Collections with codename "${fileCollection.codename}" have different external ids (file: "${fileCollection.external_id}", project: "${projectCollection.external_id}")`,
+      };
 
     case "OnlyProjectUndefined":
-      return { error: `Cannot update external id of collections. Collection with external id "${fileCollection.external_id}" has the same codename ("${fileCollection.codename}") as a collection in the project that has no external id.` };
+      return {
+        error:
+          `Cannot update external id of collections. Collection with external id "${fileCollection.external_id}" has the same codename ("${fileCollection.codename}") as a collection in the project that has no external id.`,
+      };
 
     default:
-      throw new Error(`Unknown external id comparison result "${externalIdComparison}". This should never happen, please report an issue if you see this.`);
+      throw new Error(
+        `Unknown external id comparison result "${externalIdComparison}". This should never happen, please report an issue if you see this.`,
+      );
   }
 };
 

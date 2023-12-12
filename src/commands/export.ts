@@ -23,29 +23,31 @@ import { EntityExportDefinition } from "./importExportEntities/entityDefinition.
 const zip = new JSZip();
 
 const {
-  version
+  version,
 } = packageFile;
 
-export const register: RegisterCommand = yargs => yargs.command({
-  command: "export <environmentId>",
-  describe: "Exports data from the specified Kontent.ai project.",
-  builder: yargs => yargs
-    .positional("environmentId", {
-      type: "string",
-      description: "Id of the Kontent.ai environment to export",
-      demandOption: "You need to provide the id of the Kontent.ai environment to export.",
-    })
-    .option("fileName", {
-      type: "string",
-      description: "Name of the exported file",
-    })
-    .option("apiKey", {
-      type: "string",
-      description: "Kontent.ai Management API key",
-      demandOption: "Management API key is necessary for export to work."
-    }),
-  handler: args => exportEntities(args),
-});
+export const register: RegisterCommand = yargs =>
+  yargs.command({
+    command: "export <environmentId>",
+    describe: "Exports data from the specified Kontent.ai project.",
+    builder: yargs =>
+      yargs
+        .positional("environmentId", {
+          type: "string",
+          description: "Id of the Kontent.ai environment to export",
+          demandOption: "You need to provide the id of the Kontent.ai environment to export.",
+        })
+        .option("fileName", {
+          type: "string",
+          description: "Name of the exported file",
+        })
+        .option("apiKey", {
+          type: "string",
+          description: "Kontent.ai Management API key",
+          demandOption: "Management API key is necessary for export to work.",
+        }),
+    handler: args => exportEntities(args),
+  });
 
 const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
   collectionsEntity,
@@ -86,8 +88,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
       console.log(`${def.name} exported.`);
       zip.file(`${def.name}.json`, result);
-    }
-    catch (err) {
+    } catch (err) {
       console.error(`Failed to export entity ${def.name} due to error ${JSON.stringify(err)}. Stopping export...`);
       process.exit(1);
     }
@@ -108,7 +109,7 @@ const exportMetadata = async (environmentId: string) => {
     version: version,
     timestamp: new Date(),
     environmentId,
-  }
-  
-  zip.file('metadata.json', JSON.stringify(metadata));
+  };
+
+  zip.file("metadata.json", JSON.stringify(metadata));
 };
