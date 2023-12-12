@@ -2,8 +2,7 @@ import { ContentTypeContracts, ManagementClient } from "@kontent-ai/management-s
 
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { EntityDefinition, ImportContext } from "../entityDefinition.js";
-import { contentItemsExportEntity } from "./contentItems.js";
+import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import { createPatchItemAndTypeReferencesInTypeElement,createTransformTypeElement } from "./utils/typeElements.js";
 
 export const contentTypesEntity: EntityDefinition<ReadonlyArray<ContentTypeContracts.IContentTypeContract>> = {
@@ -31,14 +30,14 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<ContentTypeContr
 
   },
   deserializeEntities: JSON.parse,
-  dependentImportActions: [
-    {
-      dependentOnEntities: [contentItemsExportEntity],
-      action: async (client, fileTypes, context) => {
-        await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context })));
-      }
-    }
-  ]
+};
+
+export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinition<ReadonlyArray<ContentTypeContracts.IContentTypeContract>> = {
+  name: "contentTypes",
+  deserializeEntities: JSON.parse,
+  importEntities: async (client, fileTypes, context) => {
+    await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context })));
+  },
 };
 
 type InsertTypeParams = Readonly<{

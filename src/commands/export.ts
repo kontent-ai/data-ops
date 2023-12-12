@@ -18,7 +18,7 @@ import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
 import { spacesExportEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsExportEntity } from "./importExportEntities/entities/workflows.js";
-import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
+import { EntityExportDefinition } from "./importExportEntities/entityDefinition.js";
 
 const zip = new JSZip();
 
@@ -47,7 +47,7 @@ export const register: RegisterCommand = yargs => yargs.command({
   handler: args => exportEntities(args),
 });
 
-const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
+const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
   collectionsEntity,
   spacesExportEntity,
   taxonomiesEntity,
