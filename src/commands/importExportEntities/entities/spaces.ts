@@ -6,6 +6,10 @@ export const spacesExportEntity: EntityDefinition<ReadonlyArray<SpaceContracts.I
   name: "spaces",
   fetchEntities: client => client.listSpaces().toPromise().then(res => res.rawData),
   serializeEntities: spaces => JSON.stringify(spaces),
-  importEntities: () => { throw new Error("Not supported yet.")},
-  deserializeEntities: () => { throw new Error("Not supported yet.")},
-}
+  importEntities: () => {
+    throw new Error("Not supported yet.");
+  },
+  deserializeEntities: () => {
+    throw new Error("Not supported yet.");
+  },
+};

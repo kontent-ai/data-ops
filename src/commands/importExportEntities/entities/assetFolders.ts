@@ -22,22 +22,31 @@ export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContr
   },
 };
 
-const createPatchToAddFolder = (folder: AssetFolderContracts.IAssetFolderContract): AssetFolderModels.IModifyAssetFoldersData => ({
-    op: "addInto",
-    value: {
-      name: folder.name,
-      external_id: folder.external_id ?? folder.id,
-      folders: folder.folders.map(createSubFolder),
-    },
-  });
+const createPatchToAddFolder = (
+  folder: AssetFolderContracts.IAssetFolderContract,
+): AssetFolderModels.IModifyAssetFoldersData => ({
+  op: "addInto",
+  value: {
+    name: folder.name,
+    external_id: folder.external_id ?? folder.id,
+    folders: folder.folders.map(createSubFolder),
+  },
+});
 
-const createSubFolder = (folder: AssetFolderContracts.IAssetFolderContract): AssetFolderModels.IAddOrModifyAssetFolderData => ({
+const createSubFolder = (
+  folder: AssetFolderContracts.IAssetFolderContract,
+): AssetFolderModels.IAddOrModifyAssetFolderData => ({
   name: folder.name,
   folders: folder.folders.map(createSubFolder),
   external_id: folder.external_id ?? folder.id,
 });
 
-const extractFolderIdEntries = ([fileFolder, projectFolder]: readonly [AssetFolderContracts.IAssetFolderContract, AssetFolderContracts.IAssetFolderContract]): ReadonlyArray<readonly [string, string]> => [
+const extractFolderIdEntries = (
+  [fileFolder, projectFolder]: readonly [
+    AssetFolderContracts.IAssetFolderContract,
+    AssetFolderContracts.IAssetFolderContract,
+  ],
+): ReadonlyArray<readonly [string, string]> => [
   [fileFolder.id, projectFolder.id] as const,
   ...zip(fileFolder.folders, projectFolder.folders).flatMap(extractFolderIdEntries),
 ];

@@ -8,33 +8,41 @@ import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
 import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
-import { contentTypesEntity, updateItemAndTypeReferencesInTypesImportEntity } from "./importExportEntities/entities/contentTypes.js";
-import { contentTypesSnippetsEntity, updateItemAndTypeReferencesInSnippetsImportEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
+import {
+  contentTypesEntity,
+  updateItemAndTypeReferencesInTypesImportEntity,
+} from "./importExportEntities/entities/contentTypes.js";
+import {
+  contentTypesSnippetsEntity,
+  updateItemAndTypeReferencesInSnippetsImportEntity,
+} from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
 
-export const register: RegisterCommand = yargs => yargs.command({
-  command: "import <fileName> <environmentId>",
-  describe: "Imports data into the specified Kontent.ai project.",
-  builder: yargs => yargs
-    .positional("fileName", {
-      type: "string",
-      describe: "The name of the zip file with exported data to import.",
-      demandOption: "You need to provide the export file name.",
-    })
-    .positional("environmentId", {
-      type: "string",
-      describe: "Id of the Kontent.ai environment to export",
-      demandOption: "You need to provide the id of the Kontent.ai environment to import into.",
-    })
-    .option("apiKey", {
-      type: "string",
-      description: "Kontent.ai Management API key",
-      demandOption: "Management API key is necessary for import to work."
-    }),
-  handler: args => importEntities(args),
-});
+export const register: RegisterCommand = yargs =>
+  yargs.command({
+    command: "import <fileName> <environmentId>",
+    describe: "Imports data into the specified Kontent.ai project.",
+    builder: yargs =>
+      yargs
+        .positional("fileName", {
+          type: "string",
+          describe: "The name of the zip file with exported data to import.",
+          demandOption: "You need to provide the export file name.",
+        })
+        .positional("environmentId", {
+          type: "string",
+          describe: "Id of the Kontent.ai environment to export",
+          demandOption: "You need to provide the id of the Kontent.ai environment to import into.",
+        })
+        .option("apiKey", {
+          type: "string",
+          description: "Kontent.ai Management API key",
+          demandOption: "Management API key is necessary for import to work.",
+        }),
+    handler: args => importEntities(args),
+  });
 
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.
@@ -64,7 +72,6 @@ const importEntities = async (params: ImportEntitiesParams) => {
     apiKey: params.apiKey,
   });
 
-
   console.log("Importing entities...");
 
   let context = createInitialContext();
@@ -80,8 +87,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
         ?? context;
 
       console.log(`${def.name} imported`);
-    }
-    catch (err) {
+    } catch (err) {
       console.error(`Failed to import entity ${def.name}.`, err, "\nStopping import...");
       process.exit(1);
     }

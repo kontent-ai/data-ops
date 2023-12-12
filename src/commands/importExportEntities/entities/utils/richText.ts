@@ -5,17 +5,17 @@ export const replaceRichTextReferences = (richText: string, context: ImportConte
     .replaceAll(assetRegex, (_, assetId) => {
       const newAssetId = context.assetIdsByOldIds.get(assetId);
       if (!newAssetId) {
-       console.warn(`Found asset id "${assetId}" in rich text that doesn't exist.`);
+        console.warn(`Found asset id "${assetId}" in rich text that doesn't exist.`);
       }
-      
+
       return `${assetAtributeName}="${newAssetId}"`;
     })
     .replaceAll(itemRegex, (_, itemId) => {
       const newItemId = context.contentItemIdsByOldIds.get(itemId);
       if (!newItemId) {
-       console.warn(`Found item id "${itemId}" in rich text that doesn't exist.`);
+        console.warn(`Found item id "${itemId}" in rich text that doesn't exist.`);
       }
-      
+
       return `${itemAttributeName}="${newItemId}"`;
     });
 

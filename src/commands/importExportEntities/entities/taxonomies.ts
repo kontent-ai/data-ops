@@ -15,13 +15,18 @@ export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.
           .addTaxonomy()
           .withData(addExternalIds(taxonomy))
           .toPromise()
-          .then(res => res.data._raw))
+          .then(res => res.data._raw)
+      ),
     );
 
     return {
       ...context,
       taxonomyGroupIdsByOldIds: new Map(zip(fileTaxonomies.map(t => t.id), projectTaxonomies.map(t => t.id))),
-      taxonomyTermIdsByOldIds: new Map(zip(fileTaxonomies.flatMap(t => t.terms), projectTaxonomies.flatMap(t => t.terms)).flatMap(extractTermIdsEntries)),
+      taxonomyTermIdsByOldIds: new Map(
+        zip(fileTaxonomies.flatMap(t => t.terms), projectTaxonomies.flatMap(t => t.terms)).flatMap(
+          extractTermIdsEntries,
+        ),
+      ),
     };
   },
   deserializeEntities: JSON.parse,
@@ -33,7 +38,9 @@ const addExternalIds = (taxonomy: TaxonomyContracts.ITaxonomyContract): Taxonomy
   terms: taxonomy.terms.map(addExternalIds),
 });
 
-const extractTermIdsEntries = ([fileTaxonomy, projectTaxonomy]: readonly [TaxonomyContracts.ITaxonomyContract, TaxonomyContracts.ITaxonomyContract]): ReadonlyArray<readonly [string, string]> => [
+const extractTermIdsEntries = (
+  [fileTaxonomy, projectTaxonomy]: readonly [TaxonomyContracts.ITaxonomyContract, TaxonomyContracts.ITaxonomyContract],
+): ReadonlyArray<readonly [string, string]> => [
   [fileTaxonomy.id, projectTaxonomy.id] as const,
   ...zip(fileTaxonomy.terms, projectTaxonomy.terms).flatMap(extractTermIdsEntries),
 ];

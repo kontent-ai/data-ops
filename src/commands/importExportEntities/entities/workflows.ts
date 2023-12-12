@@ -6,6 +6,10 @@ export const workflowsExportEntity: EntityDefinition<WorkflowContracts.IListWork
   name: "workflows",
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: () => { throw new Error("Not supported yet.")},
-  deserializeEntities: () => { throw new Error("Not supported yet.")},
+  importEntities: () => {
+    throw new Error("Not supported yet.");
+  },
+  deserializeEntities: () => {
+    throw new Error("Not supported yet.");
+  },
 };
