@@ -1,6 +1,6 @@
 {
   "extends": "https://raw.githubusercontent.com/kontent-ai/dprint-config/main/dprint.json",
   "includes": [
-    "src"
+    "src/**/*.{ts,tsx,js,jsx,json}"
   ]
 }
