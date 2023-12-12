@@ -1,5 +1,6 @@
 import { ContentTypeElements, ContentTypeElementsBuilder, ContentTypeSnippetElements, ContentTypeSnippetModels, ElementContracts } from "@kontent-ai/management-sdk";
 
+import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { ImportContext } from "../../entityDefinition.js";
 import { replaceRichTextReferences } from "./richText.js";
 
@@ -163,7 +164,7 @@ export const createTransformTypeElement = (params: TransformTypeElementParams) =
           element: typedElement.depends_on.snippet 
               ? { id: params.context.contentTypeSnippetIdsWithElementsByOldIds.get(typedElement.depends_on.snippet.id ?? "")?.elementIdsByOldIds.get(typedElement.depends_on.element.id ?? "") ?? ""  }
               : { external_id: params.elementExternalIdsByOldId.get(typedElement.depends_on.element.id ?? "") },
-          snippet: { id: typedElement.depends_on.snippet ? params.context.contentTypeSnippetIdsWithElementsByOldIds.get(typedElement.depends_on.snippet.id ?? "")?.selfId : undefined },
+          snippet: typedElement.depends_on.snippet?.id ? { id: params.context.contentTypeSnippetIdsWithElementsByOldIds.get(typedElement.depends_on.snippet.id)?.selfId } : undefined,
         },
       })
     }
@@ -194,12 +195,13 @@ export const createPatchItemAndTypeReferencesInTypeElement = (context: ImportCon
 
       case "guidelines": {
         const typedElement = fileElement as unknown as ContentTypeElements.IGuidelinesElement;
+        const newGuidelines = replaceRichTextReferences(typedElement.guidelines, context);
 
-        return [
+        return newGuidelines === typedElement.guidelines ? [] : [
           {
             op: "replace",
             path: `/elements/id:${newElementId}/guidelines`,
-            value: replaceRichTextReferences(typedElement.guidelines, context),
+            value: newGuidelines,
           },
         ];
       }
@@ -207,49 +209,49 @@ export const createPatchItemAndTypeReferencesInTypeElement = (context: ImportCon
         const typedElement = fileElement as ContentTypeElements.ILinkedItemsElement;
 
         return [
-          {
-            op: "replace",
+          typedElement.allowed_content_types && {
+            op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_content_types`,
-            value: typedElement.allowed_content_types?.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
+            value: typedElement.allowed_content_types.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
           },
-          {
-            op: "replace",
+          typedElement.default && {
+            op: "replace" as const,
             path: `/elements/id:${newElementId}/default`,
-            value: typedElement.default ? { global: { value: typedElement.default.global.value.map(ref => ({ id: context.contentItemIdsByOldIds.get(ref.id ?? "") })) } } : undefined,
+            value: { global: { value: typedElement.default.global.value.map(ref => ({ id: context.contentItemIdsByOldIds.get(ref.id ?? "") })) } },
           },
-        ];
+        ].filter(notNullOrUndefined);
       }
       case "rich_text": {
         const typedElement = fileElement as ContentTypeElements.IRichTextElement;
 
         return [
-          {
-            op: "replace",
+          typedElement.allowed_content_types && {
+            op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_content_types`,
-            value: typedElement.allowed_content_types?.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
+            value: typedElement.allowed_content_types.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
           },
-          {
-            op: "replace",
+          typedElement.allowed_item_link_types && {
+            op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_item_link_types`,
-            value: typedElement.allowed_item_link_types?.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
+            value: typedElement.allowed_item_link_types.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
           },
-        ];
+        ].filter(notNullOrUndefined);
       }
       case "subpages": {
         const typedElement = fileElement as ContentTypeElements.ISubpagesElement & { readonly default: ContentTypeElements.ILinkedItemsElement["default"] }; // Bad types from the SDK, remove once fixed
 
         return [
-          {
-            op: "replace",
+          typedElement.allowed_content_types && {
+            op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_content_types`,
-            value: typedElement.allowed_content_types?.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
+            value: typedElement.allowed_content_types.map(ref => ({ id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId })),
           },
-          {
-            op: "replace",
+          typedElement.default && {
+            op: "replace" as const,
             path: `/elements/id:${newElementId}/default`,
-            value: typedElement.default ? { global: { value: typedElement.default.global.value.map(ref => ({ id: context.contentItemIdsByOldIds.get(ref.id ?? "") })) } } : undefined,
+            value: { global: { value: typedElement.default.global.value.map(ref => ({ id: context.contentItemIdsByOldIds.get(ref.id ?? "") })) } },
           },
-        ];
+        ].filter(notNullOrUndefined);
       }
       default: {
         throw new Error(`Found a type element that is of unknown type "${fileElement.type}".`);
