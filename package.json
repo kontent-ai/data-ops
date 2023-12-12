@@ -7,6 +7,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext ts,tsx",
+    "fmt": "dprint fmt",
+    "fmt:check": "dprint check",
     "start": "npm run build && node ./build/src/index.js"
   },
   "repository": {
