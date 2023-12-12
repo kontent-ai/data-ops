@@ -2,9 +2,7 @@ import { ContentTypeSnippetContracts, ManagementClient } from "@kontent-ai/manag
 
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { EntityDefinition, ImportContext } from "../entityDefinition.js";
-import { contentItemsExportEntity } from "./contentItems.js";
-import { contentTypesEntity } from "./contentTypes.js";
+import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import { createPatchItemAndTypeReferencesInTypeElement, createTransformTypeElement } from "./utils/typeElements.js";
 
 export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>> = {
@@ -31,14 +29,14 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<ContentT
       ),
     };
   },
-  dependentImportActions: [
-    {
-      dependentOnEntities: [contentItemsExportEntity, contentTypesEntity],
-      action: async (client, fileSnippets, context) => {
-        await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context })));
-      },
-    },
-  ],
+};
+
+export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>> = {
+  name: "contentTypesSnippets",
+  deserializeEntities: JSON.parse,
+  importEntities: async (client, fileSnippets, context) => {
+    await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context })));
+  },
 };
 
 type InsertSnippetParams = Readonly<{
