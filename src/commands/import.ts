@@ -59,7 +59,7 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   updateItemAndTypeReferencesInSnippetsImportEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
   workflowsEntity,
-;
+];
 
 type ImportEntitiesParams = Readonly<{
   environmentId: string;

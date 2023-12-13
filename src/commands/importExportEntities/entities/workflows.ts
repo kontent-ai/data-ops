@@ -1,46 +1,51 @@
 import { ManagementClient, WorkflowContracts, WorkflowModels } from "@kontent-ai/management-sdk";
 
+import { emptyId } from "../../../constants/ids.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { EntityDefinition } from "../entityDefinition.js";
+import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
-const defaultWorkflowId = "00000000-0000-0000-0000-000000000000";
+const defaultWorkflowId = emptyId;
 
 export const workflowsEntity: EntityDefinition<WorkflowContracts.IListWorkflowsResponseContract> = {
   name: "workflows",
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, entities, context) => {
-    const projectWorkflows = await client.listWorkflows().toPromise().then(res => res.data);
-    const projectDefaultWorkflow = projectWorkflows.find(w => w.id === defaultWorkflowId) as WorkflowModels.Workflow;
-    const importDefaultWorkflow = entities.find(w => w.id === defaultWorkflowId) as WorkflowContracts.IWorkflowContract;
+  importEntities: async (client, importWfs, context) => {
+    const oldProjectDefaultWf = await client.listWorkflows().toPromise()
+      .then(res => res.data.find(w => w.id === defaultWorkflowId));
+    const importDefaultWf = importWfs.find(w => w.id === defaultWorkflowId);
 
-    await updateWorkflow(client, projectDefaultWorkflow, importDefaultWorkflow, entities, context);
-    const newProjectWorkflows = await addWorkflows(client, entities, context);
+    if (!importDefaultWf || !oldProjectDefaultWf) {
+      throw new Error(`The default workflow is missing in the imported file or the project to import into.`);
+    }
+
+    const projectDefaultWf = await updateWorkflow(client, oldProjectDefaultWf, importDefaultWf, context);
+    const newProjectWfs = await addWorkflows(client, importWfs, context);
+
+    const newDefaultWfStepIdEntries = zip(extractAllStepIds(importDefaultWf), extractAllStepIds(projectDefaultWf));
 
     return {
       ...context,
-      workflowIdsByOldIds: new Map(newProjectWorkflows.workflows),
-      worfklowStepsIdsByOldIds: new Map(newProjectWorkflows.workflowSteps),
+      workflowIdsByOldIds: new Map([...newProjectWfs.workflows, [defaultWorkflowId, defaultWorkflowId]]),
+      worfklowStepsIdsByOldIds: new Map([...newProjectWfs.workflowSteps, ...newDefaultWfStepIdEntries]),
     };
   },
 };
 
-const createWorkflowData = (
-  importWorkflow: WorkflowContracts.IWorkflowContract,
-  importWorkflows: WorkflowContracts.IListWorkflowsResponseContract,
-  context: any,
-) => ({
+const createWorkflowData = (importWorkflow: WorkflowContracts.IWorkflowContract, context: ImportContext) => ({
   ...importWorkflow,
   scopes: importWorkflow.scopes.map(scope => ({
-    content_types: scope.content_types.map(type => context.contenTypesIdsByOldIds.get(type.id)),
-    collections: scope.collections.map(collection => context.collectionIdsByOldIds.get(collection.id)),
+    content_types: scope.content_types
+      .map(type => ({ id: context.contentTypeIdsWithElementsByOldIds.get(type.id ?? "")?.selfId })),
+    collections: scope.collections.map(collection => ({ id: context.collectionIdsByOldIds.get(collection.id ?? "") })),
   })),
   steps: importWorkflow.steps.map(step => ({
     ...step,
+    role_ids: [],
     transitions_to: step.transitions_to.map(transition => {
-      const transitionWorkflow = importWorkflows.find(t => t.id === transition.step.id);
+      const transitionWorkflow = extractAllSteps(importWorkflow).find(s => s.id === transition.step.id);
 
       if (!transitionWorkflow) {
         throw new Error(`Could not find worklow step with id ${transition.step.id}. This should never happen.`);
@@ -64,19 +69,19 @@ const updateWorkflow = async (
   client: ManagementClient,
   projectWorkflow: WorkflowModels.Workflow,
   importWorkflow: WorkflowContracts.IWorkflowContract,
-  importWorkflows: WorkflowContracts.IListWorkflowsResponseContract,
-  context: any,
+  context: ImportContext,
 ) =>
   client
     .updateWorkflow()
     .byWorkflowId(projectWorkflow.id)
-    .withData(createWorkflowData(importWorkflow, importWorkflows, context))
-    .toPromise();
+    .withData(createWorkflowData(importWorkflow, context))
+    .toPromise()
+    .then(res => res.rawData);
 
 const addWorkflows = async (
   client: ManagementClient,
   importWorkflows: WorkflowContracts.IListWorkflowsResponseContract,
-  context: any,
+  context: ImportContext,
 ) => {
   const responses = await serially(
     importWorkflows
@@ -84,24 +89,31 @@ const addWorkflows = async (
       .map(importWorkflow => async () => {
         const response = await client
           .addWorkflow()
-          .withData(createWorkflowData(importWorkflow, importWorkflows, context))
+          .withData(createWorkflowData(importWorkflow, context))
           .toPromise()
-          .then(res => res.data);
+          .then(res => res.rawData);
 
-        const stepsIds = zip(response.steps, importWorkflow.steps)
-          .map(([projectTaxonomy, importTaxonomy]) => [importTaxonomy.id, projectTaxonomy.id] as const)
-          .concat([
-            [importWorkflow.published_step.id, response.publishedStep.id] as const,
-            [importWorkflow.archived_step.id, response.archivedStep.id] as const,
-          ]);
+        const stepsIds = zip(extractAllStepIds(importWorkflow), extractAllStepIds(response));
 
-        return Promise.resolve({ workflow: [importWorkflow.id, response.id] as const, workflowSteps: stepsIds });
+        return { workflow: [importWorkflow.id, response.id] as const, workflowSteps: stepsIds };
       }),
   );
 
   return responses
-    .reduce((prev, current) => ({
+    .reduce<ContextWorkflowEntries>((prev, current) => ({
       workflows: prev.workflows.concat([current.workflow]),
       workflowSteps: prev.workflowSteps.concat(current.workflowSteps),
-    }), { workflows: [] as (readonly [string, string])[], workflowSteps: [] as (readonly [string, string])[] });
+    }), { workflows: [], workflowSteps: [] });
 };
+
+type ContextWorkflowEntries = Readonly<{
+  workflows: ReadonlyArray<readonly [string, string]>;
+  workflowSteps: ReadonlyArray<readonly [string, string]>;
+}>;
+
+type AnyStep = Readonly<{ id: string; name: string; codename: string }>;
+const extractAllSteps = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<AnyStep> =>
+  (wf.steps as AnyStep[]).concat([wf.scheduled_step, wf.published_step, wf.archived_step]);
+
+const extractAllStepIds = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<string> =>
+  extractAllSteps(wf).map(s => s.id);

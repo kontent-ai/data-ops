@@ -1,10 +1,11 @@
 import { LanguageContracts, LanguageModels, ManagementClient } from "@kontent-ai/management-sdk";
 
+import { emptyId } from "../../../constants/ids.js";
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-const defaultLanguageId = "00000000-0000-0000-0000-000000000000";
+const defaultLanguageId = emptyId;
 
 export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.ILanguageModelContract>> = {
   name: "languages",
