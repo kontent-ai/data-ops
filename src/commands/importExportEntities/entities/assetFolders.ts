@@ -9,6 +9,10 @@ export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContr
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileFolders, context) => {
+    if (!fileFolders.length) {
+      return;
+    }
+
     const projectFolders = await client
       .modifyAssetFolders()
       .withData(fileFolders.map(createPatchToAddFolder))
