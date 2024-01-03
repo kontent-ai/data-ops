@@ -18,6 +18,7 @@ import {
 } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
 import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
+import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
 import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
@@ -62,6 +63,7 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   updateItemAndTypeReferencesInTypesImportEntity,
   workflowsEntity,
   spacesEntity,
+  previewUrlsEntity,
   languageVariantsEntity,
 ];
 
@@ -115,5 +117,4 @@ const createInitialContext = (): ImportContext => ({
   workflowIdsByOldIds: new Map(),
   worfklowStepsIdsWithTransitionsByOldIds: new Map(),
   spaceIdsByOldIds: new Map(),
-  contentTypeIdsWithElementsByOldIds: new Map(),
 });
