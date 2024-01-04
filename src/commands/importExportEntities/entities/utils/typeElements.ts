@@ -94,7 +94,10 @@ export const createTransformTypeElement =
           type: "multiple_choice",
           external_id: typedElement.external_id ?? fallbackExternalId,
           content_group,
-          options: typedElement.options.map(o => ({ ...o, external_id: o.external_id ?? o.codename })),
+          options: typedElement.options.map(o => ({
+            ...o,
+            external_id: o.external_id ?? `${params.typeOrSnippetCodename}_${typedElement.codename}_${o.codename}`,
+          })),
           default: typedElement.default
             ? {
               global: {
@@ -148,7 +151,7 @@ export const createTransformTypeElement =
           external_id: typedElement.external_id ?? fallbackExternalId,
           content_group,
           snippet: {
-            id: params.context.contentTypeSnippetIdsWithElementsByOldIds.get(typedElement.snippet.id ?? "")?.selfId,
+            id: params.context.contentTypeSnippetContextByOldIds.get(typedElement.snippet.id ?? "")?.selfId,
           },
         });
       }
@@ -208,14 +211,15 @@ export const createTransformTypeElement =
           depends_on: {
             element: typedElement.depends_on.snippet
               ? {
-                id:
-                  params.context.contentTypeSnippetIdsWithElementsByOldIds.get(typedElement.depends_on.snippet.id ?? "")
-                    ?.elementIdsByOldIds.get(typedElement.depends_on.element.id ?? "") ?? "",
+                id: params.context.contentTypeSnippetContextByOldIds.get(
+                  typedElement.depends_on.snippet.id ?? "",
+                )
+                  ?.elementIdsByOldIds.get(typedElement.depends_on.element.id ?? "") ?? "",
               }
               : { external_id: params.elementExternalIdsByOldId.get(typedElement.depends_on.element.id ?? "") },
             snippet: typedElement.depends_on.snippet?.id
               ? {
-                id: params.context.contentTypeSnippetIdsWithElementsByOldIds.get(typedElement.depends_on.snippet.id)
+                id: params.context.contentTypeSnippetContextByOldIds.get(typedElement.depends_on.snippet.id)
                   ?.selfId,
               }
               : undefined,
@@ -229,11 +233,12 @@ export const createTransformTypeElement =
   };
 
 export const createPatchItemAndTypeReferencesInTypeElement =
-  (context: ImportContext, pickElementsByOldIds: (context: ImportContext) => ReadonlyMap<string, string> | undefined) =>
+  (context: ImportContext, elementsByOldIds: ReadonlyMap<string, string> | undefined) =>
   (
     fileElement: ElementContracts.IContentTypeElementContract,
   ): ReadonlyArray<ContentTypeSnippetModels.IModifyContentTypeSnippetData> => {
-    const newElementId = pickElementsByOldIds(context)?.get(fileElement.id ?? "");
+    const newElementId = elementsByOldIds?.get(fileElement.id ?? "");
+
     if (!newElementId) {
       throw new Error(
         `Failed to find new element id for element (codename: "${fileElement.codename}", id: "${fileElement.id}").`,
@@ -254,7 +259,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
 
       case "guidelines": {
         const typedElement = fileElement as unknown as ContentTypeElements.IGuidelinesElement;
-        const newGuidelines = replaceRichTextReferences(typedElement.guidelines, context);
+        const newGuidelines = replaceRichTextReferences(typedElement.guidelines, context, new Set());
 
         return newGuidelines === typedElement.guidelines ? [] : [
           {
@@ -272,7 +277,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_content_types`,
             value: typedElement.allowed_content_types.map(ref => ({
-              id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId,
+              id: context.contentTypeContextByOldIds.get(ref.id ?? "")?.selfId,
             })),
           },
           typedElement.default && {
@@ -281,7 +286,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             value: {
               global: {
                 value: typedElement.default.global.value.map(ref => ({
-                  id: context.contentItemIdsByOldIds.get(ref.id ?? ""),
+                  id: context.contentItemContextByOldIds.get(ref.id ?? ""),
                 })),
               },
             },
@@ -296,14 +301,14 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_content_types`,
             value: typedElement.allowed_content_types.map(ref => ({
-              id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId,
+              id: context.contentTypeContextByOldIds.get(ref.id ?? "")?.selfId,
             })),
           },
           typedElement.allowed_item_link_types && {
             op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_item_link_types`,
             value: typedElement.allowed_item_link_types.map(ref => ({
-              id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId,
+              id: context.contentTypeContextByOldIds.get(ref.id ?? "")?.selfId,
             })),
           },
         ].filter(notNullOrUndefined);
@@ -318,7 +323,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             op: "replace" as const,
             path: `/elements/id:${newElementId}/allowed_content_types`,
             value: typedElement.allowed_content_types.map(ref => ({
-              id: context.contentTypeIdsWithElementsByOldIds.get(ref.id ?? "")?.selfId,
+              id: context.contentTypeContextByOldIds.get(ref.id ?? "")?.selfId,
             })),
           },
           typedElement.default && {
@@ -327,7 +332,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             value: {
               global: {
                 value: typedElement.default.global.value.map(ref => ({
-                  id: context.contentItemIdsByOldIds.get(ref.id ?? ""),
+                  id: context.contentItemContextByOldIds.get(ref.id ?? ""),
                 })),
               },
             },

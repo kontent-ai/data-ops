@@ -12,7 +12,7 @@ import { contentItemsExportEntity } from "./importExportEntities/entities/conten
 import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
-import { languageVariantsExportEntity } from "./importExportEntities/entities/languageVariants.js";
+import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
 import { previewUrlsExportEntity } from "./importExportEntities/entities/previewUrls.js";
 import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
 import { spacesExportEntity } from "./importExportEntities/entities/spaces.js";
@@ -60,7 +60,7 @@ const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
   contentTypesSnippetsEntity,
   contentTypesEntity,
   contentItemsExportEntity,
-  languageVariantsExportEntity,
+  languageVariantsEntity,
   assetFoldersEntity,
   assetsEntity,
 ];

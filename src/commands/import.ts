@@ -17,6 +17,7 @@ import {
   updateItemAndTypeReferencesInSnippetsImportEntity,
 } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
+import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
@@ -59,6 +60,7 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   updateItemAndTypeReferencesInSnippetsImportEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
   workflowsEntity,
+  languageVariantsEntity,
 ];
 
 type ImportEntitiesParams = Readonly<{
@@ -105,9 +107,9 @@ const createInitialContext = (): ImportContext => ({
   taxonomyTermIdsByOldIds: new Map(),
   assetFolderIdsByOldIds: new Map(),
   assetIdsByOldIds: new Map(),
-  contentTypeSnippetIdsWithElementsByOldIds: new Map(),
-  contentItemIdsByOldIds: new Map(),
-  contentTypeIdsWithElementsByOldIds: new Map(),
+  contentTypeSnippetContextByOldIds: new Map(),
+  contentItemContextByOldIds: new Map(),
+  contentTypeContextByOldIds: new Map(),
   workflowIdsByOldIds: new Map(),
-  worfklowStepsIdsByOldIds: new Map(),
+  worfklowStepsIdsWithTransitionsByOldIds: new Map(),
 });

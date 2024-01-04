@@ -15,7 +15,10 @@ export const contentItemsExportEntity: EntityDefinition<ReadonlyArray<ContentIte
 
       return {
         ...context,
-        contentItemIdsByOldIds: new Map(zip(fileItems, projectItems).map(([fItem, pItem]) => [fItem.id, pItem.id])),
+        contentItemContextByOldIds: new Map(
+          zip(fileItems, projectItems)
+            .map(([fItem, pItem]) => [fItem.id, { selfId: pItem.id, oldTypeId: fItem.type.id ?? "" }]),
+        ),
       };
     },
   };
@@ -28,7 +31,7 @@ const createImportItemFetcher =
       .addContentItem()
       .withData({
         ...fileItem,
-        type: { id: context.contentTypeIdsWithElementsByOldIds.get(fileItem.type.id ?? "")?.selfId },
+        type: { id: context.contentTypeContextByOldIds.get(fileItem.type.id ?? "")?.selfId },
         collection: { id: context.collectionIdsByOldIds.get(fileItem.collection.id ?? "") },
         external_id: fileItem.external_id ?? fileItem.codename,
       })

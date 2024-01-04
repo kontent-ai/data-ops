@@ -1,7 +1,8 @@
-import { ContentTypeContracts, ManagementClient } from "@kontent-ai/management-sdk";
+import { ContentTypeContracts, ContentTypeElements, ManagementClient } from "@kontent-ai/management-sdk";
 
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
+import { MapValues } from "../../../utils/types.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import { createPatchItemAndTypeReferencesInTypeElement, createTransformTypeElement } from "./utils/typeElements.js";
 
@@ -18,15 +19,7 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<ContentTypeContr
 
     return {
       ...context,
-      contentTypeIdsWithElementsByOldIds: new Map(
-        zip(fileTypes, projectTypes)
-          .map(([fileType, projectType]) => {
-            const elementIdEntries = zip(fileType.elements, projectType.elements)
-              .map(([fileEl, projectEl]) => [fileEl.id ?? "", projectEl.id ?? ""] as const);
-
-            return [fileType.id, { selfId: projectType.id, elementIdsByOldIds: new Map(elementIdEntries) }];
-          }),
-      ),
+      contentTypeContextByOldIds: new Map(zip(fileTypes, projectTypes).map(createMakeTypeContextByOldIdEntry(context))),
     };
   },
   deserializeEntities: JSON.parse,
@@ -46,6 +39,72 @@ type InsertTypeParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
 }>;
+
+const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
+(
+  [fileType, projectType]: readonly [
+    ContentTypeContracts.IContentTypeContract,
+    ContentTypeContracts.IAddContentTypeResponseContract,
+  ],
+): readonly [string, MapValues<ImportContext["contentTypeContextByOldIds"]>] => {
+  const elementIdEntries = zip(fileType.elements, projectType.elements)
+    .flatMap(([fileEl, projectEl]) => {
+      if (fileEl.type === "snippet") {
+        const typedEl = fileEl as unknown as ContentTypeElements.ISnippetElement;
+        return [...context.contentTypeSnippetContextByOldIds.get(typedEl.snippet.id ?? "")?.elementIdsByOldIds ?? []];
+      }
+
+      return [[fileEl.id ?? "", projectEl.id ?? ""] as const];
+    });
+
+  return [fileType.id, {
+    selfId: projectType.id,
+    elementIdsByOldIds: new Map(elementIdEntries),
+    elementTypeByOldIds: new Map(
+      fileType.elements
+        .flatMap(el => {
+          if (el.type === "snippet") {
+            const typedEl = el as unknown as ContentTypeElements.ISnippetElement;
+            return [
+              ...context.contentTypeSnippetContextByOldIds.get(typedEl.snippet.id ?? "")
+                ?.elementTypeByOldIds ?? [],
+            ];
+          }
+
+          return [[el.id ?? "", el.type]];
+        }),
+    ),
+    multiChoiceOptionIdsByOldIdsByOldElementId: new Map(
+      fileType.elements
+        .flatMap(el => {
+          switch (el.type) {
+            case "snippet": {
+              const typedEl = el as unknown as ContentTypeElements.ISnippetElement;
+              return [
+                ...context.contentTypeSnippetContextByOldIds.get(typedEl.snippet.id ?? "")
+                  ?.multiChoiceOptionIdsByOldIdsByOldElementId ?? [],
+              ];
+            }
+            case "multiple_choice": {
+              const typedEl = el as unknown as ContentTypeElements.IMultipleChoiceElement;
+              const typedProjectEl = projectType.elements.find(e =>
+                e.id === el.id
+              ) as ContentTypeElements.IMultipleChoiceElement;
+
+              return [[
+                el.id ?? "",
+                new Map(
+                  zip(typedEl.options, typedProjectEl.options).map(([fO, pO]) => [fO.id ?? "", pO.id ?? ""]),
+                ),
+              ]];
+            }
+            default:
+              return [];
+          }
+        }),
+    ),
+  }];
+};
 
 const createInsertTypeFetcher =
   (params: InsertTypeParams) => (type: ContentTypeContracts.IContentTypeContract) => async () =>
@@ -79,10 +138,11 @@ type UpdateTypeParams = Readonly<{
 const createUpdateTypeItemReferencesFetcher =
   (params: UpdateTypeParams) => (type: ContentTypeContracts.IContentTypeContract) => () => {
     const patchOps = type.elements
+      .filter(el => el.type !== "snippet") // We don't need to update snippet elements and snippets are expanded (not present) in the elementIdsByOldIds context
       .flatMap(
         createPatchItemAndTypeReferencesInTypeElement(
           params.context,
-          c => c.contentTypeIdsWithElementsByOldIds.get(type.id)?.elementIdsByOldIds,
+          params.context.contentTypeContextByOldIds.get(type.id)?.elementIdsByOldIds,
         ),
       );
 
@@ -92,7 +152,7 @@ const createUpdateTypeItemReferencesFetcher =
 
     return params.client
       .modifyContentType()
-      .byTypeId(params.context.contentTypeIdsWithElementsByOldIds.get(type.id)?.selfId ?? "")
+      .byTypeCodename(type.codename)
       .withData(patchOps)
       .toPromise();
   };
