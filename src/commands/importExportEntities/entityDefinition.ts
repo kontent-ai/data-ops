@@ -33,14 +33,48 @@ export type ImportContext = Readonly<{
   taxonomyTermIdsByOldIds: IdsMap;
   assetFolderIdsByOldIds: IdsMap;
   assetIdsByOldIds: IdsMap;
-  contentTypeSnippetIdsWithElementsByOldIds: ReadonlyMap<
+  contentTypeSnippetContextByOldIds: ReadonlyMap<
     string,
-    Readonly<{ selfId: string; elementIdsByOldIds: IdsMap }>
+    Readonly<{
+      selfId: string;
+      elementIdsByOldIds: IdsMap;
+      elementTypeByOldIds: ReadonlyMap<string, string>;
+      multiChoiceOptionIdsByOldIdsByOldElementId: ReadonlyMap<string, IdsMap>;
+    }>
   >;
-  contentTypeIdsWithElementsByOldIds: ReadonlyMap<string, Readonly<{ selfId: string; elementIdsByOldIds: IdsMap }>>;
-  contentItemIdsByOldIds: IdsMap;
-  workflowIdsByOldIds: IdsMap;
-  worfklowStepsIdsByOldIds: IdsMap;
+  contentTypeContextByOldIds: ReadonlyMap<
+    string,
+    Readonly<{
+      selfId: string;
+      /**
+       * This does have snippet elements inlined.
+       */
+      elementIdsByOldIds: IdsMap;
+      /**
+       * This does have snippet elements inlined.
+       */
+      elementTypeByOldIds: ReadonlyMap<string, string>;
+      /**
+       * This does have snippet elements inlined.
+       */
+      multiChoiceOptionIdsByOldIdsByOldElementId: ReadonlyMap<string, IdsMap>;
+    }>
+  >;
+  contentItemContextByOldIds: ReadonlyMap<string, Readonly<{ selfId: string; oldTypeId: string }>>;
+  workflowIdsByOldIds: ReadonlyMap<
+    string,
+    Readonly<{
+      selfId: string;
+      oldPublishedStepId: string;
+      oldScheduledStepId: string;
+      oldArchivedStepId: string;
+      anyStepIdLeadingToPublishedStep: string;
+    }>
+  >;
+  worfklowStepsIdsWithTransitionsByOldIds: ReadonlyMap<
+    string,
+    Readonly<{ selfId: string; oldTransitionIds: ReadonlyArray<string> }>
+  >;
 }>;
 
 type IdsMap = ReadonlyMap<string, string>;

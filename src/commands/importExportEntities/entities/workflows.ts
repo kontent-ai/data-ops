@@ -3,6 +3,7 @@ import { ManagementClient, WorkflowContracts, WorkflowModels } from "@kontent-ai
 import { emptyId } from "../../../constants/ids.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
+import { MapValues } from "../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const defaultWorkflowId = emptyId;
@@ -24,12 +25,20 @@ export const workflowsEntity: EntityDefinition<WorkflowContracts.IListWorkflowsR
     const projectDefaultWf = await updateWorkflow(client, oldProjectDefaultWf, importDefaultWf, context);
     const newProjectWfs = await addWorkflows(client, importWfs, context);
 
-    const newDefaultWfStepIdEntries = zip(extractAllStepIds(importDefaultWf), extractAllStepIds(projectDefaultWf));
+    const newDefaultWfStepIdEntries = extractStepIdEntriesWithContext(importDefaultWf, projectDefaultWf);
+    const defaultWorkflowContext = {
+      selfId: defaultWorkflowId,
+      oldArchivedStepId: importDefaultWf.archived_step.id,
+      oldScheduledStepId: importDefaultWf.scheduled_step.id,
+      oldPublishedStepId: importDefaultWf.published_step.id,
+      anyStepIdLeadingToPublishedStep: importDefaultWf.steps
+        .find(s => s.transitions_to.find(t => t.step.id === importDefaultWf.published_step.id))?.id ?? "",
+    };
 
     return {
       ...context,
-      workflowIdsByOldIds: new Map([...newProjectWfs.workflows, [defaultWorkflowId, defaultWorkflowId]]),
-      worfklowStepsIdsByOldIds: new Map([...newProjectWfs.workflowSteps, ...newDefaultWfStepIdEntries]),
+      workflowIdsByOldIds: new Map([...newProjectWfs.workflows, [defaultWorkflowId, defaultWorkflowContext]]),
+      worfklowStepsIdsWithTransitionsByOldIds: new Map([...newProjectWfs.workflowSteps, ...newDefaultWfStepIdEntries]),
     };
   },
 };
@@ -38,7 +47,7 @@ const createWorkflowData = (importWorkflow: WorkflowContracts.IWorkflowContract,
   ...importWorkflow,
   scopes: importWorkflow.scopes.map(scope => ({
     content_types: scope.content_types
-      .map(type => ({ id: context.contentTypeIdsWithElementsByOldIds.get(type.id ?? "")?.selfId })),
+      .map(type => ({ id: context.contentTypeContextByOldIds.get(type.id ?? "")?.selfId })),
     collections: scope.collections.map(collection => ({ id: context.collectionIdsByOldIds.get(collection.id ?? "") })),
   })),
   steps: importWorkflow.steps.map(step => ({
@@ -93,9 +102,17 @@ const addWorkflows = async (
           .toPromise()
           .then(res => res.rawData);
 
-        const stepsIds = zip(extractAllStepIds(importWorkflow), extractAllStepIds(response));
+        const workflowSteps = extractStepIdEntriesWithContext(importWorkflow, response);
+        const workflowContext: MapValues<ImportContext["workflowIdsByOldIds"]> = {
+          selfId: response.id,
+          oldPublishedStepId: response.published_step.id,
+          oldArchivedStepId: response.archived_step.id,
+          oldScheduledStepId: response.scheduled_step.id,
+          anyStepIdLeadingToPublishedStep:
+            response.steps.find(s => s.transitions_to.find(t => t.step.id === response.published_step.id))?.id ?? "",
+        };
 
-        return { workflow: [importWorkflow.id, response.id] as const, workflowSteps: stepsIds };
+        return { workflow: [importWorkflow.id, workflowContext] as const, workflowSteps };
       }),
   );
 
@@ -107,13 +124,36 @@ const addWorkflows = async (
 };
 
 type ContextWorkflowEntries = Readonly<{
-  workflows: ReadonlyArray<readonly [string, string]>;
-  workflowSteps: ReadonlyArray<readonly [string, string]>;
+  workflows: ReadonlyArray<readonly [string, MapValues<ImportContext["workflowIdsByOldIds"]>]>;
+  workflowSteps: ReadonlyArray<readonly [string, MapValues<ImportContext["worfklowStepsIdsWithTransitionsByOldIds"]>]>;
 }>;
 
-type AnyStep = Readonly<{ id: string; name: string; codename: string }>;
+const extractStepIdEntriesWithContext = (
+  importWorkflow: WorkflowContracts.IWorkflowContract,
+  projectWorkflow: WorkflowContracts.IWorkflowContract,
+) =>
+  zip(extractAllSteps(importWorkflow), extractAllStepIds(projectWorkflow))
+    .map(([oldStep, newStepId]) =>
+      [oldStep.id, {
+        selfId: newStepId,
+        oldTransitionIds: oldStep.transitions_to.map(t => t.step.id ?? ""),
+      }] as const
+    );
+
+type AnyStep = Readonly<
+  { id: string; name: string; codename: string; transitions_to: WorkflowContracts.IWorkflowStepTransitionsToContract[] }
+>;
 const extractAllSteps = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<AnyStep> =>
-  (wf.steps as AnyStep[]).concat([wf.scheduled_step, wf.published_step, wf.archived_step]);
+  (wf.steps as AnyStep[]).concat([
+    setOnlyTransition(wf.scheduled_step, wf.archived_step.id),
+    setOnlyTransition(wf.published_step, wf.archived_step.id),
+    { ...wf.archived_step, transitions_to: [] },
+  ]);
+
+const setOnlyTransition = (step: Omit<AnyStep, "transitions_to">, transitionId: string): AnyStep => ({
+  ...step,
+  transitions_to: [{ step: { id: transitionId } }],
+});
 
 const extractAllStepIds = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<string> =>
   extractAllSteps(wf).map(s => s.id);
