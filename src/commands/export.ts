@@ -1,4 +1,5 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 import * as fsPromises from "fs/promises";
 import JSZip from "jszip";
 
@@ -28,23 +29,21 @@ const {
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
-    command: "export <environmentId>",
+    command: "export",
     describe: "Exports data from the specified Kontent.ai project.",
     builder: yargs =>
       yargs
-        .positional("environmentId", {
+        .option("environmentId", {
           type: "string",
-          description: "Id of the Kontent.ai environment to export",
-          demandOption: "You need to provide the id of the Kontent.ai environment to export.",
+          demandOption: "You need to provide the id of the Kontent.ai environment.",
         })
         .option("fileName", {
           type: "string",
-          description: "Name of the exported file",
+          description: "Name of the zip file environment will be exported into.",
         })
         .option("apiKey", {
           type: "string",
-          description: "Kontent.ai Management API key",
-          demandOption: "Management API key is necessary for export to work.",
+          demandOption: "You need to provide the Management API key for given Kontent.ai environment",
         }),
     handler: args => exportEntities(args),
   });
@@ -77,19 +76,19 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     apiKey: params.apiKey,
   });
 
-  console.log("Exporting entities...");
+  console.log(`\nExporting entities from environment with id ${chalk.bold.yellow(params.environmentId)}\n`);
 
   await serially(entityDefinitions.map(def => async () => {
-    console.log(`Exporting ${def.name}...`);
+    console.log(`Exporting: ${chalk.bold.yellow(def.name)}`);
+
     try {
       const entities = await def.fetchEntities(client);
       await def.addOtherFiles?.(entities, zip);
       const result = def.serializeEntities(entities);
 
-      console.log(`${def.name} exported.`);
       zip.file(`${def.name}.json`, result);
     } catch (err) {
-      console.error(`Failed to export entity ${def.name} due to error ${JSON.stringify(err)}. Stopping export...`);
+      console.error(`Failed to export entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`);
       process.exit(1);
     }
   }));
@@ -101,7 +100,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   await zip.generateAsync({ type: "nodebuffer" })
     .then(content => fsPromises.writeFile(fileName, content));
 
-  console.log(`All entities from environment ${params.environmentId} were successfully exported into ${fileName}.`);
+  console.log(`\nAll entities from environment ${chalk.yellow(params.environmentId)} were successfully exported into ${chalk.blue(fileName)}.`);
 };
 
 const exportMetadata = async (environmentId: string) => {
