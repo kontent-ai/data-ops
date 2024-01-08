@@ -8,7 +8,9 @@ import {
 
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
+import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
+import { createReference } from "./utils/referece.js";
 import { replaceRichTextReferences } from "./utils/richText.js";
 
 export const languageVariantsEntity: EntityDefinition<
@@ -41,19 +43,18 @@ const createImportVariant =
   (client: ManagementClient, context: ImportContext) =>
   (fileVariant: LanguageVariantContracts.ILanguageVariantModelContract) =>
   async (): Promise<true> => {
-    const typeContext = context.contentTypeContextByOldIds
-      .get(context.contentItemContextByOldIds.get(fileVariant.item.id ?? "")?.oldTypeId ?? "");
-
-    if (!typeContext) {
-      throw new Error(`Cannot find type context for item "${fileVariant.item.id}".`);
-    }
+    const typeContext = getRequired(
+      context.contentTypeContextByOldIds,
+      getRequired(context.contentItemContextByOldIds, fileVariant.item.id ?? "", "content item").oldTypeId,
+      "content type",
+    );
 
     const newWorkflowContext = findTargetWfStep(context, fileVariant);
 
     const projectVariant = await client
       .upsertLanguageVariant()
-      .byItemId(context.contentItemContextByOldIds.get(fileVariant.item.id ?? "")?.selfId ?? "")
-      .byLanguageId(context.languageIdsByOldIds.get(fileVariant.language.id ?? "") ?? "")
+      .byItemId(getRequired(context.contentItemContextByOldIds, fileVariant.item.id ?? "", "content item").selfId)
+      .byLanguageId(getRequired(context.languageIdsByOldIds, fileVariant.language.id ?? "", "language"))
       .withData(builder => ({
         workflow: {
           workflow_identifier: {
@@ -141,7 +142,13 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.assetElement({
         element: { id: projectElementId },
         value: typedElement.value
-          .map(ref => createReference(params.context.assetIdsByOldIds.get(ref.id ?? "") ?? null)),
+          .map(ref =>
+            createReference({
+              newId: params.context.assetIdsByOldIds.get(ref.id ?? ""),
+              oldId: ref.id,
+              entityName: "asset",
+            })
+          ),
       });
     }
     case "custom": {
@@ -164,21 +171,28 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value
-          .map(ref => createReference(params.context.contentItemContextByOldIds.get(ref.id ?? "")?.selfId ?? null)),
+          .map(ref =>
+            createReference({
+              newId: params.context.contentItemContextByOldIds.get(ref.id ?? "")?.selfId,
+              oldId: ref.id,
+              entityName: "item",
+            })
+          ),
       });
     }
     case "multiple_choice": {
       const typedElement = fileElement as LanguageVariantElements.IMultipleChoiceInVariantElement;
-      const optionIdsByOldIds = params.multiChoiceOptionIdsByOldIdsByOldElementId.get(typedElement.element.id ?? "");
+      const optionIdsByOldIds = getRequired(
+        params.multiChoiceOptionIdsByOldIdsByOldElementId,
+        typedElement.element.id ?? "",
+        "content element",
+      );
 
-      if (!optionIdsByOldIds) {
-        throw new Error(
-          `Multiple option element with id "${typedElement.element.id}" has no equivalent in the item's type.`,
-        );
-      }
       return params.builder.multipleChoiceElement({
         element: { id: projectElementId },
-        value: typedElement.value.map(ref => ({ id: optionIdsByOldIds.get(ref.id ?? "") })),
+        value: typedElement.value.map(ref => ({
+          id: getRequired(optionIdsByOldIds, ref.id ?? "", "multi-choice element option"),
+        })),
       });
     }
     case "number": {
@@ -200,12 +214,7 @@ const createTransformElement = (params: TransformElementParams) =>
           )
           : typedElement.value,
         components: typedElement.components?.map(c => {
-          const typeContext = params.context.contentTypeContextByOldIds.get(c.type.id ?? "");
-          if (!typeContext) {
-            throw new Error(
-              `Found a content component of type that was not found. ComponentId "${c.id}", Type id: "${c.type.id}"`,
-            );
-          }
+          const typeContext = getRequired(params.context.contentTypeContextByOldIds, c.type.id ?? "", "content type");
 
           return ({
             id: c.id,
@@ -226,7 +235,11 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value.map(ref =>
-          createReference(params.context.contentItemContextByOldIds.get(ref.id ?? "")?.selfId ?? null)
+          createReference({
+            newId: params.context.contentItemContextByOldIds.get(ref.id ?? "")?.selfId,
+            oldId: ref.id,
+            entityName: "item",
+          })
         ),
       });
     }
@@ -235,7 +248,13 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.taxonomyElement({
         element: { id: projectElementId },
         value: typedElement.value
-          .map(ref => createReference(params.context.taxonomyTermIdsByOldIds.get(ref.id ?? "") ?? null)),
+          .map(ref =>
+            createReference({
+              newId: params.context.taxonomyTermIdsByOldIds.get(ref.id ?? ""),
+              oldId: ref.id,
+              entityName: "taxonomy-term",
+            })
+          ),
       });
     }
     case "text": {
@@ -272,13 +291,8 @@ const findTargetWfStep = (
   context: ImportContext,
   oldWf: LanguageVariantContracts.ILanguageVariantModelContract,
 ): FindWfStepResult => {
-  const wfContext = context.workflowIdsByOldIds.get(oldWf.workflow.workflow_identifier.id ?? "");
+  const wfContext = getRequired(context.workflowIdsByOldIds, oldWf.workflow.workflow_identifier.id ?? "", "workflow");
 
-  if (!wfContext) {
-    throw new Error(
-      `Found a variant in an unknown workflow (workflow id: "${oldWf.workflow.workflow_identifier.id}").`,
-    );
-  }
   const translateStepId = createTranslateWfStepId(context);
 
   switch (oldWf.workflow.step_identifier.id) {
@@ -311,6 +325,4 @@ const findTargetWfStep = (
 };
 
 const createTranslateWfStepId = (context: ImportContext) => (stepId: string): string =>
-  context.worfklowStepsIdsWithTransitionsByOldIds.get(stepId)?.selfId ?? "";
-
-const createReference = (id: string | null) => id ? { id } : { external_id: "referenceToAMissingEntity" };
+  getRequired(context.worfklowStepsIdsWithTransitionsByOldIds, stepId, "workflow step").selfId;

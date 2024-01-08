@@ -2,6 +2,7 @@ import { AssetContracts, ManagementClient } from "@kontent-ai/management-sdk";
 import JSZip from "jszip";
 
 import { serially } from "../../../utils/requests.js";
+import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const assetsBinariesFolderName = "assets";
@@ -65,9 +66,11 @@ const createImportAssetFetcher =
     if (!binary) {
       throw new Error(`Failed to load a binary file "${fileAsset.file_name}" for asset "${fileAsset.id}".`);
     }
-    const folderId = fileAsset.folder?.id ? context.assetFolderIdsByOldIds.get(fileAsset.folder.id) : undefined;
+    const folderId = fileAsset.folder?.id
+      ? getRequired(context.assetFolderIdsByOldIds, fileAsset.folder.id, "folder")
+      : undefined;
     const collectionId = fileAsset.collection?.reference?.id
-      ? context.collectionIdsByOldIds.get(fileAsset.collection.reference.id)
+      ? getRequired(context.collectionIdsByOldIds, fileAsset.collection.reference.id, "collection")
       : undefined;
 
     const fileRef = await client
@@ -90,12 +93,8 @@ const createImportAssetFetcher =
         ...collectionId ? { collection: { reference: { id: collectionId } } } : undefined,
         external_id: fileAsset.external_id || fileAsset.codename,
         descriptions: fileAsset.descriptions.map(d => {
-          const newLanguageId = context.languageIdsByOldIds.get(d.language.id ?? "");
-          if (!newLanguageId) {
-            throw new Error(
-              `There is no language id for old language id "${d.language.id}". This should never happen.`,
-            );
-          }
+          const newLanguageId = getRequired(context.languageIdsByOldIds, d.language.id ?? "", "language");
+
           return ({ description: d.description, language: { id: newLanguageId } });
         }),
       }))

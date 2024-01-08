@@ -21,3 +21,17 @@ export const compareExternalIds = (
 
   return projectEntityExternalId === fileEntityExternalId ? "Same" : "Different";
 };
+
+export const getRequired = <Value>(
+  map: ReadonlyMap<string, Value>,
+  oldId: string,
+  entityName: string,
+): Value => {
+  const result = map.get(oldId);
+
+  if (!result) {
+    throw new Error(`Failed to find new id for ${entityName} by old id "${oldId}". This should never happen.`);
+  }
+
+  return result;
+};

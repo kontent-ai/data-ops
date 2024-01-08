@@ -2,6 +2,7 @@ import { ContentItemContracts, ManagementClient } from "@kontent-ai/management-s
 
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
+import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 export const contentItemsExportEntity: EntityDefinition<ReadonlyArray<ContentItemContracts.IContentItemModelContract>> =
@@ -31,8 +32,8 @@ const createImportItemFetcher =
       .addContentItem()
       .withData({
         ...fileItem,
-        type: { id: context.contentTypeContextByOldIds.get(fileItem.type.id ?? "")?.selfId },
-        collection: { id: context.collectionIdsByOldIds.get(fileItem.collection.id ?? "") },
+        type: { id: getRequired(context.contentTypeContextByOldIds, fileItem.type.id ?? "", "content type").selfId },
+        collection: { id: getRequired(context.collectionIdsByOldIds, fileItem.collection.id ?? "", "collection") },
         external_id: fileItem.external_id ?? fileItem.codename,
       })
       .toPromise()

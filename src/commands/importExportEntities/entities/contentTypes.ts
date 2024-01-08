@@ -3,6 +3,7 @@ import { ContentTypeContracts, ContentTypeElements, ManagementClient } from "@ko
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { MapValues } from "../../../utils/types.js";
+import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import { createPatchItemAndTypeReferencesInTypeElement, createTransformTypeElement } from "./utils/typeElements.js";
 
@@ -51,7 +52,10 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
     .flatMap(([fileEl, projectEl]) => {
       if (fileEl.type === "snippet") {
         const typedEl = fileEl as unknown as ContentTypeElements.ISnippetElement;
-        return [...context.contentTypeSnippetContextByOldIds.get(typedEl.snippet.id ?? "")?.elementIdsByOldIds ?? []];
+        return [
+          ...getRequired(context.contentTypeSnippetContextByOldIds, typedEl.snippet.id ?? "", "snippet")
+            .elementIdsByOldIds,
+        ];
       }
 
       return [[fileEl.id ?? "", projectEl.id ?? ""] as const];
@@ -66,8 +70,8 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
           if (el.type === "snippet") {
             const typedEl = el as unknown as ContentTypeElements.ISnippetElement;
             return [
-              ...context.contentTypeSnippetContextByOldIds.get(typedEl.snippet.id ?? "")
-                ?.elementTypeByOldIds ?? [],
+              ...getRequired(context.contentTypeSnippetContextByOldIds, typedEl.snippet.id ?? "", "snippet")
+                .elementTypeByOldIds,
             ];
           }
 
@@ -81,8 +85,8 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
             case "snippet": {
               const typedEl = el as unknown as ContentTypeElements.ISnippetElement;
               return [
-                ...context.contentTypeSnippetContextByOldIds.get(typedEl.snippet.id ?? "")
-                  ?.multiChoiceOptionIdsByOldIdsByOldElementId ?? [],
+                ...getRequired(context.contentTypeSnippetContextByOldIds, typedEl.snippet.id ?? "", "snippet")
+                  .multiChoiceOptionIdsByOldIdsByOldElementId,
               ];
             }
             case "multiple_choice": {
@@ -142,7 +146,7 @@ const createUpdateTypeItemReferencesFetcher =
       .flatMap(
         createPatchItemAndTypeReferencesInTypeElement(
           params.context,
-          params.context.contentTypeContextByOldIds.get(type.id)?.elementIdsByOldIds,
+          getRequired(params.context.contentTypeContextByOldIds, type.id, "content type").elementIdsByOldIds,
         ),
       );
 

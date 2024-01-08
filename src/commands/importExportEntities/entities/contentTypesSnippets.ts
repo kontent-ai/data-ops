@@ -3,6 +3,7 @@ import { ContentTypeElements, ContentTypeSnippetContracts, ManagementClient } fr
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { MapValues } from "../../../utils/types.js";
+import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import { createPatchItemAndTypeReferencesInTypeElement, createTransformTypeElement } from "./utils/typeElements.js";
 
@@ -112,7 +113,7 @@ const createUpdateSnippetItemAndTypeReferencesFetcher =
       .flatMap(
         createPatchItemAndTypeReferencesInTypeElement(
           params.context,
-          params.context.contentTypeSnippetContextByOldIds.get(snippet.id)?.elementIdsByOldIds,
+          getRequired(params.context.contentTypeSnippetContextByOldIds, snippet.id, "snippet").elementIdsByOldIds,
         ),
       );
 

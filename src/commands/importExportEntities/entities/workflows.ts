@@ -5,6 +5,7 @@ import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { MapValues } from "../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
+import { createReference } from "./utils/referece.js";
 
 const defaultWorkflowId = emptyId;
 
@@ -19,7 +20,7 @@ export const workflowsEntity: EntityDefinition<WorkflowContracts.IListWorkflowsR
     const importDefaultWf = importWfs.find(w => w.id === defaultWorkflowId);
 
     if (!importDefaultWf || !oldProjectDefaultWf) {
-      throw new Error(`The default workflow is missing in the imported file or the project to import into.`);
+      throw new Error("The default workflow is missing in the imported file or the project to import into.");
     }
 
     const projectDefaultWf = await updateWorkflow(client, oldProjectDefaultWf, importDefaultWf, context);
@@ -47,8 +48,20 @@ const createWorkflowData = (importWorkflow: WorkflowContracts.IWorkflowContract,
   ...importWorkflow,
   scopes: importWorkflow.scopes.map(scope => ({
     content_types: scope.content_types
-      .map(type => ({ id: context.contentTypeContextByOldIds.get(type.id ?? "")?.selfId })),
-    collections: scope.collections.map(collection => ({ id: context.collectionIdsByOldIds.get(collection.id ?? "") })),
+      .map(type =>
+        createReference({
+          newId: context.contentTypeContextByOldIds.get(type.id ?? "")?.selfId,
+          oldId: type.id,
+          entityName: "type",
+        })
+      ),
+    collections: scope.collections.map(collection =>
+      createReference({
+        newId: context.collectionIdsByOldIds.get(collection.id ?? ""),
+        oldId: collection.id,
+        entityName: "collection",
+      })
+    ),
   })),
   steps: importWorkflow.steps.map(step => ({
     ...step,
