@@ -1,5 +1,6 @@
 import { PreviewContracts } from "@kontent-ai/management-sdk";
 
+import { notNull } from "../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfigurationContract> = {
@@ -15,37 +16,33 @@ export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfig
           .map(s => {
             const newSpaceId = context.spaceIdsByOldIds.get(s.space.id);
 
-            if (!newSpaceId) {
-              throw new Error(`Could not find new space id for old space id ${s.space.id}. This should never happen`);
-            }
+            return newSpaceId ? [s, newSpaceId] as const : null;
+          })
+          .filter(notNull)
+          .map(([s, newSpaceId]) => ({ ...s, space: { id: newSpaceId } })),
 
-            return { ...s, space: { id: newSpaceId } };
+        preview_url_patterns: previews.preview_url_patterns
+          .map(s => {
+            const newTypeId = context.contentTypeContextByOldIds.get(s.content_type.id)?.selfId;
+
+            return newTypeId ? [s, newTypeId] as const : null;
+          })
+          .filter(notNull)
+          .map(([p, newTypeId]) => {
+            const newUrlPatterns = p.url_patterns
+              .map(u => {
+                if (!u.space) {
+                  return u;
+                }
+
+                const newSpaceId = context.spaceIdsByOldIds.get(u.space.id);
+
+                return newSpaceId ? { ...u, space: { id: newSpaceId } } : null;
+              })
+              .filter(notNull);
+
+            return { content_type: { id: newTypeId }, url_patterns: newUrlPatterns };
           }),
-        preview_url_patterns: previews.preview_url_patterns.map(p => {
-          const newContentTypeId = context.contentTypeContextByOldIds.get(p.content_type.id)?.selfId;
-
-          if (!newContentTypeId) {
-            throw new Error(
-              `Could not find new content type id for old content type id ${p.content_type.id}. This should never happen`,
-            );
-          }
-
-          const newUrlPatterns = p.url_patterns.map(u => {
-            if (!u.space) {
-              return u;
-            }
-
-            const newSpaceId = context.spaceIdsByOldIds.get(u.space.id);
-
-            if (!newSpaceId) {
-              throw new Error(`Could not find new space id for old space id ${u.space.id}. This should never happen`);
-            }
-
-            return { ...u, space: { id: newSpaceId } };
-          });
-
-          return { content_type: { id: newContentTypeId }, url_patterns: newUrlPatterns };
-        }),
       })
       .toPromise();
   },
