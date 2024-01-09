@@ -1,21 +1,30 @@
-import { ContentTypeElements, ContentTypeSnippetContracts, ManagementClient } from "@kontent-ai/management-sdk";
+import { ContentTypeSnippetContracts, ElementContracts, ManagementClient } from "@kontent-ai/management-sdk";
 
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { MapValues } from "../../../utils/types.js";
+import { FixReferences, MapValues, Replace, RequiredId } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
-import { createPatchItemAndTypeReferencesInTypeElement, createTransformTypeElement } from "./utils/typeElements.js";
+import {
+  createPatchItemAndTypeReferencesInTypeElement,
+  createTransformTypeElement,
+  MultiChoiceElement,
+} from "./utils/typeElements.js";
 
-export const contentTypesSnippetsEntity: EntityDefinition<
-  ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>
-> = {
+type Snippet = Replace<
+  FixReferences<ContentTypeSnippetContracts.IContentTypeSnippetContract>,
+  "elements",
+  ReadonlyArray<SnippetElement>
+>;
+type SnippetElement = RequiredId<FixReferences<ElementContracts.IContentTypeElementContract>>;
+
+export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>> = {
   name: "contentTypesSnippets",
   fetchEntities: client =>
     client
       .listContentTypeSnippets()
       .toAllPromise()
-      .then(res => res.data.items.map(s => s._raw)),
+      .then(res => res.data.items.map(s => s._raw as Snippet)),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileSnippets, context) => {
@@ -24,19 +33,16 @@ export const contentTypesSnippetsEntity: EntityDefinition<
     return {
       ...context,
       contentTypeSnippetContextByOldIds: new Map(
-        zip(fileSnippets, projectSnippets)
-          .map(makeSnippetContextByOldIdEntry),
+        zip(fileSnippets, projectSnippets).map(makeSnippetContextByOldIdEntry),
       ),
       elementTypesByOldElementIdsByOldSnippetIds: new Map(
-        fileSnippets.map(snippet => [snippet.id, new Map(snippet.elements.map(el => [el.id ?? "", el.type]))]),
+        fileSnippets.map(snippet => [snippet.id, new Map(snippet.elements.map(el => [el.id, el.type]))]),
       ),
     };
   },
 };
 
-export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<
-  ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>
-> = {
+export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<Snippet>> = {
   name: "contentTypesSnippets",
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileSnippets, context) => {
@@ -45,18 +51,15 @@ export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefi
 };
 
 const makeSnippetContextByOldIdEntry = (
-  [fileSnippet, projectSnippet]: readonly [
-    ContentTypeSnippetContracts.IContentTypeSnippetContract,
-    ContentTypeSnippetContracts.IViewContentTypeSnippetResponseContract,
-  ],
+  [fileSnippet, projectSnippet]: readonly [Snippet, Snippet],
 ): readonly [string, MapValues<ImportContext["contentTypeSnippetContextByOldIds"]>] => {
   const elementIdEntries = zip(fileSnippet.elements, projectSnippet.elements)
-    .map(([fileEl, projectEl]) => [fileEl.id ?? "", projectEl.id ?? ""] as const);
+    .map(([fileEl, projectEl]) => [fileEl.id, projectEl.id] as const);
 
   return [fileSnippet.id, {
     selfId: projectSnippet.id,
     elementIdsByOldIds: new Map(elementIdEntries),
-    elementTypeByOldIds: new Map(fileSnippet.elements.map(el => [el.id ?? "", el.type])),
+    elementTypeByOldIds: new Map(fileSnippet.elements.map(el => [el.id, el.type])),
     multiChoiceOptionIdsByOldIdsByOldElementId: new Map(
       fileSnippet.elements
         .flatMap(el => {
@@ -64,13 +67,13 @@ const makeSnippetContextByOldIdEntry = (
             return [];
           }
 
-          const typedEl = el as ContentTypeElements.IMultipleChoiceElement;
+          const typedEl = el as MultiChoiceElement;
           const projectTypedEl = projectSnippet.elements
-            .find(e => e.id === el.id) as ContentTypeElements.IMultipleChoiceElement;
+            .find(e => e.id === el.id) as MultiChoiceElement;
           const multiChoiceOptionEntries = zip(typedEl.options, projectTypedEl.options)
-            .map(([fO, pO]) => [fO.id ?? "", pO.id ?? ""] as const);
+            .map(([fO, pO]) => [fO.id, pO.id] as const);
 
-          return [[el.id ?? "", new Map(multiChoiceOptionEntries)]];
+          return [[el.id, new Map(multiChoiceOptionEntries)]];
         }),
     ),
   }];
@@ -81,49 +84,47 @@ type InsertSnippetParams = Readonly<{
   context: ImportContext;
 }>;
 
-const createInsertSnippetFetcher =
-  (params: InsertSnippetParams) => (snippet: ContentTypeSnippetContracts.IContentTypeSnippetContract) => async () =>
-    params.client
-      .addContentTypeSnippet()
-      .withData(builder => ({
-        name: snippet.name,
-        codename: snippet.codename,
-        external_id: snippet.external_id ?? snippet.codename,
-        elements: snippet.elements.map(createTransformTypeElement({
-          ...params,
-          builder,
-          typeOrSnippetCodename: snippet.codename,
-          elementExternalIdsByOldId: new Map(
-            snippet.elements.map(el => [el.id ?? "", el.external_id ?? `${snippet.codename}_${el.codename}`]),
-          ),
-          contentGroupExternalIdByOldId: new Map(),
-        })),
-      }))
-      .toPromise()
-      .then(res => res.rawData);
+const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Snippet) => async () =>
+  params.client
+    .addContentTypeSnippet()
+    .withData(builder => ({
+      name: snippet.name,
+      codename: snippet.codename,
+      external_id: snippet.external_id ?? snippet.codename,
+      elements: snippet.elements.map(createTransformTypeElement({
+        ...params,
+        builder,
+        typeOrSnippetCodename: snippet.codename,
+        elementExternalIdsByOldId: new Map(
+          snippet.elements.map(el => [el.id, el.external_id ?? `${snippet.codename}_${el.codename}`]),
+        ),
+        contentGroupExternalIdByOldId: new Map(),
+      })),
+    }))
+    .toPromise()
+    .then(res => res.rawData as Snippet);
 
 type UpdateSnippetParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
 }>;
 
-const createUpdateSnippetItemAndTypeReferencesFetcher =
-  (params: UpdateSnippetParams) => (snippet: ContentTypeSnippetContracts.IContentTypeSnippetContract) => () => {
-    const patchOps = snippet.elements
-      .flatMap(
-        createPatchItemAndTypeReferencesInTypeElement(
-          params.context,
-          getRequired(params.context.contentTypeSnippetContextByOldIds, snippet.id, "snippet").elementIdsByOldIds,
-        ),
-      );
+const createUpdateSnippetItemAndTypeReferencesFetcher = (params: UpdateSnippetParams) => (snippet: Snippet) => () => {
+  const patchOps = snippet.elements
+    .flatMap(
+      createPatchItemAndTypeReferencesInTypeElement(
+        params.context,
+        getRequired(params.context.contentTypeSnippetContextByOldIds, snippet.id, "snippet").elementIdsByOldIds,
+      ),
+    );
 
-    if (!patchOps.length) {
-      return Promise.resolve();
-    }
+  if (!patchOps.length) {
+    return Promise.resolve();
+  }
 
-    return params.client
-      .modifyContentTypeSnippet()
-      .byTypeCodename(snippet.codename)
-      .withData(patchOps)
-      .toPromise();
-  };
+  return params.client
+    .modifyContentTypeSnippet()
+    .byTypeCodename(snippet.codename)
+    .withData(patchOps)
+    .toPromise();
+};

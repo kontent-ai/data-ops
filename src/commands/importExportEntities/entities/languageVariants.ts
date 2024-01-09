@@ -8,14 +8,15 @@ import {
 
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
+import { FixReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { createReference } from "./utils/referece.js";
 import { replaceRichTextReferences } from "./utils/richText.js";
 
-export const languageVariantsEntity: EntityDefinition<
-  ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>
-> = {
+type Variant = FixReferences<LanguageVariantContracts.ILanguageVariantModelContract>;
+
+export const languageVariantsEntity: EntityDefinition<ReadonlyArray<Variant>> = {
   name: "languageVariants",
   fetchEntities: async client => {
     const collections = await client.listCollections().toPromise().then(res => res.data.collections);
@@ -30,7 +31,7 @@ export const languageVariantsEntity: EntityDefinition<
 
     const variants = await serially(promises);
 
-    return variants.flatMap(arr => arr);
+    return variants.flatMap(arr => arr) as ReadonlyArray<Variant>;
   },
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
@@ -40,12 +41,10 @@ export const languageVariantsEntity: EntityDefinition<
 };
 
 const createImportVariant =
-  (client: ManagementClient, context: ImportContext) =>
-  (fileVariant: LanguageVariantContracts.ILanguageVariantModelContract) =>
-  async (): Promise<true> => {
+  (client: ManagementClient, context: ImportContext) => (fileVariant: Variant) => async (): Promise<true> => {
     const typeContext = getRequired(
       context.contentTypeContextByOldIds,
-      getRequired(context.contentItemContextByOldIds, fileVariant.item.id ?? "", "content item").oldTypeId,
+      getRequired(context.contentItemContextByOldIds, fileVariant.item.id, "content item").oldTypeId,
       "content type",
     );
 
@@ -53,8 +52,8 @@ const createImportVariant =
 
     const projectVariant = await client
       .upsertLanguageVariant()
-      .byItemId(getRequired(context.contentItemContextByOldIds, fileVariant.item.id ?? "", "content item").selfId)
-      .byLanguageId(getRequired(context.languageIdsByOldIds, fileVariant.language.id ?? "", "language"))
+      .byItemId(getRequired(context.contentItemContextByOldIds, fileVariant.item.id, "content item").selfId)
+      .byLanguageId(getRequired(context.languageIdsByOldIds, fileVariant.language.id, "language"))
       .withData(builder => ({
         workflow: {
           workflow_identifier: {
@@ -74,7 +73,7 @@ const createImportVariant =
           .filter(notNull),
       }))
       .toPromise()
-      .then(res => res.rawData);
+      .then(res => res.rawData as Variant);
 
     switch (newWorkflowContext.nextAction.action) {
       case "none":
@@ -89,8 +88,8 @@ const createImportVariant =
         await publishVariant(client, projectVariant);
         await client
           .unpublishLanguageVariant()
-          .byItemId(projectVariant.item.id ?? "")
-          .byLanguageId(projectVariant.language.id ?? "")
+          .byItemId(projectVariant.item.id)
+          .byLanguageId(projectVariant.language.id)
           .withoutData()
           .toPromise();
         return true;
@@ -99,13 +98,13 @@ const createImportVariant =
 
 const publishVariant = (
   client: ManagementClient,
-  variant: LanguageVariantContracts.ILanguageVariantModelContract,
+  variant: Variant,
   scheduleTo?: Date,
 ) => {
   const sharedRequest = client
     .publishLanguageVariant()
-    .byItemId(variant.item.id ?? "")
-    .byLanguageId(variant.language.id ?? "");
+    .byItemId(variant.item.id)
+    .byLanguageId(variant.language.id);
 
   return scheduleTo
     ? sharedRequest
@@ -126,25 +125,27 @@ type TransformElementParams = Readonly<{
   multiChoiceOptionIdsByOldIdsByOldElementId: ReadonlyMap<string, ReadonlyMap<string, string>>;
 }>;
 
+type Element = FixReferences<ElementContracts.IContentItemElementContract>;
+
 const createTransformElement = (params: TransformElementParams) =>
 (
-  fileElement: ElementContracts.IContentItemElementContract,
+  fileElement: Element,
 ): LanguageVariantElements.ILanguageVariantElementBase | null => {
-  const elementType = params.elementTypeByOldId.get(fileElement.element.id ?? "");
-  const projectElementId = params.elementIdByOldId.get(fileElement.element.id ?? "");
+  const elementType = params.elementTypeByOldId.get(fileElement.element.id);
+  const projectElementId = params.elementIdByOldId.get(fileElement.element.id);
   if (!elementType || !projectElementId) {
     return null; // Ignore elements that are not present in the type (This can happen for example when you remove an element from a type that already has variants)
   }
 
   switch (elementType) {
     case "asset": {
-      const typedElement = fileElement as LanguageVariantElements.IAssetInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.IAssetInVariantElement>;
       return params.builder.assetElement({
         element: { id: projectElementId },
         value: typedElement.value
           .map(ref =>
             createReference({
-              newId: params.context.assetIdsByOldIds.get(ref.id ?? ""),
+              newId: params.context.assetIdsByOldIds.get(ref.id),
               oldId: ref.id,
               entityName: "asset",
             })
@@ -152,7 +153,7 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "custom": {
-      const typedElement = fileElement as LanguageVariantElements.ICustomElementInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.ICustomElementInVariantElement>;
       return params.builder.customElement({
         element: { id: projectElementId },
         value: typedElement.value,
@@ -160,20 +161,20 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "date_time": {
-      const typedElement = fileElement as LanguageVariantElements.IDateTimeInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.IDateTimeInVariantElement>;
       return params.builder.dateTimeElement({
         element: { id: projectElementId },
         value: typedElement.value,
       });
     }
     case "modular_content": {
-      const typedElement = fileElement as LanguageVariantElements.ILinkedItemsInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value
           .map(ref =>
             createReference({
-              newId: params.context.contentItemContextByOldIds.get(ref.id ?? "")?.selfId,
+              newId: params.context.contentItemContextByOldIds.get(ref.id)?.selfId,
               oldId: ref.id,
               entityName: "item",
             })
@@ -181,29 +182,29 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "multiple_choice": {
-      const typedElement = fileElement as LanguageVariantElements.IMultipleChoiceInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.IMultipleChoiceInVariantElement>;
       const optionIdsByOldIds = getRequired(
         params.multiChoiceOptionIdsByOldIdsByOldElementId,
-        typedElement.element.id ?? "",
+        typedElement.element.id,
         "content element",
       );
 
       return params.builder.multipleChoiceElement({
         element: { id: projectElementId },
         value: typedElement.value.map(ref => ({
-          id: getRequired(optionIdsByOldIds, ref.id ?? "", "multi-choice element option"),
+          id: getRequired(optionIdsByOldIds, ref.id, "multi-choice element option"),
         })),
       });
     }
     case "number": {
-      const typedElement = fileElement as LanguageVariantElements.INumberInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.INumberInVariantElement>;
       return params.builder.numberElement({
         element: { id: projectElementId },
         value: typedElement.value,
       });
     }
     case "rich_text": {
-      const typedElement = fileElement as LanguageVariantElements.IRichtextInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.IRichtextInVariantElement>;
       return params.builder.richTextElement({
         element: { id: projectElementId },
         value: typedElement.value
@@ -214,12 +215,12 @@ const createTransformElement = (params: TransformElementParams) =>
           )
           : typedElement.value,
         components: typedElement.components?.map(c => {
-          const typeContext = getRequired(params.context.contentTypeContextByOldIds, c.type.id ?? "", "content type");
+          const typeContext = getRequired(params.context.contentTypeContextByOldIds, c.type.id, "content type");
 
           return ({
             id: c.id,
             type: { id: typeContext.selfId },
-            elements: c.elements.map(createTransformElement({
+            elements: (c.elements as Element[]).map(createTransformElement({
               ...params,
               elementIdByOldId: typeContext.elementIdsByOldIds,
               elementTypeByOldId: typeContext.elementTypeByOldIds,
@@ -231,12 +232,12 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "subpages": {
-      const typedElement = fileElement as LanguageVariantElements.ILinkedItemsInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value.map(ref =>
           createReference({
-            newId: params.context.contentItemContextByOldIds.get(ref.id ?? "")?.selfId,
+            newId: params.context.contentItemContextByOldIds.get(ref.id)?.selfId,
             oldId: ref.id,
             entityName: "item",
           })
@@ -244,13 +245,13 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "taxonomy": {
-      const typedElement = fileElement as LanguageVariantElements.ITaxonomyInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.ITaxonomyInVariantElement>;
       return params.builder.taxonomyElement({
         element: { id: projectElementId },
         value: typedElement.value
           .map(ref =>
             createReference({
-              newId: params.context.taxonomyTermIdsByOldIds.get(ref.id ?? ""),
+              newId: params.context.taxonomyTermIdsByOldIds.get(ref.id),
               oldId: ref.id,
               entityName: "taxonomy-term",
             })
@@ -258,14 +259,14 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "text": {
-      const typedElement = fileElement as LanguageVariantElements.ITextInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.ITextInVariantElement>;
       return params.builder.textElement({
         element: { id: projectElementId },
         value: typedElement.value,
       });
     }
     case "url_slug": {
-      const typedElement = fileElement as LanguageVariantElements.IUrlSlugInVariantElement;
+      const typedElement = fileElement as FixReferences<LanguageVariantElements.IUrlSlugInVariantElement>;
       return params.builder.urlSlugElement({
         element: { id: projectElementId },
         value: typedElement.value,
@@ -289,9 +290,9 @@ type FindWfStepResult = Readonly<{
 
 const findTargetWfStep = (
   context: ImportContext,
-  oldWf: LanguageVariantContracts.ILanguageVariantModelContract,
+  oldWf: FixReferences<LanguageVariantContracts.ILanguageVariantModelContract>,
 ): FindWfStepResult => {
-  const wfContext = getRequired(context.workflowIdsByOldIds, oldWf.workflow.workflow_identifier.id ?? "", "workflow");
+  const wfContext = getRequired(context.workflowIdsByOldIds, oldWf.workflow.workflow_identifier.id, "workflow");
 
   const translateStepId = createTranslateWfStepId(context);
 
@@ -317,7 +318,7 @@ const findTargetWfStep = (
     default: {
       return {
         wfId: wfContext.selfId,
-        wfStepId: oldWf.workflow.step_identifier.id ?? "",
+        wfStepId: oldWf.workflow.step_identifier.id,
         nextAction: { action: "none" },
       };
     }

@@ -3,15 +3,17 @@ import { ManagementClient, WorkflowContracts, WorkflowModels } from "@kontent-ai
 import { emptyId } from "../../../constants/ids.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { MapValues } from "../../../utils/types.js";
+import { FixReferences, MapValues } from "../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { createReference } from "./utils/referece.js";
 
 const defaultWorkflowId = emptyId;
 
-export const workflowsEntity: EntityDefinition<WorkflowContracts.IListWorkflowsResponseContract> = {
+type Workflow = FixReferences<WorkflowContracts.IWorkflowContract>;
+
+export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
   name: "workflows",
-  fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData),
+  fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: JSON.parse,
   importEntities: async (client, importWfs, context) => {
@@ -44,20 +46,20 @@ export const workflowsEntity: EntityDefinition<WorkflowContracts.IListWorkflowsR
   },
 };
 
-const createWorkflowData = (importWorkflow: WorkflowContracts.IWorkflowContract, context: ImportContext) => ({
+const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) => ({
   ...importWorkflow,
   scopes: importWorkflow.scopes.map(scope => ({
     content_types: scope.content_types
       .map(type =>
         createReference({
-          newId: context.contentTypeContextByOldIds.get(type.id ?? "")?.selfId,
+          newId: context.contentTypeContextByOldIds.get(type.id)?.selfId,
           oldId: type.id,
           entityName: "type",
         })
       ),
     collections: scope.collections.map(collection =>
       createReference({
-        newId: context.collectionIdsByOldIds.get(collection.id ?? ""),
+        newId: context.collectionIdsByOldIds.get(collection.id),
         oldId: collection.id,
         entityName: "collection",
       })
@@ -90,7 +92,7 @@ const createWorkflowData = (importWorkflow: WorkflowContracts.IWorkflowContract,
 const updateWorkflow = async (
   client: ManagementClient,
   projectWorkflow: WorkflowModels.Workflow,
-  importWorkflow: WorkflowContracts.IWorkflowContract,
+  importWorkflow: Workflow,
   context: ImportContext,
 ) =>
   client
@@ -98,11 +100,11 @@ const updateWorkflow = async (
     .byWorkflowId(projectWorkflow.id)
     .withData(createWorkflowData(importWorkflow, context))
     .toPromise()
-    .then(res => res.rawData);
+    .then(res => res.rawData as Workflow);
 
 const addWorkflows = async (
   client: ManagementClient,
-  importWorkflows: WorkflowContracts.IListWorkflowsResponseContract,
+  importWorkflows: ReadonlyArray<Workflow>,
   context: ImportContext,
 ) => {
   const responses = await serially(
@@ -113,7 +115,7 @@ const addWorkflows = async (
           .addWorkflow()
           .withData(createWorkflowData(importWorkflow, context))
           .toPromise()
-          .then(res => res.rawData);
+          .then(res => res.rawData as Workflow);
 
         const workflowSteps = extractStepIdEntriesWithContext(importWorkflow, response);
         const workflowContext: MapValues<ImportContext["workflowIdsByOldIds"]> = {
@@ -142,20 +144,23 @@ type ContextWorkflowEntries = Readonly<{
 }>;
 
 const extractStepIdEntriesWithContext = (
-  importWorkflow: WorkflowContracts.IWorkflowContract,
-  projectWorkflow: WorkflowContracts.IWorkflowContract,
+  importWorkflow: Workflow,
+  projectWorkflow: Workflow,
 ) =>
   zip(extractAllSteps(importWorkflow), extractAllStepIds(projectWorkflow))
     .map(([oldStep, newStepId]) =>
       [oldStep.id, {
         selfId: newStepId,
-        oldTransitionIds: oldStep.transitions_to.map(t => t.step.id ?? ""),
+        oldTransitionIds: oldStep.transitions_to.map(t => t.step.id),
       }] as const
     );
 
-type AnyStep = Readonly<
-  { id: string; name: string; codename: string; transitions_to: WorkflowContracts.IWorkflowStepTransitionsToContract[] }
->;
+type AnyStep = Readonly<{
+  id: string;
+  name: string;
+  codename: string;
+  transitions_to: ReadonlyArray<FixReferences<WorkflowContracts.IWorkflowStepTransitionsToContract>>;
+}>;
 const extractAllSteps = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<AnyStep> =>
   (wf.steps as AnyStep[]).concat([
     setOnlyTransition(wf.scheduled_step, wf.archived_step.id),

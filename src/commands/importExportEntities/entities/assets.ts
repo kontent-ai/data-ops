@@ -2,13 +2,16 @@ import { AssetContracts, ManagementClient } from "@kontent-ai/management-sdk";
 import JSZip from "jszip";
 
 import { serially } from "../../../utils/requests.js";
+import { FixReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const assetsBinariesFolderName = "assets";
 const createFileName = (asset: AssetContracts.IAssetModelContract) => `${asset.id}-${asset.file_name}`;
 
-type AssetWithElements = AssetContracts.IAssetModelContract & { readonly elements: ReadonlyArray<unknown> };
+type AssetWithElements = FixReferences<AssetContracts.IAssetModelContract> & {
+  readonly elements: ReadonlyArray<unknown>;
+};
 
 export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = {
   name: "assets",
@@ -59,7 +62,7 @@ const saveAsset = async (zip: JSZip, asset: AssetContracts.IAssetModelContract) 
 
 const createImportAssetFetcher =
   (zip: JSZip, client: ManagementClient, context: ImportContext) =>
-  (fileAsset: AssetContracts.IAssetModelContract) =>
+  (fileAsset: AssetWithElements) =>
   async (): Promise<readonly [string, string]> => {
     const binary = await zip.file(createFileName(fileAsset))?.async("nodebuffer");
 
@@ -93,7 +96,7 @@ const createImportAssetFetcher =
         ...collectionId ? { collection: { reference: { id: collectionId } } } : undefined,
         external_id: fileAsset.external_id || fileAsset.codename,
         descriptions: fileAsset.descriptions.map(d => {
-          const newLanguageId = getRequired(context.languageIdsByOldIds, d.language.id ?? "", "language");
+          const newLanguageId = getRequired(context.languageIdsByOldIds, d.language.id, "language");
 
           return ({ description: d.description, language: { id: newLanguageId } });
         }),

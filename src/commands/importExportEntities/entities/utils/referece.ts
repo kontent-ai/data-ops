@@ -1,6 +1,6 @@
 type Params = Readonly<{
   newId: string | undefined;
-  oldId: string | undefined;
+  oldId: string;
   entityName: string;
 }>;
 
