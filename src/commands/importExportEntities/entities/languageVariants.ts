@@ -6,6 +6,7 @@ import {
   ManagementClient,
 } from "@kontent-ai/management-sdk";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
 import { FixReferences } from "../../../utils/types.js";
@@ -35,13 +36,15 @@ export const languageVariantsEntity: EntityDefinition<ReadonlyArray<Variant>> = 
   },
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileVariants, context) => {
-    await serially(fileVariants.map(createImportVariant(client, context)));
+  importEntities: async (client, fileVariants, context, logOptions) => {
+    await serially(fileVariants.map(createImportVariant(client, context, logOptions)));
   },
 };
 
 const createImportVariant =
-  (client: ManagementClient, context: ImportContext) => (fileVariant: Variant) => async (): Promise<true> => {
+  (client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>
+  (fileVariant: Variant) =>
+  async (): Promise<true> => {
     const typeContext = getRequired(
       context.contentTypeContextByOldIds,
       getRequired(context.contentItemContextByOldIds, fileVariant.item.id, "content item").oldTypeId,
@@ -49,6 +52,12 @@ const createImportVariant =
     );
 
     const newWorkflowContext = findTargetWfStep(context, fileVariant);
+
+    logInfo(
+      logOptions,
+      "verbose",
+      `Importing: variant of item ${fileVariant.item.id} of language ${fileVariant.language.id}`,
+    );
 
     const projectVariant = await client
       .upsertLanguageVariant()
@@ -79,13 +88,20 @@ const createImportVariant =
       case "none":
         return true;
       case "publish":
-        await publishVariant(client, projectVariant);
+        await publishVariant(client, logOptions, projectVariant);
         return true;
       case "schedule":
-        await publishVariant(client, projectVariant, newWorkflowContext.nextAction.to);
+        await publishVariant(client, logOptions, projectVariant, newWorkflowContext.nextAction.to);
         return true;
       case "archive":
-        await publishVariant(client, projectVariant);
+        await publishVariant(client, logOptions, projectVariant);
+
+        logInfo(
+          logOptions,
+          "verbose",
+          `Archiving: variant of item ${projectVariant.item.id} of langauge ${projectVariant.language.id}`,
+        );
+
         await client
           .unpublishLanguageVariant()
           .byItemId(projectVariant.item.id)
@@ -98,6 +114,7 @@ const createImportVariant =
 
 const publishVariant = (
   client: ManagementClient,
+  logOptions: LogOptions,
   variant: Variant,
   scheduleTo?: Date,
 ) => {
@@ -105,6 +122,14 @@ const publishVariant = (
     .publishLanguageVariant()
     .byItemId(variant.item.id)
     .byLanguageId(variant.language.id);
+
+  logInfo(
+    logOptions,
+    "verbose",
+    `${
+      scheduleTo ? "Scheduling" : "Publishing"
+    }: variant of item ${variant.item.id} of language ${variant.language.id}`,
+  );
 
   return scheduleTo
     ? sharedRequest

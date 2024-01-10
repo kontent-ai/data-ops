@@ -1,6 +1,8 @@
 import { AssetContracts, ManagementClient } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 import JSZip from "jszip";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
@@ -26,7 +28,7 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
     await serially(assets.map(a => () => saveAsset(assetsZip, a)));
   },
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileAssets, context, zip) => {
+  importEntities: async (client, fileAssets, context, logOptions, zip) => {
     const fileAssetsWithElements = fileAssets.filter(a => !!a.elements.length);
     if (fileAssetsWithElements.length) {
       throw new Error(
@@ -46,7 +48,9 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
       );
     }
 
-    const assetIdEntries = await serially(fileAssets.map(createImportAssetFetcher(assetsZip, client, context)));
+    const assetIdEntries = await serially(
+      fileAssets.map(createImportAssetFetcher(assetsZip, client, context, logOptions)),
+    );
 
     return {
       ...context,
@@ -61,7 +65,7 @@ const saveAsset = async (zip: JSZip, asset: AssetContracts.IAssetModelContract) 
 };
 
 const createImportAssetFetcher =
-  (zip: JSZip, client: ManagementClient, context: ImportContext) =>
+  (zip: JSZip, client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>
   (fileAsset: AssetWithElements) =>
   async (): Promise<readonly [string, string]> => {
     const binary = await zip.file(createFileName(fileAsset))?.async("nodebuffer");
@@ -76,6 +80,11 @@ const createImportAssetFetcher =
       ? getRequired(context.collectionIdsByOldIds, fileAsset.collection.reference.id, "collection")
       : undefined;
 
+    const fileMsg = `Importing: file for asset ${fileAsset.id} (${chalk.yellow(fileAsset.title)}) with file name ${
+      chalk.yellowBright(fileAsset.file_name)
+    }`;
+    logInfo(logOptions, "verbose", fileMsg);
+
     const fileRef = await client
       .uploadBinaryFile()
       .withData({
@@ -85,6 +94,8 @@ const createImportAssetFetcher =
       })
       .toPromise()
       .then(res => res.data);
+
+    logInfo(logOptions, "verbose", `Importing: asset ${fileAsset.id} (${chalk.yellow(fileAsset.title)})`);
 
     const projectAsset = await client
       .addAsset()

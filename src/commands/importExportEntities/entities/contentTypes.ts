@@ -4,7 +4,9 @@ import {
   ElementContracts,
   ManagementClient,
 } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences, MapValues, Replace, RequiredId } from "../../../utils/types.js";
@@ -33,8 +35,8 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
       .toAllPromise()
       .then(res => res.data.items.map(t => t._raw as Type)),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: async (client, fileTypes, context) => {
-    const projectTypes = await serially(fileTypes.map(createInsertTypeFetcher({ context, client })));
+  importEntities: async (client, fileTypes, context, logOptions) => {
+    const projectTypes = await serially(fileTypes.map(createInsertTypeFetcher({ context, client, logOptions })));
 
     return {
       ...context,
@@ -48,14 +50,15 @@ export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinit
   name: "contentTypes",
   isDependentOn: contentTypesEntity.name,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileTypes, context) => {
-    await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context })));
+  importEntities: async (client, fileTypes, context, logOptions) => {
+    await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context, logOptions })));
   },
 };
 
 type InsertTypeParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
+  logOptions: LogOptions;
 }>;
 
 type SnippetElement = FixReferences<ContentTypeElements.ISnippetElement>;
@@ -124,8 +127,10 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
   }];
 };
 
-const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => async () =>
-  params.client
+const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => async () => {
+  logInfo(params.logOptions, "verbose", `Importing: type ${type.id} (${chalk.yellow(type.name)})`);
+
+  return params.client
     .addContentType()
     .withData(builder => ({
       name: type.name,
@@ -146,10 +151,12 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
     }))
     .toPromise()
     .then(res => res.rawData as Type);
+};
 
 type UpdateTypeParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
+  logOptions: LogOptions;
 }>;
 
 const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (type: Type) => () => {
@@ -165,6 +172,8 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
   if (!patchOps.length) {
     return Promise.resolve();
   }
+
+  logInfo(params.logOptions, "verbose", `Patching: type ${type.id} (${chalk.yellow(type.name)}) with new references`);
 
   return params.client
     .modifyContentType()

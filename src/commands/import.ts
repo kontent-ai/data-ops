@@ -3,6 +3,7 @@ import chalk from "chalk";
 import * as fsPromises from "fs/promises";
 import JSZip from "jszip";
 
+import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
@@ -89,13 +90,15 @@ export const register: RegisterCommand = yargs =>
     handler: args => importEntities(args),
   });
 
-type ImportEntitiesParams = Readonly<{
-  environmentId: string;
-  fileName: string;
-  apiKey: string;
-  include?: ReadonlyArray<string>;
-  exclude?: ReadonlyArray<string>;
-}>;
+type ImportEntitiesParams =
+  & Readonly<{
+    environmentId: string;
+    fileName: string;
+    apiKey: string;
+    include?: ReadonlyArray<string>;
+    exclude?: ReadonlyArray<string>;
+  }>
+  & LogOptions;
 
 const importEntities = async (params: ImportEntitiesParams) => {
   const root = await fsPromises.readFile(params.fileName).then(JSZip.loadAsync);
@@ -110,28 +113,30 @@ const importEntities = async (params: ImportEntitiesParams) => {
   const definitionsToImport = entityDefinitions
     .filter(e => shouldImport(e.name) || (e.isDependentOn && shouldImport(e.isDependentOn)));
 
-  console.log(
+  logInfo(
+    params,
+    "standard",
     `Importing entities from ${chalk.blue(params.fileName)} into environment with id ${params.environmentId}\n`,
   );
 
   let context = createInitialContext();
 
   await serially(definitionsToImport.map(def => async () => {
-    console.log(`Importing: ${chalk.yellow(def.name)}`);
+    logInfo(params, "standard", `Importing: ${chalk.yellow(def.name)}`);
 
     try {
       context = await root.file(`${def.name}.json`)
         ?.async("string")
         .then(def.deserializeEntities)
-        .then(e => def.importEntities(client, e, context, root))
+        .then(e => def.importEntities(client, e, context, params, root))
         ?? context;
     } catch (err) {
-      console.error(`Failed to import entity ${chalk.red(def.name)}.`, err, "\nStopping import...");
+      logError(params, `Failed to import entity ${chalk.red(def.name)}. `, JSON.stringify(err), "\nStopping import...");
       process.exit(1);
     }
   }));
 
-  console.log(`All entities were successfully imported.`);
+  logInfo(params, "standard", chalk.green("All entities were successfully imported."));
 };
 
 const createInitialContext = (): ImportContext => ({

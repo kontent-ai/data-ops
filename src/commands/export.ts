@@ -4,6 +4,7 @@ import * as fsPromises from "fs/promises";
 import JSZip from "jszip";
 
 import packageFile from "../../package.json" assert { type: "json" };
+import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
@@ -85,13 +86,15 @@ export const register: RegisterCommand = yargs =>
     handler: args => exportEntities(args),
   });
 
-type ExportEntitiesParams = Readonly<{
-  environmentId: string;
-  fileName: string | undefined;
-  apiKey: string;
-  include?: ReadonlyArray<string>;
-  exclude?: ReadonlyArray<string>;
-}>;
+type ExportEntitiesParams =
+  & Readonly<{
+    environmentId: string;
+    fileName: string | undefined;
+    apiKey: string;
+    include?: ReadonlyArray<string>;
+    exclude?: ReadonlyArray<string>;
+  }>
+  & LogOptions;
 
 const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   const client = new ManagementClient({
@@ -102,10 +105,14 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   const definitionsToExport = entityDefinitions
     .filter(e => (!params.include || params.include.includes(e.name)) && !params.exclude?.includes(e.name));
 
-  console.log(`\nExporting entities from environment with id ${chalk.bold.yellow(params.environmentId)}\n`);
+  logInfo(
+    params,
+    "standard",
+    `\nExporting entities from environment with id ${chalk.bold.yellow(params.environmentId)}\n`,
+  );
 
   await serially(definitionsToExport.map(def => async () => {
-    console.log(`Exporting: ${chalk.bold.yellow(def.name)}`);
+    logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.name)}`);
 
     try {
       const entities = await def.fetchEntities(client);
@@ -114,7 +121,8 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
       zip.file(`${def.name}.json`, result);
     } catch (err) {
-      console.error(
+      logError(
+        params,
         `Failed to export entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`,
       );
       process.exit(1);
@@ -128,10 +136,12 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   await zip.generateAsync({ type: "nodebuffer" })
     .then(content => fsPromises.writeFile(fileName, content));
 
-  console.log(
-    `\nAll entities from environment ${chalk.yellow(params.environmentId)} were successfully exported into ${
-      chalk.blue(fileName)
-    }.`,
+  logInfo(
+    params,
+    "standard",
+    `\nEntities from environment ${chalk.yellow(params.environmentId)} were ${
+      chalk.green("successfully exported")
+    } into ${chalk.blue(fileName)}.`,
   );
 };
 
