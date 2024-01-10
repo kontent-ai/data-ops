@@ -4,6 +4,7 @@ import chalk from "chalk";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
+import { addLogLevelOptions } from "./log.js";
 import { RegisterCommand } from "./types/yargs.js";
 
 const commandsToRegister: ReadonlyArray<RegisterCommand> = [
@@ -27,6 +28,8 @@ const initialYargs = emptyYargs
   .help("h")
   .alias("h", "help");
 
+const withLogLevel = addLogLevelOptions(initialYargs);
+
 commandsToRegister
-  .reduce((currentYargs, registerCommand) => registerCommand(currentYargs), initialYargs)
+  .reduce((currentYargs, registerCommand) => registerCommand(currentYargs), withLogLevel)
   .parse();

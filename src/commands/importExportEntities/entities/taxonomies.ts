@@ -1,5 +1,7 @@
 import { TaxonomyContracts } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 
+import { logInfo } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { EntityDefinition } from "../entityDefinition.js";
@@ -8,15 +10,17 @@ export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.
   name: "taxonomies",
   fetchEntities: client => client.listTaxonomies().toAllPromise().then(res => res.data.items.map(t => t._raw)),
   serializeEntities: taxonomies => JSON.stringify(taxonomies),
-  importEntities: async (client, fileTaxonomies, context) => {
+  importEntities: async (client, fileTaxonomies, context, logOptions) => {
     const projectTaxonomies = await serially<ReadonlyArray<() => Promise<TaxonomyContracts.ITaxonomyContract>>>(
-      fileTaxonomies.map(taxonomy => () =>
-        client
+      fileTaxonomies.map(taxonomy => () => {
+        logInfo(logOptions, "verbose", `Importing: taxonomy group ${taxonomy.id} (${chalk.yellow(taxonomy.name)})`);
+
+        return client
           .addTaxonomy()
           .withData(addExternalIds(taxonomy))
           .toPromise()
-          .then(res => res.data._raw)
-      ),
+          .then(res => res.data._raw);
+      }),
     );
 
     return {

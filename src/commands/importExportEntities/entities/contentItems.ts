@@ -1,5 +1,7 @@
 import { ContentItemContracts, ManagementClient } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences } from "../../../utils/types.js";
@@ -14,8 +16,8 @@ export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
     client.listContentItems().toAllPromise().then(res => res.data.items.map(i => i._raw as Item)),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileItems, context) => {
-    const projectItems = await serially(fileItems.map(createImportItemFetcher(client, context)));
+  importEntities: async (client, fileItems, context, logOptions) => {
+    const projectItems = await serially(fileItems.map(createImportItemFetcher(client, context, logOptions)));
 
     return {
       ...context,
@@ -27,14 +29,18 @@ export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
   },
 };
 
-const createImportItemFetcher = (client: ManagementClient, context: ImportContext) => (fileItem: Item) => () =>
-  client
-    .addContentItem()
-    .withData({
-      ...fileItem,
-      type: { id: getRequired(context.contentTypeContextByOldIds, fileItem.type.id, "content type").selfId },
-      collection: { id: getRequired(context.collectionIdsByOldIds, fileItem.collection.id, "collection") },
-      external_id: fileItem.external_id ?? fileItem.codename,
-    })
-    .toPromise()
-    .then(res => res.rawData);
+const createImportItemFetcher =
+  (client: ManagementClient, context: ImportContext, logOptions: LogOptions) => (fileItem: Item) => () => {
+    logInfo(logOptions, "verbose", `Importing: item ${fileItem.id} (${chalk.yellow(fileItem.name)})`);
+
+    return client
+      .addContentItem()
+      .withData({
+        ...fileItem,
+        type: { id: getRequired(context.contentTypeContextByOldIds, fileItem.type.id, "content type").selfId },
+        collection: { id: getRequired(context.collectionIdsByOldIds, fileItem.collection.id, "collection") },
+        external_id: fileItem.external_id ?? fileItem.codename,
+      })
+      .toPromise()
+      .then(res => res.rawData);
+  };

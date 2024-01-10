@@ -1,6 +1,8 @@
 import { ManagementClient, WorkflowContracts, WorkflowModels } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 
 import { emptyId } from "../../../constants/ids.js";
+import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences, MapValues } from "../../../utils/types.js";
@@ -16,7 +18,7 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, importWfs, context) => {
+  importEntities: async (client, importWfs, context, logOptions) => {
     const oldProjectDefaultWf = await client.listWorkflows().toPromise()
       .then(res => res.data.find(w => w.id === defaultWorkflowId));
     const importDefaultWf = importWfs.find(w => w.id === defaultWorkflowId);
@@ -25,8 +27,10 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
       throw new Error("The default workflow is missing in the imported file or the project to import into.");
     }
 
+    logInfo(logOptions, "verbose", `Updating: default workflow (${chalk.yellow(importDefaultWf.name)})`);
+
     const projectDefaultWf = await updateWorkflow(client, oldProjectDefaultWf, importDefaultWf, context);
-    const newProjectWfs = await addWorkflows(client, importWfs, context);
+    const newProjectWfs = await addWorkflows(client, importWfs, context, logOptions);
 
     const newDefaultWfStepIdEntries = extractStepIdEntriesWithContext(importDefaultWf, projectDefaultWf);
     const defaultWorkflowContext = {
@@ -106,11 +110,18 @@ const addWorkflows = async (
   client: ManagementClient,
   importWorkflows: ReadonlyArray<Workflow>,
   context: ImportContext,
+  logOptions: LogOptions,
 ) => {
   const responses = await serially(
     importWorkflows
       .filter(w => w.id !== defaultWorkflowId)
       .map(importWorkflow => async () => {
+        logInfo(
+          logOptions,
+          "verbose",
+          `Importing: workflow ${importWorkflow.id} (${chalk.yellow(importWorkflow.name)})`,
+        );
+
         const response = await client
           .addWorkflow()
           .withData(createWorkflowData(importWorkflow, context))

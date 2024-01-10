@@ -1,5 +1,7 @@
 import { ContentTypeSnippetContracts, ElementContracts, ManagementClient } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences, MapValues, Replace, RequiredId } from "../../../utils/types.js";
@@ -27,8 +29,10 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>
       .then(res => res.data.items.map(s => s._raw as Snippet)),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileSnippets, context) => {
-    const projectSnippets = await serially(fileSnippets.map(createInsertSnippetFetcher({ context, client })));
+  importEntities: async (client, fileSnippets, context, logOptions) => {
+    const projectSnippets = await serially(
+      fileSnippets.map(createInsertSnippetFetcher({ context, client, logOptions })),
+    );
 
     return {
       ...context,
@@ -46,8 +50,8 @@ export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefi
   name: "contentTypesSnippets",
   isDependentOn: contentTypesSnippetsEntity.name,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileSnippets, context) => {
-    await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context })));
+  importEntities: async (client, fileSnippets, context, logOptions) => {
+    await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context, logOptions })));
   },
 };
 
@@ -83,10 +87,13 @@ const makeSnippetContextByOldIdEntry = (
 type InsertSnippetParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
+  logOptions: LogOptions;
 }>;
 
-const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Snippet) => async () =>
-  params.client
+const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Snippet) => async () => {
+  logInfo(params.logOptions, "verbose", `Importing: snippet ${snippet.id} (${chalk.yellow(snippet.name)})`);
+
+  return params.client
     .addContentTypeSnippet()
     .withData(builder => ({
       name: snippet.name,
@@ -104,10 +111,12 @@ const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Sn
     }))
     .toPromise()
     .then(res => res.rawData as Snippet);
+};
 
 type UpdateSnippetParams = Readonly<{
   client: ManagementClient;
   context: ImportContext;
+  logOptions: LogOptions;
 }>;
 
 const createUpdateSnippetItemAndTypeReferencesFetcher = (params: UpdateSnippetParams) => (snippet: Snippet) => () => {
@@ -122,6 +131,12 @@ const createUpdateSnippetItemAndTypeReferencesFetcher = (params: UpdateSnippetPa
   if (!patchOps.length) {
     return Promise.resolve();
   }
+
+  logInfo(
+    params.logOptions,
+    "verbose",
+    `Patching: snippet ${snippet.id} (${chalk.yellow(snippet.name)}) with new references`,
+  );
 
   return params.client
     .modifyContentTypeSnippet()

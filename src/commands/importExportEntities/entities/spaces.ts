@@ -1,5 +1,7 @@
 import { SpaceContracts } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 
+import { logInfo } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
@@ -8,16 +10,18 @@ export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceC
   fetchEntities: client => client.listSpaces().toPromise().then(res => res.rawData),
   serializeEntities: spaces => JSON.stringify(spaces),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, entities, context) => {
+  importEntities: async (client, entities, context, logOptions) => {
     // does not add web_spotlight_root as it is not possible to activate Web Spotlight with MAPI
-    const newSpaces = await serially(entities.map(importSpace => () =>
-      client
+    const newSpaces = await serially(entities.map(importSpace => () => {
+      logInfo(logOptions, "verbose", `Importing: space ${importSpace.id} (${chalk.yellow(importSpace.name)})`);
+
+      return client
         .addSpace()
         .withData({
           name: importSpace.name,
           codename: importSpace.codename,
-        }).toPromise()
-    ));
+        }).toPromise();
+    }));
 
     return {
       ...context,

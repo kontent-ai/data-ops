@@ -1,6 +1,8 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import JSZip from "jszip";
 
+import { LogOptions } from "../../log.js";
+
 export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T>;
 
 export type EntityExportDefinition<T> = Readonly<{
@@ -18,6 +20,7 @@ export type EntityImportDefinition<T> = Readonly<{
     client: ManagementClient,
     entities: T,
     context: ImportContext,
+    logOptions: LogOptions,
     zip: JSZip,
   ) => Promise<void | ImportContext>;
 }>;
