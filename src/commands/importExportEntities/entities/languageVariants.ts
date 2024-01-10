@@ -143,13 +143,13 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.assetElement({
         element: { id: projectElementId },
         value: typedElement.value
-          .map(ref =>
+          ?.map(ref =>
             createReference({
               newId: params.context.assetIdsByOldIds.get(ref.id),
               oldId: ref.id,
               entityName: "asset",
             })
-          ),
+          ) ?? null,
       });
     }
     case "custom": {
@@ -172,13 +172,13 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value
-          .map(ref =>
+          ?.map(ref =>
             createReference({
               newId: params.context.contentItemContextByOldIds.get(ref.id)?.selfId,
               oldId: ref.id,
               entityName: "item",
             })
-          ),
+          ) ?? null,
       });
     }
     case "multiple_choice": {
@@ -191,9 +191,9 @@ const createTransformElement = (params: TransformElementParams) =>
 
       return params.builder.multipleChoiceElement({
         element: { id: projectElementId },
-        value: typedElement.value.map(ref => ({
+        value: typedElement.value?.map(ref => ({
           id: getRequired(optionIdsByOldIds, ref.id, "multi-choice element option"),
-        })),
+        })) ?? null,
       });
     }
     case "number": {
@@ -235,13 +235,13 @@ const createTransformElement = (params: TransformElementParams) =>
       const typedElement = fileElement as FixReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
-        value: typedElement.value.map(ref =>
+        value: typedElement.value?.map(ref =>
           createReference({
             newId: params.context.contentItemContextByOldIds.get(ref.id)?.selfId,
             oldId: ref.id,
             entityName: "item",
           })
-        ),
+        ) ?? null,
       });
     }
     case "taxonomy": {
@@ -249,13 +249,13 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.taxonomyElement({
         element: { id: projectElementId },
         value: typedElement.value
-          .map(ref =>
+          ?.map(ref =>
             createReference({
               newId: params.context.taxonomyTermIdsByOldIds.get(ref.id),
               oldId: ref.id,
               entityName: "taxonomy-term",
             })
-          ),
+          ) ?? null,
       });
     }
     case "text": {
