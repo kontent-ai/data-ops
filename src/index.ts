@@ -17,17 +17,9 @@ const initialYargs = yargs(hideBin(process.argv)) // hides the first two argumen
     "kai import --apiKey=xxx --environmentId=xxx --fileName=backupFile",
     "Read given zip file and recreates data in Kontent.ai project",
   )
-  .alias({
-    k: 'apiKey',
-    e: 'environmentId',
-  })
-  .describe({
-    'k': 'Kontent.ai Management API key',
-    'e': 'Kontent.ai id of environment',
-  })
   .demandCommand()
   .strict()
-  .help('h');
+  .help("h");
 
 commandsToRegister
   .reduce((currentYargs, registerCommand) => registerCommand(currentYargs), initialYargs)
