@@ -44,6 +44,7 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>
 
 export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<Snippet>> = {
   name: "contentTypesSnippets",
+  isDependentOn: contentTypesSnippetsEntity.name,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileSnippets, context) => {
     await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context })));
