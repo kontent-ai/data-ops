@@ -30,20 +30,25 @@ const {
 export const register: RegisterCommand = yargs =>
   yargs.command({
     command: "export",
-    describe: "Exports data from the specified Kontent.ai project.",
+    describe: "Exports data from the specified Kontent.ai project into a .zip file.",
     builder: yargs =>
       yargs
         .option("environmentId", {
           type: "string",
+          describe: "Id of the Kontent.ai environment to export.",
           demandOption: "You need to provide the id of the Kontent.ai environment.",
+          alias: "e",
         })
         .option("fileName", {
           type: "string",
-          description: "Name of the zip file environment will be exported into.",
+          describe: "Name of the zip file where the environment will be exported to.",
+          alias: "f",
         })
         .option("apiKey", {
           type: "string",
-          demandOption: "You need to provide the Management API key for given Kontent.ai environment",
+          describe: "Kontent.ai Management API key",
+          demandOption: "You need to provide the Management API key for the given Kontent.ai environment.",
+          alias: "k",
         }),
     handler: args => exportEntities(args),
   });
@@ -88,7 +93,9 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
       zip.file(`${def.name}.json`, result);
     } catch (err) {
-      console.error(`Failed to export entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`);
+      console.error(
+        `Failed to export entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`,
+      );
       process.exit(1);
     }
   }));
@@ -100,7 +107,11 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   await zip.generateAsync({ type: "nodebuffer" })
     .then(content => fsPromises.writeFile(fileName, content));
 
-  console.log(`\nAll entities from environment ${chalk.yellow(params.environmentId)} were successfully exported into ${chalk.blue(fileName)}.`);
+  console.log(
+    `\nAll entities from environment ${chalk.yellow(params.environmentId)} were successfully exported into ${
+      chalk.blue(fileName)
+    }.`,
+  );
 };
 
 const exportMetadata = async (environmentId: string) => {
