@@ -8,7 +8,7 @@ import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
+import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
 import {
   contentTypesEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
@@ -24,6 +24,27 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
+
+// The entities will be imported in the order specified here.
+// Keep in mind that there are dependencies between entities so the order is important.
+const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
+  collectionsEntity,
+  languagesEntity,
+  taxonomiesEntity,
+  assetFoldersEntity,
+  assetsEntity,
+  contentTypesSnippetsEntity,
+  contentTypesEntity,
+  contentItemsEntity,
+  updateItemAndTypeReferencesInSnippetsImportEntity,
+  updateItemAndTypeReferencesInTypesImportEntity,
+  workflowsEntity,
+  spacesEntity,
+  previewUrlsEntity,
+  languageVariantsEntity,
+];
+
+const entityChoices = entityDefinitions.filter(e => !e.isDependentOn).map(e => e.name);
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
@@ -48,33 +69,32 @@ export const register: RegisterCommand = yargs =>
           describe: "Kontent.ai Management API key",
           demandOption: "Management API key is necessary for import to work.",
           alias: "k",
+        })
+        .option("include", {
+          type: "array",
+          describe:
+            "Only import the specified entities. (Keep in mind that some entities depend on others and may fail if their dependencies are not included.)",
+          alias: "i",
+          choices: entityChoices,
+          conflicts: "exclude",
+        })
+        .option("exclude", {
+          type: "array",
+          describe:
+            "Exclude the specified entities from the import. (Keep in mind that some entities depend on others and may fail if their dependencies are excluded.)",
+          alias: "x",
+          choices: entityChoices,
+          conflicts: "include",
         }),
     handler: args => importEntities(args),
   });
-
-// The entities will be imported in the order specified here.
-// Keep in mind that there are dependencies between entities so the order is important.
-const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
-  collectionsEntity,
-  languagesEntity,
-  taxonomiesEntity,
-  assetFoldersEntity,
-  assetsEntity,
-  contentTypesSnippetsEntity,
-  contentTypesEntity,
-  contentItemsExportEntity,
-  updateItemAndTypeReferencesInSnippetsImportEntity,
-  updateItemAndTypeReferencesInTypesImportEntity,
-  workflowsEntity,
-  spacesEntity,
-  previewUrlsEntity,
-  languageVariantsEntity,
-];
 
 type ImportEntitiesParams = Readonly<{
   environmentId: string;
   fileName: string;
   apiKey: string;
+  include?: ReadonlyArray<string>;
+  exclude?: ReadonlyArray<string>;
 }>;
 
 const importEntities = async (params: ImportEntitiesParams) => {
@@ -84,13 +104,19 @@ const importEntities = async (params: ImportEntitiesParams) => {
     apiKey: params.apiKey,
   });
 
+  const shouldImport = (name: string) =>
+    (!params.include || params.include.includes(name)) && !params.exclude?.includes(name);
+
+  const definitionsToImport = entityDefinitions
+    .filter(e => shouldImport(e.name) || (e.isDependentOn && shouldImport(e.isDependentOn)));
+
   console.log(
     `Importing entities from ${chalk.blue(params.fileName)} into environment with id ${params.environmentId}\n`,
   );
 
   let context = createInitialContext();
 
-  await serially(entityDefinitions.map(def => async () => {
+  await serially(definitionsToImport.map(def => async () => {
     console.log(`Importing: ${chalk.yellow(def.name)}`);
 
     try {

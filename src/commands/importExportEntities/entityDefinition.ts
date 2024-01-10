@@ -12,6 +12,7 @@ export type EntityExportDefinition<T> = Readonly<{
 
 export type EntityImportDefinition<T> = Readonly<{
   name: string;
+  isDependentOn?: string;
   deserializeEntities: (serialized: string) => T;
   importEntities: (
     client: ManagementClient,

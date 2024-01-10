@@ -8,7 +8,7 @@ import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 type Item = FixReferences<ContentItemContracts.IContentItemModelContract>;
 
-export const contentItemsExportEntity: EntityDefinition<ReadonlyArray<Item>> = {
+export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
   name: "contentItems",
   fetchEntities: client =>
     client.listContentItems().toAllPromise().then(res => res.data.items.map(i => i._raw as Item)),

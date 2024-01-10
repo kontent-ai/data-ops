@@ -9,7 +9,7 @@ import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsExportEntity } from "./importExportEntities/entities/contentItems.js";
+import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
 import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
@@ -26,6 +26,24 @@ const zip = new JSZip();
 const {
   version,
 } = packageFile;
+
+const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
+  collectionsEntity,
+  spacesEntity,
+  taxonomiesEntity,
+  languagesEntity,
+  previewUrlsEntity,
+  rolesExportEntity,
+  workflowsEntity,
+  contentTypesSnippetsEntity,
+  contentTypesEntity,
+  contentItemsEntity,
+  languageVariantsEntity,
+  assetFoldersEntity,
+  assetsEntity,
+];
+
+const entityChoices = entityDefinitions.map(e => e.name);
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
@@ -49,30 +67,30 @@ export const register: RegisterCommand = yargs =>
           describe: "Kontent.ai Management API key",
           demandOption: "You need to provide the Management API key for the given Kontent.ai environment.",
           alias: "k",
+        })
+        .option("include", {
+          type: "array",
+          describe: "Only export specified entities.",
+          alias: "i",
+          choices: entityChoices,
+          conflicts: "exclude",
+        })
+        .option("exclude", {
+          type: "array",
+          describe: "Exclude the specified entities from the export.",
+          alias: "x",
+          choices: entityChoices,
+          conflicts: "include",
         }),
     handler: args => exportEntities(args),
   });
-
-const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
-  collectionsEntity,
-  spacesEntity,
-  taxonomiesEntity,
-  languagesEntity,
-  previewUrlsEntity,
-  rolesExportEntity,
-  workflowsEntity,
-  contentTypesSnippetsEntity,
-  contentTypesEntity,
-  contentItemsExportEntity,
-  languageVariantsEntity,
-  assetFoldersEntity,
-  assetsEntity,
-];
 
 type ExportEntitiesParams = Readonly<{
   environmentId: string;
   fileName: string | undefined;
   apiKey: string;
+  include?: ReadonlyArray<string>;
+  exclude?: ReadonlyArray<string>;
 }>;
 
 const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
@@ -81,9 +99,12 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     apiKey: params.apiKey,
   });
 
+  const definitionsToExport = entityDefinitions
+    .filter(e => (!params.include || params.include.includes(e.name)) && !params.exclude?.includes(e.name));
+
   console.log(`\nExporting entities from environment with id ${chalk.bold.yellow(params.environmentId)}\n`);
 
-  await serially(entityDefinitions.map(def => async () => {
+  await serially(definitionsToExport.map(def => async () => {
     console.log(`Exporting: ${chalk.bold.yellow(def.name)}`);
 
     try {
