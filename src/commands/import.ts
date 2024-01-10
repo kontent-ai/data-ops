@@ -35,16 +35,19 @@ export const register: RegisterCommand = yargs =>
           type: "string",
           describe: "The name of the zip file with exported data to import.",
           demandOption: "You need to provide the filename of a zip file to import.",
+          alias: "f",
         })
         .option("environmentId", {
           type: "string",
           describe: "Id of the Kontent.ai environment to import",
           demandOption: "You need to provide the id of the Kontent.ai environment to import into.",
+          alias: "e",
         })
         .option("apiKey", {
           type: "string",
-          description: "Kontent.ai Management API key",
+          describe: "Kontent.ai Management API key",
           demandOption: "Management API key is necessary for import to work.",
+          alias: "k",
         }),
     handler: args => importEntities(args),
   });
@@ -81,7 +84,9 @@ const importEntities = async (params: ImportEntitiesParams) => {
     apiKey: params.apiKey,
   });
 
-  console.log(`Importing entities from ${chalk.blue(params.fileName)} into environment with id ${params.environmentId}\n`);
+  console.log(
+    `Importing entities from ${chalk.blue(params.fileName)} into environment with id ${params.environmentId}\n`,
+  );
 
   let context = createInitialContext();
 
@@ -94,7 +99,6 @@ const importEntities = async (params: ImportEntitiesParams) => {
         .then(def.deserializeEntities)
         .then(e => def.importEntities(client, e, context, root))
         ?? context;
-
     } catch (err) {
       console.error(`Failed to import entity ${chalk.red(def.name)}.`, err, "\nStopping import...");
       process.exit(1);
