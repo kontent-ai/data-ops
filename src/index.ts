@@ -25,6 +25,7 @@ const initialYargs = emptyYargs
   .epilogue("If you have any questions, contact us at devrel@kontent.ai.")
   .demandCommand(1, chalk.red("You need to provide a command to run!"))
   .strict()
+  .config("configFile", "Path to a .json configuration file. This is an alternative way to provide CLI parameters.")
   .help("h")
   .alias("h", "help");
 
