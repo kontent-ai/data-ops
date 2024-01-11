@@ -16,7 +16,7 @@ const emptyYargs = yargs(hideBin(process.argv)); // hides the first two argument
 
 const initialYargs = emptyYargs
   .wrap(emptyYargs.terminalWidth())
-  .env("KAI")
+  .env("DATA_OPS")
   .example("$0 export --apiKey=xxx --environmentId=xxx", "Creates zip backup of Kontent.ai project")
   .example(
     "$0 import --apiKey=xxx --environmentId=xxx --fileName=backupFile",
