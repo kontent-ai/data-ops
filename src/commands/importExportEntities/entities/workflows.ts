@@ -45,7 +45,7 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
     return {
       ...context,
       workflowIdsByOldIds: new Map([...newProjectWfs.workflows, [defaultWorkflowId, defaultWorkflowContext]]),
-      worfklowStepsIdsWithTransitionsByOldIds: new Map([...newProjectWfs.workflowSteps, ...newDefaultWfStepIdEntries]),
+      workflowStepsIdsWithTransitionsByOldIds: new Map([...newProjectWfs.workflowSteps, ...newDefaultWfStepIdEntries]),
     };
   },
 };
@@ -151,7 +151,7 @@ const addWorkflows = async (
 
 type ContextWorkflowEntries = Readonly<{
   workflows: ReadonlyArray<readonly [string, MapValues<ImportContext["workflowIdsByOldIds"]>]>;
-  workflowSteps: ReadonlyArray<readonly [string, MapValues<ImportContext["worfklowStepsIdsWithTransitionsByOldIds"]>]>;
+  workflowSteps: ReadonlyArray<readonly [string, MapValues<ImportContext["workflowStepsIdsWithTransitionsByOldIds"]>]>;
 }>;
 
 const extractStepIdEntriesWithContext = (

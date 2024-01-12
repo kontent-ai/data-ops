@@ -55,18 +55,18 @@ export const register: RegisterCommand = yargs =>
         .option("environmentId", {
           type: "string",
           describe: "Id of the Kontent.ai environment to export.",
-          demandOption: "You need to provide the id of the Kontent.ai environment.",
+          demandOption: "You need to provide an id of the Kontent.ai environment.",
           alias: "e",
         })
         .option("fileName", {
           type: "string",
-          describe: "Name of the zip file where the environment will be exported to.",
+          describe: "Name of the zip file the environment will be exported to.",
           alias: "f",
         })
         .option("apiKey", {
           type: "string",
           describe: "Kontent.ai Management API key",
-          demandOption: "You need to provide the Management API key for the given Kontent.ai environment.",
+          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
         .option("include", {
@@ -108,7 +108,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   logInfo(
     params,
     "standard",
-    `\nExporting entities from environment with id ${chalk.bold.yellow(params.environmentId)}\n`,
+    `\nExporting entities from environment id ${chalk.bold.yellow(params.environmentId)}\n`,
   );
 
   await serially(definitionsToExport.map(def => async () => {
@@ -123,7 +123,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     } catch (err) {
       logError(
         params,
-        `Failed to export entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`,
+        `Failed to export an entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`,
       );
       process.exit(1);
     }

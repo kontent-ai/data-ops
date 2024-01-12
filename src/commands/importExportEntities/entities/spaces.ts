@@ -31,7 +31,7 @@ export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceC
 
           if (!match) {
             throw new Error(
-              `Could not find space with codename ${oldSpace.codename} in the project. This should never happen`,
+              `Could not find space with codename ${oldSpace.codename} in the project. This should never happen.`,
             );
           }
 
