@@ -351,4 +351,4 @@ const findTargetWfStep = (
 };
 
 const createTranslateWfStepId = (context: ImportContext) => (stepId: string): string =>
-  getRequired(context.worfklowStepsIdsWithTransitionsByOldIds, stepId, "workflow step").selfId;
+  getRequired(context.workflowStepsIdsWithTransitionsByOldIds, stepId, "workflow step").selfId;

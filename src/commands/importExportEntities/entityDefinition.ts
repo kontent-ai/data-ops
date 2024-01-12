@@ -75,7 +75,7 @@ export type ImportContext = Readonly<{
       anyStepIdLeadingToPublishedStep: string;
     }>
   >;
-  worfklowStepsIdsWithTransitionsByOldIds: ReadonlyMap<
+  workflowStepsIdsWithTransitionsByOldIds: ReadonlyMap<
     string,
     Readonly<{ selfId: string; oldTransitionIds: ReadonlyArray<string> }>
   >;

@@ -55,20 +55,20 @@ export const register: RegisterCommand = yargs =>
       yargs
         .option("fileName", {
           type: "string",
-          describe: "The name of the zip file with exported data to import.",
-          demandOption: "You need to provide the filename of a zip file to import.",
+          describe: "Name of the zip file with exported data to import.",
+          demandOption: "You need to provide the filename of the zip file to import.",
           alias: "f",
         })
         .option("environmentId", {
           type: "string",
-          describe: "Id of the Kontent.ai environment to import",
+          describe: "Id of the Kontent.ai environment to import into",
           demandOption: "You need to provide the id of the Kontent.ai environment to import into.",
           alias: "e",
         })
         .option("apiKey", {
           type: "string",
           describe: "Kontent.ai Management API key",
-          demandOption: "Management API key is necessary for import to work.",
+          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
         .option("include", {
@@ -116,7 +116,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
   logInfo(
     params,
     "standard",
-    `Importing entities from ${chalk.blue(params.fileName)} into environment with id ${params.environmentId}\n`,
+    `Importing entities from ${chalk.blue(params.fileName)} into environment id ${params.environmentId}\n`,
   );
 
   let context = createInitialContext();
@@ -150,6 +150,6 @@ const createInitialContext = (): ImportContext => ({
   contentItemContextByOldIds: new Map(),
   contentTypeContextByOldIds: new Map(),
   workflowIdsByOldIds: new Map(),
-  worfklowStepsIdsWithTransitionsByOldIds: new Map(),
+  workflowStepsIdsWithTransitionsByOldIds: new Map(),
   spaceIdsByOldIds: new Map(),
 });

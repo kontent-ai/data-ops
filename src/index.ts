@@ -17,10 +17,10 @@ const emptyYargs = yargs(hideBin(process.argv)); // hides the first two argument
 const initialYargs = emptyYargs
   .wrap(emptyYargs.terminalWidth())
   .env("DATA_OPS")
-  .example("$0 export --apiKey=xxx --environmentId=xxx", "Creates zip backup of Kontent.ai project")
+  .example("$0 export --apiKey=xxx --environmentId=xxx", "Creates a zip backup of a Kontent.ai environment")
   .example(
     "$0 import --apiKey=xxx --environmentId=xxx --fileName=backupFile",
-    "Read given zip file and recreates data in Kontent.ai project",
+    "Populates the target Kontent.ai environment with data from the provided zip file.",
   )
   .epilogue("If you have any questions, contact us at devrel@kontent.ai.")
   .demandCommand(1, chalk.red("You need to provide a command to run!"))
