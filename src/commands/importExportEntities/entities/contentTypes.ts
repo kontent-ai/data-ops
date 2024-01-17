@@ -110,7 +110,7 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
             }
             case "multiple_choice": {
               const typedEl = el as MultiChoiceElement;
-              const typedProjectEl = projectType.elements.find(e => e.id === el.id) as MultiChoiceElement;
+              const typedProjectEl = projectType.elements.find(e => e.codename === el.codename) as MultiChoiceElement;
 
               return [[
                 el.id,
@@ -130,13 +130,18 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
 const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => async () => {
   logInfo(params.logOptions, "verbose", `Importing: type ${type.id} (${chalk.yellow(type.name)})`);
 
+  const makeGroupFallbackExternalId = (groupCodename: string | undefined) => `${type.codename}_${groupCodename}`;
+
   return params.client
     .addContentType()
     .withData(builder => ({
       name: type.name,
       codename: type.codename,
       external_id: type.external_id ?? type.codename,
-      content_groups: type.content_groups?.map(g => ({ ...g, external_id: g.external_id ?? g.codename })),
+      content_groups: type.content_groups?.map(g => ({
+        ...g,
+        external_id: g.external_id ?? makeGroupFallbackExternalId(g.codename),
+      })),
       elements: type.elements.map(createTransformTypeElement({
         ...params,
         builder,
@@ -145,7 +150,8 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
           type.elements.map(el => [el.id, el.external_id ?? `${type.codename}_${el.codename}`]),
         ),
         contentGroupExternalIdByOldId: new Map(
-          type.content_groups?.map(g => [g.id, g.external_id ?? g.codename ?? ""] as const) ?? [],
+          type.content_groups
+            ?.map(g => [g.id, g.external_id ?? makeGroupFallbackExternalId(g.codename)] as const) ?? [],
         ),
       })),
     }))

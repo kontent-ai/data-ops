@@ -74,7 +74,7 @@ const makeSnippetContextByOldIdEntry = (
 
           const typedEl = el as MultiChoiceElement;
           const projectTypedEl = projectSnippet.elements
-            .find(e => e.id === el.id) as MultiChoiceElement;
+            .find(e => e.codename === el.codename) as MultiChoiceElement;
           const multiChoiceOptionEntries = zip(typedEl.options, projectTypedEl.options)
             .map(([fO, pO]) => [fO.id, pO.id] as const);
 
