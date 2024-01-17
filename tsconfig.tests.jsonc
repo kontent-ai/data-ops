@@ -8,14 +8,11 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
 
     /* Emit */
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./build",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
 
     /* Type Checking */
     "strict": true,
@@ -28,5 +25,5 @@
 
     "skipLibCheck": true
   },
-  "include": ["src/**/*"]
+  "include": ["tests/integration/**/*", "src/**/*"]
 }

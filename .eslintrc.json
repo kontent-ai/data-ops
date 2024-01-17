@@ -1,5 +1,8 @@
 {
     "extends": [
         "@kontent-ai"
-    ]
+    ],
+  "parserOptions": {
+    "project": ["tsconfig.json", "tsconfig.tests.jsonc"]
+  }
 }
