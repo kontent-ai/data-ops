@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2022",
+    "lib": ["esnext"],
+
+    /* Modules */
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    /* Emit */
+    "noEmit": true,
+
+    /* Type Checking */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "allowUnreachableCode": false,
+
+    "skipLibCheck": true
+  },
+  "include": ["./jestUnitTests.config.ts", "./jestIntegrationTests.config.ts"]
+}

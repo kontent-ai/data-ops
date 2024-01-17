@@ -3,6 +3,6 @@
         "@kontent-ai"
     ],
   "parserOptions": {
-    "project": ["tsconfig.json", "tsconfig.tests.jsonc"]
+    "project": ["tsconfig.json", "tsconfig.tests.jsonc", "tsconfig.configs.jsonc"]
   }
 }
