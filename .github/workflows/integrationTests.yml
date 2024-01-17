@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+env:
+  PRODUCTION_ENVIRONMENT_ID: ${{ secrets.PRODUCTION_ENVIRONMENT_ID }}
+  EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID: ${{ secrets.EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID }}
+  API_KEY: ${{ secrets.API_KEY }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
