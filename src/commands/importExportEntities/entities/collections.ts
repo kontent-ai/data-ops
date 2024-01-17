@@ -16,7 +16,7 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
       throw new Error(`Cannot import collections due to errors: ${matchErrors.map(e => `"${e.error}"`).join(", ")}.`);
     }
     const collectionsToUpdate = matchResults.filter(isMatch);
-    const collectionsToAdd = fileCollections
+    const oldCollectionsToAdd = fileCollections
       .filter(c => !collectionsToUpdate.find(m => m.fileCollection.id === c.id))
       .map((c: Collection) => ({ ...c, external_id: c.external_id ?? c.codename }));
 
@@ -29,7 +29,7 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
           property_name: "name",
           value: match.fileCollection.name,
         })),
-        ...collectionsToAdd.map(c => ({
+        ...oldCollectionsToAdd.map(c => ({
           op: "addInto" as const,
           value: {
             name: c.name,
@@ -47,8 +47,8 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
         ...collectionsToUpdate.map(match => [match.fileCollection.id, match.projectCollection.id] as const),
         ...newCollections
           .map(c => {
-            const newC = collectionsToAdd.find(oldC => oldC.codename === c.codename);
-            return newC ? [c.id, newC.id] as const : null;
+            const oldC = oldCollectionsToAdd.find(oldC => oldC.codename === c.codename);
+            return oldC ? [oldC.id, c.id] as const : null;
           })
           .filter(notNull),
       ]),
