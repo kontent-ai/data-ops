@@ -25,5 +25,5 @@
 
     "skipLibCheck": true
   },
-  "include": ["tests/integration/**/*", "src/**/*"]
+  "include": ["tests/integration/**/*", "tests/unit/**/*", "src/**/*"]
 }

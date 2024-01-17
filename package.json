@@ -10,7 +10,9 @@
     "fmt": "dprint fmt",
     "fmt:check": "dprint check",
     "start": "npm run build && node ./build/src/index.js",
-    "test:integration": "npm run build && jest --config=jestIntegrationTests.config.ts"
+    "test:integration": "npm run build && jest --config=jestIntegrationTests.config.ts",
+    "test:unit": "jest --config=jestUnitTests.config.ts"
+
   },
   "repository": {
     "type": "git",
