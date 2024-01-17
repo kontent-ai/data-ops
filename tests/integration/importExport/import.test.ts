@@ -4,10 +4,10 @@ import { runCommand } from "../utils/runCommand";
 import { withTestEnvironment } from "../utils/setup";
 import { expectSameEnvironments } from "./utils/compare";
 
-const { EXPORT_TEST_DATA_ENVIRONMENT_ID, PRODUCTION_ENVIRONMENT_ID, API_KEY } = process.env;
+const { EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, PRODUCTION_ENVIRONMENT_ID, API_KEY } = process.env;
 
-if (!EXPORT_TEST_DATA_ENVIRONMENT_ID) {
-  throw new Error("EXPORT_TEST_DATA_ENVIRONMENT_ID environment variable is not defined.");
+if (!EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID) {
+  throw new Error("EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID environment variable is not defined.");
 }
 if (!PRODUCTION_ENVIRONMENT_ID) {
   throw new Error("PRODUCTION_ENVIRONMENT_ID environment variable is not defined.");
@@ -25,7 +25,7 @@ describe("import", () => {
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, EXPORT_TEST_DATA_ENVIRONMENT_ID, ["roles"]);
+      await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, ["roles"]);
     }),
   );
 });
