@@ -13,7 +13,7 @@ import { FixReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { createReference } from "./utils/referece.js";
-import { replaceRichTextReferences } from "./utils/richText.js";
+import { replaceImportRichTextReferences } from "./utils/richText.js";
 
 type Variant = FixReferences<LanguageVariantContracts.ILanguageVariantModelContract>;
 
@@ -233,7 +233,7 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.richTextElement({
         element: { id: projectElementId },
         value: typedElement.value
-          ? replaceRichTextReferences(
+          ? replaceImportRichTextReferences(
             typedElement.value,
             params.context,
             new Set(typedElement.components?.map(c => c.id) ?? []),
@@ -315,7 +315,7 @@ type FindWfStepResult = Readonly<{
 
 const findTargetWfStep = (
   context: ImportContext,
-  oldWf: FixReferences<LanguageVariantContracts.ILanguageVariantModelContract>,
+  oldWf: Variant,
 ): FindWfStepResult => {
   const wfContext = getRequired(context.workflowIdsByOldIds, oldWf.workflow.workflow_identifier.id, "workflow");
 
@@ -343,7 +343,7 @@ const findTargetWfStep = (
     default: {
       return {
         wfId: wfContext.selfId,
-        wfStepId: oldWf.workflow.step_identifier.id,
+        wfStepId: translateStepId(oldWf.workflow.step_identifier.id),
         nextAction: { action: "none" },
       };
     }

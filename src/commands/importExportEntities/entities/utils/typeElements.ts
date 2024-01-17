@@ -11,7 +11,7 @@ import { FixReferences, Replace, RequiredId } from "../../../../utils/types.js";
 import { getRequired } from "../../../import/utils.js";
 import { ImportContext } from "../../entityDefinition.js";
 import { createReference } from "./referece.js";
-import { replaceRichTextReferences } from "./richText.js";
+import { replaceImportRichTextReferences } from "./richText.js";
 
 export type TransformTypeElementParams = Readonly<{
   context: ImportContext;
@@ -66,13 +66,8 @@ export const createTransformTypeElement =
           type: "custom",
           external_id: typedElement.external_id ?? fallbackExternalId,
           content_group,
-          allowed_elements: typedElement.allowed_elements?.map(ref =>
-            createReference({
-              newId: params.elementExternalIdsByOldId.get(ref.id),
-              oldId: ref.id,
-              entityName: "element",
-            })
-          ),
+          allowed_elements: typedElement.allowed_elements
+            ?.map(ref => ({ external_id: params.elementExternalIdsByOldId.get(ref.id) ?? "non-existent-element" })),
         });
       }
       case "date_time": {
@@ -106,6 +101,10 @@ export const createTransformTypeElement =
       }
       case "multiple_choice": {
         const typedElement = element as ContentTypeElements.IMultipleChoiceElement;
+
+        const makeOptionFallbackExternalId = (o: ContentTypeElements.IMultipleChoiceOption) =>
+          `${params.typeOrSnippetCodename}_${typedElement.codename}_${o.codename}`;
+
         return params.builder.multipleChoiceElement({
           ...typedElement,
           type: "multiple_choice",
@@ -113,7 +112,7 @@ export const createTransformTypeElement =
           content_group,
           options: typedElement.options.map(o => ({
             ...o,
-            external_id: o.external_id ?? `${params.typeOrSnippetCodename}_${typedElement.codename}_${o.codename}`,
+            external_id: o.external_id ?? makeOptionFallbackExternalId(o),
           })),
           default: typedElement.default
             ? {
@@ -126,7 +125,7 @@ export const createTransformTypeElement =
                     );
                   }
 
-                  return { external_id: oldOption.external_id ?? oldOption.codename };
+                  return { external_id: oldOption.external_id ?? makeOptionFallbackExternalId(oldOption) };
                 }),
               },
             }
@@ -186,14 +185,20 @@ export const createTransformTypeElement =
       }
       case "taxonomy": {
         const typedElement = element as FixReferences<ContentTypeElements.ITaxonomyElement>;
+        const newGroupId = params.context.taxonomyGroupIdsByOldIds.get(typedElement.taxonomy_group.id);
+
+        if (!newGroupId) {
+          throw new Error(
+            `The type element "${typedElement.id}" of type or snippet "${params.typeOrSnippetCodename}" has reference to a non-existent taxonomy group so it can't be created.`,
+          );
+        }
+
         return params.builder.taxonomyElement({
           ...typedElement,
           type: "taxonomy",
           external_id: typedElement.external_id ?? fallbackExternalId,
           content_group,
-          taxonomy_group: {
-            id: getRequired(params.context.taxonomyGroupIdsByOldIds, typedElement.taxonomy_group.id, "taxonomy group"),
-          },
+          taxonomy_group: { id: newGroupId },
           default: typedElement.default
             ? {
               global: {
@@ -291,7 +296,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
 
       case "guidelines": {
         const typedElement = fileElement as unknown as ContentTypeElements.IGuidelinesElement;
-        const newGuidelines = replaceRichTextReferences(typedElement.guidelines, context, new Set());
+        const newGuidelines = replaceImportRichTextReferences(typedElement.guidelines, context, new Set());
 
         return newGuidelines === typedElement.guidelines ? [] : [
           {
