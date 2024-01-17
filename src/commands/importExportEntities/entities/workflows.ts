@@ -71,6 +71,7 @@ const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) =>
   })),
   steps: importWorkflow.steps.map(step => ({
     ...step,
+    id: undefined,
     role_ids: [],
     transitions_to: step.transitions_to.map(transition => {
       const transitionWorkflow = extractAllSteps(importWorkflow).find(s => s.id === transition.step.id);
@@ -84,11 +85,13 @@ const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) =>
   })),
   published_step: {
     ...importWorkflow,
+    id: undefined,
     unpublish_role_ids: [],
     create_new_version_role_ids: [],
   },
   archived_step: {
     ...importWorkflow.archived_step,
+    id: undefined,
     role_ids: [],
   },
 });
