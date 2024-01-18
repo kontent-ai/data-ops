@@ -186,11 +186,14 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "date_time": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.IDateTimeInVariantElement>;
+      const typedElement = fileElement as FixReferences<
+        LanguageVariantElements.IDateTimeInVariantElement & { display_timezone: string } // incorrect SDK types
+      >;
       return params.builder.dateTimeElement({
         element: { id: projectElementId },
         value: typedElement.value,
-      });
+        display_timezone: typedElement.display_timezone,
+      } as LanguageVariantElements.IDateTimeInVariantElement); // incorrect SDK types
     }
     case "modular_content": {
       const typedElement = fileElement as FixReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
