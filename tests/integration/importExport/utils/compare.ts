@@ -9,6 +9,8 @@ import {
   ContentTypeSnippetContracts,
   ElementContracts,
   LanguageContracts,
+  LanguageVariantContracts,
+  LanguageVariantElements,
   ManagementClient,
   PreviewContracts,
   RoleContracts,
@@ -18,6 +20,7 @@ import {
 } from "@kontent-ai/management-sdk";
 
 import { replaceRichTextReferences } from "../../../../src/commands/importExportEntities/entities/utils/richText";
+import { serially } from "../../../../src/utils/requests";
 
 const { API_KEY } = process.env;
 
@@ -39,6 +42,7 @@ export const expectSameEnvironments = async (
     environmentId: environmentId2,
   });
   const has = (e: keyof AllData) => !excludeEntities.includes(e);
+  const sortedVariants = (data: AllData) => sortBy(data.variants, v => `${v.item.id};${v.language.id}`);
 
   const data1 = await loadAllData(client1).then(prepareReferences);
   const data2 = await loadAllData(client2).then(prepareReferences);
@@ -57,16 +61,15 @@ export const expectSameEnvironments = async (
   has("snippets") && expect(sortByCodename(data1.snippets)).toStrictEqual(sortByCodename(data2.snippets));
   has("types") && expect(sortByCodename(data1.types)).toStrictEqual(sortByCodename(data2.types));
   has("items") && expect(sortByCodename(data1.items)).toStrictEqual(sortByCodename(data2.items));
+  has("variants") && expect(sortedVariants(data1)).toStrictEqual(sortedVariants(data2));
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
-const compareOnCodename = (
-  e1: { readonly codename: string },
-  e2: { readonly codename: string },
-) => e1.codename.localeCompare(e2.codename);
+const sortBy = <T>(entities: ReadonlyArray<T>, sortByPicker: (e: T) => string): ReadonlyArray<T> =>
+  [...entities].sort((e1, e2) => sortByPicker(e1).localeCompare(sortByPicker(e2)));
 
 const sortByCodename = <T extends { readonly codename: string }>(entities: ReadonlyArray<T>): ReadonlyArray<T> =>
-  [...entities].sort(compareOnCodename);
+  sortBy(entities, e => e.codename);
 
 type AllData = Readonly<{
   collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
@@ -81,6 +84,7 @@ type AllData = Readonly<{
   snippets: ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>;
   types: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
+  variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
 }>;
 
 const loadAllData = async (client: ManagementClient): Promise<AllData> => ({
@@ -132,6 +136,15 @@ const loadAllData = async (client: ManagementClient): Promise<AllData> => ({
     .listContentItems()
     .toAllPromise()
     .then(res => res.data.items.map(i => i._raw)),
+  variants: (await serially((await client.listCollections().toPromise().then(res => res.rawData.collections))
+    .map(collection => async () =>
+      await client
+        .listLanguageVariantsByCollection()
+        .byCollectionId(collection.id)
+        .toAllPromise()
+        .then(res => res.data.items.map(v => v._raw))
+    )))
+    .flat(),
 });
 
 const prepareReferences = (data: AllData): AllData => ({
@@ -154,6 +167,7 @@ const prepareReferences = (data: AllData): AllData => ({
   snippets: data.snippets.map(createPrepareSnippetReferences(data)),
   types: data.types.map(createPrepareTypeReferences(data)),
   items: data.items.map(createPrepareItemReferences(data)),
+  variants: data.variants.map(createPrepareVariantReferences(data)),
 });
 
 type PrepareReferencesCreator<T> = (data: AllData) => PrepareReferencesFnc<T>;
@@ -521,11 +535,168 @@ const createPrepareItemReferences: PrepareReferencesCreator<ContentItemContracts
     collection: { id: data.collections.find(c => c.id === item.collection.id)?.codename ?? "non-existing-collection" },
   });
 
-// const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantContracts.ILanguageVariantModelContract> =
-//   data => variant => ({
-//   ...variant,
-//   item: { id: data.items.find(i => i.id === variant.item.id)?.codename ?? ""}
-// })
+const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantContracts.ILanguageVariantModelContract> =
+  data => variant => ({
+    item: { id: data.items.find(i => i.id === variant.item.id)?.codename ?? "non-existing-item" },
+    last_modified: "-",
+    language: { id: data.languages.find(l => l.id === variant.language.id)?.codename ?? "non-existing-language" },
+    workflow: {
+      workflow_identifier: {
+        id: data.workflows
+          .find(wf => wf.id === variant.workflow.workflow_identifier.id)?.codename
+          ?? "non-existing-workflow",
+      },
+      step_identifier: {
+        id: data.workflows
+          .flatMap(wf => wf.steps)
+          .find(step => step.id === variant.workflow.step_identifier.id)?.codename
+          ?? "non-existing-step",
+      },
+    },
+    workflow_step: {
+      id: data.workflows
+        .flatMap(wf => wf.steps)
+        .find(step => step.id === variant.workflow_step.id)?.codename
+        ?? "non-existing-step",
+    },
+    elements: variant.elements.map(createPrepareVariantElementReferences(data)),
+  });
+
+const createPrepareVariantElementReferences: PrepareReferencesCreator<ElementContracts.IContentItemElementContract> =
+  data => element => {
+    const typeElement = data.types
+      .flatMap(t => t.elements)
+      .concat(data.snippets.flatMap(s => s.elements))
+      .find(el => el.id === element.element.id);
+
+    if (!typeElement) {
+      throw new Error(
+        `Found element "${
+          JSON.stringify(element)
+        }" that doesn't have any matching element in any type or snippet. If this happens, please re-save the variant and re-export data to fix it.`,
+      );
+    }
+    const baseElement = { ...element, element: { id: typeElement.codename } };
+
+    switch (typeElement.type) {
+      case "asset": {
+        const typedElement = baseElement as LanguageVariantElements.IAssetInVariantElement;
+
+        const result: LanguageVariantElements.IAssetInVariantElement = {
+          ...typedElement,
+          value: typedElement.value
+            ?.map(ref => ({ id: data.assets.find(a => a.id === ref.id)?.codename ?? "non-existing-asset" }))
+            ?? [],
+        };
+
+        return result as ElementContracts.IContentItemElementContract;
+      }
+      case "modular_content": {
+        const typedElement = baseElement as LanguageVariantElements.ILinkedItemsInVariantElement;
+
+        const result: LanguageVariantElements.ILinkedItemsInVariantElement = {
+          ...typedElement,
+          value: typedElement.value
+            ?.map(ref => ({ id: data.items.find(a => a.id === ref.id)?.codename ?? "non-existing-item" }))
+            ?? [],
+        };
+
+        return result as ElementContracts.IContentItemElementContract;
+      }
+      case "multiple_choice": {
+        const typedElement = baseElement as LanguageVariantElements.IMultipleChoiceInVariantElement;
+        const typedTypeElement = typeElement as ContentTypeElements.IMultipleChoiceElement;
+
+        const result: LanguageVariantElements.IMultipleChoiceInVariantElement = {
+          ...typedElement,
+          value: typedElement.value
+            ?.map(ref => ({
+              id: typedTypeElement.options.find(o => o.id === ref.id)?.codename ?? "non-existing-option",
+            }))
+            ?? [],
+        };
+
+        return result as ElementContracts.IContentItemElementContract;
+      }
+      case "rich_text": {
+        const typedElement = baseElement as LanguageVariantElements.IRichtextInVariantElement;
+
+        const result: LanguageVariantElements.IRichtextInVariantElement = {
+          ...typedElement,
+          value: replaceRichTextReferences({
+            richText: typedElement.value ?? "",
+            replaceItemId: (id, asInternal, asExternal) => {
+              const item = data.items.find(i => i.id === id);
+
+              return item ? asInternal(item.codename) : asExternal("component-or-non-existing-item");
+            },
+            replaceAssetId: (id, asInternal, asExternal) => {
+              const asset = data.assets.find(a => a.id === id);
+
+              return asset ? asInternal(asset.codename) : asExternal("non-existing-asset");
+            },
+            replaceItemLinkId: (id, asInternal, asExternal) => {
+              const item = data.items.find(i => i.id === id);
+
+              return item ? asInternal(item.codename) : asExternal("non-existing-item");
+            },
+          })
+            .replaceAll(assetExternalIdRegex, () => `${assetExternalIdAttributeName}="non-existing-asset"`)
+            .replaceAll(itemExternalIdRegex, () => `${itemExternalIdAttributeName}="non-existing-item"`)
+            .replaceAll(itemLinkExternalIdRegex, () => `${itemLinkExternalIdAttributeName}="non-existing-item"`),
+          components: typedElement.components?.map(component => ({
+            id: "-",
+            type: { id: data.types.find(t => t.id === component.type.id)?.codename ?? "non-existing-type" },
+            elements: component.elements.map(createPrepareVariantElementReferences(data)),
+          })),
+        };
+
+        return result as ElementContracts.IContentItemElementContract;
+      }
+      case "subpages": {
+        const typedElement = element as LanguageVariantElements.ILinkedItemsInVariantElement;
+
+        const result: LanguageVariantElements.ILinkedItemsInVariantElement = {
+          ...typedElement,
+          element: { id: "-" },
+          value: typedElement.value
+            ?.map(ref => ({ id: data.items.find(i => i.id === ref.id)?.codename ?? "non-existing-item" }))
+            ?? [],
+        };
+
+        return result as ElementContracts.IContentItemElementContract;
+      }
+      case "taxonomy": {
+        const typedElement = element as LanguageVariantElements.ITaxonomyInVariantElement;
+        const typedTypeElement = typeElement as ContentTypeElements.ITaxonomyElement;
+
+        const result: LanguageVariantElements.ITaxonomyInVariantElement = {
+          ...typedElement,
+          element: { id: "-" },
+          value: typedElement.value
+            ?.map(ref => ({
+              id: getAllTerms(
+                data.taxonomies.find(g => g.id === typedTypeElement.taxonomy_group.id),
+              )
+                .find(t => t.id === ref.id)
+                ?.codename
+                ?? "non-existing-asset",
+            }))
+            ?? [],
+        };
+
+        return result as ElementContracts.IContentItemElementContract;
+      }
+      case "custom":
+      case "date_time":
+      case "number":
+      case "text":
+      case "url_slug":
+        return baseElement;
+      default:
+        throw new Error(`Found element of an unknown type "${typeElement.type}". This should not happen.`);
+    }
+  };
 
 const getAllTerms = (
   group: TaxonomyContracts.ITaxonomyContract | undefined,
