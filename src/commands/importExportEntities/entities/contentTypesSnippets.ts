@@ -21,7 +21,7 @@ type Snippet = Replace<
 type SnippetElement = RequiredId<FixReferences<ElementContracts.IContentTypeElementContract>>;
 
 export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>> = {
-  name: "contentTypesSnippets",
+  name: "contentTypeSnippets",
   fetchEntities: client =>
     client
       .listContentTypeSnippets()
@@ -47,7 +47,7 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>
 };
 
 export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<Snippet>> = {
-  name: "contentTypesSnippets",
+  name: "contentTypeSnippets",
   isDependentOn: contentTypesSnippetsEntity.name,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileSnippets, context, logOptions) => {
