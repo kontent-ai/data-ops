@@ -28,10 +28,12 @@ if (!API_KEY) {
   throw new Error("API_KEY is missing in environment variables.");
 }
 
+type FilterParam = { include: ReadonlyArray<keyof AllData> } | { exclude: ReadonlyArray<keyof AllData> };
+
 export const expectSameEnvironments = async (
   environmentId1: string,
   environmentId2: string,
-  excludeEntities: ReadonlyArray<keyof AllData> = [],
+  filterParam: FilterParam = { exclude: [] },
 ): Promise<void> => {
   const client1 = new ManagementClient({
     apiKey: API_KEY,
@@ -41,7 +43,10 @@ export const expectSameEnvironments = async (
     apiKey: API_KEY,
     environmentId: environmentId2,
   });
-  const has = (e: keyof AllData) => !excludeEntities.includes(e);
+  const has = (e: keyof AllData) =>
+    "exclude" in filterParam
+      ? !filterParam.exclude.includes(e)
+      : filterParam.include.includes(e);
   const sortedVariants = (data: AllData) => sortBy(data.variants, v => `${v.item.id};${v.language.id}`);
 
   const data1 = await loadAllData(client1).then(prepareReferences);
