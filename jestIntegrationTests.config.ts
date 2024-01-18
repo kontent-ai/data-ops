@@ -7,8 +7,6 @@ const jestConfig: JestConfigWithTsJest = {
   testEnvironment: 'node',
   rootDir: "tests/integration",
   testTimeout: 5 * minute,
-  maxConcurrency: 1,
-  maxWorkers: 2,
   transform: {
     ".*": ["ts-jest", {
       tsconfig: "tsconfig.tests.jsonc"
