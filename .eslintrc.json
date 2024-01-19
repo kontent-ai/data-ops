@@ -1,7 +1,24 @@
 {
-    "extends": [
-        "@kontent-ai"
-    ],
+  "extends": [
+    "@kontent-ai"
+  ],
+
+  "overrides": [
+    {
+      "files": ["src/**/*.ts"],
+      "excludedFiles": ["src/log.ts"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "MemberExpression[object.name='console'][property.name=/^(log|warn|error|info|trace)$/]",
+            "message": "Don't log into the console directly. Use one of the functions from the log.ts file (logInfo, logWarning, logError) to ensure provided --logLevel is respected."
+          }
+        ]
+      }
+    }
+  ],
+
   "parserOptions": {
     "project": ["tsconfig.json", "tsconfig.tests.jsonc", "tsconfig.configs.jsonc"]
   }
