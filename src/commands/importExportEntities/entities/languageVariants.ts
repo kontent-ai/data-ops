@@ -78,6 +78,7 @@ const createImportVariant =
           elementIdByOldId: typeContext.elementIdsByOldIds,
           elementTypeByOldId: typeContext.elementTypeByOldIds,
           multiChoiceOptionIdsByOldIdsByOldElementId: typeContext.multiChoiceOptionIdsByOldIdsByOldElementId,
+          logOptions,
         }))
           .filter(notNull),
       }))
@@ -148,6 +149,7 @@ type TransformElementParams = Readonly<{
   elementTypeByOldId: ReadonlyMap<string, string>;
   elementIdByOldId: ReadonlyMap<string, string>;
   multiChoiceOptionIdsByOldIdsByOldElementId: ReadonlyMap<string, ReadonlyMap<string, string>>;
+  logOptions: LogOptions;
 }>;
 
 type Element = FixReferences<ElementContracts.IContentItemElementContract>;
@@ -240,6 +242,7 @@ const createTransformElement = (params: TransformElementParams) =>
             typedElement.value,
             params.context,
             new Set(typedElement.components?.map(c => c.id) ?? []),
+            params.logOptions,
           )
           : typedElement.value,
         components: typedElement.components?.map(c => {

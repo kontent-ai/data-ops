@@ -172,6 +172,7 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
       createPatchItemAndTypeReferencesInTypeElement(
         params.context,
         getRequired(params.context.contentTypeContextByOldIds, type.id, "content type").elementIdsByOldIds,
+        params.logOptions,
       ),
     );
 

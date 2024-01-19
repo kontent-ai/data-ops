@@ -6,6 +6,7 @@ import {
   ElementContracts,
 } from "@kontent-ai/management-sdk";
 
+import { LogOptions } from "../../../../log.js";
 import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { FixReferences, Replace, RequiredId } from "../../../../utils/types.js";
 import { getRequired } from "../../../import/utils.js";
@@ -276,7 +277,7 @@ export const createTransformTypeElement =
   };
 
 export const createPatchItemAndTypeReferencesInTypeElement =
-  (context: ImportContext, elementsByOldIds: ReadonlyMap<string, string>) =>
+  (context: ImportContext, elementsByOldIds: ReadonlyMap<string, string>, logOptions: LogOptions) =>
   (
     fileElement: RequiredId<ElementContracts.IContentTypeElementContract>,
   ): ReadonlyArray<ContentTypeSnippetModels.IModifyContentTypeSnippetData> => {
@@ -296,7 +297,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
 
       case "guidelines": {
         const typedElement = fileElement as unknown as ContentTypeElements.IGuidelinesElement;
-        const newGuidelines = replaceImportRichTextReferences(typedElement.guidelines, context, new Set());
+        const newGuidelines = replaceImportRichTextReferences(typedElement.guidelines, context, new Set(), logOptions);
 
         return newGuidelines === typedElement.guidelines ? [] : [
           {
