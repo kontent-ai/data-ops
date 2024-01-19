@@ -1,3 +1,4 @@
+import { LogOptions, logWarning } from "../../../../log.js";
 import { ImportContext } from "../../entityDefinition.js";
 
 type ReferenceReplacer = <T extends string>(
@@ -32,13 +33,14 @@ export const replaceImportRichTextReferences = (
   richText: string,
   context: ImportContext,
   componentIds: ReadonlySet<string>,
+  logOptions: LogOptions,
 ): string =>
   replaceRichTextReferences({
     richText,
     replaceAssetId: (oldAssetId, asInternalId, asExternalId) => {
       const newAssetId = context.assetIdsByOldIds.get(oldAssetId);
       if (!newAssetId) {
-        console.warn(`Found asset id "${oldAssetId}" in rich text that doesn't exist.`);
+        logWarning(logOptions, "standard", `Found asset id "${oldAssetId}" in rich text that doesn't exist.`);
         return asExternalId(oldAssetId);
       }
 
@@ -52,7 +54,7 @@ export const replaceImportRichTextReferences = (
 
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
-        console.warn(`Found item id "${oldItemId}" in rich text that doesn't exist.`);
+        logWarning(logOptions, "standard", `Found item id "${oldItemId}" in rich text that doesn't exist.`);
         return asExternalId(oldItemId);
       }
 
@@ -61,7 +63,7 @@ export const replaceImportRichTextReferences = (
     replaceItemLinkId: (oldItemId, asInternalId, asExternalId) => {
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
-        console.warn(`Found a link to item id "${oldItemId}" in rich text that doesn't exist.`);
+        logWarning(logOptions, "standard", `Found a link to item id "${oldItemId}" in rich text that doesn't exist.`);
         return asExternalId(oldItemId);
       }
 

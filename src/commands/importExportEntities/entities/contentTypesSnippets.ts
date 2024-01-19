@@ -125,6 +125,7 @@ const createUpdateSnippetItemAndTypeReferencesFetcher = (params: UpdateSnippetPa
       createPatchItemAndTypeReferencesInTypeElement(
         params.context,
         getRequired(params.context.contentTypeSnippetContextByOldIds, snippet.id, "snippet").elementIdsByOldIds,
+        params.logOptions,
       ),
     );
 
