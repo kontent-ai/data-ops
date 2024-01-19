@@ -2,25 +2,24 @@ import { expect } from "@jest/globals";
 import {
   AssetContracts,
   AssetFolderContracts,
-  CollectionContracts,
   ContentItemContracts,
   ContentTypeContracts,
   ContentTypeElements,
   ContentTypeSnippetContracts,
   ElementContracts,
-  LanguageContracts,
   LanguageVariantContracts,
   LanguageVariantElements,
-  ManagementClient,
   PreviewContracts,
-  RoleContracts,
   SpaceContracts,
   TaxonomyContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
+import { config as dotenvConfig } from "dotenv";
 
 import { replaceRichTextReferences } from "../../../../src/commands/importExportEntities/entities/utils/richText";
-import { serially } from "../../../../src/utils/requests";
+import { AllEnvData, loadAllEnvData } from "./envData";
+
+dotenvConfig();
 
 const { API_KEY } = process.env;
 
@@ -28,29 +27,30 @@ if (!API_KEY) {
   throw new Error("API_KEY is missing in environment variables.");
 }
 
-type FilterParam = { include: ReadonlyArray<keyof AllData> } | { exclude: ReadonlyArray<keyof AllData> };
+type FilterParam = { include: ReadonlyArray<keyof AllEnvData> } | { exclude: ReadonlyArray<keyof AllEnvData> };
 
 export const expectSameEnvironments = async (
   environmentId1: string,
   environmentId2: string,
   filterParam: FilterParam = { exclude: [] },
 ): Promise<void> => {
-  const client1 = new ManagementClient({
-    apiKey: API_KEY,
-    environmentId: environmentId1,
-  });
-  const client2 = new ManagementClient({
-    apiKey: API_KEY,
-    environmentId: environmentId2,
-  });
-  const has = (e: keyof AllData) =>
+  const data1 = await loadAllEnvData(environmentId1).then(prepareReferences);
+  const data2 = await loadAllEnvData(environmentId2).then(prepareReferences);
+
+  expectSameAllEnvData(data1, data2, filterParam);
+};
+
+export const expectSameAllEnvData = (
+  data1: AllEnvData,
+  data2: AllEnvData,
+  filterParam: FilterParam = { exclude: [] },
+) => {
+  const has = (e: keyof AllEnvData) =>
     "exclude" in filterParam
       ? !filterParam.exclude.includes(e)
       : filterParam.include.includes(e);
-  const sortedVariants = (data: AllData) => sortBy(data.variants, v => `${v.item.id};${v.language.id}`);
 
-  const data1 = await loadAllData(client1).then(prepareReferences);
-  const data2 = await loadAllData(client2).then(prepareReferences);
+  const sortedVariants = (data: AllEnvData) => sortBy(data.variants, v => `${v.item.id};${v.language.id}`);
 
   // disabling unused expressions here as they are a lot more compact then ifs and a lot of them is necessary here
   /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -76,83 +76,7 @@ const sortBy = <T>(entities: ReadonlyArray<T>, sortByPicker: (e: T) => string): 
 const sortByCodename = <T extends { readonly codename: string }>(entities: ReadonlyArray<T>): ReadonlyArray<T> =>
   sortBy(entities, e => e.codename);
 
-type AllData = Readonly<{
-  collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
-  spaces: ReadonlyArray<SpaceContracts.ISpaceContract>;
-  languages: ReadonlyArray<LanguageContracts.ILanguageModelContract>;
-  previewUrls: PreviewContracts.IPreviewConfigurationContract;
-  taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
-  assetFolders: ReadonlyArray<AssetFolderContracts.IAssetFolderContract>;
-  assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
-  roles: ReadonlyArray<RoleContracts.IRoleContract>;
-  workflows: ReadonlyArray<WorkflowContracts.IWorkflowContract>;
-  snippets: ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>;
-  types: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
-  items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
-  variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
-}>;
-
-const loadAllData = async (client: ManagementClient): Promise<AllData> => ({
-  collections: await client
-    .listCollections()
-    .toPromise()
-    .then(res => res.rawData.collections),
-  spaces: await client
-    .listSpaces()
-    .toPromise()
-    .then(res => res.rawData),
-  languages: await client
-    .listLanguages()
-    .toAllPromise()
-    .then(res => res.data.items.map(l => l._raw)),
-  previewUrls: await client
-    .getPreviewConfiguration()
-    .toPromise()
-    .then(res => res.rawData),
-  taxonomies: await client
-    .listTaxonomies()
-    .toAllPromise()
-    .then(res => res.data.items.map(t => t._raw)),
-  assetFolders: await client
-    .listAssetFolders()
-    .toPromise()
-    .then(res => res.rawData.folders),
-  assets: await client
-    .listAssets()
-    .toAllPromise()
-    .then(res => res.data.items.map(a => a._raw)),
-  roles: await client
-    .listRoles()
-    .toPromise()
-    .then(res => res.rawData.roles),
-  workflows: await client
-    .listWorkflows()
-    .toPromise()
-    .then(res => res.rawData),
-  snippets: await client
-    .listContentTypeSnippets()
-    .toAllPromise()
-    .then(res => res.data.items.map(s => s._raw)),
-  types: await client
-    .listContentTypes()
-    .toAllPromise()
-    .then(res => res.data.items.map(t => t._raw)),
-  items: await client
-    .listContentItems()
-    .toAllPromise()
-    .then(res => res.data.items.map(i => i._raw)),
-  variants: (await serially((await client.listCollections().toPromise().then(res => res.rawData.collections))
-    .map(collection => async () =>
-      await client
-        .listLanguageVariantsByCollection()
-        .byCollectionId(collection.id)
-        .toAllPromise()
-        .then(res => res.data.items.map(v => v._raw))
-    )))
-    .flat(),
-});
-
-const prepareReferences = (data: AllData): AllData => ({
+const prepareReferences = (data: AllEnvData): AllEnvData => ({
   collections: data.collections.map(c => ({ ...c, id: "-", external_id: "-" })),
   spaces: data.spaces.map(createPrepareSpaceReferences(data)),
   languages: data.languages.map((l, _, allLanguages) => ({
@@ -175,7 +99,7 @@ const prepareReferences = (data: AllData): AllData => ({
   variants: data.variants.map(createPrepareVariantReferences(data)),
 });
 
-type PrepareReferencesCreator<T> = (data: AllData) => PrepareReferencesFnc<T>;
+type PrepareReferencesCreator<T> = (data: AllEnvData) => PrepareReferencesFnc<T>;
 type PrepareReferencesFnc<T> = (entity: T) => T;
 
 const createPrepareSpaceReferences: PrepareReferencesCreator<SpaceContracts.ISpaceContract> = data => space => ({
@@ -308,7 +232,7 @@ const createPrepareTypeReferences: PrepareReferencesCreator<ContentTypeContracts
   });
 
 const createPrepareTypeElementReferences = (
-  data: AllData,
+  data: AllEnvData,
   otherElements: ReadonlyArray<ElementContracts.IContentTypeElementContract>,
   contentGroups: ReadonlyArray<ContentTypeContracts.IContentTypeGroup>,
 ): PrepareReferencesFnc<ElementContracts.IContentTypeElementContract> =>
