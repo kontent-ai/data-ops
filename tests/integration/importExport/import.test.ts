@@ -1,4 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
+import { config as dotenvConfig } from "dotenv";
 
 import { expectHelpText } from "../utils/expectations";
 import { CommandError, runCommand } from "../utils/runCommand";
@@ -15,19 +16,18 @@ import {
   expectNoWorkflows,
 } from "./utils/isEmpty";
 
-const { EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, PRODUCTION_ENVIRONMENT_ID, API_KEY } = process.env;
+dotenvConfig();
+
+const { EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, API_KEY } = process.env;
 
 if (!EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID) {
   throw new Error("EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID environment variable is not defined.");
-}
-if (!PRODUCTION_ENVIRONMENT_ID) {
-  throw new Error("PRODUCTION_ENVIRONMENT_ID environment variable is not defined.");
 }
 if (!API_KEY) {
   throw new Error("API_KEY environment variable is not defined.");
 }
 
-describe("import", () => {
+describe("import command", () => {
   it.concurrent(
     "Imports all entities properly into the target project",
     withTestEnvironment(async environmentId => {
@@ -100,7 +100,7 @@ describe("import", () => {
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr);
+    await expectHelpText(result.stderr, "import");
     expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
   });
 
@@ -110,7 +110,7 @@ describe("import", () => {
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr);
+    await expectHelpText(result.stderr, "import");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
   });
@@ -121,7 +121,7 @@ describe("import", () => {
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr);
+    await expectHelpText(result.stderr, "import");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
   });

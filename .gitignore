@@ -1,6 +1,9 @@
 # Build output
 build/
 
+# Tests tmp data
+tests/integration/importExport/data/exportedData.zip
+
 # MacOS
 .DS_Store
 
