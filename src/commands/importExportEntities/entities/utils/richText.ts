@@ -18,7 +18,7 @@ export const replaceRichTextReferences = (params: ReplaceRichTextReferencesParam
   params.richText
     .replaceAll(assetRegex, (_, oldAssetId /* from the regex capture group*/) =>
       params.replaceAssetId(oldAssetId, id =>
-        `${assetAtributeName}="${id}"`, eId =>
+        `${assetAttributeName}="${id}"`, eId =>
         `${assetExternalIdAttributeName}="${eId}"`))
     .replaceAll(itemOrComponentRegex, (_, oldItemId /* from the regex capture group*/) =>
       params.replaceItemId(oldItemId, id =>
@@ -72,11 +72,11 @@ export const replaceImportRichTextReferences = (
   });
 
 const uuidRegex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const assetAtributeName = "data-asset-id";
+const assetAttributeName = "data-asset-id";
 const itemOrComponentAttributeName = "data-id";
 const itemLinkAttributeName = "data-item-id";
 
-const assetRegex = new RegExp(`${assetAtributeName}="(${uuidRegex})"`, "gi");
+const assetRegex = new RegExp(`${assetAttributeName}="(${uuidRegex})"`, "gi");
 const itemOrComponentRegex = new RegExp(`${itemOrComponentAttributeName}="(${uuidRegex})"`, "gi");
 const itemLinkRegex = new RegExp(`${itemLinkAttributeName}="(${uuidRegex})"`, "gi");
 
