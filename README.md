@@ -17,8 +17,8 @@
     * [Structure of the Exported Data](#structure-of-the-exported-data)
     * [Known Limitations](#known-limitations)
   * [Import](#import)
-    * [Usage](#usage-2)
-    * [Known Limitations](#known-limitations-2)
+    * [Usage](#usage-1)
+    * [Known Limitations](#known-limitations-1)
 
 # Getting Started
 
