@@ -40,7 +40,7 @@ export const replaceImportRichTextReferences = (
     replaceAssetId: (oldAssetId, asInternalId, asExternalId) => {
       const newAssetId = context.assetIdsByOldIds.get(oldAssetId);
       if (!newAssetId) {
-        logWarning(logOptions, "standard", `Found asset id "${oldAssetId}" in rich text that doesn't exist.`);
+        logWarning(logOptions, "standard", `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`);
         return asExternalId(oldAssetId);
       }
 
@@ -54,7 +54,7 @@ export const replaceImportRichTextReferences = (
 
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
-        logWarning(logOptions, "standard", `Found item id "${oldItemId}" in rich text that doesn't exist.`);
+        logWarning(logOptions, "standard", `Found item id "${oldItemId}" of a non-existent item in the rich text.`);
         return asExternalId(oldItemId);
       }
 
@@ -63,7 +63,7 @@ export const replaceImportRichTextReferences = (
     replaceItemLinkId: (oldItemId, asInternalId, asExternalId) => {
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
-        logWarning(logOptions, "standard", `Found a link to item id "${oldItemId}" in rich text that doesn't exist.`);
+        logWarning(logOptions, "standard", `Found a link to a non-existent item id "${oldItemId}" in the rich text.`);
         return asExternalId(oldItemId);
       }
 
