@@ -2,7 +2,6 @@
   "name": "@kontent-ai/data-ops",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -13,6 +12,17 @@
     "test:integration": "npm run build && jest --config=jestIntegrationTests.config.ts",
     "test:unit": "jest --config=jestUnitTests.config.ts"
 
+  },
+  "files": [
+    "./build/src/**/*"
+  ],
+  "main": "./build/src/index.js",
+  "types": "./build/src/index.d.ts",
+  "bin": {
+    "data-ops": "./build/src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "repository": {
     "type": "git",
