@@ -14,7 +14,7 @@
 
   },
   "files": [
-    "./build/src/**/*"
+    "./build/**/*"
   ],
   "main": "./build/src/index.js",
   "types": "./build/src/index.d.ts",
