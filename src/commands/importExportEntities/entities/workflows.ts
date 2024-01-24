@@ -33,11 +33,18 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
     const newProjectWfs = await addWorkflows(client, importWfs, context, logOptions);
 
     const newDefaultWfStepIdEntries = extractStepIdEntriesWithContext(importDefaultWf, projectDefaultWf);
+
+    const defaultWfDraftStep = importDefaultWf.steps[0];
+    if (!defaultWfDraftStep) {
+      throw new Error("The default workflow has no steps. This should never happen.");
+    }
+
     const defaultWorkflowContext = {
       selfId: defaultWorkflowId,
       oldArchivedStepId: importDefaultWf.archived_step.id,
       oldScheduledStepId: importDefaultWf.scheduled_step.id,
       oldPublishedStepId: importDefaultWf.published_step.id,
+      oldDraftStepId: defaultWfDraftStep.id,
       anyStepIdLeadingToPublishedStep: importDefaultWf.steps
         .find(s => s.transitions_to.find(t => t.step.id === importDefaultWf.published_step.id))?.id ?? "",
     };
@@ -132,11 +139,18 @@ const addWorkflows = async (
           .then(res => res.rawData as Workflow);
 
         const workflowSteps = extractStepIdEntriesWithContext(importWorkflow, response);
+
+        const draftStep = response.steps[0];
+        if (!draftStep) {
+          throw new Error(`Found workflow "${importWorkflow.id}" without any steps. This should never happen.`);
+        }
+
         const workflowContext: MapValues<ImportContext["workflowIdsByOldIds"]> = {
           selfId: response.id,
           oldPublishedStepId: response.published_step.id,
           oldArchivedStepId: response.archived_step.id,
           oldScheduledStepId: response.scheduled_step.id,
+          oldDraftStepId: draftStep.id,
           anyStepIdLeadingToPublishedStep:
             response.steps.find(s => s.transitions_to.find(t => t.step.id === response.published_step.id))?.id ?? "",
         };

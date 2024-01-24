@@ -337,8 +337,8 @@ const findTargetWfStep = (
     case wfContext.oldScheduledStepId:
       return {
         wfId: wfContext.selfId,
-        wfStepId: translateStepId(wfContext.anyStepIdLeadingToPublishedStep),
-        nextAction: { action: "publish" }, // There is no way to determing the date when the variant should be published using the current MAPI so we will publish it immediately instead for now
+        wfStepId: translateStepId(wfContext.oldDraftStepId),
+        nextAction: { action: "none" }, // TODO: Change this to schedule once propert schedule export from MAPI is supported
       };
     case wfContext.oldArchivedStepId:
       return {

@@ -72,6 +72,7 @@ export type ImportContext = Readonly<{
       oldPublishedStepId: string;
       oldScheduledStepId: string;
       oldArchivedStepId: string;
+      oldDraftStepId: string; // TODO: Remove this once proper schedule is supported for export from MAPI
       anyStepIdLeadingToPublishedStep: string;
     }>
   >;

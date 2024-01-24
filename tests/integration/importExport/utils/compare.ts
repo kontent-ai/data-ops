@@ -476,17 +476,27 @@ const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantCo
           ?? "non-existing-workflow",
       },
       step_identifier: {
-        id: data.workflows
-          .flatMap(wf => wf.steps)
-          .find(step => step.id === variant.workflow.step_identifier.id)?.codename
-          ?? "non-existing-step",
+        id: data.workflows.map(wf => wf.scheduled_step.id).includes(variant.workflow.step_identifier.id ?? "") // TODO: remove once we schedule variants when importing (currently it is not possible and scheduled variants are put to draft)
+          ? data.workflows
+            .find(wf => wf.id === variant.workflow.workflow_identifier.id)
+            ?.steps[0]?.codename
+            ?? "non-existing-step"
+          : data.workflows
+            .flatMap(getAllSteps)
+            .find(step => step.id === variant.workflow.step_identifier.id)?.codename
+            ?? "non-existing-step",
       },
     },
     workflow_step: {
-      id: data.workflows
-        .flatMap(wf => wf.steps)
-        .find(step => step.id === variant.workflow_step.id)?.codename
-        ?? "non-existing-step",
+      id: data.workflows.map(wf => wf.scheduled_step.id).includes(variant.workflow_step.id ?? "") // TODO: remove once we schedule variants when importing (currently it is not possible and scheduled variants are put to draft)
+        ? data.workflows
+          .find(wf => wf.id === variant.workflow.workflow_identifier.id)
+          ?.steps[0]?.codename
+          ?? "non-existing-step"
+        : data.workflows
+          .flatMap(getAllSteps)
+          .find(step => step.id === variant.workflow_step.id)?.codename
+          ?? "non-existing-step",
     },
     elements: variant.elements.map(createPrepareVariantElementReferences(data)),
   });
@@ -636,6 +646,13 @@ const getAllTerms = (
       ...group.terms.flatMap(getAllTerms),
     ]
     : [];
+
+const getAllSteps = (workflow: WorkflowContracts.IWorkflowContract) => [
+  workflow.published_step,
+  workflow.scheduled_step,
+  workflow.archived_step,
+  ...workflow.steps,
+];
 
 const itemExternalIdAttributeName = "data-external-id";
 const itemLinkExternalIdAttributeName = "data-item-external-id";
