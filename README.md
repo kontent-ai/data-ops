@@ -158,7 +158,7 @@ See the [export command limitation](#new-versions-of-published-variants) for mor
 
 #### Language Variants Scheduled For Publishing
 
-Because the format cannot support publishing time for variants scheduled to be published, the tool instead publishes all scheduled variants immediately during the import process.
+Because the format cannot support publishing time for variants scheduled to be published, the tool instead puts the scheduled variants into the draft step (the first step in the workflow).
 See the [export command limitation](#language-variants-scheduled-for-publishing) for details.
 
 # Contributing
