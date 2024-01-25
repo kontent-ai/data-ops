@@ -40,7 +40,8 @@ const createImportItemFetcher =
         type: { id: getRequired(context.contentTypeContextByOldIds, fileItem.type.id, "content type").selfId },
         collection: { id: getRequired(context.collectionIdsByOldIds, fileItem.collection.id, "collection") },
         external_id: fileItem.external_id ?? fileItem.codename,
-      })
+        sitemap_locations: [],
+      } as ContentItemContracts.IAddContentItemPostContract) // The sitemap_locations is missing in the type
       .toPromise()
       .then(res => res.rawData);
   };
