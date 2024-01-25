@@ -131,7 +131,9 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
   exportMetadata(params.environmentId);
 
-  const fileName = params.fileName ?? `${new Date().toISOString()}-export-${params.environmentId}.zip`;
+  const now = new Date();
+  const fileName = params.fileName
+    ?? `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${now.getUTCHours()}-${now.getUTCMinutes()}-export-${params.environmentId}.zip`;
 
   await zip.generateAsync({ type: "nodebuffer" })
     .then(content => fsPromises.writeFile(fileName, content));
