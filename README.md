@@ -1,5 +1,8 @@
 # Kontent.ai Data Ops
 
+Data-ops is a CLI tool for working with data in your Kontent.ai projects.
+It runs in Node.js with ESM support (lts).
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -22,8 +25,6 @@
 
 # Getting Started
 
-Data-ops is a CLI tool for working with data in your Kontent.ai projects.
-It runs in Node.js with ESM support (lts).
 We recommend running it with `npx`.
 Use `-h` or `--help` anytime to get information about available commands and their options.
 ```bash
@@ -33,6 +34,12 @@ yarn dlx @kontent-ai/data-ops --help
 
 # help for a specific command
 npx @kontent-ai/data-ops <command> --help
+
+# you can also install the package globally or locally
+npm i @kontent-ai/data-ops -g
+
+# with the package installed, you can call i like this
+data-ops --help
 ```
 
 ## Configuration
