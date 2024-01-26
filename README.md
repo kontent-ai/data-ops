@@ -132,7 +132,6 @@ Published language variants that don't exist in any other workflow step are expo
 
 ### Content Scheduled For Publishing
 As the current API format doesn't support inclusion of the publishing time for variants scheduled to be published, the tool instead puts the scheduled variants into the draft step (the first step in the workflow).
-See the [export command limitation](#language-variants-scheduled-for-publishing) for details.
 
 ### Web Spotlight
 [Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) currently can't be enabled through the tool. As a result, it is not possible to set root item for spaces as this can only be done on environments with Web Spotlight enabled.
