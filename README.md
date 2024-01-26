@@ -4,6 +4,7 @@ Data-ops is a CLI tool for working with data in your Kontent.ai projects.
 It runs in Node.js with ESM support (lts).
 
 [![Contributors][contributors-shield]][contributors-url]
+[![NPM Version][npm-shield]][npm-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
@@ -37,7 +38,7 @@ npx @kontent-ai/data-ops <command> --help
 # you can also install the package globally, or locally
 npm i @kontent-ai/data-ops -g
 
-# with the package installed, you can call i as follows
+# with the package installed, you can call the tool as follows
 data-ops --help
 ```
 
@@ -185,3 +186,5 @@ Try to limit the number of tests that require the environment as it takes some t
 [license-url]:https://github.com/kontent-ai/data-ops/blob/master/LICENSE.md
 [discord-shield]: https://img.shields.io/discord/821885171984891914?color=%237289DA&label=Kontent.ai%20Discord&logo=discord&style=for-the-badge
 [discord-url]: https://discord.com/invite/SKCxwPtevJ
+[npm-url]: https://www.npmjs.com/package/@kontent-ai/data-ops
+[npm-shield]: https://img.shields.io/npm/v/%40kontent-ai%2Fdata-ops?style=for-the-badge&logo=npm&color=%23CB0000
