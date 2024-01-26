@@ -18,14 +18,13 @@ It runs in Node.js with ESM support (lts).
   * [Export](#export)
     * [Usage](#usage)
     * [Structure of the Exported Data](#structure-of-the-exported-data)
-    * [Known Limitations](#known-limitations)
   * [Import](#import)
     * [Usage](#usage-1)
-    * [Known Limitations](#known-limitations-1)
+  * [Known Limitations](#known-limitations)
 
 # Getting Started
 
-We recommend running it with `npx`.
+We recommend running data-ops with `npx`.
 Use `-h` or `--help` anytime to get information about available commands and their options.
 ```bash
 npx @kontent-ai/data-ops --help
@@ -35,10 +34,10 @@ yarn dlx @kontent-ai/data-ops --help
 # help for a specific command
 npx @kontent-ai/data-ops <command> --help
 
-# you can also install the package globally or locally
+# you can also install the package globally, or locally
 npm i @kontent-ai/data-ops -g
 
-# with the package installed, you can call i like this
+# with the package installed, you can call i as follows
 data-ops --help
 ```
 
@@ -51,7 +50,7 @@ All options (including options for commands) can be provided in three different 
 
 # Commands
 
-The tool usage is based on commands, provided in the following format:
+The tool usage is based on commands provided in the following format:
 
 ```bash
 npx @kontent-ai/data-ops <command-name> <command-options>
@@ -72,7 +71,7 @@ To see all supported parameters, run `npx @kontent-ai/data-ops export --help`.
 ### Structure of the Exported Data
 
 The exported `.zip` package contains a `.json` file for each exported entity and a `metadata.json` file with additional information.
-Format of all the entities is exactly the same as what the [Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) returns.
+Format of all the entities is compatible with the output of the [Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/).
 
 > [!TIP]
 > If you need the data in a different format, you can process the `.zip` data with a variety of other tools to transform it as per your requirements.
@@ -102,33 +101,11 @@ You can check out exported data of an example project in [the data for integrati
 >
 > To get more information about the parameters or what other parameters are available, run `npx @kontent-ai/data-ops export --help`.
 
-### Known Limitations
-
-#### Missing Entities
-
-Sitemap and [asset type](https://kontent.ai/learn/docs/assets/asset-organization#a-set-up-the-asset-type) entities are not supported by the Management API and thus are not exported.
-
-#### New Versions of Published Variants
-
-With the current version of the Management API,
-it is not possible to read the published version of an item variant that is published and has a [new version](https://kontent.ai/learn/docs/workflows-publishing/create-new-versions) at the same time.
-As a result, the export will only contain data of the latest versions and not the published ones.
-Published language variants that don't exist in any other workflow step are exported correctly.
-
-#### Language Variants Scheduled For Publishing
-
-With the current version of the Management API,
-it is not possible to get the time for which a variant is scheduled to be published.
-Therefore, the exported data only contain the information that the variant is scheduled to be published, but without the date.
-
-#### Performance
-
-The command leverages [the Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2) to get the project data which might be slow for projects with large amounts of content items.
 
 ## Import
 
 With the `import` command, you can import data into your Kontent.ai environment.
-The target environment needs to be empty, otherwise the command might fail.
+**The target environment needs to be empty**, otherwise the command might fail.
 The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2) to import the data.
 
 > [!TIP]
@@ -143,30 +120,25 @@ npx @kontent-ai/data-ops import --fileName <file-to-import> --environmentId <tar
 ```
 To see all supported parameters, run `npx @kontent-ai/data-ops import --help`.
 
-### Known Limitations
+## Known Limitations
+### Entity limitations
 
-#### Missing Entities
+Roles and [asset type](https://kontent.ai/learn/docs/assets/asset-organization#a-set-up-the-asset-type) entities are currently not being exported due to API limitations.
+The tool also can't set role limitations when importing workflows.
 
-Sitemap, roles and [asset type](https://kontent.ai/learn/docs/assets/asset-organization#a-set-up-the-asset-type) entities are not supported by the Management API and thus are not exported.
+### Multiple Versions of content
+Since the API format doesn't support language variants with both a published version and a draft version, only the [newest version](https://kontent.ai/learn/docs/workflows-publishing/create-new-versions) will be exported or imported.
+Published language variants that don't exist in any other workflow step are exported correctly.
 
-#### Role limitations in Workflows
-
-Since it is not possible to import roles, the tool doesn't set role limitations when importing workflows.
-
-#### Web Spotlight
-
-It is not possible to enable [Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) through the Management API so it can't be "imported".
-As a result, it is also not possible to set root item for spaces, as this can only be done on environments with Web Spotlight enabled.
-
-#### New Versions of Published Variants
-
-Since the format doesn't support language variants with both a published version and a new one, we can't import it.
-See the [export command limitation](#new-versions-of-published-variants) for more details.
-
-#### Language Variants Scheduled For Publishing
-
-Because the format cannot support publishing time for variants scheduled to be published, the tool instead puts the scheduled variants into the draft step (the first step in the workflow).
+### Content Scheduled For Publishing
+As the current API format doesn't support inclusion of the publishing time for variants scheduled to be published, the tool instead puts the scheduled variants into the draft step (the first step in the workflow).
 See the [export command limitation](#language-variants-scheduled-for-publishing) for details.
+
+### Web Spotlight
+[Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) currently can't be enabled through the tool. As a result, it is not possible to set root item for spaces as this can only be done on environments with Web Spotlight enabled.
+
+### Performance
+The tool leverages the Management API to work with the project data and thus is bound by the API rate limitations.
 
 # Contributing
 
