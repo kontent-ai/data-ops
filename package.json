@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
-    "@kontent-ai/eslint-config": "^0.1.3",
+    "@kontent-ai/eslint-config": "^1.0.0",
     "@types/node": "^20.10.8",
     "@types/uuid": "^9.0.7",
     "@types/yargs": "^17.0.32",
