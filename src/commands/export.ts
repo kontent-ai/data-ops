@@ -1,7 +1,9 @@
+import { finished } from "node:stream/promises";
+
 import { ManagementClient } from "@kontent-ai/management-sdk";
+import archiver from "archiver";
 import chalk from "chalk";
-import * as fsPromises from "fs/promises";
-import JSZip from "jszip";
+import * as fs from "fs";
 
 import packageFile from "../../package.json" assert { type: "json" };
 import { logError, logInfo, LogOptions } from "../log.js";
@@ -21,8 +23,6 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityExportDefinition } from "./importExportEntities/entityDefinition.js";
-
-const zip = new JSZip();
 
 const {
   version,
@@ -111,15 +111,23 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     `\nExporting entities from environment id ${chalk.bold.yellow(params.environmentId)}\n`,
   );
 
+  const now = new Date();
+  const fileName = params.fileName
+    ?? `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${now.getUTCHours()}-${now.getUTCMinutes()}-export-${params.environmentId}.zip`;
+
+  const outputStream = fs.createWriteStream(fileName);
+  const archive = archiver("zip");
+  archive.pipe(outputStream);
+
   await serially(definitionsToExport.map(def => async () => {
     logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.name)}`);
 
     try {
       const entities = await def.fetchEntities(client);
-      await def.addOtherFiles?.(entities, zip);
+      await def.addOtherFiles?.(entities, archive);
       const result = def.serializeEntities(entities);
 
-      zip.file(`${def.name}.json`, result);
+      archive.append(result, { name: `${def.name}.json` });
     } catch (err) {
       logError(
         params,
@@ -129,14 +137,10 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     }
   }));
 
-  exportMetadata(params.environmentId);
+  exportMetadata(archive, params.environmentId);
 
-  const now = new Date();
-  const fileName = params.fileName
-    ?? `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${now.getUTCHours()}-${now.getUTCMinutes()}-export-${params.environmentId}.zip`;
-
-  await zip.generateAsync({ type: "nodebuffer" })
-    .then(content => fsPromises.writeFile(fileName, content));
+  await archive.finalize();
+  await finished(outputStream);
 
   logInfo(
     params,
@@ -147,12 +151,12 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   );
 };
 
-const exportMetadata = async (environmentId: string) => {
+const exportMetadata = async (archive: archiver.Archiver, environmentId: string) => {
   const metadata = {
     version: version,
     timestamp: new Date(),
     environmentId,
   };
 
-  zip.file("metadata.json", JSON.stringify(metadata));
+  archive.append(JSON.stringify(metadata), { name: "metadata.json" });
 };
