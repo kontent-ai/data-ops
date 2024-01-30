@@ -10,7 +10,7 @@ export type EntityExportDefinition<T> = Readonly<{
   name: string;
   fetchEntities: (client: ManagementClient) => Promise<T>;
   serializeEntities: (entities: T) => string;
-  addOtherFiles?: (loadedEntities: T, archive: archiver.Archiver) => Promise<void>;
+  addOtherFiles?: (loadedEntities: T, archive: archiver.Archiver, logOptions: LogOptions) => Promise<void>;
 }>;
 
 export type EntityImportDefinition<T> = Readonly<{
