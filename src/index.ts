@@ -28,7 +28,8 @@ const initialYargs = emptyYargs
   .strict()
   .config("configFile", "Path to a .json configuration file. This is an alternative way to provide CLI parameters.")
   .help("h")
-  .alias("h", "help");
+  .alias("h", "help")
+  .alias("v", "version");
 
 const withLogLevel = addLogLevelOptions(initialYargs);
 
