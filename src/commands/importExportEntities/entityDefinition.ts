@@ -1,4 +1,5 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
+import archiver from "archiver";
 import JSZip from "jszip";
 
 import { LogOptions } from "../../log.js";
@@ -9,7 +10,7 @@ export type EntityExportDefinition<T> = Readonly<{
   name: string;
   fetchEntities: (client: ManagementClient) => Promise<T>;
   serializeEntities: (entities: T) => string;
-  addOtherFiles?: (loadedEntities: T, zip: JSZip) => Promise<void>;
+  addOtherFiles?: (loadedEntities: T, archive: archiver.Archiver) => Promise<void>;
 }>;
 
 export type EntityImportDefinition<T> = Readonly<{
