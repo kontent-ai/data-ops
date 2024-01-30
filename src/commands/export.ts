@@ -124,7 +124,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
     try {
       const entities = await def.fetchEntities(client);
-      await def.addOtherFiles?.(entities, archive);
+      await def.addOtherFiles?.(entities, archive, params);
       const result = def.serializeEntities(entities);
 
       archive.append(result, { name: `${def.name}.json` });
