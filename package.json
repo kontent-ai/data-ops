@@ -10,7 +10,6 @@
     "fmt:check": "dprint check",
     "start": "npm run build && node ./build/src/index.js",
     "test:integration": "npm run build && jest --config=jestIntegrationTests.config.ts",
-    "debugRun": "npm run build && ./build/src/index.js export --configFile tmpConfig.json",
     "test:unit": "jest --config=jestUnitTests.config.ts"
   },
   "files": [
@@ -38,7 +37,7 @@
     "@kontent-ai/management-sdk": "^5.8.0",
     "archiver": "^6.0.1",
     "chalk": "^5.3.0",
-    "jszip": "^3.10.1",
+    "node-stream-zip": "^1.15.0",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
