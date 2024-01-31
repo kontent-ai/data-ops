@@ -15,8 +15,7 @@ import {
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
-import * as fsPromises from "fs/promises";
-import JSZip from "jszip";
+import StreamZip, { StreamZipAsync } from "node-stream-zip";
 
 import { serially } from "../../../../src/utils/requests";
 
@@ -114,7 +113,7 @@ const loadAllData = async (client: ManagementClient): Promise<AllEnvData> => ({
 });
 
 export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvData> => {
-  const zip = await fsPromises.readFile(fileName).then(buffer => JSZip.loadAsync(buffer));
+  const zip = new StreamZip.async({ file: fileName });
 
   return {
     collections: await loadFile(zip, "collections.json"),
@@ -133,4 +132,8 @@ export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvDat
   };
 };
 
-const loadFile = (zip: JSZip, fileName: string) => zip.file(fileName)?.async("string").then(JSON.parse);
+const loadFile = (zip: StreamZipAsync, fileName: string) =>
+  zip.entryData(fileName)
+    .then(b => b.toString("utf8"))
+    .then(JSON.parse)
+    .catch(() => undefined);

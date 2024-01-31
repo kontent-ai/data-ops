@@ -1,6 +1,6 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import archiver from "archiver";
-import JSZip from "jszip";
+import { StreamZipAsync } from "node-stream-zip";
 
 import { LogOptions } from "../../log.js";
 
@@ -22,8 +22,8 @@ export type EntityImportDefinition<T> = Readonly<{
     entities: T,
     context: ImportContext,
     logOptions: LogOptions,
-    zip: JSZip,
-  ) => Promise<void | ImportContext>;
+    zip: StreamZipAsync,
+  ) => Promise<void | undefined | ImportContext>;
 }>;
 
 export type DependentImportAction<T> = Readonly<{

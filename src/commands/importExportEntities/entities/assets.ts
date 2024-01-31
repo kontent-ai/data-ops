@@ -1,7 +1,7 @@
 import { AssetContracts, ManagementClient } from "@kontent-ai/management-sdk";
 import archiver from "archiver";
 import chalk from "chalk";
-import JSZip from "jszip";
+import { StreamZipAsync } from "node-stream-zip";
 import stream from "stream";
 
 import { logInfo, LogOptions } from "../../../log.js";
@@ -11,7 +11,8 @@ import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const assetsBinariesFolderName = "assets";
-const createFileName = (asset: AssetContracts.IAssetModelContract) => `${asset.id}-${asset.file_name}`;
+const createFileName = (asset: AssetContracts.IAssetModelContract) =>
+  `${assetsBinariesFolderName}/${asset.id}-${asset.file_name}`;
 
 type AssetWithElements = FixReferences<AssetContracts.IAssetModelContract> & {
   readonly elements: ReadonlyArray<unknown>;
@@ -36,18 +37,12 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
       );
     }
 
-    const assetsZip = zip.folder(assetsBinariesFolderName);
     if (!fileAssets.length) {
       return;
     }
-    if (!assetsZip) {
-      throw new Error(
-        `It is not possible to import assets, because the folder with asset binaries ("${assetsBinariesFolderName}") is missing.`,
-      );
-    }
 
     const assetIdEntries = await serially(
-      fileAssets.map(createImportAssetFetcher(assetsZip, client, context, logOptions)),
+      fileAssets.map(createImportAssetFetcher(zip, client, context, logOptions)),
     );
 
     return {
@@ -64,18 +59,15 @@ const saveAsset = async (
 ) => {
   logInfo(logOptions, "verbose", `Exporting: file ${chalk.yellow(asset.file_name)}.`);
   const file = await fetch(asset.url).then(res => res.blob()).then(res => res.stream());
-  archive.append(stream.Readable.fromWeb(file), { name: "assets/" + createFileName(asset) });
+  archive.append(stream.Readable.fromWeb(file), { name: createFileName(asset) });
 };
 
 const createImportAssetFetcher =
-  (zip: JSZip, client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>
+  (zip: StreamZipAsync, client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>
   (fileAsset: AssetWithElements) =>
   async (): Promise<readonly [string, string]> => {
-    const binary = await zip.file(createFileName(fileAsset))?.async("nodebuffer");
+    const binary = await zip.entryData(createFileName(fileAsset));
 
-    if (!binary) {
-      throw new Error(`Failed to load a binary file "${fileAsset.file_name}" for asset "${fileAsset.id}".`);
-    }
     const folderId = fileAsset.folder?.id
       ? getRequired(context.assetFolderIdsByOldIds, fileAsset.folder.id, "folder")
       : undefined;

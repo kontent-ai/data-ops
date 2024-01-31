@@ -1,7 +1,6 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
-import * as fsPromises from "fs/promises";
-import JSZip from "jszip";
+import StreamZip from "node-stream-zip";
 
 import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
@@ -101,7 +100,7 @@ type ImportEntitiesParams =
   & LogOptions;
 
 const importEntities = async (params: ImportEntitiesParams) => {
-  const root = await fsPromises.readFile(params.fileName).then(JSZip.loadAsync);
+  const root = new StreamZip.async({ file: params.fileName });
   const client = new ManagementClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
@@ -125,8 +124,8 @@ const importEntities = async (params: ImportEntitiesParams) => {
     logInfo(params, "standard", `Importing: ${chalk.yellow(def.name)}`);
 
     try {
-      context = await root.file(`${def.name}.json`)
-        ?.async("string")
+      context = await root.entryData(`${def.name}.json`)
+        .then(b => b.toString("utf8"))
         .then(def.deserializeEntities)
         .then(e => def.importEntities(client, e, context, params, root))
         ?? context;
