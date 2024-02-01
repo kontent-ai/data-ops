@@ -106,8 +106,10 @@ You can check out exported data of an example project in [the data for integrati
 ## Import
 
 With the `import` command, you can import data into your Kontent.ai environment.
-**The target environment needs to be empty**, otherwise the command might fail.
 The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2) to import the data.
+
+> [!CAUTION]
+> **The target environment needs to be empty**, otherwise the command might fail (e.g. when there are entities with the same codename already present).
 
 > [!TIP]
 > The command expects the data for import in a `.zip` file in the same [structure](#structure-of-the-exported-data) that is produced by the [export command](#export).
