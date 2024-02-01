@@ -17,7 +17,7 @@ export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.
 
         return client
           .addTaxonomy()
-          .withData(addExternalIds(taxonomy))
+          .withData(createAddExternalIds(taxonomy)(taxonomy))
           .toPromise()
           .then(res => res.data._raw);
       }),
@@ -36,11 +36,14 @@ export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.
   deserializeEntities: JSON.parse,
 };
 
-const addExternalIds = (taxonomy: TaxonomyContracts.ITaxonomyContract): TaxonomyContracts.ITaxonomyContract => ({
-  ...taxonomy,
-  external_id: taxonomy.external_id ?? taxonomy.codename,
-  terms: taxonomy.terms.map(addExternalIds),
-});
+const createAddExternalIds =
+  (group: TaxonomyContracts.ITaxonomyContract) =>
+  (taxonomy: TaxonomyContracts.ITaxonomyContract): TaxonomyContracts.ITaxonomyContract => ({
+    ...taxonomy,
+    external_id: taxonomy.external_id
+      ?? (taxonomy === group ? group.codename : `${group.codename}_${taxonomy.codename}`),
+    terms: taxonomy.terms.map(createAddExternalIds(group)),
+  });
 
 const extractTermIdsEntries = (
   [fileTaxonomy, projectTaxonomy]: readonly [TaxonomyContracts.ITaxonomyContract, TaxonomyContracts.ITaxonomyContract],
