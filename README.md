@@ -137,6 +137,10 @@ As the current API format doesn't support inclusion of the publishing time for v
 ### Web Spotlight
 [Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) currently can't be enabled through the tool. As a result, it is not possible to set root item for spaces as this can only be done on environments with Web Spotlight enabled.
 
+### Asset Size
+The management API accepts only assets smaller than 100MB.
+If your export file contains assets bigger than that (they can be uploaded through the UI), the tool won't be able to import them.
+
 ### Performance
 The tool leverages the Management API to work with the project data and thus is bound by the API rate limitations.
 
