@@ -7,9 +7,9 @@ import { generateTaxonomyGroupsModel } from "./modelGenerators/taxonomyGroups.js
 
 type GetModelConfig = ManagementClientBaseOptions & GetModelOptions;
 
-type GetModelOptions = {
+type GetModelOptions = Readonly<{
   filename?: string;
-};
+}>;
 
 export const generateSyncModelToFile = (config: GetModelConfig) => {
   /**

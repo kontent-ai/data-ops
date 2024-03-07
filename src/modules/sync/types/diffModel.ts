@@ -10,7 +10,7 @@ type DiffObject<A, U> = Readonly<{
   deleted: ReadonlyArray<Codename>;
 }>;
 
-export type DiffModel = {
+export type DiffModel = Readonly<{
   taxonomyGroups: DiffObject<
     RequiredCodename<TaxonomyModels.IAddTaxonomyRequestModel>,
     TaxonomyModels.IModifyTaxonomyData
@@ -23,4 +23,4 @@ export type DiffModel = {
     RequiredCodename<ContentTypeModels.IAddContentTypeData>,
     ContentTypeModels.IModifyContentTypeData
   >;
-};
+}>;

@@ -10,6 +10,8 @@ export type CodenameReference = Readonly<{ codename: string }>;
  * Use this to replace inaccurate references for better ones in SDK types returned from MAPI.
  *
  * @example FixReferences<LanguageVariantContracts.ILanguageVariantModel>
+ *
+ * @example FixReferences<LanguageVariantContracts.ILanguageVariantModel, MyBetterReference>
  */
 export type FixReferences<T, R extends IdReference | CodenameReference = IdReference> = T extends object ? {
     [K in keyof T]: T[K] extends SharedContracts.IReferenceObjectContract
