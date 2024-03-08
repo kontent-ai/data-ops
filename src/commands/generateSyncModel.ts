@@ -1,5 +1,5 @@
 import { LogOptions } from "../log.js";
-import { generateSyncModelToFile } from "../modules/sync/generateSyncModel.js";
+import { fetchModel, saveSyncModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { RegisterCommand } from "../types/yargs.js";
 
 export const generateSyncModel: RegisterCommand = yargs =>
@@ -38,7 +38,14 @@ export type SyncParams =
   }>
   & LogOptions;
 
-export const generateModel = (params: SyncParams) => {
+export const generateModel = async (params: SyncParams) => {
   // TODO
-  generateSyncModelToFile(params);
+  const environmentModel = await fetchModel({
+    environmentId: params.environmentId,
+    apiKey: params.apiKey,
+  });
+
+  const syncModel = transformSyncModel(environmentModel);
+
+  saveSyncModel(syncModel);
 };

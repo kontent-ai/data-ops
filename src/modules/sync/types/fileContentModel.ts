@@ -5,31 +5,31 @@ import {
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
 
-import { CodenameReference, FixReferences } from "../../../utils/types.js";
+import { CodenameReference, ReplaceReferences } from "../../../utils/types.js";
 
-export type TaxonomyContract =
+export type TaxonomySyncModel =
   & Omit<TaxonomyContracts.ITaxonomyContract, "id" | "last_modified" | "codename" | "terms">
   & Readonly<{
     codename: string;
-    terms: ReadonlyArray<TaxonomyContract>;
+    terms: ReadonlyArray<TaxonomySyncModel>;
   }>;
 
-export type ContentTypeSnippetsContract =
+export type ContentTypeSnippetsSyncModel =
   & Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "codename" | "last_modified" | "elements">
   & Readonly<{
     codename: string;
-    elements: ReadonlyArray<FixReferences<ElementContracts.IContentItemElementContract, CodenameReference>>;
+    elements: ReadonlyArray<ReplaceReferences<ElementContracts.IContentItemElementContract, CodenameReference>>;
   }>;
 
-export type ContentTypeContract =
+export type ContentTypeSyncModel =
   & Omit<ContentTypeContracts.IContentTypeContract, "id" | "codename" | "last_modified" | "elements">
   & Readonly<{
     codename: string;
-    elements: ReadonlyArray<FixReferences<ElementContracts.IContentItemElementContract, CodenameReference>>;
+    elements: ReadonlyArray<ReplaceReferences<ElementContracts.IContentItemElementContract, CodenameReference>>;
   }>;
 
 export type FileContentModel = Readonly<{
-  taxonomyGroups: ReadonlyArray<TaxonomyContract>;
-  contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsContract>;
-  contentTypes: ReadonlyArray<ContentTypeContract>;
+  taxonomyGroups: ReadonlyArray<TaxonomySyncModel>;
+  contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsSyncModel>;
+  contentTypes: ReadonlyArray<ContentTypeSyncModel>;
 }>;

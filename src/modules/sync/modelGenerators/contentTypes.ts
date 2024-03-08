@@ -1,10 +1,12 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
+import { ContentTypeContracts } from "@kontent-ai/management-sdk";
 
-import { ContentTypeContract } from "../types/fileContentModel.js";
+import { ContentTypeSyncModel } from "../types/fileContentModel.js";
 
-export const generateContentTypeModel = (client: ManagementClient): ContentTypeContract => {
+export const transformContentTypeModel = (
+  contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
+) => {
   // TODO
-  client as never;
+  contentTypes as never;
 
-  return {} as ContentTypeContract;
+  return [] as ContentTypeSyncModel[];
 };

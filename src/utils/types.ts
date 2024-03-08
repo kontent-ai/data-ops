@@ -9,14 +9,14 @@ export type CodenameReference = Readonly<{ codename: string }>;
 /**
  * Use this to replace inaccurate references for better ones in SDK types returned from MAPI.
  *
- * @example FixReferences<LanguageVariantContracts.ILanguageVariantModel>
+ * @example ReplaceReferences<LanguageVariantContracts.ILanguageVariantModel>
  *
- * @example FixReferences<LanguageVariantContracts.ILanguageVariantModel, MyBetterReference>
+ * @example ReplaceReferences<LanguageVariantContracts.ILanguageVariantModel, MyBetterReference>
  */
-export type FixReferences<T, R extends IdReference | CodenameReference = IdReference> = T extends object ? {
+export type ReplaceReferences<T, R extends IdReference | CodenameReference = IdReference> = T extends object ? {
     [K in keyof T]: T[K] extends SharedContracts.IReferenceObjectContract
-      ? SharedContracts.IReferenceObjectContract extends T[K] ? R : FixReferences<T[K], R>
-      : FixReferences<T[K], R>;
+      ? SharedContracts.IReferenceObjectContract extends T[K] ? R : ReplaceReferences<T[K], R>
+      : ReplaceReferences<T[K], R>;
   }
   : T;
 
