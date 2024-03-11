@@ -23,6 +23,6 @@ export type ReplaceReferences<T, R extends IdReference | CodenameReference = IdR
 export type RequiredId<T extends { [key in "id"]?: string }> = Replace<T, "id", string>;
 export type RequiredCodename<T extends { [key in "codename"]?: string }> = Replace<T, "codename", string>;
 
-export type Replace<T, Key extends keyof T, NewValue, IsOptional extends boolean = false> =
+export type Replace<T, Key extends keyof T, NewType, IsOptional extends boolean = false> =
   & Omit<T, Key>
-  & (IsOptional extends true ? { readonly [key in Key]?: NewValue } : { readonly [key in Key]: NewValue });
+  & (IsOptional extends true ? { readonly [key in Key]?: NewType } : { readonly [key in Key]: NewType });
