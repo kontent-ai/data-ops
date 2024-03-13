@@ -2,7 +2,7 @@ import { LogOptions } from "../log.js";
 import { fetchModel, saveSyncModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { RegisterCommand } from "../types/yargs.js";
 
-export const generateSyncModel: RegisterCommand = yargs =>
+export const register: RegisterCommand = yargs =>
   yargs.command(
     {
       command: "generate-sync-model",

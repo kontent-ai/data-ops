@@ -1,20 +1,39 @@
 import {
+  AssetContracts,
+  ContentItemContracts,
   ContentTypeContracts,
   ContentTypeSnippetContracts,
   ManagementClient,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
+import { nodeParse, transformToPortableText } from "@kontent-ai/rich-text-resolver";
 
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { transformContentTypeModel } from "./modelGenerators/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelGenerators/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelGenerators/taxonomyGroups.js";
 import { FileContentModel } from "./types/fileContentModel.js";
+import {
+  getAssetElements,
+  getGuidelinesElements,
+  getLinkedItemsElements,
+  getRequiredAssetsIds,
+  getRequiredItemIds,
+} from "./utils/contentTypeHelpers.js";
+import {
+  fetchContentTypes,
+  fetchContentTypeSnippets,
+  fetchRequiredAssets,
+  fetchRequiredContentItems,
+  fetchTaxonomies,
+} from "./utils/fetchers.js";
 
 type EnvironmentModel = {
   taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>;
   contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
+  assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
+  items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
 
 export const fetchModel = async (config: ManagementClientBaseOptions): Promise<EnvironmentModel> => {
@@ -23,25 +42,33 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
     apiKey: config.apiKey,
   });
 
-  const contentTypes = await client
-    .listContentTypes()
-    .toAllPromise()
-    .then(res => res.data.items.map(t => t._raw));
+  const contentTypes = await fetchContentTypes(client);
+  const contentTypeSnippets = await fetchContentTypeSnippets(client);
+  const taxonomies = await fetchTaxonomies(client);
 
-  const contentTypeSnippets = await client
-    .listContentTypeSnippets()
-    .toAllPromise()
-    .then(res => res.data.items.map(s => s._raw));
+  const guidelinesElements = [...(getGuidelinesElements(contentTypes)), ...getGuidelinesElements(contentTypeSnippets)];
+  const assetElements = [...(getAssetElements(contentTypes)), ...getAssetElements(contentTypeSnippets)];
+  const linkedItemElements = [
+    ...(getLinkedItemsElements(contentTypes)),
+    ...getLinkedItemsElements(contentTypeSnippets),
+  ];
 
-  const taxonomies = await client
-    .listTaxonomies()
-    .toAllPromise()
-    .then(res => res.data.items.map(t => t._raw));
+  const parsedGuidelines = guidelinesElements.map(guideline =>
+    transformToPortableText(nodeParse(guideline.guidelines))
+  );
+
+  const requiredAssetsIds = getRequiredAssetsIds(assetElements, parsedGuidelines);
+  const requiredItemsIds = getRequiredItemIds(linkedItemElements, parsedGuidelines);
+
+  const assets = await fetchRequiredAssets(client, Array.from(requiredAssetsIds));
+  const items = await fetchRequiredContentItems(client, Array.from(requiredItemsIds));
 
   return {
     contentTypes,
     contentTypeSnippets,
     taxonomyGroups: taxonomies,
+    assets,
+    items,
   };
 };
 
@@ -56,10 +83,6 @@ export const transformSyncModel = (environmentModel: EnvironmentModel): FileCont
   const contentTypeModel = transformContentTypeModel(environmentModel.contentTypes);
   const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel.contentTypeSnippets);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
-
-  contentTypeModel as never;
-  contentTypeSnippetModel as never;
-  taxonomyGroupsModel as never;
 
   return {
     contentTypes: contentTypeModel,
