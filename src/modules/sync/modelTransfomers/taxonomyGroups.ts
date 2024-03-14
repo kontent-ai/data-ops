@@ -10,5 +10,5 @@ export const transformTaxonomyGroupsModel = (
     const syncTaxonomy: TaxonomySyncModel = omit(t, ["id", "last_modified"]);
     const terms = transformTaxonomyGroupsModel(t.terms);
 
-    return { ...syncTaxonomy, terms };
+    return { ...syncTaxonomy, terms, external_id: t.external_id ?? t.id };
   });
