@@ -28,7 +28,7 @@ import {
   fetchTaxonomies,
 } from "./utils/fetchers.js";
 
-type EnvironmentModel = {
+export type EnvironmentModel = {
   taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>;
   contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
@@ -80,8 +80,8 @@ export const transformSyncModel = (environmentModel: EnvironmentModel): FileCont
 
   // TODO
 
-  const contentTypeModel = transformContentTypeModel(environmentModel.contentTypes);
-  const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel.contentTypeSnippets);
+  const contentTypeModel = transformContentTypeModel(environmentModel);
+  const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
 
   return {

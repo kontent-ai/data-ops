@@ -1,12 +1,11 @@
-import { ContentTypeContracts } from "@kontent-ai/management-sdk";
-
+import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeSyncModel } from "../types/fileContentModel.js";
 
 export const transformContentTypeModel = (
-  contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
+  environmentModel: EnvironmentModel,
 ) => {
   // TODO
-  contentTypes as never;
+  environmentModel as never;
 
   return [] as ContentTypeSyncModel[];
 };
