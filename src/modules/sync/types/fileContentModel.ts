@@ -5,7 +5,7 @@ import {
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
 
-import { CodenameReference, Replace, ReplaceReferences } from "../../../utils/types.js";
+import { Replace } from "../../../utils/types.js";
 
 export type TaxonomySyncModel =
   & Omit<TaxonomyContracts.ITaxonomyContract, "id" | "last_modified" | "codename" | "terms">
@@ -18,14 +18,14 @@ export type ContentTypeSnippetsSyncModel =
   & Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "codename" | "last_modified" | "elements">
   & Readonly<{
     codename: string;
-    elements: ReadonlyArray<ReplaceReferences<ElementContracts.IContentItemElementContract, CodenameReference>>;
+    elements: ReadonlyArray<Replace<ElementContracts.IContentTypeElementContract, "codename", string>>;
   }>;
 
 export type ContentTypeSyncModel =
   & Omit<ContentTypeContracts.IContentTypeContract, "id" | "codename" | "last_modified" | "elements" | "content_groups">
   & Readonly<{
     codename: string;
-    elements: ReadonlyArray<ReplaceReferences<ElementContracts.IContentItemElementContract, CodenameReference>>;
+    elements: ReadonlyArray<Replace<ElementContracts.IContentTypeElementContract, "codename", string>>;
     content_groups?: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, "codename", string>>;
   }>;
 
