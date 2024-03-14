@@ -9,9 +9,9 @@ import {
 import { nodeParse, transformToPortableText } from "@kontent-ai/rich-text-resolver";
 
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
-import { transformContentTypeModel } from "./modelGenerators/contentTypes.js";
-import { transformContentTypeSnippetsModel } from "./modelGenerators/contentTypeSnippets.js";
-import { transformTaxonomyGroupsModel } from "./modelGenerators/taxonomyGroups.js";
+import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
+import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
+import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import {
   getAssetElements,
