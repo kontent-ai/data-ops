@@ -1,26 +1,38 @@
-import { ContentTypeContracts, ContentTypeElements, ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
+import {
+  ContentTypeContracts,
+  ContentTypeElements,
+  ContentTypeSnippetContracts,
+  ElementContracts,
+} from "@kontent-ai/management-sdk";
 import { PortableTextInternalLink, PortableTextObject, traversePortableText } from "@kontent-ai/rich-text-resolver";
 
+export const isGuidelinesElement = (
+  element: any,
+): element is ContentTypeElements.IGuidelinesElement => element.type === "guidelines";
+
+export const isAssetElement = (
+  element: ElementContracts.IContentTypeElementContract,
+): element is ContentTypeElements.IAssetElement => element.type === "asset";
+
+export const isLinkedItemElement = (
+  element: ElementContracts.IContentTypeElementContract,
+): element is ContentTypeElements.ILinkedItemsElement => element.type === "modular_content";
+
+// Use typeguard once types in SDKs are fixed
 export const getGuidelinesElements = (
   types: ContentTypeContracts.IContentTypeContract[] | ContentTypeSnippetContracts.IContentTypeSnippetContract[],
-) =>
+): ContentTypeElements.IGuidelinesElement[] =>
   types.flatMap(type =>
-    type.elements.filter(element => element.type === "guidelines")
+    type.elements.filter((element) => element.type === "guidelines")
   ) as unknown as ContentTypeElements.IGuidelinesElement[];
 
 export const getAssetElements = (
   types: ContentTypeContracts.IContentTypeContract[] | ContentTypeSnippetContracts.IContentTypeSnippetContract[],
-) =>
-  types.flatMap(type =>
-    type.elements.filter(element => element.type === "asset")
-  ) as ContentTypeElements.IAssetElement[];
+) => types.flatMap(type => type.elements.filter(isAssetElement));
 
 export const getLinkedItemsElements = (
   types: ContentTypeContracts.IContentTypeContract[] | ContentTypeSnippetContracts.IContentTypeSnippetContract[],
-) =>
-  types.flatMap(type =>
-    type.elements.filter(element => element.type === "modular_content")
-  ) as unknown as ContentTypeElements.ILinkedItemsElement[];
+) => types.flatMap(type => type.elements.filter(isLinkedItemElement));
 
 export const getRequiredAssetsIds = (
   assetElements: ContentTypeElements.IAssetElement[],
