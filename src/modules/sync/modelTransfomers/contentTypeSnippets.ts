@@ -1,28 +1,51 @@
+import { ContentTypeElements, ElementContracts } from "@kontent-ai/management-sdk";
+
 import { omit } from "../../../utils/object.js";
+import { Replace } from "../../../utils/types.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
+import {
+  transformAssetElement,
+  transformCustomElement,
+  transformGuidelinesElement,
+  transformLinkedItemsElement,
+  transformMultipleChoiceElement,
+  transformRichText,
+  transformTaxonomyElement,
+} from "./elementTransformers.js";
 
 export const transformContentTypeSnippetsModel = (
-  environmentModel: EnvironmentModel
-) => {
+  environmentModel: EnvironmentModel,
+) =>
   environmentModel.contentTypeSnippets.map(snippet => {
     const syncSnippetElements: ContentTypeSnippetsSyncModel["elements"] = snippet.elements
       .map(element => {
         switch (element.type) {
           case "guidelines":
-            return { ...element, codename: element.codename as string };
+            return transformGuidelinesElement(
+              element as unknown as ContentTypeElements.IGuidelinesElement,
+              environmentModel.assets,
+              environmentModel.items,
+            ) as unknown as Replace<ElementContracts.IContentTypeElementContract, "codename", string>;
           case "modular_content":
-            return { ...element, codename: element.codename as string };
+            return transformLinkedItemsElement(
+              element as ContentTypeElements.ILinkedItemsElement,
+              environmentModel.contentTypes,
+              environmentModel.items,
+            );
           case "taxonomy":
-            return { ...element, codename: element.codename as string };
+            return transformTaxonomyElement(
+              element as ContentTypeElements.ITaxonomyElement,
+              environmentModel.taxonomyGroups,
+            );
           case "multiple_choice":
-            return { ...element, codename: element.codename as string };
+            return transformMultipleChoiceElement(element as ContentTypeElements.IMultipleChoiceElement);
           case "custom":
-            return { ...element, codename: element.codename as string };
+            return transformCustomElement(element as ContentTypeElements.ICustomElement, snippet);
           case "asset":
-            return { ...element, codename: element.codename as string };
+            return transformAssetElement(element as ContentTypeElements.IAssetElement, environmentModel.assets);
           case "rich_text":
-            return { ...element, codename: element.codename as string };
+            return transformRichText(element as ContentTypeElements.IRichTextElement, environmentModel.contentTypes);
           default:
             return { ...omit(element, ["id"]), codename: element.codename as string };
         }
@@ -30,6 +53,3 @@ export const transformContentTypeSnippetsModel = (
 
     return { ...omit(snippet, ["id", "last_modified"]), elements: syncSnippetElements };
   });
-
-  return [] as ContentTypeSnippetsSyncModel[];
-};
