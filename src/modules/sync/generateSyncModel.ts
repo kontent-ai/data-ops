@@ -6,20 +6,13 @@ import {
   ManagementClient,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
-import { nodeParse, transformToPortableText } from "@kontent-ai/rich-text-resolver";
 
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { FileContentModel } from "./types/fileContentModel.js";
-import {
-  getAssetElements,
-  getGuidelinesElements,
-  getLinkedItemsElements,
-  getRequiredAssetsIds,
-  getRequiredItemIds,
-} from "./utils/contentTypeHelpers.js";
+import { getRequiredIds } from "./utils/contentTypeHelpers.js";
 import {
   fetchContentTypes,
   fetchContentTypeSnippets,
@@ -46,22 +39,20 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
   const contentTypeSnippets = await fetchContentTypeSnippets(client);
   const taxonomies = await fetchTaxonomies(client);
 
-  const guidelinesElements = [...(getGuidelinesElements(contentTypes)), ...getGuidelinesElements(contentTypeSnippets)];
-  const assetElements = [...(getAssetElements(contentTypes)), ...getAssetElements(contentTypeSnippets)];
-  const linkedItemElements = [
-    ...(getLinkedItemsElements(contentTypes)),
-    ...getLinkedItemsElements(contentTypeSnippets),
-  ];
+  const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
+    (previous, type) => {
+      const ids = getRequiredIds(type);
 
-  const parsedGuidelines = guidelinesElements.map(guideline =>
-    transformToPortableText(nodeParse(guideline.guidelines))
+      return {
+        assetIds: new Set([...previous.assetIds, ...ids.assetIds]),
+        itemIds: new Set([...previous.itemIds, ...ids.itemIds]),
+      };
+    },
+    { assetIds: new Set<string>(), itemIds: new Set<string>() },
   );
 
-  const requiredAssetsIds = getRequiredAssetsIds(assetElements, parsedGuidelines);
-  const requiredItemsIds = getRequiredItemIds(linkedItemElements, parsedGuidelines);
-
-  const assets = await fetchRequiredAssets(client, Array.from(requiredAssetsIds));
-  const items = await fetchRequiredContentItems(client, Array.from(requiredItemsIds));
+  const assets = await fetchRequiredAssets(client, Array.from(allIds.assetIds));
+  const items = await fetchRequiredContentItems(client, Array.from(allIds.itemIds));
 
   return {
     contentTypes,
