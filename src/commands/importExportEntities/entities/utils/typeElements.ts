@@ -8,7 +8,7 @@ import {
 
 import { LogOptions } from "../../../../log.js";
 import { notNullOrUndefined } from "../../../../utils/typeguards.js";
-import { FixReferences, Replace, RequiredId } from "../../../../utils/types.js";
+import { Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
 import { getRequired } from "../../../import/utils.js";
 import { ImportContext } from "../../entityDefinition.js";
 import { createReference } from "./referece.js";
@@ -39,7 +39,7 @@ export const createTransformTypeElement =
 
     switch (element.type) {
       case "asset": {
-        const typedElement = element as FixReferences<ContentTypeElements.IAssetElement>;
+        const typedElement = element as ReplaceReferences<ContentTypeElements.IAssetElement>;
         return params.builder.assetElement({
           ...typedElement,
           type: "asset",
@@ -61,7 +61,7 @@ export const createTransformTypeElement =
         });
       }
       case "custom": {
-        const typedElement = element as FixReferences<ContentTypeElements.ICustomElement>;
+        const typedElement = element as ReplaceReferences<ContentTypeElements.ICustomElement>;
         return params.builder.customElement({
           ...typedElement,
           type: "custom",
@@ -161,7 +161,7 @@ export const createTransformTypeElement =
           );
         }
 
-        const typedElement = element as unknown as FixReferences<ContentTypeElements.ISnippetElement>;
+        const typedElement = element as unknown as ReplaceReferences<ContentTypeElements.ISnippetElement>;
         return params.builder.snippetElement({
           ...typedElement,
           type: "snippet",
@@ -185,7 +185,7 @@ export const createTransformTypeElement =
         } as ContentTypeElements.ISubpagesElementData); // ISubpagesElementData doesn't include the property 'default' that's a mistake in the SDK type
       }
       case "taxonomy": {
-        const typedElement = element as FixReferences<ContentTypeElements.ITaxonomyElement>;
+        const typedElement = element as ReplaceReferences<ContentTypeElements.ITaxonomyElement>;
         const newGroupId = params.context.taxonomyGroupIdsByOldIds.get(typedElement.taxonomy_group.id);
 
         if (!newGroupId) {
@@ -231,7 +231,7 @@ export const createTransformTypeElement =
             `Type snippet with codename "${params.typeOrSnippetCodename}" has en element (codename: "${element.codename}") of type url_slug which is not allowed.`,
           );
         }
-        const typedElement = element as FixReferences<ContentTypeElements.IUrlSlugElement>;
+        const typedElement = element as ReplaceReferences<ContentTypeElements.IUrlSlugElement>;
 
         return params.builder.urlSlugElement({
           ...typedElement,
@@ -308,7 +308,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
         ];
       }
       case "modular_content": {
-        const typedElement = fileElement as FixReferences<ContentTypeElements.ILinkedItemsElement>;
+        const typedElement = fileElement as ReplaceReferences<ContentTypeElements.ILinkedItemsElement>;
 
         return [
           typedElement.allowed_content_types && {
@@ -342,7 +342,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
         ].filter(notNullOrUndefined);
       }
       case "rich_text": {
-        const typedElement = fileElement as FixReferences<ContentTypeElements.IRichTextElement>;
+        const typedElement = fileElement as ReplaceReferences<ContentTypeElements.IRichTextElement>;
 
         return [
           typedElement.allowed_content_types && {
@@ -372,8 +372,8 @@ export const createPatchItemAndTypeReferencesInTypeElement =
         ].filter(notNullOrUndefined);
       }
       case "subpages": {
-        const typedElement = fileElement as FixReferences<ContentTypeElements.ISubpagesElement> & {
-          readonly default: FixReferences<ContentTypeElements.ILinkedItemsElement["default"]>;
+        const typedElement = fileElement as ReplaceReferences<ContentTypeElements.ISubpagesElement> & {
+          readonly default: ReplaceReferences<ContentTypeElements.ILinkedItemsElement["default"]>;
         }; // Bad types from the SDK, remove once fixed
 
         return [
