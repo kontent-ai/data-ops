@@ -1,4 +1,6 @@
-import { LogOptions } from "../log.js";
+import chalk from "chalk";
+
+import { logInfo, LogOptions } from "../log.js";
 import { fetchModel, saveSyncModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { RegisterCommand } from "../types/yargs.js";
 
@@ -39,13 +41,16 @@ export type SyncParams =
   & LogOptions;
 
 export const generateModel = async (params: SyncParams) => {
-  // TODO
+  logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
   const environmentModel = await fetchModel({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
   });
 
+  logInfo(params, "standard", "Transforming the model.");
   const syncModel = transformSyncModel(environmentModel);
 
-  await saveSyncModel({ syncModel, environmentId: params.environmentId, fileName: params.fileName });
+  const fileName = await saveSyncModel({ syncModel, environmentId: params.environmentId, fileName: params.fileName });
+
+  logInfo(params, "standard", `Model is successfully saved into ${chalk.green(fileName)}.`);
 };
