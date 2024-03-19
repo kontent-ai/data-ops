@@ -47,5 +47,5 @@ export const generateModel = async (params: SyncParams) => {
 
   const syncModel = transformSyncModel(environmentModel);
 
-  saveSyncModel(syncModel);
+  await saveSyncModel({ syncModel, environmentId: params.environmentId, fileName: params.fileName });
 };
