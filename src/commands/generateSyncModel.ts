@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../log.js";
+import { logError, logInfo, LogOptions } from "../log.js";
 import { fetchModel, saveSyncModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { RegisterCommand } from "../types/yargs.js";
 
@@ -42,15 +42,29 @@ export type SyncParams =
 
 export const generateModel = async (params: SyncParams) => {
   logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
-  const environmentModel = await fetchModel({
-    environmentId: params.environmentId,
-    apiKey: params.apiKey,
-  });
+  const environmentModel = await logOnError(
+    params,
+    chalk.red("Failed to fetch the model."),
+    () => fetchModel({ environmentId: params.environmentId, apiKey: params.apiKey }),
+  );
 
   logInfo(params, "standard", "Transforming the model.");
   const syncModel = transformSyncModel(environmentModel);
 
-  const fileName = await saveSyncModel({ syncModel, environmentId: params.environmentId, fileName: params.fileName });
+  const fileName = await logOnError(
+    params,
+    chalk.red("Failed to save the model into the file."),
+    () => saveSyncModel({ syncModel, environmentId: params.environmentId, fileName: params.fileName }),
+  );
 
   logInfo(params, "standard", `Model is successfully saved into ${chalk.green(fileName)}.`);
+};
+
+const logOnError = async <T>(params: LogOptions, errorMessage: string, action: () => Promise<T>): Promise<T> => {
+  try {
+    return action();
+  } catch (e) {
+    logError(params, errorMessage, " Error: ", JSON.stringify(e));
+    throw e;
+  }
 };
