@@ -8,6 +8,7 @@ import * as fs from "fs";
 import packageFile from "../../package.json" assert { type: "json" };
 import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
+import { serializeDateForFileName } from "../utils/files.js";
 import { serially } from "../utils/requests.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
@@ -113,7 +114,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
   const now = new Date();
   const fileName = params.fileName
-    ?? `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${now.getUTCHours()}-${now.getUTCMinutes()}-export-${params.environmentId}.zip`;
+    ?? `${serializeDateForFileName(now)}-export-${params.environmentId}.zip`;
 
   const outputStream = fs.createWriteStream(fileName);
   const archive = archiver("zip");
