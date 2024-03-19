@@ -55,7 +55,7 @@ const createContentType = (elements: ElementContracts.IContentTypeElementContrac
   elements,
 });
 
-describe("getRequiredItemOrAssetIds", () => {
+describe("getRequiredIds", () => {
   it("test asset id from links in guidelines", () => {
     const guidelines =
       "<p>Asset Links:</p>\n<ul>\n  <li><a data-asset-id=\"assetId1\">Asset Link1</a>\n    <ul>\n      <li><a data-asset-id=\"assetId2\">Asset Link 2</a></li>\n    </ul>\n  </li>\n  <li><a data-asset-id=\"assetId2\">Asset Link 2</a></li>\n</ul>";
@@ -102,6 +102,7 @@ describe("getRequiredItemOrAssetIds", () => {
 
   it("obtain ids from asset and linked elements ", () => {
     const contentType = createContentType([...linkedItemsElements, ...assetElements]);
+
     const ids = getRequiredIds(contentType);
 
     expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));

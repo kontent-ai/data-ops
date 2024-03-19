@@ -29,10 +29,7 @@ const resolveAssetIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
     case "a":
       return node.attributes["data-asset-id"];
     default: {
-      if (node.children.length) {
-        return node.children.map(c => traverse(c));
-      }
-      return null;
+      return node.children.map(traverse);
     }
   }
 };
@@ -42,7 +39,7 @@ const resolveItemIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
     case "a":
       return node.attributes["data-item-id"];
     default: {
-      return node.children.flatMap(c => traverse(c));
+      return node.children.flatMap(traverse);
     }
   }
 };
