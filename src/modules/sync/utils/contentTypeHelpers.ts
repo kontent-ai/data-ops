@@ -42,10 +42,7 @@ const resolveItemIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
     case "a":
       return node.attributes["data-item-id"];
     default: {
-      if (node.children.length) {
-        return node.children.flatMap(c => traverse(c));
-      }
-      return null;
+      return node.children.flatMap(c => traverse(c));
     }
   }
 };
@@ -83,7 +80,7 @@ const getRequiredItemOrAssetIds = (
     return previous;
   }, new Set<string>());
 
-  const ids = parsedGuidelines.reduce<string[]>((prev, guideline) =>
+  const idsFromGuidelines = parsedGuidelines.reduce<string[]>((prev, guideline) =>
     [
       ...prev,
       transformToJson(guideline, {
@@ -92,5 +89,5 @@ const getRequiredItemOrAssetIds = (
       }),
     ] as string[], []).flat(Infinity).filter(g => g);
 
-  return new Set([...elementsIds, ...ids]);
+  return new Set([...elementsIds, ...idsFromGuidelines]);
 };
