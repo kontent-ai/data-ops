@@ -48,7 +48,7 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
         itemIds: new Set([...previous.itemIds, ...ids.itemIds]),
       };
     },
-    { assetIds: new Set<string>(), itemIds: new Set<string>() },
+    { assetIds: new Set(), itemIds: new Set() },
   );
 
   const assets = await fetchRequiredAssets(client, Array.from(allIds.assetIds));
