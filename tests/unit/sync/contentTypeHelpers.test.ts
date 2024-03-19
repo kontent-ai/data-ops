@@ -1,10 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-import { ContentTypeElements } from "@kontent-ai/management-sdk";
+import { ContentTypeElements, ElementContracts } from "@kontent-ai/management-sdk";
 
 import { getRequiredIds } from "../../../src/modules/sync/utils/contentTypeHelpers";
-
-const guidelinesRichText =
-  "<p>Don't forget to use the default value. Also, check the default <a data-item-id=\"itemId1\">content Item</a> and check the <a data-item-id=\"itemId2\">showcase item</a></p>\n<figure data-asset-id=\"assetId3\"><img src=\"#\" data-asset-id=\"assetId3\"></figure>";
 
 const assetElements: ContentTypeElements.IAssetElement[] = [
   {
@@ -44,27 +41,70 @@ const linkedItemsElements: ContentTypeElements.ILinkedItemsElement[] = [
   },
 ];
 
-const contentType = {
+const createGuidelineElement = (guidelines: string) => ({
+  type: "guidelines",
+  name: "guidelines",
+  guidelines,
+});
+
+const createContentType = (elements: ElementContracts.IContentTypeElementContract[]) => ({
   id: "id",
   name: "testType",
   codename: "test_type",
   last_modified: "date",
-  elements: [
-    {
-      type: "guidelines",
-      name: "guidelines",
-      guidelines: guidelinesRichText,
-    },
-    ...linkedItemsElements,
-    ...assetElements,
-  ],
-};
+  elements,
+});
 
-describe("getRequiredAssetsIds", () => {
-  it("get asset ids from elements and guidelines rich text", () => {
+describe("getRequiredItemOrAssetIds", () => {
+  it("test asset id from links in guidelines", () => {
+    const guidelines =
+      "<p>Asset Links:</p>\n<ul>\n  <li><a data-asset-id=\"assetId1\">Asset Link1</a>\n    <ul>\n      <li><a data-asset-id=\"assetId2\">Asset Link 2</a></li>\n    </ul>\n  </li>\n  <li><a data-asset-id=\"assetId2\">Asset Link 2</a></li>\n</ul>";
+    const contentType = createContentType([createGuidelineElement(guidelines)]);
+
     const ids = getRequiredIds(contentType);
 
-    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2", "assetId3"]));
+    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));
+    expect(ids.itemIds).toEqual(new Set([]));
+  });
+
+  it("test obtain asset ids from assets in guidelines ", () => {
+    const guidelines =
+      "<p>Assets:</p>\n<figure data-asset-id=\"assetId1\"><img src=\"#\" data-asset-id=\"assetId1\"></figure>\n<ul>\n  <li><br/></li>\n</ul>\n<figure data-asset-id=\"assetId2\"><img src=\"#\" data-asset-id=\"assetId2\"></figure>";
+    const contentType = createContentType([createGuidelineElement(guidelines)]);
+
+    const ids = getRequiredIds(contentType);
+
+    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));
+    expect(ids.itemIds).toEqual(new Set([]));
+  });
+
+  it("test obtain item ids from links in guidelines ", () => {
+    const guidelines =
+      "<p>Item links:</p>\n<p><a data-item-id=\"itemId1\">Item Link 1</a></p>\n<ul>\n  <li><a data-item-id=\"itemId2\">Item Link 2</a>\n    <ul>\n      <li><a data-item-id=\"itemId3\">Item Link 3</a></li>\n    </ul>\n  </li>\n</ul>";
+    const contentType = createContentType([createGuidelineElement(guidelines)]);
+
+    const ids = getRequiredIds(contentType);
+
+    expect(ids.assetIds).toEqual(new Set([]));
+    expect(ids.itemIds).toEqual(new Set(["itemId1", "itemId2", "itemId3"]));
+  });
+
+  it("test obtain assets and item ids from guidelines ", () => {
+    const guidelines =
+      "<p>Item links: <a data-item-id=\"itemId1\">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-id=\"assetId1\">Asset Link 1</a></p>\n<figure data-asset-id=\"assetId1\"><img src=\"#\" data-asset-id=\"assetId1\"></figure>";
+    const contentType = createContentType([createGuidelineElement(guidelines)]);
+
+    const ids = getRequiredIds(contentType);
+
+    expect(ids.assetIds).toEqual(new Set(["assetId1"]));
+    expect(ids.itemIds).toEqual(new Set(["itemId1"]));
+  });
+
+  it("obtain ids from asset and linked elements ", () => {
+    const contentType = createContentType([...linkedItemsElements, ...assetElements]);
+    const ids = getRequiredIds(contentType);
+
+    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));
     expect(ids.itemIds).toEqual(new Set(["itemId1", "itemId2"]));
   });
 });
