@@ -4,7 +4,7 @@ import chalk from "chalk";
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { FixReferences, MapValues, Replace, RequiredId } from "../../../utils/types.js";
+import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import {
@@ -14,11 +14,11 @@ import {
 } from "./utils/typeElements.js";
 
 type Snippet = Replace<
-  FixReferences<ContentTypeSnippetContracts.IContentTypeSnippetContract>,
+  ReplaceReferences<ContentTypeSnippetContracts.IContentTypeSnippetContract>,
   "elements",
   ReadonlyArray<SnippetElement>
 >;
-type SnippetElement = RequiredId<FixReferences<ElementContracts.IContentTypeElementContract>>;
+type SnippetElement = RequiredId<ReplaceReferences<ElementContracts.IContentTypeElementContract>>;
 
 export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>> = {
   name: "contentTypeSnippets",

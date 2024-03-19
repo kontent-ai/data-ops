@@ -9,13 +9,13 @@ import {
 import { logInfo, LogOptions } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
-import { FixReferences } from "../../../utils/types.js";
+import { ReplaceReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { createReference } from "./utils/referece.js";
 import { replaceImportRichTextReferences } from "./utils/richText.js";
 
-type Variant = FixReferences<LanguageVariantContracts.ILanguageVariantModelContract>;
+type Variant = ReplaceReferences<LanguageVariantContracts.ILanguageVariantModelContract>;
 
 export const languageVariantsEntity: Omit<EntityDefinition<ReadonlyArray<Variant>>, "cleanEntities"> = {
   name: "languageVariants",
@@ -153,7 +153,7 @@ type TransformElementParams = Readonly<{
   logOptions: LogOptions;
 }>;
 
-type Element = FixReferences<ElementContracts.IContentItemElementContract>;
+type Element = ReplaceReferences<ElementContracts.IContentItemElementContract>;
 
 const createTransformElement = (params: TransformElementParams) =>
 (
@@ -167,7 +167,7 @@ const createTransformElement = (params: TransformElementParams) =>
 
   switch (elementType) {
     case "asset": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.IAssetInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.IAssetInVariantElement>;
       return params.builder.assetElement({
         element: { id: projectElementId },
         value: typedElement.value
@@ -181,7 +181,7 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "custom": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.ICustomElementInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.ICustomElementInVariantElement>;
       return params.builder.customElement({
         element: { id: projectElementId },
         value: typedElement.value,
@@ -189,7 +189,7 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "date_time": {
-      const typedElement = fileElement as FixReferences<
+      const typedElement = fileElement as ReplaceReferences<
         LanguageVariantElements.IDateTimeInVariantElement & { display_timezone: string } // incorrect SDK types
       >;
       return params.builder.dateTimeElement({
@@ -199,7 +199,7 @@ const createTransformElement = (params: TransformElementParams) =>
       } as LanguageVariantElements.IDateTimeInVariantElement); // incorrect SDK types
     }
     case "modular_content": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value
@@ -213,7 +213,7 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "multiple_choice": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.IMultipleChoiceInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.IMultipleChoiceInVariantElement>;
       const optionIdsByOldIds = getRequired(
         params.multiChoiceOptionIdsByOldIdsByOldElementId,
         typedElement.element.id,
@@ -228,14 +228,14 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "number": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.INumberInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.INumberInVariantElement>;
       return params.builder.numberElement({
         element: { id: projectElementId },
         value: typedElement.value,
       });
     }
     case "rich_text": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.IRichtextInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.IRichtextInVariantElement>;
       return params.builder.richTextElement({
         element: { id: projectElementId },
         value: typedElement.value
@@ -264,7 +264,7 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "subpages": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value?.map(ref =>
@@ -277,7 +277,7 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "taxonomy": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.ITaxonomyInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.ITaxonomyInVariantElement>;
       return params.builder.taxonomyElement({
         element: { id: projectElementId },
         value: typedElement.value
@@ -291,14 +291,14 @@ const createTransformElement = (params: TransformElementParams) =>
       });
     }
     case "text": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.ITextInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.ITextInVariantElement>;
       return params.builder.textElement({
         element: { id: projectElementId },
         value: typedElement.value,
       });
     }
     case "url_slug": {
-      const typedElement = fileElement as FixReferences<LanguageVariantElements.IUrlSlugInVariantElement>;
+      const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.IUrlSlugInVariantElement>;
       return params.builder.urlSlugElement({
         element: { id: projectElementId },
         value: typedElement.value,
