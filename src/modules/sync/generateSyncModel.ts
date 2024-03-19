@@ -6,9 +6,11 @@ import {
   ManagementClient,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
 import * as fsPromises from "fs/promises";
 
 import packageJson from "../../../package.json";
+import { logInfo, LogOptions } from "../../log.js";
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
@@ -85,11 +87,13 @@ export const transformSyncModel = (environmentModel: EnvironmentModel): FileCont
   };
 };
 
-type SaveModelParams = Readonly<{
-  syncModel: FileContentModel;
-  environmentId: string;
-  fileName: string | undefined;
-}>;
+type SaveModelParams =
+  & Readonly<{
+    syncModel: FileContentModel;
+    environmentId: string;
+    fileName: string | undefined;
+  }>
+  & LogOptions;
 
 export const saveSyncModel = async (params: SaveModelParams) => {
   const now = new Date();
@@ -103,7 +107,10 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   };
   const fileName = params.fileName ?? `${serializeDateForFileName(now)}-${params.environmentId}.json`;
 
+  logInfo(params, "standard", `Saving the model into "${chalk.yellow(fileName)}".`);
   await fsPromises.writeFile(fileName, JSON.stringify(finalModel));
+
+  return fileName;
 };
 
 type FileContentWithMetadata =
