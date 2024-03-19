@@ -11,7 +11,7 @@ import { spotlightInUseErrorCode } from "../../../constants/responseCodes.js";
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { FixReferences, MapValues, Replace, RequiredId } from "../../../utils/types.js";
+import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import {
@@ -21,12 +21,12 @@ import {
 } from "./utils/typeElements.js";
 
 type Type = Replace<
-  Replace<FixReferences<ContentTypeContracts.IContentTypeContract>, "elements", ReadonlyArray<TypeElement>>,
+  Replace<ReplaceReferences<ContentTypeContracts.IContentTypeContract>, "elements", ReadonlyArray<TypeElement>>,
   "content_groups",
   ReadonlyArray<ElementGroup>,
   true
 >;
-type TypeElement = RequiredId<FixReferences<ElementContracts.IContentTypeElementContract>>;
+type TypeElement = RequiredId<ReplaceReferences<ElementContracts.IContentTypeElementContract>>;
 type ElementGroup = RequiredId<ContentTypeContracts.IContentTypeGroup>;
 
 export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
@@ -96,7 +96,7 @@ type InsertTypeParams = Readonly<{
   logOptions: LogOptions;
 }>;
 
-type SnippetElement = FixReferences<ContentTypeElements.ISnippetElement>;
+type SnippetElement = ReplaceReferences<ContentTypeElements.ISnippetElement>;
 
 const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
 (

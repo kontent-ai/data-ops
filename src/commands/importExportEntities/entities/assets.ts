@@ -6,7 +6,7 @@ import stream from "stream";
 
 import { logInfo, LogOptions } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
-import { FixReferences } from "../../../utils/types.js";
+import { ReplaceReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
@@ -14,7 +14,7 @@ const assetsBinariesFolderName = "assets";
 const createFileName = (asset: AssetContracts.IAssetModelContract) =>
   `${assetsBinariesFolderName}/${asset.id}-${asset.file_name}`;
 
-type AssetWithElements = FixReferences<AssetContracts.IAssetModelContract> & {
+type AssetWithElements = ReplaceReferences<AssetContracts.IAssetModelContract> & {
   readonly elements: ReadonlyArray<unknown>;
 };
 

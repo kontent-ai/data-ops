@@ -5,12 +5,12 @@ import { defaultCodename, defaultName, emptyId } from "../../../constants/ids.js
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { FixReferences, MapValues } from "../../../utils/types.js";
+import { MapValues, ReplaceReferences } from "../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const defaultWorkflowId = emptyId;
 
-type Workflow = FixReferences<WorkflowContracts.IWorkflowContract>;
+type Workflow = ReplaceReferences<WorkflowContracts.IWorkflowContract>;
 
 export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
   name: "workflows",
@@ -191,7 +191,7 @@ type AnyStep = Readonly<{
   id: string;
   name: string;
   codename: string;
-  transitions_to: ReadonlyArray<FixReferences<WorkflowContracts.IWorkflowStepTransitionsToContract>>;
+  transitions_to: ReadonlyArray<ReplaceReferences<WorkflowContracts.IWorkflowStepTransitionsToContract>>;
 }>;
 const extractAllSteps = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<AnyStep> =>
   (wf.steps as AnyStep[]).concat([
