@@ -4,11 +4,11 @@ import chalk from "chalk";
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import { FixReferences } from "../../../utils/types.js";
+import { ReplaceReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
-type Item = FixReferences<ContentItemContracts.IContentItemModelContract>;
+type Item = ReplaceReferences<ContentItemContracts.IContentItemModelContract>;
 
 export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
   name: "contentItems",
