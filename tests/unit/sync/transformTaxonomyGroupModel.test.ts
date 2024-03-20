@@ -3,9 +3,9 @@ import { TaxonomyContracts } from "@kontent-ai/management-sdk";
 
 import { transformTaxonomyGroupsModel } from "../../../src/modules/sync/modelTransfomers/taxonomyGroups";
 
-const input: ReadonlyArray<TaxonomyContracts.ITaxonomyContract> = [
+const input = [
   {
-    id: "taxonomyGroup!Id",
+    id: "taxonomyGroup1Id",
     last_modified: "groupModified1",
     name: "taxonomyGroup1",
     codename: "taxonomy_group1",
@@ -37,7 +37,7 @@ const input: ReadonlyArray<TaxonomyContracts.ITaxonomyContract> = [
       },
     ],
   },
-] as const;
+] as const satisfies ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
 
 const expectedOutput = [
   {
@@ -46,7 +46,7 @@ const expectedOutput = [
     last_modified: undefined,
     terms: [
       {
-        ...input[0]?.terms[0],
+        ...input[0].terms[0],
         id: undefined,
         last_modified: undefined,
         external_id: "nestedTermId1",
@@ -59,7 +59,7 @@ const expectedOutput = [
     last_modified: undefined,
     terms: [
       {
-        ...input[1]?.terms[0],
+        ...input[1].terms[0],
         id: undefined,
         last_modified: undefined,
       },
@@ -68,7 +68,7 @@ const expectedOutput = [
 ];
 
 describe("transformTaxonomyGroupsModel", () => {
-  it("transformTaxonomyGroupsModel", () => {
+  it("correctly transform taxonomy groups to model used for sync", () => {
     const result = transformTaxonomyGroupsModel(input);
 
     expect(result).toEqual(expectedOutput);
