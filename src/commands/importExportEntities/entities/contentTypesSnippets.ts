@@ -44,6 +44,19 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>
       ),
     };
   },
+  cleanEntities: async (client, contentTypeSnippets) => {
+    if (!contentTypeSnippets.length) {
+      return;
+    }
+
+    await serially(
+      contentTypeSnippets.map(snippet => () =>
+        client.deleteContentTypeSnippet()
+          .byTypeId(snippet.id)
+          .toPromise()
+      ),
+    );
+  },
 };
 
 export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<Snippet>> = {

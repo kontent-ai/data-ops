@@ -1,8 +1,12 @@
-import { CollectionContracts } from "@kontent-ai/management-sdk";
+import { CollectionContracts, CollectionModels } from "@kontent-ai/management-sdk";
 
+import { defaultName, emptyId } from "../../../constants/ids.js";
 import { notNull } from "../../../utils/typeguards.js";
 import { compareExternalIds } from "../../import/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
+
+const defaultCollectionId = emptyId;
+const defaultCollectionName = defaultName;
 
 export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContracts.ICollectionContract>> = {
   name: "collections",
@@ -55,6 +59,16 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
     };
   },
   deserializeEntities: JSON.parse,
+  cleanEntities: async (client, collections) => {
+    if (!collections.length) {
+      return;
+    }
+
+    await client.setCollections()
+      .withData(collections.flatMap(createPatchToCleanCollection))
+      .toPromise()
+      .then(res => res.rawData.collections);
+  },
 };
 
 const findCollectionMatches = (
@@ -115,6 +129,36 @@ const matchCollections = (fileCollection: Collection, projectCollection: Collect
       );
   }
 };
+
+const createReplaceNameOperation = (
+  name: string,
+  collection: CollectionContracts.ICollectionContract,
+): CollectionModels.ISetCollectionData => ({
+  op: "replace",
+  reference: { id: collection.id },
+  property_name: "name",
+  value: name,
+});
+
+const createRemoveCollectionOperation = (
+  collection: CollectionContracts.ICollectionContract,
+): CollectionModels.ISetCollectionData => ({
+  op: "remove",
+  reference: {
+    id: collection.id,
+  },
+});
+
+const createPatchToCleanCollection = (
+  collection: CollectionContracts.ICollectionContract,
+): CollectionModels.ISetCollectionData[] =>
+  collection.id === defaultCollectionId
+    ? [
+      createReplaceNameOperation(defaultCollectionName, collection),
+    ]
+    : [
+      createRemoveCollectionOperation(collection),
+    ];
 
 // This type is needed until the SDK includes the property.
 type Collection = CollectionContracts.ICollectionContract & Readonly<{ external_id?: string }>;

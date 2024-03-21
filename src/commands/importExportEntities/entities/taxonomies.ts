@@ -34,6 +34,17 @@ export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.
     };
   },
   deserializeEntities: JSON.parse,
+  cleanEntities: async (client, taxonomies) => {
+    if (!taxonomies.length) {
+      return;
+    }
+
+    await serially(taxonomies.map(taxonomy => () =>
+      client.deleteTaxonomy()
+        .byTaxonomyId(taxonomy.id)
+        .toPromise()
+    ));
+  },
 };
 
 const createAddExternalIds =

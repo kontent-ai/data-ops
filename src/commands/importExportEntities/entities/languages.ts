@@ -1,11 +1,13 @@
 import { LanguageContracts, LanguageModels, ManagementClient } from "@kontent-ai/management-sdk";
 
-import { emptyId } from "../../../constants/ids.js";
+import { defaultCodename, defaultName, emptyId } from "../../../constants/ids.js";
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 const defaultLanguageId = emptyId;
+const defaultLanguageName = defaultName;
+const defaultLanguageCodename = defaultCodename;
 
 export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.ILanguageModelContract>> = {
   name: "languages",
@@ -41,6 +43,18 @@ export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.I
       ),
     };
   },
+  cleanEntities: async (client, languages) => {
+    await serially(
+      languages
+        .map((lang) => () =>
+          client
+            .modifyLanguage()
+            .byLanguageId(lang.id)
+            .withData(createPatchToCleanLanguage(lang))
+            .toPromise()
+        ),
+    );
+  },
 };
 
 const createReplaceCodenameOperation = (codename: string): LanguageModels.IModifyLanguageData => ({
@@ -66,6 +80,28 @@ const createReplaceIsActiveOperation = (isActive: boolean): LanguageModels.IModi
   property_name: "is_active",
   value: isActive,
 });
+
+const createPatchToCleanLanguage = (
+  language: LanguageContracts.ILanguageModelContract,
+): LanguageModels.IModifyLanguageData[] =>
+  language.is_default
+    ? [
+      createReplaceCodenameOperation(defaultLanguageCodename),
+      createReplaceNameOperation(defaultLanguageName),
+    ]
+    : [
+      /**
+       * languages cannot be deleted, instead they are deactivated
+       * and their name and codename are both populated with first 8 chars of their ID
+       * (name and codename have a limit of 25 characters).
+       *
+       * only active languages can be modified.
+       */
+      createReplaceIsActiveOperation(true),
+      createReplaceCodenameOperation(language.id.slice(0, 7)),
+      createReplaceNameOperation(language.id.slice(0, 7)),
+      createReplaceIsActiveOperation(false),
+    ];
 
 const updateProjectLanguage = async (
   client: ManagementClient,
