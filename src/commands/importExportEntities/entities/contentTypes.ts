@@ -3,6 +3,7 @@ import {
   ContentTypeElements,
   ElementContracts,
   ManagementClient,
+  SharedModels,
 } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
@@ -17,6 +18,7 @@ import {
   createTransformTypeElement,
   MultiChoiceElement,
 } from "./utils/typeElements.js";
+import { spotlightInUseErrorCode } from "../../../constants/ids.js";
 
 type Type = Replace<
   Replace<FixReferences<ContentTypeContracts.IContentTypeContract>, "elements", ReadonlyArray<TypeElement>>,
@@ -44,6 +46,36 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
     };
   },
   deserializeEntities: JSON.parse,
+  cleanEntities: async (client, types) => {
+    if (!types.length) {
+      return;
+    }
+
+    await serially(
+      types.map(
+        (type) => () =>
+          client
+            .deleteContentType()
+            .byTypeId(type.id)
+            .toPromise()
+            .catch(async (err) => {
+              if (
+                err instanceof SharedModels.ContentManagementBaseKontentError &&
+                err.errorCode === spotlightInUseErrorCode
+              ) {
+                await createCleanElementsFromTypeFetcher(client)(type)();
+                return err;
+              } else {
+                throw err;
+              }
+            })
+      )
+    ).then((res) =>
+        res
+          .filter((e) => e instanceof SharedModels.ContentManagementBaseKontentError)
+          .map((e) => Promise.reject(e))[0]
+    );
+  },
 };
 
 export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinition<ReadonlyArray<Type>> = {
@@ -188,3 +220,25 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
     .withData(patchOps)
     .toPromise();
 };
+
+
+const createCleanElementsFromTypeFetcher = (client: ManagementClient) => (type: Type) => () => {
+  const patchOps = type.elements
+    // subpages element must be present on WSL root type
+    .filter((el) => el.type !== "subpages")
+    .map((el) => ({
+      op: "remove" as const,
+      path: `/elements/id:${el.id}`,
+    }));
+
+  if (!patchOps.length) {
+    return Promise.resolve();
+  }
+
+  return client
+    .modifyContentType()
+    .byTypeId(type.id)
+    .withData(patchOps)
+    .toPromise();
+};
+

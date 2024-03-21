@@ -27,6 +27,17 @@ export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
       ),
     };
   },
+  cleanEntities: async (client, items) => {
+    if (!items.length) {
+      return;
+    }
+
+    await serially(items.map(item => () =>
+      client.deleteContentItem()
+        .byItemId(item.id)
+        .toPromise()
+    ));
+  },
 };
 
 const createImportItemFetcher =

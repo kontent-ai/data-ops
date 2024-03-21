@@ -24,6 +24,16 @@ export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContr
       assetFolderIdsByOldIds: new Map(zip(fileFolders, projectFolders).flatMap(extractFolderIdEntries)),
     };
   },
+  cleanEntities: async (client, assetFolders) => {
+    if (!assetFolders.length) {
+      return;
+    }
+
+    await client
+      .modifyAssetFolders()
+      .withData(assetFolders.map(createPatchToRemoveFolder))
+      .toPromise();
+  },
 };
 
 const createPatchToAddFolder = (
@@ -34,6 +44,15 @@ const createPatchToAddFolder = (
     name: folder.name,
     external_id: folder.external_id ?? folder.id,
     folders: folder.folders.map(createSubFolder),
+  },
+});
+
+const createPatchToRemoveFolder = (
+  folder: AssetFolderContracts.IAssetFolderContract,
+): AssetFolderModels.IModifyAssetFoldersData => ({
+  op: "remove",
+  reference: {
+    id: folder.id,
   },
 });
 

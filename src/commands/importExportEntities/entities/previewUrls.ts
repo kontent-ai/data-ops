@@ -3,7 +3,10 @@ import { PreviewContracts } from "@kontent-ai/management-sdk";
 import { notNull } from "../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfigurationContract> = {
+export const previewUrlsEntity: Omit<
+  EntityDefinition<PreviewContracts.IPreviewConfigurationContract>,
+  "cleanEntities"
+> = {
   name: "previewUrls",
   fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
   serializeEntities: collections => JSON.stringify(collections),
