@@ -41,6 +41,15 @@ export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.I
       ),
     };
   },
+  cleanEntities: async (client, languages) => {
+    await Promise.all(languages.map(lang => 
+          client.modifyLanguage()
+            .byLanguageId(lang.id)
+            .withData(createPatchToCleanLanguage(lang))
+            .toPromise()
+      ),
+    );
+  },
 };
 
 const createReplaceCodenameOperation = (codename: string): LanguageModels.IModifyLanguageData => ({
@@ -66,6 +75,18 @@ const createReplaceIsActiveOperation = (isActive: boolean): LanguageModels.IModi
   property_name: "is_active",
   value: isActive,
 });
+
+const createPatchToCleanLanguage = (language: LanguageContracts.ILanguageModelContract): LanguageModels.IModifyLanguageData[] =>
+  language.is_default
+    ? [
+        createReplaceCodenameOperation("default"),
+        createReplaceNameOperation("Default"),
+      ]
+    : [
+        createReplaceIsActiveOperation(false),
+        createReplaceCodenameOperation(language.id),
+        createReplaceNameOperation(language.id),
+      ];
 
 const updateProjectLanguage = async (
   client: ManagementClient,

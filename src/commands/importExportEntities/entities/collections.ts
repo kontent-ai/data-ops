@@ -1,4 +1,4 @@
-import { CollectionContracts } from "@kontent-ai/management-sdk";
+import { CollectionContracts, CollectionModels } from "@kontent-ai/management-sdk";
 
 import { notNull } from "../../../utils/typeguards.js";
 import { compareExternalIds } from "../../import/utils.js";
@@ -55,6 +55,16 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
     };
   },
   deserializeEntities: JSON.parse,
+  cleanEntities: async (client, collections) => {
+    if (!collections.length) {
+      return;
+    }
+
+    await client.setCollections()
+      .withData(collections.map(createPatchToRemoveCollection))
+      .toPromise()
+      .then(res => res.rawData.collections);
+  }
 };
 
 const findCollectionMatches = (
@@ -115,6 +125,15 @@ const matchCollections = (fileCollection: Collection, projectCollection: Collect
       );
   }
 };
+
+const createPatchToRemoveCollection = (
+  collection: CollectionContracts.ICollectionContract,
+): CollectionModels.ISetCollectionData => ({
+  op: "remove",
+  reference: {
+    id: collection.id
+  }
+});
 
 // This type is needed until the SDK includes the property.
 type Collection = CollectionContracts.ICollectionContract & Readonly<{ external_id?: string }>;
