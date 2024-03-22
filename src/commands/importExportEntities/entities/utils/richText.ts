@@ -1,3 +1,4 @@
+import { assetAttributeName, assetExternalIdAttributeName, assetRegex, itemExternalIdAttributeName, itemExternalIdLinkAttributeName,itemLinkAttributeName, itemLinkRegex, itemOrComponentAttributeName, itemOrComponentRegex } from "../../../../constants/richText.js";
 import { LogOptions, logWarning } from "../../../../log.js";
 import { ImportContext } from "../../entityDefinition.js";
 
@@ -71,15 +72,4 @@ export const replaceImportRichTextReferences = (
     },
   });
 
-const uuidRegex = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const assetAttributeName = "data-asset-id";
-const itemOrComponentAttributeName = "data-id";
-const itemLinkAttributeName = "data-item-id";
 
-const assetRegex = new RegExp(`${assetAttributeName}="(${uuidRegex})"`, "gi");
-const itemOrComponentRegex = new RegExp(`${itemOrComponentAttributeName}="(${uuidRegex})"`, "gi");
-const itemLinkRegex = new RegExp(`${itemLinkAttributeName}="(${uuidRegex})"`, "gi");
-
-const assetExternalIdAttributeName = "data-asset-external-id";
-const itemExternalIdAttributeName = "data-external-id";
-const itemExternalIdLinkAttributeName = "data-item-external-id";

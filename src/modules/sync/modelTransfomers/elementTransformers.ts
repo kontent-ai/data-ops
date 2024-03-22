@@ -8,9 +8,19 @@ import {
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
 
-import { replaceRichTextReferences } from "../../../commands/importExportEntities/entities/utils/richText.js";
+import {
+  assetExternalIdAttributeName,
+  assetRegex,
+  itemExternalIdAttributeName,
+  itemExternalIdLinkAttributeName,
+  itemLinkRegex,
+} from "../../../constants/richText.js";
 import { logWarning } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
+import {
+  customAssetCodenameAttributeName,
+  customItemLinkCodenameAttributeName,
+} from "../../constants/syncRichText.js";
 
 export type ReplaceReferences<T> = T extends { id?: string; codename?: string; externalId?: string } ?
     & { codename: string }
@@ -49,6 +59,33 @@ const findContentType = (
 
   return { codename: type.codename };
 };
+
+export const replaceRichTextReferences = (
+  richText: string,
+  assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
+  items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
+): string =>
+  richText
+    .replaceAll(assetRegex, (_, oldAssetId /* from the regex capture group*/) => {
+      const asset = assets.find(a => a.id === oldAssetId);
+      if (!asset) {
+        logWarning({}, "standard", `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`);
+        return `${assetExternalIdAttributeName}="${oldAssetId}"`;
+      }
+
+      return `${customAssetCodenameAttributeName}="${asset.codename}" ${assetExternalIdAttributeName}="${
+        (asset.external_id as string | undefined) ?? asset.id
+      }"`;
+    })
+    .replaceAll(itemLinkRegex, (_, oldItemId /* from the regex capture group*/) => {
+      const item = items.find(i => i.id === oldItemId);
+      if (!item) {
+        logWarning({}, "standard", `Found asset id "${oldItemId}" of a non-existent asset in the rich text.`);
+        return `${itemExternalIdAttributeName}="${oldItemId}"`;
+      }
+
+      return `${customItemLinkCodenameAttributeName}="${item.codename}" ${itemExternalIdLinkAttributeName}="${item.id}"`;
+    });
 
 export const transformCustomElement = (
   element: ContentTypeElements.ICustomElement,
@@ -206,39 +243,9 @@ export const transformGuidelinesElement = (
   element: ContentTypeElements.IGuidelinesElement,
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
-): SyncGuidelinesElement => {
-  const guidelines = replaceRichTextReferences({
-    richText: element.guidelines,
-    replaceAssetId: (oldAssetId, _, asExternalId) => {
-      const asset = assets.find(a => a.id === oldAssetId);
-      if (!asset) {
-        logWarning({}, "standard", `could not find given asset with id ${oldAssetId}`);
-        return asExternalId(oldAssetId);
-      }
-      return asExternalId((asset.external_id as string | undefined) ?? oldAssetId);
-    },
-    replaceItemId: (oldItemId, _, asExternalId) => {
-      const item = items.find(i => i.id === oldItemId);
-      if (!item) {
-        logWarning({}, "standard", `could not find given item with id ${oldItemId}`);
-        return asExternalId(oldItemId);
-      }
-      return asExternalId(item.external_id ?? oldItemId);
-    },
-    replaceItemLinkId: (oldItemId, _, asExternalId) => {
-      const item = items.find(i => i.id === oldItemId);
-      if (!item) {
-        logWarning({}, "standard", `could not find given item with id ${oldItemId}`);
-        return asExternalId(oldItemId);
-      }
-      return asExternalId(item.external_id ?? oldItemId);
-    },
-  });
-  
-  return {
-    ...omit(element, ["id"]),
-    guidelines,
-    codename: element.codename as string,
-    external_id: element.external_id ?? element.id,
-  };
-};
+): SyncGuidelinesElement => ({
+  ...omit(element, ["id"]),
+  guidelines: replaceRichTextReferences(element.guidelines, assets, items),
+  codename: element.codename as string,
+  external_id: element.external_id ?? element.id,
+});

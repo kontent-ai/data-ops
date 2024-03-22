@@ -306,7 +306,7 @@ describe("transfomers test", () => {
       ...element,
       id: undefined,
       external_id: element.id,
-      guidelines: `<p>Item links: <a data-item-external-id="${items[0].id}">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-external-id="${assets[0].external_id}">Asset Link 1</a></p>\n<figure data-asset-external-id="${assets[0].external_id}"><img src="#" data-asset-external-id="${assets[0].external_id}"></figure>`
+      guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="${items[0].id}">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-codename="${assets[0].codename}" data-asset-external-id="${assets[0].external_id}">Asset Link 1</a></p>\n<figure data-asset-codename="${assets[0].codename}" data-asset-external-id="${assets[0].external_id}"><img src="#" data-asset-codename="${assets[0].codename}" data-asset-external-id="${assets[0].external_id}"></figure>`
     };
 
     const transformedElement = transformGuidelinesElement(element, assets, items);
