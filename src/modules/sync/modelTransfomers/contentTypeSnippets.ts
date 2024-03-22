@@ -52,5 +52,5 @@ export const transformContentTypeSnippetsModel = (
         }
       });
 
-    return { ...omit(snippet, ["id", "last_modified"]), elements: syncSnippetElements };
+    return { ...omit(snippet, ["id", "last_modified"]), elements: syncSnippetElements, external_id: snippet.external_id ?? snippet.id };
   });
