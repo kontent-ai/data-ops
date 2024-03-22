@@ -21,31 +21,7 @@ import {
   customAssetCodenameAttributeName,
   customItemLinkCodenameAttributeName,
 } from "../../constants/syncRichText.js";
-
-export type ReplaceReferences<T> = T extends { id?: string; codename?: string; externalId?: string } ?
-    & { codename: string }
-    & {
-      [K in keyof Omit<T, "id" | "codename">]: ReplaceReferences<T[K]>;
-    }
-  : T extends ReadonlyArray<infer R> ? ReadonlyArray<ReplaceReferences<R>>
-  : T;
-
-type CoreElement<E> = Omit<E, "content_group">;
-type ContentReference = { default?: { global: { value: { codename: string; external_id: string }[] } } };
-
-type SyncCustomElement = CoreElement<ReplaceReferences<ContentTypeElements.ICustomElement>>;
-type SyncMultipleChoiceElement = CoreElement<ReplaceReferences<ContentTypeElements.IMultipleChoiceElement>>;
-type SyncAssetElement =
-  & Omit<CoreElement<ReplaceReferences<ContentTypeElements.IAssetElement>>, "default">
-  & ContentReference;
-type SyncRichTextElement = CoreElement<ReplaceReferences<ContentTypeElements.IRichTextElement>>;
-type SyncTaxonomyElement = Omit<CoreElement<ReplaceReferences<ContentTypeElements.ITaxonomyElement>>, "name"> & {
-  name: string;
-};
-type SyncLinkedItemsElement =
-  & Omit<CoreElement<ReplaceReferences<ContentTypeElements.ILinkedItemsElement>>, "default">
-  & ContentReference;
-type SyncGuidelinesElement = CoreElement<ReplaceReferences<ContentTypeElements.IGuidelinesElement>>;
+import { SyncSnippetAssetElement, SyncSnippetCustomElement, SyncSnippetGuidelinesElement, SyncSnippetLinkedItemsElement, SyncSnippetMultipleChoiceElement, SyncSnippetRichTextElement, SyncSnippetTaxonomyElement } from "../types/elements.js";
 
 const findContentType = (
   typeReference: SharedContracts.IReferenceObjectContract,
@@ -90,7 +66,7 @@ export const replaceRichTextReferences = (
 export const transformCustomElement = (
   element: ContentTypeElements.ICustomElement,
   snippet: ContentTypeSnippetContracts.IContentTypeSnippetContract,
-): SyncCustomElement => {
+): SyncSnippetCustomElement => {
   const syncAllowedElements = element.allowed_elements?.map(element => ({
     codename: snippet.elements.find(el => el.id === element.id!)?.codename!,
   }));
@@ -105,7 +81,7 @@ export const transformCustomElement = (
 
 export const transformMultipleChoiceElement = (
   element: ContentTypeElements.IMultipleChoiceElement,
-): SyncMultipleChoiceElement => {
+): SyncSnippetMultipleChoiceElement => {
   const defaultOptionId = element.default?.global.value.map(o => o.id);
   const defaultOptionCodename = defaultOptionId?.map(id => element.options.find(option => option.id === id))!;
   const defaultOption = { global: { value: [{ codename: defaultOptionCodename[0]?.codename ?? "" }] } };
@@ -128,7 +104,7 @@ export const transformMultipleChoiceElement = (
 export const transformAssetElement = (
   element: ContentTypeElements.IAssetElement,
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
-): SyncAssetElement => {
+): SyncSnippetAssetElement => {
   const defaultAssetsIds = element.default?.global.value.map(a => a.id);
   const defaultAssetsReferences = defaultAssetsIds?.map(id => {
     const asset = assets.find(asset => asset.id === id);
@@ -152,7 +128,7 @@ export const transformAssetElement = (
 export const transformRichText = (
   element: ContentTypeElements.IRichTextElement,
   contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
-): SyncRichTextElement => {
+): SyncSnippetRichTextElement => {
   const allowedContentTypes = element.allowed_content_types?.map(c => findContentType(c, contentTypes));
   const allowedItemLinkTypes = element.allowed_item_link_types?.map(c => findContentType(c, contentTypes));
 
@@ -174,7 +150,7 @@ type TermType = {
 export const transformTaxonomyElement = (
   element: ContentTypeElements.ITaxonomyElement,
   taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>,
-): SyncTaxonomyElement => {
+): SyncSnippetTaxonomyElement => {
   const taxonomyGroup = taxonomies.find(t => t.id === element.taxonomy_group.id);
   if (!taxonomyGroup) {
     throw new Error(`Could not find taxonomy group with id ${element.taxonomy_group.id}`);
@@ -212,7 +188,7 @@ export const transformLinkedItemsElement = (
   element: ContentTypeElements.ILinkedItemsElement,
   contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
-): SyncLinkedItemsElement => {
+): SyncSnippetLinkedItemsElement => {
   const allowedContentTypes = element.allowed_content_types?.map(type => findContentType(type, contentTypes));
 
   const defaultValues = element.default?.global.value.map(itemReference => {
@@ -243,7 +219,7 @@ export const transformGuidelinesElement = (
   element: ContentTypeElements.IGuidelinesElement,
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
-): SyncGuidelinesElement => ({
+): SyncSnippetGuidelinesElement => ({
   ...omit(element, ["id"]),
   guidelines: replaceRichTextReferences(element.guidelines, assets, items),
   codename: element.codename as string,
