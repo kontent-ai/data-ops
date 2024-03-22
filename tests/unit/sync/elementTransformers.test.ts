@@ -12,6 +12,7 @@ import {
 import {
   transformAssetElement,
   transformCustomElement,
+  transformGuidelinesElement,
   transformLinkedItemsElement,
   transformMultipleChoiceElement,
   transformRichText,
@@ -41,9 +42,9 @@ const dummyElement = {
   type: "text",
 };
 
-const assets: ReadonlyArray<AssetContracts.IAssetModelContract> = [
+const assets = [
   {
-    id: "assetId1",
+    id: "fe374bc8-8f90-4620-887c-eec5cda3ebbf",
     codename: "asset_1",
     file_name: "asset Id",
     external_id: "assetExtId1",
@@ -60,9 +61,9 @@ const assets: ReadonlyArray<AssetContracts.IAssetModelContract> = [
     last_modified: "",
     descriptions: [],
   },
-];
+] as const satisfies ReadonlyArray<AssetContracts.IAssetModelContract>;
 
-const contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract> = [
+const contentTypes = [
   {
     id: "contentTypeId1",
     name: "content type 1",
@@ -71,22 +72,20 @@ const contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract> = [
     elements: [],
     external_id: "contentTypeExtId1",
   },
-];
+] as const satisfies ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
 
-const items: ReadonlyArray<ContentItemContracts.IContentItemModelContract> = [
+const items = [
   {
-    id: "itemId1",
+    id: "b76bb734-b37d-49b3-beb0-a543399e8abd",
     name: "item 1",
     codename: "item_1",
     type: { id: contentTypes[0].id },
     last_modified: new Date(),
     collection: { id: "" },
   },
-];
+] as const satisfies ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 
-
-
-const taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract> = [
+const taxonomyGroups = [
   {
     id: "taxonomyGroupId1",
     name: "taxonomy group 1",
@@ -110,7 +109,7 @@ const taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract> = [
       ],
     }],
   },
-];
+] as const satisfies ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
 
 describe("transfomers test", () => {
   it("transformCustomElement", () => {
@@ -191,14 +190,14 @@ describe("transfomers test", () => {
     const element: ContentTypeElements.IAssetElement = {
       ...createDefaultObject("assetElementId", "asset", "asset_element"),
       type: "asset",
-      default: { global: { value: [{ id: "assetId1" }] } },
+      default: { global: { value: [{ id: assets[0].id }] } },
     };
 
     const expectedOutput = {
       ...element,
       id: undefined,
       external_id: element.id,
-      default: { global: { value: [{ external_id: assets[0]?.external_id, codename: assets[0]?.codename }] } },
+      default: { global: { value: [{ external_id: assets[0].external_id, codename: assets[0].codename }] } },
     };
 
     const transformedElement = transformAssetElement(element, assets);
@@ -218,8 +217,8 @@ describe("transfomers test", () => {
       ...element,
       id: undefined,
       external_id: element.id,
-      allowed_content_types: [{ codename: contentTypes[0]?.codename }],
-      allowed_item_link_types: [{ codename: contentTypes[0]?.codename }],
+      allowed_content_types: [{ codename: contentTypes[0].codename }],
+      allowed_item_link_types: [{ codename: contentTypes[0].codename }],
     };
 
     const transformedElement = transformRichText(element, contentTypes);
@@ -235,7 +234,7 @@ describe("transfomers test", () => {
         id: "taxonomyGroupId1",
       },
       default: {
-        global: { value: [{ id: taxonomyGroups[0]?.terms[0]?.id }, { id: taxonomyGroups[0]?.terms[0]?.terms[0]?.id }] },
+        global: { value: [{ id: taxonomyGroups[0].terms[0].id }, { id: taxonomyGroups[0].terms[0].terms[0].id }] },
       },
     };
 
@@ -244,16 +243,16 @@ describe("transfomers test", () => {
       id: undefined,
       external_id: element.id,
       taxonomy_group: {
-        codename: taxonomyGroups[0]?.codename,
+        codename: taxonomyGroups[0].codename,
       },
       default: {
         global: {
           value: [
             {
-              codename: taxonomyGroups[0]?.terms[0]?.codename,
+              codename: taxonomyGroups[0].terms[0].codename,
             },
             {
-              codename: taxonomyGroups[0]?.terms[0]?.terms[0]?.codename,
+              codename: taxonomyGroups[0].terms[0].terms[0].codename,
             },
           ],
         },
@@ -278,24 +277,39 @@ describe("transfomers test", () => {
       ...element,
       id: undefined,
       external_id: element.id,
-      taxonomy_group: {
-        codename: taxonomyGroups[0]?.codename,
-      },
       default: {
-        global: {
+          global: {
           value: [
             {
-              codename: taxonomyGroups[0]?.terms[0]?.codename,
-            },
-            {
-              codename: taxonomyGroups[0]?.terms[0]?.terms[0]?.codename,
-            },
+              codename: items[0].codename,
+              external_id: items[0].id
+            }
           ],
         },
       },
     };
 
     const transformedElement = transformLinkedItemsElement(element, contentTypes, items);
+
+    expect(transformedElement).toEqual(expectedOutput);
+  });
+
+  it("transformGuidelinesElement correctly transforms element", () => {
+    const guidelines = `<p>Item links: <a data-item-id="${items[0].id}">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-id="${assets[0].id}">Asset Link 1</a></p>\n<figure data-asset-id="${assets[0].id}"><img src="#" data-asset-id="${assets[0].id}"></figure>`
+    const element: ContentTypeElements.IGuidelinesElement = {
+      ...createDefaultObject("guidelinesElementId", "guidelines", "guidelines_element"),
+      type: "guidelines",
+      guidelines: guidelines
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      guidelines: `<p>Item links: <a data-item-external-id="${items[0].id}">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-external-id="${assets[0].external_id}">Asset Link 1</a></p>\n<figure data-asset-external-id="${assets[0].external_id}"><img src="#" data-asset-external-id="${assets[0].external_id}"></figure>`
+    };
+
+    const transformedElement = transformGuidelinesElement(element, assets, items);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
