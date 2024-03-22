@@ -1,4 +1,14 @@
-import { assetAttributeName, assetExternalIdAttributeName, assetRegex, itemExternalIdAttributeName, itemExternalIdLinkAttributeName,itemLinkAttributeName, itemLinkRegex, itemOrComponentAttributeName, itemOrComponentRegex } from "../../../../constants/richText.js";
+import {
+  assetAttributeName,
+  assetExternalIdAttributeName,
+  assetRegex,
+  itemExternalIdAttributeName,
+  itemExternalIdLinkAttributeName,
+  itemLinkAttributeName,
+  itemLinkRegex,
+  itemOrComponentAttributeName,
+  itemOrComponentRegex,
+} from "../../../../constants/richText.js";
 import { LogOptions, logWarning } from "../../../../log.js";
 import { ImportContext } from "../../entityDefinition.js";
 
@@ -71,5 +81,3 @@ export const replaceImportRichTextReferences = (
       return asInternalId(newItemId.selfId);
     },
   });
-
-

@@ -279,12 +279,12 @@ describe("elementTransfomers test", () => {
       id: undefined,
       external_id: element.id,
       default: {
-          global: {
+        global: {
           value: [
             {
               codename: items[0].codename,
-              external_id: items[0].id
-            }
+              external_id: items[0].id,
+            },
           ],
         },
       },
@@ -296,18 +296,32 @@ describe("elementTransfomers test", () => {
   });
 
   it("transformGuidelinesElement correctly transforms element", () => {
-    const guidelines = `<p>Item links: <a data-item-id="${items[0].id}">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-id="${assets[0].id}">Asset Link 1</a></p>\n<figure data-asset-id="${assets[0].id}"><img src="#" data-asset-id="${assets[0].id}"></figure>`
+    const guidelines = `<p>Item links: <a data-item-id="${
+      items[0].id
+    }">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-id="${
+      assets[0].id
+    }">Asset Link 1</a></p>\n<figure data-asset-id="${assets[0].id}"><img src="#" data-asset-id="${
+      assets[0].id
+    }"></figure>`;
     const element: ContentTypeElements.IGuidelinesElement = {
       ...createDefaultObject("guidelinesElementId", "guidelines", "guidelines_element"),
       type: "guidelines",
-      guidelines: guidelines
+      guidelines: guidelines,
     };
 
     const expectedOutput = {
       ...element,
       id: undefined,
       external_id: element.id,
-      guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="${items[0].id}">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-codename="${assets[0].codename}" data-asset-external-id="${assets[0].external_id}">Asset Link 1</a></p>\n<figure data-asset-codename="${assets[0].codename}" data-asset-external-id="${assets[0].external_id}"><img src="#" data-asset-codename="${assets[0].codename}" data-asset-external-id="${assets[0].external_id}"></figure>`
+      guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="${
+        items[0].id
+      }">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-codename="${assets[0].codename}" data-asset-external-id="${
+        assets[0].external_id
+      }">Asset Link 1</a></p>\n<figure data-asset-codename="${assets[0].codename}" data-asset-external-id="${
+        assets[0].external_id
+      }"><img src="#" data-asset-codename="${assets[0].codename}" data-asset-external-id="${
+        assets[0].external_id
+      }"></figure>`,
     };
 
     const transformedElement = transformGuidelinesElement(element, assets, items);
@@ -320,8 +334,8 @@ describe("elementTransfomers test", () => {
       {
         ...dummyElement,
         id: undefined,
-        external_id: dummyElement.id
-      }
-    )
-  })
+        external_id: dummyElement.id,
+      },
+    );
+  });
 });

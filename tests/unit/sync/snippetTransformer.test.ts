@@ -6,9 +6,9 @@ import { transformContentTypeSnippetsModel } from "../../../src/modules/sync/mod
 
 const snippets = [
   {
-    id: 'snippetId1',
+    id: "snippetId1",
     name: "snippet 1",
-    codename: 'snippet_1',
+    codename: "snippet_1",
     elements: [
       {
         id: "textElementId1",
@@ -22,43 +22,42 @@ const snippets = [
         name: "element2 ",
         type: "text",
       },
-
     ],
-    last_modified: ''
-  }
-] as const satisfies ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>
+    last_modified: "",
+  },
+] as const satisfies ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>;
 
 describe("content type snippet transfomers", () => {
-    it("correctly transforms object", () => {
-       const environmentModel: EnvironmentModel = {
-        contentTypes: [],
-        contentTypeSnippets: snippets,
-        taxonomyGroups: [],
-        assets: [],
-        items: []
-       }
+  it("correctly transforms object", () => {
+    const environmentModel: EnvironmentModel = {
+      contentTypes: [],
+      contentTypeSnippets: snippets,
+      taxonomyGroups: [],
+      assets: [],
+      items: [],
+    };
 
-       const expectedOutput = [
-        {
-          ...snippets[0],
-          id: undefined,
-          last_modified: undefined,
-          external_id: snippets[0].id,
-          elements: [
-            {
-              ...snippets[0].elements[0],
-              id: undefined,
-              external_id: snippets[0].elements[0].id
-            },
-            {
-              ...snippets[0].elements[1],
-              id: undefined,
-              external_id: snippets[0].elements[1].id
-            },
-          ]
-        }
-       ]
+    const expectedOutput = [
+      {
+        ...snippets[0],
+        id: undefined,
+        last_modified: undefined,
+        external_id: snippets[0].id,
+        elements: [
+          {
+            ...snippets[0].elements[0],
+            id: undefined,
+            external_id: snippets[0].elements[0].id,
+          },
+          {
+            ...snippets[0].elements[1],
+            id: undefined,
+            external_id: snippets[0].elements[1].id,
+          },
+        ],
+      },
+    ];
 
-       expect(transformContentTypeSnippetsModel(environmentModel)).toEqual(expectedOutput);
-    })
-})
+    expect(transformContentTypeSnippetsModel(environmentModel)).toEqual(expectedOutput);
+  });
+});

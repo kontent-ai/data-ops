@@ -18,11 +18,16 @@ import {
 } from "../../../constants/richText.js";
 import { logWarning } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
+import { customAssetCodenameAttributeName, customItemLinkCodenameAttributeName } from "../../constants/syncRichText.js";
 import {
-  customAssetCodenameAttributeName,
-  customItemLinkCodenameAttributeName,
-} from "../../constants/syncRichText.js";
-import { SyncSnippetAssetElement, SyncSnippetCustomElement, SyncSnippetGuidelinesElement, SyncSnippetLinkedItemsElement, SyncSnippetMultipleChoiceElement, SyncSnippetRichTextElement, SyncSnippetTaxonomyElement } from "../types/elements.js";
+  SyncSnippetAssetElement,
+  SyncSnippetCustomElement,
+  SyncSnippetGuidelinesElement,
+  SyncSnippetLinkedItemsElement,
+  SyncSnippetMultipleChoiceElement,
+  SyncSnippetRichTextElement,
+  SyncSnippetTaxonomyElement,
+} from "../types/elements.js";
 
 const findContentType = (
   typeReference: SharedContracts.IReferenceObjectContract,
@@ -230,7 +235,7 @@ export const transformGuidelinesElement = (
 export const transformDefaultElement = (
   element: ElementContracts.IContentTypeElementContract,
 ) => ({
-    ...omit(element, ["id"]),
-    codename: element.codename as string,
-    external_id: element.external_id ?? element.id,
-})
+  ...omit(element, ["id"]),
+  codename: element.codename as string,
+  external_id: element.external_id ?? element.id,
+});
