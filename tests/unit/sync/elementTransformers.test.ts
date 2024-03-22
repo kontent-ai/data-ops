@@ -111,8 +111,8 @@ const taxonomyGroups = [
   },
 ] as const satisfies ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
 
-describe("transfomers test", () => {
-  it("transformCustomElement", () => {
+describe("elementTransfomers test", () => {
+  it("transformCustomElement correctly transforms element", () => {
     const element: ContentTypeElements.ICustomElement = {
       ...createDefaultObject("customElementId", "custom element", "custom_element"),
       type: "custom",
@@ -142,7 +142,7 @@ describe("transfomers test", () => {
     expect(transformedElement).toEqual(expectedOutput);
   });
 
-  it("transformMultipleChoiceElement", () => {
+  it("transformMultipleChoiceElement correctly transforms element", () => {
     const element: ContentTypeElements.IMultipleChoiceElement = {
       ...createDefaultObject("multipleChoiceElementId", "multiple choice", "multiple_choice_element"),
       type: "multiple_choice",
@@ -186,7 +186,7 @@ describe("transfomers test", () => {
     expect(transformedElement).toEqual(expectedOutput);
   });
 
-  it("transformAssetElement", () => {
+  it("transformAssetElement correctly transforms element", () => {
     const element: ContentTypeElements.IAssetElement = {
       ...createDefaultObject("assetElementId", "asset", "asset_element"),
       type: "asset",
@@ -205,7 +205,7 @@ describe("transfomers test", () => {
     expect(transformedElement).toEqual(expectedOutput);
   });
 
-  it("transformRichText", () => {
+  it("transformRichText correctly transforms element", () => {
     const element: ContentTypeElements.IRichTextElement = {
       ...createDefaultObject("richTextElementId", "rich text", "rich_text_element"),
       type: "rich_text",
@@ -226,7 +226,7 @@ describe("transfomers test", () => {
     expect(transformedElement).toEqual(expectedOutput);
   });
 
-  it("transformTaxonomyElement", () => {
+  it("transformTaxonomyElement correctly transforms element", () => {
     const element: ContentTypeElements.ITaxonomyElement = {
       ...createDefaultObject("richTextElementId", "rich text", "rich_text_element"),
       type: "taxonomy",
@@ -264,7 +264,7 @@ describe("transfomers test", () => {
     expect(transformedElement).toEqual(expectedOutput);
   });
 
-  it("transformLinkedItemsElement", () => {
+  it("transformLinkedItemsElement correctly transforms element", () => {
     const element: ContentTypeElements.ILinkedItemsElement = {
       ...createDefaultObject("linkedItemsElementId", "linked items", "linked_items_element"),
       type: "modular_content",
