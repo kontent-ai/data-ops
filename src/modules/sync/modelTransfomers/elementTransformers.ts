@@ -4,6 +4,7 @@ import {
   ContentTypeContracts,
   ContentTypeElements,
   ContentTypeSnippetContracts,
+  ElementContracts,
   SharedContracts,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
@@ -225,3 +226,11 @@ export const transformGuidelinesElement = (
   codename: element.codename as string,
   external_id: element.external_id ?? element.id,
 });
+
+export const transformDefaultElement = (
+  element: ElementContracts.IContentTypeElementContract,
+) => ({
+    ...omit(element, ["id"]),
+    codename: element.codename as string,
+    external_id: element.external_id ?? element.id,
+})

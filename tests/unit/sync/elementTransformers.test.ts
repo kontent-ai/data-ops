@@ -12,6 +12,7 @@ import {
 import {
   transformAssetElement,
   transformCustomElement,
+  transformDefaultElement,
   transformGuidelinesElement,
   transformLinkedItemsElement,
   transformMultipleChoiceElement,
@@ -313,4 +314,14 @@ describe("elementTransfomers test", () => {
 
     expect(transformedElement).toEqual(expectedOutput);
   });
+
+  it("transformDefaultElement correctly transforms element", () => {
+    expect(transformDefaultElement(dummyElement)).toEqual(
+      {
+        ...dummyElement,
+        id: undefined,
+        external_id: dummyElement.id
+      }
+    )
+  })
 });

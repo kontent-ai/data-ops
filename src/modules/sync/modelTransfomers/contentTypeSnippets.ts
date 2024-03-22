@@ -7,6 +7,7 @@ import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
 import {
   transformAssetElement,
   transformCustomElement,
+  transformDefaultElement,
   transformGuidelinesElement,
   transformLinkedItemsElement,
   transformMultipleChoiceElement,
@@ -47,11 +48,7 @@ export const transformContentTypeSnippetsModel = (
           case "rich_text":
             return transformRichText(element as ContentTypeElements.IRichTextElement, environmentModel.contentTypes);
           default:
-            return {
-              ...omit(element, ["id"]),
-              codename: element.codename as string,
-              external_id: element.external_id ?? element.id,
-            };
+            return transformDefaultElement(element);
         }
       });
 
