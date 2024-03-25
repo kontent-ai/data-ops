@@ -9,7 +9,7 @@ import {
 import chalk from "chalk";
 import * as fsPromises from "fs/promises";
 
-import packageJson from "../../../package.json";
+import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { serializeDateForFileName } from "../../utils/files.js";
