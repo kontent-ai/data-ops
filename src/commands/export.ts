@@ -5,7 +5,7 @@ import archiver from "archiver";
 import chalk from "chalk";
 import * as fs from "fs";
 
-import packageFile from "../../package.json" assert { type: "json" };
+import packageFile from "../../package.json" with { type: "json" };
 import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { serializeDateForFileName } from "../utils/files.js";
