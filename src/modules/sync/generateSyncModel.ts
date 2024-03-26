@@ -6,8 +6,13 @@ import {
   ManagementClient,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
+import chalk from "chalk";
+import * as fsPromises from "fs/promises";
 
+import packageJson from "../../../package.json" with { type: "json" };
+import { logInfo, LogOptions } from "../../log.js";
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
+import { serializeDateForFileName } from "../../utils/files.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
@@ -82,12 +87,38 @@ export const transformSyncModel = (environmentModel: EnvironmentModel): FileCont
   };
 };
 
-export const saveSyncModel = (syncModel: FileContentModel) => {
-  // TODO
-  /**
-   * This function should create the file dateTime-environmentId.json (if other name not specified)
-   * This file contains the content model from the given environmentId (you can use the type fileContentModel).
-   * The tool might add comment about the datetime and tool's version.
-   */
-  syncModel as never;
+type SaveModelParams =
+  & Readonly<{
+    syncModel: FileContentModel;
+    environmentId: string;
+    fileName: string | undefined;
+  }>
+  & LogOptions;
+
+export const saveSyncModel = async (params: SaveModelParams) => {
+  const now = new Date();
+  const finalModel: FileContentWithMetadata = {
+    ...params.syncModel,
+    metadata: {
+      generatedAt: now,
+      generatedWithVersion: packageJson.version,
+      generatedFromEnvironmentId: params.environmentId,
+    },
+  };
+  const fileName = params.fileName ?? `${serializeDateForFileName(now)}-${params.environmentId}.json`;
+
+  logInfo(params, "standard", `Saving the model into "${chalk.yellow(fileName)}".`);
+  await fsPromises.writeFile(fileName, JSON.stringify(finalModel));
+
+  return fileName;
 };
+
+type FileContentWithMetadata =
+  & FileContentModel
+  & Readonly<{
+    metadata: Readonly<{
+      generatedAt: Date;
+      generatedWithVersion: string;
+      generatedFromEnvironmentId: string;
+    }>;
+  }>;
