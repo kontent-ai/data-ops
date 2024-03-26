@@ -1,10 +1,13 @@
 import { TaxonomyContracts } from "@kontent-ai/management-sdk";
 
+import { omit } from "../../../utils/object.js";
 import { TaxonomySyncModel } from "../types/fileContentModel.js";
 
-export const transformTaxonomyGroupsModel = (taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>) => {
-  // TODO
-  taxonomies as never;
-
-  return [] as TaxonomySyncModel[];
-};
+export const transformTaxonomyGroupsModel = (
+  taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>,
+): ReadonlyArray<TaxonomySyncModel> =>
+  taxonomies.map(t => ({
+    ...omit(t, ["id", "last_modified"]),
+    terms: transformTaxonomyGroupsModel(t.terms),
+    external_id: t.external_id ?? t.id,
+  }));
