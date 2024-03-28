@@ -44,6 +44,17 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
     };
   },
   deserializeEntities: JSON.parse,
+  cleanEntities: async (client, types) => {
+    if (!types.length) {
+      return;
+    }
+
+    await Promise.all(types.map(type =>
+      client.deleteContentType()
+        .byTypeId(type.id)
+        .toPromise()
+    ));
+  }
 };
 
 export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinition<ReadonlyArray<Type>> = {

@@ -50,6 +50,17 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
       assetIdsByOldIds: new Map(assetIdEntries),
     };
   },
+  cleanEntities: async (client, assets) => {
+    if (!assets.length) {
+      return;
+    }
+
+    await Promise.all(assets.map(asset => 
+      client.deleteAsset()
+        .byAssetId(asset.codename)
+        .toPromise()
+    ));
+  }
 };
 
 const saveAsset = async (

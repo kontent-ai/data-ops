@@ -39,4 +39,15 @@ export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceC
         })),
     };
   },
+  cleanEntities: async (client, spaces) => {
+    if (!spaces.length) {
+      return;
+    }
+
+    await Promise.all(spaces.map(space => 
+      client.deleteSpace()
+        .bySpaceId(space.id)
+        .toPromise()
+    ));
+  }
 };

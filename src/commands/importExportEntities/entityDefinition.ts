@@ -4,7 +4,7 @@ import { StreamZipAsync } from "node-stream-zip";
 
 import { LogOptions } from "../../log.js";
 
-export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T>;
+export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T> & EntityCleanDefinition<T>;
 
 export type EntityExportDefinition<T> = Readonly<{
   name: string;
@@ -24,6 +24,15 @@ export type EntityImportDefinition<T> = Readonly<{
     logOptions: LogOptions,
     zip: StreamZipAsync,
   ) => Promise<void | undefined | ImportContext>;
+}>;
+
+export type EntityCleanDefinition<T> = Readonly<{
+  name: string;
+  cleanEntities: (
+    client: ManagementClient,
+    entities: T,
+    logOptions: LogOptions,
+  ) => Promise<void>;
 }>;
 
 export type DependentImportAction<T> = Readonly<{

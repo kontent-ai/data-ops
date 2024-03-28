@@ -55,6 +55,18 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
       workflowStepsIdsWithTransitionsByOldIds: new Map([...newProjectWfs.workflowSteps, ...newDefaultWfStepIdEntries]),
     };
   },
+  cleanEntities: async (client, workflows) => {
+    await Promise.all(
+      workflows.map((workflow) => {
+        workflow.id === defaultWorkflowId
+          ? client.updateWorkflow()
+              .byWorkflowId(workflow.id)
+              .withData(createDefaultWorkflowData(workflow))
+              .toPromise()
+          : client.deleteWorkflow().byWorkflowId(workflow.id).toPromise();
+      })
+    );
+  },
 };
 
 const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) => ({
@@ -203,3 +215,12 @@ const setOnlyTransition = (step: Omit<AnyStep, "transitions_to">, transitionId: 
 
 const extractAllStepIds = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArray<string> =>
   extractAllSteps(wf).map(s => s.id);
+
+const createDefaultWorkflowData = (wf: Workflow): WorkflowModels.IUpdateWorkflowData => ({
+  name: "Default",
+  codename: "default",
+  scopes: [],
+  steps: [],
+  published_step: { ...wf.published_step, codename: "published", name: "Published"},
+  archived_step: { ...wf.archived_step, codename: "archived", name: "Archived"}
+})
