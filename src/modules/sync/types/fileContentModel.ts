@@ -6,6 +6,7 @@ import {
 } from "@kontent-ai/management-sdk";
 
 import { Replace } from "../../../utils/types.js";
+import { SyncSnippetElement } from "./syncModel.js";
 
 export type TaxonomySyncModel =
   & Omit<TaxonomyContracts.ITaxonomyContract, "id" | "last_modified" | "codename" | "terms">
@@ -18,7 +19,7 @@ export type ContentTypeSnippetsSyncModel =
   & Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "codename" | "last_modified" | "elements">
   & Readonly<{
     codename: string;
-    elements: ReadonlyArray<Replace<ElementContracts.IContentTypeElementContract, "codename", string>>;
+    elements: ReadonlyArray<SyncSnippetElement>;
   }>;
 
 export type ContentTypeSyncModel =

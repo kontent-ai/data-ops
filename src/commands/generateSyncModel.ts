@@ -49,7 +49,7 @@ export const generateModel = async (params: SyncParams) => {
   );
 
   logInfo(params, "standard", "Transforming the model.");
-  const syncModel = transformSyncModel(environmentModel);
+  const syncModel = transformSyncModel(environmentModel, params);
 
   const fileName = await logOnError(
     params,

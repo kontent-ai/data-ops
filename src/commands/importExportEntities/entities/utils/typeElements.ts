@@ -24,9 +24,9 @@ export type TransformTypeElementParams = Readonly<{
 
 export const createTransformTypeElement =
   (params: TransformTypeElementParams) =>
-  (element: ElementContracts.IContentTypeElementContract): ContentTypeElements.IElementShared => {
+  (element: ElementContracts.IContentTypeElementContract): ContentTypeElements.Element => {
     const fallbackExternalId = getRequired(params.elementExternalIdsByOldId, element.id ?? "", "element");
-    const elementWithGroup = element as ContentTypeElements.IElementShared;
+    const elementWithGroup = element as ContentTypeElements.Element;
     const content_group = elementWithGroup.content_group
       ? {
         external_id: getRequired(
