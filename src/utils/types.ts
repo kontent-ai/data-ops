@@ -26,3 +26,16 @@ export type RequiredCodename<T extends { [key in "codename"]?: string }> = Repla
 export type Replace<T, Key extends keyof T, NewType, IsOptional extends boolean = false> =
   & Omit<T, Key>
   & (IsOptional extends true ? { readonly [key in Key]?: NewType } : { readonly [key in Key]: NewType });
+
+/**
+ * Original Pick type extended to work on Union type objects
+ */
+export type SuperiorPick<T, K extends keyof T> = T extends any ? {
+    [P in K]: T[P];
+  }
+  : never;
+
+/**
+ * Original Omit type extended to work on Union type objects
+ */
+export type SuperiorOmit<T, K extends keyof any> = T extends any ? SuperiorPick<T, Exclude<keyof T, K>> : never;

@@ -237,9 +237,8 @@ const createPrepareTypeElementReferences = (
   contentGroups: ReadonlyArray<ContentTypeContracts.IContentTypeGroup>,
 ): PrepareReferencesFnc<ElementContracts.IContentTypeElementContract> =>
 element => {
-  const elementWithGroup =
-    element as (ElementContracts.IContentTypeElementContract & ContentTypeElements.IElementShared);
-  const baseElement: ElementContracts.IContentTypeElementContract & ContentTypeElements.IElementShared = {
+  const elementWithGroup = element as (ElementContracts.IContentTypeElementContract & ContentTypeElements.Element);
+  const baseElement: ElementContracts.IContentTypeElementContract & ContentTypeElements.Element = {
     ...elementWithGroup,
     id: "-",
     external_id: "-",
