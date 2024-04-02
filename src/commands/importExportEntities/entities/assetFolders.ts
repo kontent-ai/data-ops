@@ -39,7 +39,7 @@ export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContr
 
 const createPatchToAddFolder = (
   folder: AssetFolderContracts.IAssetFolderContract,
-): AssetFolderModels.IModifyAssetFoldersData => ({
+): AssetFolderModels.AddIntoOperation => ({
   op: "addInto",
   value: {
     name: folder.name,
@@ -59,7 +59,7 @@ const createPatchToRemoveFolder = (
 
 const createSubFolder = (
   folder: AssetFolderContracts.IAssetFolderContract,
-): AssetFolderModels.IAddOrModifyAssetFolderData => ({
+): AssetFolderModels.IAssetFolderValue => ({
   name: folder.name,
   folders: folder.folders.map(createSubFolder),
   external_id: folder.external_id ?? folder.id,

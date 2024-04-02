@@ -4,11 +4,10 @@ import {
   ContentItemContracts,
   ContentTypeContracts,
   ContentTypeElements,
-  ContentTypeSnippetContracts,
-  ElementContracts,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
 
+import { LogOptions } from "../../../src/log";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -16,13 +15,19 @@ import {
   transformGuidelinesElement,
   transformLinkedItemsElement,
   transformMultipleChoiceElement,
-  transformRichText,
+  transformRichTextElement,
   transformTaxonomyElement,
 } from "../../../src/modules/sync/modelTransfomers/elementTransformers";
+import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../../../src/modules/sync/types/contractModels";
+
+const logOptions: LogOptions = {
+  logLevel: "standard",
+  verbose: true,
+};
 
 const createSnippet = (
-  elements: ElementContracts.IContentTypeElementContract[],
-): ContentTypeSnippetContracts.IContentTypeSnippetContract => ({
+  elements: SnippetElement[],
+): ContentTypeSnippetsWithUnionElements => ({
   id: "snippet",
   name: "snippet",
   codename: "snippet",
@@ -30,13 +35,13 @@ const createSnippet = (
   elements,
 });
 
-const createDefaultObject = (id: string, name: string, codename: string) => ({
-  id,
-  name,
-  codename,
-});
+const commonElementProps = {
+  id: "objectId",
+  name: "object name",
+  codename: "object_codename",
+};
 
-const dummyElement = {
+const dummyElement: ContentTypeElements.Element = {
   id: "textElementId",
   codename: "text_codename",
   name: "element",
@@ -115,7 +120,7 @@ const taxonomyGroups = [
 describe("elementTransfomers test", () => {
   it("transformCustomElement correctly transforms element", () => {
     const element: ContentTypeElements.ICustomElement = {
-      ...createDefaultObject("customElementId", "custom element", "custom_element"),
+      ...commonElementProps,
       type: "custom",
       codename: "custom_element",
       source_url: "url",
@@ -145,7 +150,7 @@ describe("elementTransfomers test", () => {
 
   it("transformMultipleChoiceElement correctly transforms element", () => {
     const element: ContentTypeElements.IMultipleChoiceElement = {
-      ...createDefaultObject("multipleChoiceElementId", "multiple choice", "multiple_choice_element"),
+      ...commonElementProps,
       type: "multiple_choice",
       mode: "single",
       default: { global: { value: [{ id: "firstOptionId" }] } },
@@ -189,7 +194,7 @@ describe("elementTransfomers test", () => {
 
   it("transformAssetElement correctly transforms element", () => {
     const element: ContentTypeElements.IAssetElement = {
-      ...createDefaultObject("assetElementId", "asset", "asset_element"),
+      ...commonElementProps,
       type: "asset",
       default: { global: { value: [{ id: assets[0].id }] } },
     };
@@ -201,14 +206,33 @@ describe("elementTransfomers test", () => {
       default: { global: { value: [{ external_id: assets[0].external_id, codename: assets[0].codename }] } },
     };
 
-    const transformedElement = transformAssetElement(element, assets);
+    const transformedElement = transformAssetElement(element, assets, logOptions);
+
+    expect(transformedElement).toEqual(expectedOutput);
+  });
+
+  it("transformAssetElement correctly transforms element with missing asset", () => {
+    const element: ContentTypeElements.IAssetElement = {
+      ...commonElementProps,
+      type: "asset",
+      default: { global: { value: [{ id: assets[0].id }] } },
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      default: undefined,
+    };
+
+    const transformedElement = transformAssetElement(element, [], logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
 
   it("transformRichText correctly transforms element", () => {
     const element: ContentTypeElements.IRichTextElement = {
-      ...createDefaultObject("richTextElementId", "rich text", "rich_text_element"),
+      ...commonElementProps,
       type: "rich_text",
       allowed_content_types: [{ id: "contentTypeId1" }],
       allowed_item_link_types: [{ id: "contentTypeId1" }],
@@ -222,14 +246,35 @@ describe("elementTransfomers test", () => {
       allowed_item_link_types: [{ codename: contentTypes[0].codename }],
     };
 
-    const transformedElement = transformRichText(element, contentTypes);
+    const transformedElement = transformRichTextElement(element, contentTypes, logOptions);
+
+    expect(transformedElement).toEqual(expectedOutput);
+  });
+
+  it("transformRichText correctly transforms element with missing content types", () => {
+    const element: ContentTypeElements.IRichTextElement = {
+      ...commonElementProps,
+      type: "rich_text",
+      allowed_content_types: [{ id: "contentTypeId1" }],
+      allowed_item_link_types: [{ id: "contentTypeId1" }],
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      allowed_content_types: undefined,
+      allowed_item_link_types: undefined,
+    };
+
+    const transformedElement = transformRichTextElement(element, [], logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
 
   it("transformTaxonomyElement correctly transforms element", () => {
     const element: ContentTypeElements.ITaxonomyElement = {
-      ...createDefaultObject("richTextElementId", "rich text", "rich_text_element"),
+      ...commonElementProps,
       type: "taxonomy",
       taxonomy_group: {
         id: "taxonomyGroupId1",
@@ -260,18 +305,19 @@ describe("elementTransfomers test", () => {
       },
     };
 
-    const transformedElement = transformTaxonomyElement(element, taxonomyGroups);
+    const transformedElement = transformTaxonomyElement(element, taxonomyGroups, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
 
   it("transformLinkedItemsElement correctly transforms element", () => {
     const element: ContentTypeElements.ILinkedItemsElement = {
-      ...createDefaultObject("linkedItemsElementId", "linked items", "linked_items_element"),
+      ...commonElementProps,
       type: "modular_content",
       default: {
         global: { value: [{ id: items[0].id }] },
       },
+      allowed_content_types: [{ id: contentTypes[0].id }],
     };
 
     const expectedOutput = {
@@ -288,9 +334,33 @@ describe("elementTransfomers test", () => {
           ],
         },
       },
+      allowed_content_types: [{ codename: contentTypes[0].codename }],
     };
 
-    const transformedElement = transformLinkedItemsElement(element, contentTypes, items);
+    const transformedElement = transformLinkedItemsElement(element, contentTypes, items, logOptions);
+
+    expect(transformedElement).toEqual(expectedOutput);
+  });
+
+  it("transformLinkedItemsElement correctly transforms element with missing item and types", () => {
+    const element: ContentTypeElements.ILinkedItemsElement = {
+      ...commonElementProps,
+      type: "modular_content",
+      default: {
+        global: { value: [{ id: items[0].id }] },
+      },
+      allowed_content_types: [{ id: contentTypes[0].id }],
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      default: undefined,
+      allowed_content_types: undefined,
+    };
+
+    const transformedElement = transformLinkedItemsElement(element, [], [], logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -304,7 +374,7 @@ describe("elementTransfomers test", () => {
       assets[0].id
     }"></figure>`;
     const element: ContentTypeElements.IGuidelinesElement = {
-      ...createDefaultObject("guidelinesElementId", "guidelines", "guidelines_element"),
+      ...commonElementProps,
       type: "guidelines",
       guidelines: guidelines,
     };
@@ -324,13 +394,15 @@ describe("elementTransfomers test", () => {
       }"></figure>`,
     };
 
-    const transformedElement = transformGuidelinesElement(element, assets, items);
+    const transformedElement = transformGuidelinesElement(element, assets, items, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
 
   it("transformDefaultElement correctly transforms element", () => {
-    expect(transformDefaultElement(dummyElement)).toEqual(
+    const transformedElement = transformDefaultElement(dummyElement);
+
+    expect(transformedElement).toEqual(
       {
         ...dummyElement,
         id: undefined,

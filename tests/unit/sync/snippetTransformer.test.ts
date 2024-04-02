@@ -1,8 +1,14 @@
 import { describe, expect, it } from "@jest/globals";
 import { ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
 
+import { LogOptions } from "../../../src/log";
 import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel";
 import { transformContentTypeSnippetsModel } from "../../../src/modules/sync/modelTransfomers/contentTypeSnippets";
+
+const logOptions: LogOptions = {
+  logLevel: "standard",
+  verbose: true,
+};
 
 const snippets = [
   {
@@ -58,6 +64,8 @@ describe("content type snippet transfomers", () => {
       },
     ];
 
-    expect(transformContentTypeSnippetsModel(environmentModel)).toEqual(expectedOutput);
+    const transformedSnippet = transformContentTypeSnippetsModel(environmentModel, logOptions);
+
+    expect(transformedSnippet).toEqual(expectedOutput);
   });
 });
