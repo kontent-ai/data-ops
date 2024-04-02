@@ -1,9 +1,8 @@
-import { ContentTypeElements, ElementContracts } from "@kontent-ai/management-sdk";
-
+import { LogOptions } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
-import { Replace } from "../../../utils/types.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
-import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
+import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../types/contractModels.js";
+import { SyncSnippetElement } from "../types/syncModel.js";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -11,46 +10,19 @@ import {
   transformGuidelinesElement,
   transformLinkedItemsElement,
   transformMultipleChoiceElement,
-  transformRichText,
+  transformRichTextElement,
   transformTaxonomyElement,
 } from "./elementTransformers.js";
 
 export const transformContentTypeSnippetsModel = (
   environmentModel: EnvironmentModel,
+  logOptions: LogOptions,
 ) =>
   environmentModel.contentTypeSnippets.map(snippet => {
-    const syncSnippetElements: ContentTypeSnippetsSyncModel["elements"] = snippet.elements
-      .map(element => {
-        switch (element.type) {
-          case "guidelines":
-            return transformGuidelinesElement(
-              element as unknown as ContentTypeElements.IGuidelinesElement,
-              environmentModel.assets,
-              environmentModel.items,
-            ) as unknown as Replace<ElementContracts.IContentTypeElementContract, "codename", string>;
-          case "modular_content":
-            return transformLinkedItemsElement(
-              element as ContentTypeElements.ILinkedItemsElement,
-              environmentModel.contentTypes,
-              environmentModel.items,
-            );
-          case "taxonomy":
-            return transformTaxonomyElement(
-              element as ContentTypeElements.ITaxonomyElement,
-              environmentModel.taxonomyGroups,
-            );
-          case "multiple_choice":
-            return transformMultipleChoiceElement(element as ContentTypeElements.IMultipleChoiceElement);
-          case "custom":
-            return transformCustomElement(element as ContentTypeElements.ICustomElement, snippet);
-          case "asset":
-            return transformAssetElement(element as ContentTypeElements.IAssetElement, environmentModel.assets);
-          case "rich_text":
-            return transformRichText(element as ContentTypeElements.IRichTextElement, environmentModel.contentTypes);
-          default:
-            return transformDefaultElement(element);
-        }
-      });
+    const syncSnippetElements = snippet.elements
+      .map<SyncSnippetElement>(element =>
+        omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"])
+      );
 
     return {
       ...omit(snippet, ["id", "last_modified"]),
@@ -58,3 +30,43 @@ export const transformContentTypeSnippetsModel = (
       external_id: snippet.external_id ?? snippet.id,
     };
   });
+
+const transformElement = (
+  element: SnippetElement,
+  snippet: ContentTypeSnippetsWithUnionElements,
+  environmentModel: EnvironmentModel,
+  logOptions: LogOptions,
+) => {
+  switch (element.type) {
+    case "guidelines":
+      return transformGuidelinesElement(
+        element,
+        environmentModel.assets,
+        environmentModel.items,
+        logOptions,
+      );
+    case "modular_content":
+      return transformLinkedItemsElement(
+        element,
+        environmentModel.contentTypes,
+        environmentModel.items,
+        logOptions,
+      );
+    case "taxonomy":
+      return transformTaxonomyElement(
+        element,
+        environmentModel.taxonomyGroups,
+        logOptions
+      );
+    case "multiple_choice":
+      return transformMultipleChoiceElement(element);
+    case "custom":
+      return transformCustomElement(element, snippet);
+    case "asset":
+      return transformAssetElement(element, environmentModel.assets, logOptions);
+    case "rich_text":
+      return transformRichTextElement(element, environmentModel.contentTypes, logOptions);
+    default:
+      return transformDefaultElement(element);
+  }
+};

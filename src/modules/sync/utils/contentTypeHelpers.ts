@@ -1,9 +1,4 @@
-import {
-  ContentTypeContracts,
-  ContentTypeElements,
-  ContentTypeSnippetContracts,
-  ElementContracts,
-} from "@kontent-ai/management-sdk";
+import { ContentTypeContracts, ContentTypeElements, ElementContracts } from "@kontent-ai/management-sdk";
 import {
   DomHtmlNode,
   DomNode,
@@ -14,12 +9,14 @@ import {
   transformToJson,
 } from "@kontent-ai/rich-text-resolver";
 
+import { ContentTypeSnippetsWithUnionElements } from "../types/contractModels.js";
+
 const isAssetElement = (
-  element: ElementContracts.IContentTypeElementContract,
+  element: ElementContracts.IContentTypeElementContract | ContentTypeElements.Element,
 ): element is ContentTypeElements.IAssetElement => element.type === "asset";
 
 const isLinkedItemElement = (
-  element: ElementContracts.IContentTypeElementContract,
+  element: ElementContracts.IContentTypeElementContract | ContentTypeElements.Element,
 ): element is ContentTypeElements.ILinkedItemsElement => element.type === "modular_content";
 
 const resolveAssetIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
@@ -47,7 +44,7 @@ const resolveItemIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
 const customResolveDomTextNode: ResolveDomTextNodeType = () => null;
 
 export const getRequiredIds = (
-  contentType: ContentTypeContracts.IContentTypeContract | ContentTypeSnippetContracts.IContentTypeSnippetContract,
+  contentType: ContentTypeContracts.IContentTypeContract | ContentTypeSnippetsWithUnionElements,
 ) => {
   const assetElements = contentType.elements.filter(isAssetElement);
   // Use typeguard once types in SDKs are fixed

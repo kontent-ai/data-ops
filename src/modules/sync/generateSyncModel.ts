@@ -2,7 +2,6 @@ import {
   AssetContracts,
   ContentItemContracts,
   ContentTypeContracts,
-  ContentTypeSnippetContracts,
   ManagementClient,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
@@ -16,6 +15,7 @@ import { serializeDateForFileName } from "../../utils/files.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
+import { ContentTypeSnippetsWithUnionElements } from "./types/contractModels.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
 import {
@@ -28,7 +28,7 @@ import {
 
 export type EnvironmentModel = {
   taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
-  contentTypeSnippets: ReadonlyArray<ContentTypeSnippetContracts.IContentTypeSnippetContract>;
+  contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>;
   contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
@@ -41,7 +41,9 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
   });
 
   const contentTypes = await fetchContentTypes(client);
-  const contentTypeSnippets = await fetchContentTypeSnippets(client);
+  const contentTypeSnippets = await fetchContentTypeSnippets(
+    client,
+  ) as unknown as ContentTypeSnippetsWithUnionElements[];
   const taxonomies = await fetchTaxonomies(client);
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
@@ -68,7 +70,7 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
   };
 };
 
-export const transformSyncModel = (environmentModel: EnvironmentModel): FileContentModel => {
+export const transformSyncModel = (environmentModel: EnvironmentModel, logOptions: LogOptions): FileContentModel => {
   /**
    * The internalIds should be replaced by codenames.
    * Unnecesary fields for syncing like lastModified should be removed.
@@ -77,7 +79,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel): FileCont
   // TODO
 
   const contentTypeModel = transformContentTypeModel(environmentModel);
-  const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel);
+  const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel, logOptions);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
 
   return {
