@@ -23,9 +23,10 @@ export type ReplaceReferences<T, R extends IdReference | CodenameReference = IdR
 export type RequiredId<T extends { [key in "id"]?: string }> = Replace<T, { id: string }>;
 export type RequiredCodename<T extends { [key in "codename"]?: string }> = Replace<T, { codename: string }>;
 
-export type Replace<T, NewValues extends { [key in keyof T]?: unknown }> =
-  & Omit<T, keyof NewValues>
-  & Readonly<NewValues>;
+export type Replace<T, NewValues extends { [key in keyof T]?: unknown }> = T extends any ?
+    & Omit<T, keyof NewValues>
+    & Readonly<NewValues>
+  : never;
 
 /**
  * Original Pick type extended to work on Union type objects
