@@ -252,14 +252,12 @@ element => {
   };
   switch (baseElement.type) {
     case "asset": {
-      const typedElement = baseElement as ContentTypeElements.IAssetElement;
-
       const result: ContentTypeElements.IAssetElement = {
-        ...typedElement,
-        default: typedElement.default
+        ...baseElement,
+        default: baseElement.default
           ? {
             global: {
-              value: typedElement.default.global.value.map(ref => ({
+              value: baseElement.default.global.value.map(ref => ({
                 id: data.assets.find(a => a.id === ref.id)?.codename ?? "non-existing-asset",
               })),
             },
@@ -269,11 +267,9 @@ element => {
       return result;
     }
     case "custom": {
-      const typedElement = baseElement as ContentTypeElements.ICustomElement;
-
       const result: ContentTypeElements.ICustomElement = {
-        ...typedElement,
-        allowed_elements: typedElement.allowed_elements
+        ...baseElement,
+        allowed_elements: baseElement.allowed_elements
           ?.map(ref => ({ id: otherElements.find(el => el.id === ref.id)?.codename ?? "non-existing-element" })),
       };
 
@@ -284,12 +280,10 @@ element => {
     case "text":
       return baseElement;
     case "guidelines": {
-      const typedElement = baseElement as unknown as ContentTypeElements.IGuidelinesElement; // incorrect SDK types
-
       const result: ContentTypeElements.IGuidelinesElement = {
-        ...typedElement,
+        ...baseElement,
         guidelines: replaceRichTextReferences({
-          richText: typedElement.guidelines,
+          richText: baseElement.guidelines,
           replaceItemId: (itemId, asInternalId, asExternalId) => {
             const item = data.items.find(i => i.id === itemId);
             return item
@@ -317,36 +311,32 @@ element => {
       return result as unknown as ElementContracts.IContentTypeElementContract; // incorrect SDK types
     }
     case "modular_content": {
-      const typedElement = baseElement as ContentTypeElements.ILinkedItemsElement;
-
       const result: ContentTypeElements.ILinkedItemsElement = {
-        ...typedElement,
-        default: typedElement.default
+        ...baseElement,
+        default: baseElement.default
           ? {
             global: {
-              value: typedElement.default.global.value.map(ref => ({
+              value: baseElement.default.global.value.map(ref => ({
                 id: data.items.find(i => i.id === ref.id)?.codename ?? "non-existing-item",
               })),
             },
           }
           : undefined,
-        allowed_content_types: typedElement.allowed_content_types
+        allowed_content_types: baseElement.allowed_content_types
           ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
       };
 
       return result;
     }
     case "multiple_choice": {
-      const typedElement = baseElement as ContentTypeElements.IMultipleChoiceElement;
-
       const result: ContentTypeElements.IMultipleChoiceElement = {
-        ...typedElement,
-        options: typedElement.options.map(o => ({ ...o, id: o.codename ?? "non-existing-option", external_id: "-" })),
-        default: typedElement.default
+        ...baseElement,
+        options: baseElement.options.map(o => ({ ...o, id: o.codename ?? "non-existing-option", external_id: "-" })),
+        default: baseElement.default
           ? {
             global: {
-              value: typedElement.default.global.value.map(ref => ({
-                id: typedElement.options.find(o => o.id === ref.id)?.codename ?? "non-existing-option",
+              value: baseElement.default.global.value.map(ref => ({
+                id: baseElement.options.find(o => o.id === ref.id)?.codename ?? "non-existing-option",
               })),
             },
           }
@@ -356,24 +346,20 @@ element => {
       return result;
     }
     case "rich_text": {
-      const typedElement = baseElement as ContentTypeElements.IRichTextElement;
-
       const result: ContentTypeElements.IRichTextElement = {
-        ...typedElement,
-        allowed_content_types: typedElement.allowed_content_types
+        ...baseElement,
+        allowed_content_types: baseElement.allowed_content_types
           ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
-        allowed_item_link_types: typedElement.allowed_item_link_types
+        allowed_item_link_types: baseElement.allowed_item_link_types
           ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
       };
 
       return result;
     }
     case "snippet": {
-      const typedElement = baseElement as unknown as ContentTypeElements.ISnippetElement;
-
       const result: ContentTypeElements.ISnippetElement = {
-        ...typedElement,
-        snippet: { id: data.snippets.find(s => s.id === typedElement.snippet.id)?.codename ?? "non-existing-snippet" },
+        ...baseElement,
+        snippet: { id: data.snippets.find(s => s.id === baseElement.snippet.id)?.codename ?? "non-existing-snippet" },
       };
 
       return result as unknown as ElementContracts.IContentTypeElementContract;
@@ -401,19 +387,17 @@ element => {
       return result;
     }
     case "taxonomy": {
-      const typedElement = baseElement as ContentTypeElements.ITaxonomyElement;
-
       const result: ContentTypeElements.ITaxonomyElement = {
-        ...typedElement,
+        ...baseElement,
         taxonomy_group: {
-          id: data.taxonomies.find(g => g.id === typedElement.taxonomy_group.id)?.codename ?? "non-existing-group",
+          id: data.taxonomies.find(g => g.id === baseElement.taxonomy_group.id)?.codename ?? "non-existing-group",
         },
-        default: typedElement.default
+        default: baseElement.default
           ? {
             global: {
-              value: typedElement.default.global.value.map(ref => ({
+              value: baseElement.default.global.value.map(ref => ({
                 id:
-                  getAllTerms(data.taxonomies.find(g => g.id === typedElement.taxonomy_group.id)).find(t =>
+                  getAllTerms(data.taxonomies.find(g => g.id === baseElement.taxonomy_group.id)).find(t =>
                     t.id === ref.id
                   )?.codename ?? "non-existing-term",
               })),
@@ -425,23 +409,21 @@ element => {
       return result as ElementContracts.IContentTypeElementContract;
     }
     case "url_slug": {
-      const typedElement = baseElement as ContentTypeElements.IUrlSlugElement;
-
       const result: ContentTypeElements.IUrlSlugElement = {
-        ...typedElement,
+        ...baseElement,
         depends_on: {
           element: {
-            id: typedElement.depends_on.snippet
+            id: baseElement.depends_on.snippet
               ? data.snippets
-                .find(s => s.id === typedElement.depends_on.snippet?.id)
-                ?.elements.find(el => el.id === typedElement.depends_on.element.id)?.codename ?? "non-existing-element"
+                .find(s => s.id === baseElement.depends_on.snippet?.id)
+                ?.elements.find(el => el.id === baseElement.depends_on.element.id)?.codename ?? "non-existing-element"
               : otherElements
-                .find(el => el.id === typedElement.depends_on.element.id)?.codename ?? "non-existing-element",
+                .find(el => el.id === baseElement.depends_on.element.id)?.codename ?? "non-existing-element",
           },
-          snippet: typedElement.depends_on.snippet
+          snippet: baseElement.depends_on.snippet
             ? {
               id: data.snippets
-                .find(s => s.id === typedElement.depends_on.snippet?.id)?.codename ?? "non-existing-snippet",
+                .find(s => s.id === baseElement.depends_on.snippet?.id)?.codename ?? "non-existing-snippet",
             }
             : undefined,
         },
