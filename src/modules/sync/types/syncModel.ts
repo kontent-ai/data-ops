@@ -48,7 +48,9 @@ export type SyncDateTimeElement = ReplaceReferences<ContentTypeElements.IDateTim
 export type SyncNumberElement = ReplaceReferences<ContentTypeElements.INumberElement>;
 export type SyncTypeSnippetElement = ReplaceReferences<ContentTypeElements.ISnippetElement>;
 export type SyncUrlSlugElement = ReplaceReferences<ContentTypeElements.IUrlSlugElement>;
-export type SyncSubpagesElement = ReplaceReferences<ContentTypeElements.ISubpagesElement>;
+export type SyncSubpagesElement =
+  & ReplaceReferences<ContentTypeElements.ISubpagesElement>
+  & Pick<SyncLinkedItemsElement, "default">; // The property is missing in the SDK type
 
 type SyncSnippetCustomElement = SnippetElement<SyncCustomElement>;
 type SyncSnippetMultipleChoiceElement = SnippetElement<SyncMultipleChoiceElement>;

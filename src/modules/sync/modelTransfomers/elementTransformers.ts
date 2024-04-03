@@ -84,7 +84,9 @@ const replaceRichTextReferences = (
         return `${itemExternalIdAttributeName}="${oldItemId}"`;
       }
 
-      return `${customItemLinkCodenameAttributeName}="${item.codename}" ${itemExternalIdLinkAttributeName}="${item.id}"`;
+      return `${customItemLinkCodenameAttributeName}="${item.codename}" ${itemExternalIdLinkAttributeName}="${
+        item.external_id ?? item.id
+      }"`;
     });
 
 export const transformCustomElement = (

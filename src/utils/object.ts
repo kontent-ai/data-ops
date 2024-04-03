@@ -18,3 +18,7 @@ export const removeNulls = (value: unknown): unknown => {
 
   return value;
 };
+type ObjectPerKey<Key extends string, Value> = Key extends any ? { [k in Key]: Value } : never;
+
+export const makeObjectWithKey = <Key extends string, Value>(key: Key, value: Value): ObjectPerKey<Key, Value> =>
+  ({ [key]: value }) as ObjectPerKey<Key, Value>;
