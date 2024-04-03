@@ -2,18 +2,17 @@
   "compilerOptions": {
     /* Language and Environment */
     "target": "es2022",
-    "lib": ["esnext"],
-
+    "lib": [
+      "esnext"
+    ],
     /* Modules */
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
-
     /* Emit */
     "noEmit": true,
-
     /* Type Checking */
     "strict": true,
     "noUnusedLocals": true,
@@ -22,8 +21,11 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "allowUnreachableCode": false,
-
     "skipLibCheck": true
   },
-  "include": ["tests/integration/**/*", "tests/unit/**/*", "src/**/*"]
+  "include": [
+    "tests/integration/**/*",
+    "tests/unit/**/*",
+    "src/**/*"
+  ]
 }
