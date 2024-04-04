@@ -33,6 +33,8 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   languagesEntity,
 ];
 
+const entityChoices = entityDefinitions.map(e => e.name);
+
 export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: "clean",
@@ -50,6 +52,20 @@ export const register: RegisterCommand = (yargs) =>
           describe: "Kontent.ai Management API key",
           demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
+        })
+        .option("include", {
+          type: "array",
+          describe: "Only remove specified entities.",
+          alias: "i",
+          choices: entityChoices,
+          conflicts: "exclude",
+        })
+        .option("exclude", {
+          type: "array",
+          describe: "Exclude specified entities from removal.",
+          alias: "x",
+          choices: entityChoices,
+          conflicts: "include",
         }),
     handler: (args) => cleanEnvironment(args),
   });
@@ -58,6 +74,8 @@ type CleanEnvironmentParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
+    include?: ReadonlyArray<string>;
+    exclude?: ReadonlyArray<string>;
   }>
   & LogOptions;
 
@@ -69,50 +87,53 @@ const cleanEnvironment = async (
     apiKey: params.apiKey,
   });
 
+  const entitiesToClean = entityDefinitions
+    .filter(e => (!params.include || params.include.includes(e.name)) && !params.exclude?.includes(e.name));
+
   logInfo(
     params,
     "standard",
-    `Cleaning all entities from ${chalk.blue(params.environmentId)}.`,
+    `Cleaning entities from ${chalk.blue(params.environmentId)}.`,
   );
 
-  let isSpotlightEnabled = false;
-
   await serially(
-    entityDefinitions.map((def) => async () => {
+    entitiesToClean.map((def) => async () => {
       logInfo(params, "standard", `Removing ${chalk.yellow(def.name)}`);
 
-      try {
-        const entities = await def.fetchEntities(client);
-        await def.cleanEntities(client, entities, params);
-      } catch (err) {
-        const [errorMessage, errorCode] = err instanceof SharedModels.ContentManagementBaseKontentError
-          ? [err.message, err.errorCode]
-          : [JSON.stringify(err)];
-
-        if (errorCode === spotlightInUseErrorCode) {
-          isSpotlightEnabled = true;
+      const entities = await def.fetchEntities(client);
+      return def.cleanEntities(client, entities, params).catch((err) => {
+        if (
+          err instanceof SharedModels.ContentManagementBaseKontentError
+          && err.errorCode === spotlightInUseErrorCode
+        ) {
+          return err;
         } else {
           logError(
             params,
             `Failed to clean entity ${chalk.red(def.name)}.`,
-            `Message: ${errorMessage}`,
+            `Message: ${
+              err?.validationErrors?.map((e: SharedModels.ContentManagementBaseKontentError) => e.message)?.join("\n")
+                ?? JSON.stringify(err)
+            }`,
             "\nStopping clean operation...",
           );
           process.exit(1);
         }
-      }
+      });
     }),
-  );
+  ).then((res) => {
+    const spotlightWarning = res.filter(
+        (e) => e instanceof SharedModels.ContentManagementBaseKontentError,
+      ).length > 0
+      ? chalk.cyan(
+        "\n⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment. Please disable Web Spotlight and run the clean operation again or remove the types manually.",
+      )
+      : "";
 
-  const spotlightWarning = isSpotlightEnabled
-    ? chalk.cyan(
-      "\n⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment. Please disable Web Spotlight and run the clean operation again or remove the types manually.",
-    )
-    : "";
-
-  logInfo(
-    params,
-    "standard",
-    chalk.green(`Environment clean finished successfully.${spotlightWarning}`),
-  );
+    logInfo(
+      params,
+      "standard",
+      chalk.green(`Environment clean finished successfully.${spotlightWarning}`),
+    );
+  });
 };

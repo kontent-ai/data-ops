@@ -60,20 +60,20 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
             .toPromise()
             .catch(async (err) => {
               if (
-                err instanceof SharedModels.ContentManagementBaseKontentError &&
-                err.errorCode === spotlightInUseErrorCode
+                err instanceof SharedModels.ContentManagementBaseKontentError
+                && err.errorCode === spotlightInUseErrorCode
               ) {
                 await createCleanElementsFromTypeFetcher(client)(type)();
                 return err;
               } else {
                 throw err;
               }
-            })
-      )
+            }),
+      ),
     ).then((res) =>
-        res
-          .filter((e) => e instanceof SharedModels.ContentManagementBaseKontentError)
-          .map((e) => Promise.reject(e))[0]
+      res
+        .filter((e) => e instanceof SharedModels.ContentManagementBaseKontentError)
+        .map((e) => Promise.reject(e))[0]
     );
   },
 };
@@ -221,7 +221,6 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
     .toPromise();
 };
 
-
 const createCleanElementsFromTypeFetcher = (client: ManagementClient) => (type: Type) => () => {
   const patchOps = type.elements
     // subpages element must be present on WSL root type
@@ -241,4 +240,3 @@ const createCleanElementsFromTypeFetcher = (client: ManagementClient) => (type: 
     .withData(patchOps)
     .toPromise();
 };
-
