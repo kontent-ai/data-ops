@@ -17,6 +17,9 @@ import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js"
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
 
+/**
+ * order of this array corresponds with order of individual clean operations.
+ */
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   spacesEntity,
   contentItemsEntity,
