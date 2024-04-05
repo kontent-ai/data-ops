@@ -2,12 +2,14 @@ import { ContentTypeElements } from "@kontent-ai/management-sdk";
 
 import { CodenameReference, Replace } from "../../../utils/types.js";
 
-export type ReplaceReferences<T> = T extends { id?: string; codename?: string; externalId?: string } ?
-    & CodenameReference
-    & {
-      [K in keyof Omit<T, "id" | "codename">]: ReplaceReferences<T[K]>;
-    }
-  : T extends ReadonlyArray<infer R> ? ReadonlyArray<ReplaceReferences<R>>
+export type ReplaceReferences<T, Reference extends CodenameReference = CodenameReference> = T extends
+  ReadonlyArray<infer R> ? ReadonlyArray<ReplaceReferences<R>>
+  : T extends object ?
+      & (T extends { id?: string; codename?: string; external_id?: string } ? Reference
+        : object)
+      & {
+        [K in keyof Omit<T, "id" | "codename">]: ReplaceReferences<T[K]>;
+      }
   : T;
 
 type SnippetElement<E> = Omit<E, "content_group">;
@@ -44,6 +46,9 @@ export type SyncGuidelinesElement = ReplaceReferences<ContentTypeElements.IGuide
 export type SyncTextElement = ReplaceReferences<ContentTypeElements.ITextElement>;
 export type SyncDateTimeElement = ReplaceReferences<ContentTypeElements.IDateTimeElement>;
 export type SyncNumberElement = ReplaceReferences<ContentTypeElements.INumberElement>;
+export type SyncTypeSnippetElement = ReplaceReferences<ContentTypeElements.ISnippetElement>;
+export type SyncUrlSlugElement = ReplaceReferences<ContentTypeElements.IUrlSlugElement>;
+export type SyncSubpagesElement = ReplaceReferences<ContentTypeElements.ISubpagesElement>;
 
 type SyncSnippetCustomElement = SnippetElement<SyncCustomElement>;
 type SyncSnippetMultipleChoiceElement = SnippetElement<SyncMultipleChoiceElement>;
@@ -67,3 +72,18 @@ export type SyncSnippetElement =
   | SyncSnippetTextElement
   | SyncSnippetNumberElement
   | SyncSnippetDateTimeElement;
+
+export type SyncTypeElement =
+  | SyncAssetElement
+  | SyncCustomElement
+  | SyncDateTimeElement
+  | SyncGuidelinesElement
+  | SyncLinkedItemsElement
+  | SyncMultipleChoiceElement
+  | SyncNumberElement
+  | SyncRichTextElement
+  | SyncSubpagesElement
+  | SyncTaxonomyElement
+  | SyncTextElement
+  | SyncTypeSnippetElement
+  | SyncUrlSlugElement;
