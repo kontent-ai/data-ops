@@ -1,4 +1,4 @@
-import { ContentTypeElements, ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
+import { ContentTypeContracts, ContentTypeElements, ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
 
 import { Replace } from "../../../utils/types.js";
 
@@ -10,4 +10,9 @@ export type SnippetElement = Exclude<
 export type ContentTypeSnippetsWithUnionElements = Replace<
   ContentTypeSnippetContracts.IContentTypeSnippetContract,
   { elements: ReadonlyArray<SnippetElement> }
+>;
+
+export type ContentTypeWithUnionElements = Replace<
+  ContentTypeContracts.IContentTypeContract,
+  { elements: ContentTypeElements.Element[] }
 >;

@@ -16,19 +16,22 @@ import {
   transformLinkedItemsElement,
   transformMultipleChoiceElement,
   transformRichTextElement,
+  transformSnippetElement,
+  transformSubpagesElement,
   transformTaxonomyElement,
+  transformUrlSlugElement,
 } from "../../../src/modules/sync/modelTransfomers/elementTransformers";
 import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../../../src/modules/sync/types/contractModels";
 
 const logOptions: LogOptions = {
-  logLevel: "standard",
-  verbose: true,
+  logLevel: "none",
+  verbose: false,
 };
 
 const createSnippet = (
   elements: SnippetElement[],
 ): ContentTypeSnippetsWithUnionElements => ({
-  id: "snippet",
+  id: "snippetId",
   name: "snippet",
   codename: "snippet",
   last_modified: "date",
@@ -75,7 +78,7 @@ const contentTypes = [
     name: "content type 1",
     codename: "content_type_1",
     last_modified: "",
-    elements: [],
+    elements: [dummyElement],
     external_id: "contentTypeExtId1",
   },
 ] as const satisfies ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
@@ -409,5 +412,110 @@ describe("elementTransfomers test", () => {
         external_id: dummyElement.id,
       },
     );
+  });
+
+  it("transformUrlSlugElement correctly transform element with depends only on type element", () => {
+    const element: ContentTypeElements.IUrlSlugElement = {
+      ...commonElementProps,
+      type: "url_slug",
+      depends_on: {
+        element: { id: contentTypes[0].elements[0].id },
+      },
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      depends_on: {
+        element: { codename: contentTypes[0].elements[0].codename },
+      },
+    };
+
+    expect(transformUrlSlugElement(element, contentTypes[0], [])).toEqual(expectedOutput);
+  });
+
+  it("transformUrlSlugElement correctly transform element with depending on snippet element", () => {
+    const snippet = createSnippet([dummyElement]);
+
+    const element: ContentTypeElements.IUrlSlugElement = {
+      ...commonElementProps,
+      type: "url_slug",
+      depends_on: {
+        element: { id: contentTypes[0].elements[0].id },
+        snippet: { id: snippet.id },
+      },
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      depends_on: {
+        element: { codename: contentTypes[0].elements[0].codename },
+        snippet: { codename: snippet.codename },
+      },
+    };
+
+    const trasnformedElement = transformUrlSlugElement(element, contentTypes[0], [snippet]);
+
+    expect(trasnformedElement).toEqual(expectedOutput);
+  });
+
+  it("transformUrlSlugElement with missing snippet throw error", () => {
+    const snippet = createSnippet([dummyElement]);
+
+    const element: ContentTypeElements.IUrlSlugElement = {
+      ...commonElementProps,
+      type: "url_slug",
+      depends_on: {
+        element: { id: contentTypes[0].elements[0].id },
+        snippet: { id: snippet.id },
+      },
+    };
+
+    const transformElementCode = () => transformUrlSlugElement(element, contentTypes[0], []);
+
+    expect(transformElementCode).toThrowError();
+  });
+
+  it("transformSnippetElement correctly transform element", () => {
+    const snippet = createSnippet([dummyElement]);
+
+    const element: ContentTypeElements.ISnippetElement = {
+      ...commonElementProps,
+      type: "snippet",
+      snippet: { id: snippet.id },
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      snippet: { codename: snippet.codename },
+    };
+
+    expect(transformSnippetElement(element, [snippet])).toEqual(expectedOutput);
+  });
+
+  it("transformSubpagesElement correctly transforms element", () => {
+    const element: ContentTypeElements.ISubpagesElement = {
+      ...commonElementProps,
+      type: "subpages",
+      allowed_content_types: [{
+        id: contentTypes[0].id,
+      }],
+    };
+
+    const expectedOutput = {
+      ...element,
+      id: undefined,
+      external_id: element.id,
+      allowed_content_types: [{
+        codename: contentTypes[0].codename,
+      }],
+    };
+
+    expect(transformSubpagesElement(element, contentTypes, items, logOptions)).toEqual(expectedOutput);
   });
 });
