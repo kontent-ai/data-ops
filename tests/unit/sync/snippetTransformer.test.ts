@@ -6,8 +6,8 @@ import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel";
 import { transformContentTypeSnippetsModel } from "../../../src/modules/sync/modelTransfomers/contentTypeSnippets";
 
 const logOptions: LogOptions = {
-  logLevel: "standard",
-  verbose: true,
+  logLevel: "none",
+  verbose: false,
 };
 
 const snippets = [

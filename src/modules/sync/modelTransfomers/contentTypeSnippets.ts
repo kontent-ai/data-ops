@@ -1,7 +1,8 @@
 import { LogOptions } from "../../../log.js";
-import { omit } from "../../../utils/object.js";
+import { extractNulls, omit } from "../../../utils/object.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../types/contractModels.js";
+import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
 import { SyncSnippetElement } from "../types/syncModel.js";
 import {
   transformAssetElement,
@@ -24,11 +25,13 @@ export const transformContentTypeSnippetsModel = (
         omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"])
       );
 
-    return {
+    const transformedSnippet = {
       ...omit(snippet, ["id", "last_modified"]),
       elements: syncSnippetElements,
       external_id: snippet.external_id ?? snippet.id,
     };
+
+    return extractNulls(transformedSnippet) as ContentTypeSnippetsSyncModel;
   });
 
 const transformElement = (

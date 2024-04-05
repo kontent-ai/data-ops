@@ -1,7 +1,6 @@
 import {
   AssetContracts,
   ContentItemContracts,
-  ContentTypeContracts,
   ContentTypeElements,
   SharedContracts,
   TaxonomyContracts,
@@ -20,7 +19,7 @@ import { omit } from "../../../utils/object.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
 import { CodenameReference, Replace } from "../../../utils/types.js";
 import { customAssetCodenameAttributeName, customItemLinkCodenameAttributeName } from "../../constants/syncRichText.js";
-import { ContentTypeSnippetsWithUnionElements } from "../types/contractModels.js";
+import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "../types/contractModels.js";
 import {
   SyncAssetElement,
   SyncCustomElement,
@@ -28,7 +27,10 @@ import {
   SyncLinkedItemsElement,
   SyncMultipleChoiceElement,
   SyncRichTextElement,
+  SyncSubpagesElement,
   SyncTaxonomyElement,
+  SyncTypeSnippetElement,
+  SyncUrlSlugElement,
 } from "../types/syncModel.js";
 
 type ElementWithOldContentGroup<E extends { content_group?: CodenameReference }> = Replace<
@@ -38,7 +40,7 @@ type ElementWithOldContentGroup<E extends { content_group?: CodenameReference }>
 
 const handleContentType = (
   typeReference: SharedContracts.IReferenceObjectContract,
-  contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
+  contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   warnMessage: string,
   logOptions: LogOptions,
 ) => {
@@ -86,11 +88,11 @@ const replaceRichTextReferences = (
 
 export const transformCustomElement = (
   element: ContentTypeElements.ICustomElement,
-  snippet: ContentTypeSnippetsWithUnionElements,
+  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
 ): ElementWithOldContentGroup<SyncCustomElement> => {
   const syncAllowedElements = element.allowed_elements?.map(element => ({
-    codename: snippet.elements.find(el => el.id === element.id)?.codename
-      ?? throwError(`Could not find codename of element ${element.id} in ${snippet.codename}`),
+    codename: type.elements.find(el => el.id === element.id)?.codename
+      ?? throwError(`Could not find codename of element ${element.id} in ${type.codename}`),
   }));
 
   return {
@@ -167,7 +169,7 @@ export const transformAssetElement = (
 
 export const transformRichTextElement = (
   element: ContentTypeElements.IRichTextElement,
-  contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
+  contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncRichTextElement> => {
   const allowedContentTypes = element.allowed_content_types?.map(type =>
@@ -249,7 +251,7 @@ export const transformTaxonomyElement = (
 
 export const transformLinkedItemsElement = (
   element: ContentTypeElements.ILinkedItemsElement,
-  contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>,
+  contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncLinkedItemsElement> => {
@@ -305,4 +307,69 @@ export const transformDefaultElement = (
   ...omit(element, ["id"]),
   codename: element.codename as string,
   external_id: element.external_id ?? element.id,
+});
+
+export const transformUrlSlugElement = (
+  element: ContentTypeElements.IUrlSlugElement,
+  type: ContentTypeWithUnionElements,
+  snippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>,
+): ElementWithOldContentGroup<SyncUrlSlugElement> => {
+  const snippet = snippets.find(s => s.id === element.depends_on.snippet?.id);
+
+  if (element.depends_on.snippet && !snippet) {
+    throwError(
+      `Could not find snippet (id: ${element.depends_on.snippet}) which contains element (id: ${element.depends_on.element})`,
+    );
+  }
+
+  const depends_on = {
+    element: {
+      codename: element.depends_on.snippet
+        ? snippet?.elements.find(el => el.id === element.depends_on.element.id)?.codename
+          ?? throwError(
+            `Could not find element in type with codename ${type.codename} with element id ${element.depends_on.element.id}`,
+          )
+        : type.elements.find(el => el.id === element.depends_on.element.id)?.codename
+          ?? throwError(
+            `Could not find element in type with codename ${type.codename} with element id ${element.depends_on.element.id}`,
+          ),
+    },
+    snippet: snippet
+      ? {
+        codename: snippet.codename,
+      }
+      : undefined,
+  };
+
+  return {
+    ...omit(element, ["id"]),
+    depends_on,
+    codename: element.codename as string,
+    external_id: element.external_id ?? element.id,
+  };
+};
+
+export const transformSnippetElement = (
+  element: ContentTypeElements.ISnippetElement,
+  snippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>,
+): ElementWithOldContentGroup<SyncTypeSnippetElement> => {
+  const snippet = snippets.find(s => s.id === element.snippet.id)
+    ?? throwError(`snippet with id ${element.snippet.id} not found`);
+
+  return {
+    ...omit(element, ["id"]),
+    snippet: { codename: snippet.codename },
+    codename: element.codename as string,
+    external_id: element.external_id ?? element.id,
+  };
+};
+
+export const transformSubpagesElement = (
+  element: ContentTypeElements.ISubpagesElement,
+  contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
+  items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
+  logOptions: LogOptions,
+): ElementWithOldContentGroup<SyncSubpagesElement> => ({
+  ...transformLinkedItemsElement({ ...element, type: "modular_content" }, contentTypes, items, logOptions),
+  type: "subpages",
 });
