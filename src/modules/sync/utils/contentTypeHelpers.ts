@@ -1,4 +1,4 @@
-import { ContentTypeContracts, ContentTypeElements, ElementContracts } from "@kontent-ai/management-sdk";
+import { ContentTypeElements } from "@kontent-ai/management-sdk";
 import {
   DomHtmlNode,
   DomNode,
@@ -8,16 +8,6 @@ import {
   ResolveDomTextNodeType,
   transformToJson,
 } from "@kontent-ai/rich-text-resolver";
-
-import { ContentTypeSnippetsWithUnionElements } from "../types/contractModels.js";
-
-const isAssetElement = (
-  element: ElementContracts.IContentTypeElementContract | ContentTypeElements.Element,
-): element is ContentTypeElements.IAssetElement => element.type === "asset";
-
-const isLinkedItemElement = (
-  element: ElementContracts.IContentTypeElementContract | ContentTypeElements.Element,
-): element is ContentTypeElements.ILinkedItemsElement => element.type === "modular_content";
 
 const resolveAssetIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
   switch (node.tagName) {
@@ -44,14 +34,18 @@ const resolveItemIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
 const customResolveDomTextNode: ResolveDomTextNodeType = () => null;
 
 export const getRequiredIds = (
-  contentType: ContentTypeContracts.IContentTypeContract | ContentTypeSnippetsWithUnionElements,
+  elements: ReadonlyArray<ContentTypeElements.Element>,
 ) => {
-  const assetElements = contentType.elements.filter(isAssetElement);
+  const assetElements = elements.filter((element): element is ContentTypeElements.IAssetElement =>
+    element.type === "asset"
+  );
   // Use typeguard once types in SDKs are fixed
-  const guidelinesElements = contentType.elements.filter(element =>
+  const guidelinesElements = elements.filter(element =>
     element.type === "guidelines"
   ) as unknown as ContentTypeElements.IGuidelinesElement[];
-  const linkedItemElements = contentType.elements.filter(isLinkedItemElement);
+  const linkedItemElements = elements.filter((element): element is ContentTypeElements.ILinkedItemsElement =>
+    element.type === "modular_content"
+  );
 
   const parsedGuidelines = guidelinesElements.map(g => nodeParse(g.guidelines));
 

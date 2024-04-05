@@ -1,10 +1,4 @@
-import {
-  AssetContracts,
-  ContentItemContracts,
-  ContentTypeContracts,
-  ManagementClient,
-  TaxonomyContracts,
-} from "@kontent-ai/management-sdk";
+import { AssetContracts, ContentItemContracts, ManagementClient, TaxonomyContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import * as fsPromises from "fs/promises";
 
@@ -15,7 +9,7 @@ import { serializeDateForFileName } from "../../utils/files.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
-import { ContentTypeSnippetsWithUnionElements } from "./types/contractModels.js";
+import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "./types/contractModels.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
 import {
@@ -29,7 +23,7 @@ import {
 export type EnvironmentModel = {
   taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>;
-  contentTypes: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
+  contentTypes: ReadonlyArray<ContentTypeWithUnionElements>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
@@ -40,7 +34,7 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
     apiKey: config.apiKey,
   });
 
-  const contentTypes = await fetchContentTypes(client);
+  const contentTypes = await fetchContentTypes(client) as unknown as ContentTypeWithUnionElements[];
   const contentTypeSnippets = await fetchContentTypeSnippets(
     client,
   ) as unknown as ContentTypeSnippetsWithUnionElements[];
@@ -48,7 +42,7 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
     (previous, type) => {
-      const ids = getRequiredIds(type);
+      const ids = getRequiredIds(type.elements);
 
       return {
         assetIds: new Set([...previous.assetIds, ...ids.assetIds]),
@@ -71,14 +65,7 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
 };
 
 export const transformSyncModel = (environmentModel: EnvironmentModel, logOptions: LogOptions): FileContentModel => {
-  /**
-   * The internalIds should be replaced by codenames.
-   * Unnecesary fields for syncing like lastModified should be removed.
-   */
-
-  // TODO
-
-  const contentTypeModel = transformContentTypeModel(environmentModel);
+  const contentTypeModel = transformContentTypeModel(environmentModel, logOptions);
   const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel, logOptions);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
 
@@ -110,7 +97,8 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   const fileName = params.fileName ?? `${serializeDateForFileName(now)}-${params.environmentId}.json`;
 
   logInfo(params, "standard", `Saving the model into "${chalk.yellow(fileName)}".`);
-  await fsPromises.writeFile(fileName, JSON.stringify(finalModel));
+
+  await fsPromises.writeFile(fileName, JSON.stringify(finalModel, null, 2));
 
   return fileName;
 };
