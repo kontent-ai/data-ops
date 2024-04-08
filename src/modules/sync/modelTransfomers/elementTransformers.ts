@@ -33,9 +33,7 @@ import {
 
 type ElementWithOldContentGroup<E extends { content_group?: CodenameReference }> = Replace<
   E,
-  "content_group",
-  SharedContracts.IReferenceObjectContract,
-  true
+  {content_group?: SharedContracts.IReferenceObjectContract}
 >;
 
 const handleContentType = (
@@ -234,7 +232,7 @@ export const transformTaxonomyElement = (
         return null;
       }
 
-    return { codename: term.codename };
+      return { codename: term.codename };
     }).filter(notNullOrUndefined)
     : undefined;
   const defaultTerms = defaultTermsReferences ? { global: { value: defaultTermsReferences } } : undefined;

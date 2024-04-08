@@ -9,6 +9,5 @@ export type SnippetElement = Exclude<
 
 export type ContentTypeSnippetsWithUnionElements = Replace<
   ContentTypeSnippetContracts.IContentTypeSnippetContract,
-  "elements",
-  SnippetElement[]
+  { elements: ReadonlyArray<SnippetElement> }
 >;

@@ -20,29 +20,25 @@ export type SyncCustomElement = ReplaceReferences<ContentTypeElements.ICustomEle
 export type SyncMultipleChoiceElement = ReplaceReferences<ContentTypeElements.IMultipleChoiceElement>;
 export type SyncAssetElement = Replace<
   ReplaceReferences<ContentTypeElements.IAssetElement>,
-  "default",
-  ContentReference,
-  true
+  { default?: ContentReference }
 >;
+
 type OnePropRequired<T, K extends keyof T = keyof T> = K extends any
   ? { [P in Exclude<keyof T, K>]?: T[P] } & { [P in K]: T[K] }
   : never;
 
 export type SyncRichTextElement = ReplaceReferences<ContentTypeElements.IRichTextElement>;
-export type SyncTaxonomyElement =
-  & Omit<ReplaceReferences<ContentTypeElements.ITaxonomyElement>, "name" | "taxonomy_group">
-  & {
+export type SyncTaxonomyElement = Replace<ReplaceReferences<ContentTypeElements.ITaxonomyElement>, {
   name: string;
-    taxonomy_group: OnePropRequired<{
-      codename: string;
-      external_id: string;
-    }>;
-};
+  taxonomy_group: OnePropRequired<{
+    codename: string;
+    external_id: string;
+  }>;
+}>;
+
 export type SyncLinkedItemsElement = Replace<
   ReplaceReferences<ContentTypeElements.ILinkedItemsElement>,
-  "default",
-  ContentReference,
-  true
+  { default?: ContentReference }
 >;
 export type SyncGuidelinesElement = ReplaceReferences<ContentTypeElements.IGuidelinesElement>;
 export type SyncTextElement = ReplaceReferences<ContentTypeElements.ITextElement>;

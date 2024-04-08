@@ -15,8 +15,7 @@ import {
 
 type Snippet = Replace<
   ReplaceReferences<ContentTypeSnippetContracts.IContentTypeSnippetContract>,
-  "elements",
-  ReadonlyArray<SnippetElement>
+  { elements: ReadonlyArray<SnippetElement> }
 >;
 type SnippetElement = RequiredId<ReplaceReferences<ElementContracts.IContentTypeElementContract>>;
 
