@@ -11,7 +11,7 @@ import { spotlightInUseErrorCode } from "../../../constants/responseCodes.js";
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
-import {  MapValues, Replace, ReplaceReferences, RequiredId } from "../../../utils/types.js";
+import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import {
@@ -21,10 +21,10 @@ import {
 } from "./utils/typeElements.js";
 
 type Type = Replace<
-   ReplaceReferences<ContentTypeContracts.IContentTypeContract>,
+  ReplaceReferences<ContentTypeContracts.IContentTypeContract>,
   {
-    elements: ReadonlyArray<TypeElement>,
-    content_groups?: ReadonlyArray<ElementGroup>
+    elements: ReadonlyArray<TypeElement>;
+    content_groups?: ReadonlyArray<ElementGroup>;
   }
 >;
 type TypeElement = RequiredId<ReplaceReferences<ElementContracts.IContentTypeElementContract>>;

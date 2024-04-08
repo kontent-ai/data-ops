@@ -33,7 +33,7 @@ import {
 
 type ElementWithOldContentGroup<E extends { content_group?: CodenameReference }> = Replace<
   E,
-  {content_group?: SharedContracts.IReferenceObjectContract}
+  { content_group?: SharedContracts.IReferenceObjectContract }
 >;
 
 const handleContentType = (
