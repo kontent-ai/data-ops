@@ -416,6 +416,5 @@ export const createPatchItemAndTypeReferencesInTypeElement =
 type Option = RequiredId<ContentTypeElements.IMultipleChoiceOption>;
 export type MultiChoiceElement = Replace<
   ContentTypeElements.IMultipleChoiceElement,
-  "options",
-  ReadonlyArray<Option>
+  { options: ReadonlyArray<Option> }
 >;
