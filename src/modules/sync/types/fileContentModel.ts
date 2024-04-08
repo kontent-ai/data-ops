@@ -8,27 +8,27 @@ import {
 import { Replace } from "../../../utils/types.js";
 import { SyncSnippetElement } from "./syncModel.js";
 
-export type TaxonomySyncModel =
-  & Omit<TaxonomyContracts.ITaxonomyContract, "id" | "last_modified" | "codename" | "terms">
-  & Readonly<{
-    codename: string;
-    terms: ReadonlyArray<TaxonomySyncModel>;
-  }>;
+export type TaxonomySyncModel = Replace<
+  Omit<TaxonomyContracts.ITaxonomyContract, "id" | "last_modified">,
+  Readonly<{ codename: string; terms: ReadonlyArray<TaxonomySyncModel> }>
+>;
 
-export type ContentTypeSnippetsSyncModel =
-  & Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "codename" | "last_modified" | "elements">
-  & Readonly<{
+export type ContentTypeSnippetsSyncModel = Replace<
+  Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "last_modified">,
+  Readonly<{
     codename: string;
     elements: ReadonlyArray<SyncSnippetElement>;
-  }>;
+  }>
+>;
 
-export type ContentTypeSyncModel =
-  & Omit<ContentTypeContracts.IContentTypeContract, "id" | "codename" | "last_modified" | "elements" | "content_groups">
-  & Readonly<{
+export type ContentTypeSyncModel = Replace<
+  Omit<ContentTypeContracts.IContentTypeContract, "id" | "last_modified">,
+  Readonly<{
     codename: string;
-    elements: ReadonlyArray<Replace<ElementContracts.IContentTypeElementContract, "codename", string>>;
-    content_groups?: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, "codename", string>>;
-  }>;
+    elements: ReadonlyArray<Replace<ElementContracts.IContentTypeElementContract, { codename: string }>>;
+    content_groups?: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, { codename: string }>>;
+  }>
+>;
 
 export type FileContentModel = Readonly<{
   taxonomyGroups: ReadonlyArray<TaxonomySyncModel>;
