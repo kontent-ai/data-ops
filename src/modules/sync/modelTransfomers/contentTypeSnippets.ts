@@ -56,7 +56,7 @@ const transformElement = (
       return transformTaxonomyElement(
         element,
         environmentModel.taxonomyGroups,
-        logOptions
+        logOptions,
       );
     case "multiple_choice":
       return transformMultipleChoiceElement(element);
