@@ -24,21 +24,22 @@ const cleanTestEnvClient = new ManagementClient({
   environmentId: CLEAN_TEST_DATA_ENVIRONMENT_ID,
 });
 
-export const withTestEnvironment = (testFnc: (environmentId: string) => Promise<void>, fromEmpty = true) => async (): Promise<void> => {
-  const envName = `${testsRunPrefix}-test-${createUuid()}`;
-  console.log(`Creating test environment "${envName}".`);
+export const withTestEnvironment =
+  (testFnc: (environmentId: string) => Promise<void>, fromEmpty = true) => async (): Promise<void> => {
+    const envName = `${testsRunPrefix}-test-${createUuid()}`;
+    console.log(`Creating test environment "${envName}".`);
 
-  const environmentId = await createTestEnvironment(envName, fromEmpty);
-  console.log(`Environment created with id "${environmentId}". Running the test.`);
+    const environmentId = await createTestEnvironment(envName, fromEmpty);
+    console.log(`Environment created with id "${environmentId}". Running the test.`);
 
-  try {
-    await testFnc(environmentId);
-  } finally {
-    console.log("The test is finished, removing the environment.");
-    await removeTestEnvironment(environmentId);
-    console.log("The environment has been removed.");
-  }
-};
+    try {
+      await testFnc(environmentId);
+    } finally {
+      console.log("The test is finished, removing the environment.");
+      await removeTestEnvironment(environmentId);
+      console.log("The environment has been removed.");
+    }
+  };
 
 const createTestEnvironment = async (name: string, fromEmpty: boolean) => {
   const client = fromEmpty ? emptyTestEnvClient : cleanTestEnvClient;
