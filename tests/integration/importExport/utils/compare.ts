@@ -10,6 +10,7 @@ import {
   LanguageVariantContracts,
   LanguageVariantElements,
   PreviewContracts,
+  RoleContracts,
   SpaceContracts,
   TaxonomyContracts,
   WorkflowContracts,
@@ -91,7 +92,7 @@ const prepareReferences = (data: AllEnvData): AllEnvData => ({
   taxonomies: data.taxonomies.map(prepareTaxonomyReferences),
   assetFolders: data.assetFolders.map(prepareFolderReferences),
   assets: data.assets.map(createPrepareAssetReferences(data)),
-  roles: data.roles,
+  roles: data.roles.map(prepareRoleReferences),
   workflows: data.workflows.map(createPrepareWorkflowReferences(data)),
   snippets: data.snippets.map(createPrepareSnippetReferences(data)),
   types: data.types.map(createPrepareTypeReferences(data)),
@@ -636,6 +637,11 @@ const createPrepareVariantElementReferences: PrepareReferencesCreator<ElementCon
         throw new Error(`Found element of an unknown type "${typeElement.type}". This should not happen.`);
     }
   };
+
+const prepareRoleReferences: PrepareReferencesFnc<RoleContracts.IRoleContract> = role => ({
+  ...role,
+  id: "-"
+});
 
 const getAllTerms = (
   group: TaxonomyContracts.ITaxonomyContract | undefined,
