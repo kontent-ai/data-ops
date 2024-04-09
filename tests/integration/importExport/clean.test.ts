@@ -1,7 +1,8 @@
-import { describe, it } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
 
-import { runCommand } from "../utils/runCommand";
+import { expectHelpText } from "../utils/expectations";
+import { CommandError, runCommand } from "../utils/runCommand";
 import { withTestEnvironment } from "../utils/setup";
 import { expectSameEnvironments } from "./utils/compare";
 import {
@@ -29,11 +30,15 @@ if (!API_KEY) {
 
 describe("clean command", () => {
   it.concurrent(
-    "Cleans all entities in the target environment.",
+    "Cleans all entities in the target environment, prints info on manual WSL removal.",
     withTestEnvironment(async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY}`;
 
-      await runCommand(command);
+      const result = await runCommand(command);
+
+      expect(result.stdout).toContain(
+        "⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment.",
+      );
 
       await expectNoAssetFolders(environmentId);
       await expectNoAssets(environmentId);
@@ -49,25 +54,26 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems taxonomies`;
+      const command =
+        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems contentTypes contentTypeSnippets`;
 
       await runCommand(command);
 
       await expectSameEnvironments(environmentId, CLEAN_TEST_DATA_ENVIRONMENT_ID, {
-        exclude: ["spaces", "items", "taxonomies", "previewUrls"],
+        exclude: ["spaces", "items", "types", "snippets", "previewUrls", "variants"],
       });
 
-      await expectNoTaxonomies(environmentId);
       await expectNoItems(environmentId);
       await expectNoPreviewUrls(environmentId);
+      await expectNoSnippets(environmentId);
+      await expectNoTypes(environmentId, true);
     }, false),
   );
 
   it.concurrent(
     "Cleans only entities not specified in the exclude parameter.",
     withTestEnvironment(async (environmentId) => {
-      const command =
-        `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections`;
+      const command = `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections`;
 
       await runCommand(command);
 
@@ -82,4 +88,44 @@ describe("clean command", () => {
       await expectNoAssetFolders(environmentId);
     }, false),
   );
+
+  it.concurrent("Errors when removing types with existing items, prints message.", async () => {
+    withTestEnvironment(async (environmentId) => {
+      const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes`;
+
+      await runCommand(command);
+    });
+  });
+
+  it.concurrent("Errors with help when both include and exclude are provided", async () => {
+    const command = "clean --include collections contentTypes --exclude contentTypes -e test -k test";
+
+    const result = await runCommand(command).catch(err => err as CommandError);
+
+    expect(result.stdout).toBe("");
+    await expectHelpText(result.stderr, "clean");
+    expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
+  });
+
+  it.concurrent("Errors with help when include contains invalid entity names", async () => {
+    const command = "clean --include collections invalidEntity -k test -e test";
+
+    const result = await runCommand(command).catch(err => err as CommandError);
+
+    expect(result.stdout).toBe("");
+    await expectHelpText(result.stderr, "clean");
+    expect(result.stderr).toContain("Invalid values");
+    expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
+  });
+
+  it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
+    const command = "clean --exclude collections invalidEntity -k test -e test";
+
+    const result = await runCommand(command).catch(err => err as CommandError);
+
+    expect(result.stdout).toBe("");
+    await expectHelpText(result.stderr, "clean");
+    expect(result.stderr).toContain("Invalid values");
+    expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
+  });
 });

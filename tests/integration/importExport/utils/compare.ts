@@ -62,7 +62,7 @@ export const expectSameAllEnvData = (
   has("taxonomies") && expect(sortByCodename(data1.taxonomies)).toStrictEqual(sortByCodename(data2.taxonomies));
   has("assetFolders") && expect(data1.assetFolders).toStrictEqual(data2.assetFolders);
   has("assets") && expect(sortByCodename(data1.assets)).toStrictEqual(sortByCodename(data2.assets));
-  has("roles") && expect(data1.roles).toStrictEqual(data2.roles);
+  has("roles") && expect(sortBy(data1.roles, r => r.name)).toStrictEqual(sortBy(data2.roles, r => r.name));
   has("workflows") && expect(sortByCodename(data1.workflows)).toStrictEqual(sortByCodename(data2.workflows));
   has("snippets") && expect(sortByCodename(data1.snippets)).toStrictEqual(sortByCodename(data2.snippets));
   has("types") && expect(sortByCodename(data1.types)).toStrictEqual(sortByCodename(data2.types));
@@ -640,7 +640,7 @@ const createPrepareVariantElementReferences: PrepareReferencesCreator<ElementCon
 
 const prepareRoleReferences: PrepareReferencesFnc<RoleContracts.IRoleContract> = role => ({
   ...role,
-  id: "-"
+  id: "-",
 });
 
 const getAllTerms = (
