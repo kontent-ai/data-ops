@@ -45,7 +45,7 @@ export const generateModel = async (params: SyncParams) => {
   const environmentModel = await logOnError(
     params,
     chalk.red("Failed to fetch the model."),
-    () => fetchModel({ environmentId: params.environmentId, apiKey: params.apiKey }),
+    () => fetchModel({ environmentId: params.environmentId, apiKey: params.apiKey }, params),
   );
 
   logInfo(params, "standard", "Transforming the model.");

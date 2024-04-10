@@ -7,6 +7,7 @@ import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { serializeDateForFileName } from "../../utils/files.js";
+import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
@@ -29,7 +30,10 @@ export type EnvironmentModel = {
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
 
-export const fetchModel = async (config: ManagementClientBaseOptions): Promise<EnvironmentModel> => {
+export const fetchModel = async (
+  config: ManagementClientBaseOptions,
+  logOptions: LogOptions,
+): Promise<EnvironmentModel> => {
   const client = new ManagementClient({
     environmentId: config.environmentId,
     apiKey: config.apiKey,
@@ -53,8 +57,12 @@ export const fetchModel = async (config: ManagementClientBaseOptions): Promise<E
     { assetIds: new Set(), itemIds: new Set() },
   );
 
-  const assets = await fetchRequiredAssets(client, Array.from(allIds.assetIds));
-  const items = await fetchRequiredContentItems(client, Array.from(allIds.itemIds));
+  const assets = (await fetchRequiredAssets(client, Array.from(allIds.assetIds), logOptions)).filter(
+    notNullOrUndefined,
+  );
+  const items = (await fetchRequiredContentItems(client, Array.from(allIds.itemIds), logOptions)).filter(
+    notNullOrUndefined,
+  );
 
   return {
     contentTypes,
