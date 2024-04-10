@@ -3,6 +3,7 @@ build/
 
 # Tests tmp data
 tests/integration/importExport/data/exportedData.zip
+tests/integration/generateModel/data/contentModel/*
 
 # MacOS
 .DS_Store
@@ -137,3 +138,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+
+.vscode/*

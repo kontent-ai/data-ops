@@ -1,0 +1,1327 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generate-sync-model integration test generate model 1`] = `
+{
+  "contentTypeSnippets": [
+    {
+      "codename": "small_snippet",
+      "elements": [
+        {
+          "codename": "small_snippet__just_text",
+          "default": {
+            "global": {
+              "value": "sample default",
+            },
+          },
+          "external_id": "c8c338e1-4c02-4b14-9792-d76b8f15adc3",
+          "is_non_localizable": false,
+          "is_required": false,
+          "maximum_text_length": {
+            "applies_to": "words",
+            "value": 444,
+          },
+          "name": "just text",
+          "type": "text",
+          "validation_regex": {
+            "is_active": false,
+            "regex": "",
+            "validation_message": "",
+          },
+        },
+        {
+          "codename": "small_snippet__num",
+          "external_id": "cd7fe18e-5490-4b5d-b369-4c328aec9cc4",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "num",
+          "type": "number",
+        },
+      ],
+      "external_id": "76d75988-2c9d-4692-8395-9033bb7531fc",
+      "name": "Small snippet",
+    },
+    {
+      "codename": "snippet_with_all_elements",
+      "elements": [
+        {
+          "codename": "snippet_with_all_elements__text",
+          "default": {
+            "global": {
+              "value": "aaaeee",
+            },
+          },
+          "external_id": "959f4952-50fe-4086-b8e3-25bdda5a51f8",
+          "is_non_localizable": false,
+          "is_required": true,
+          "maximum_text_length": {
+            "applies_to": "characters",
+            "value": 40,
+          },
+          "name": "text",
+          "type": "text",
+          "validation_regex": {
+            "flags": "i",
+            "is_active": true,
+            "regex": "[a-e]+",
+            "validation_message": "This is a wrong text.",
+          },
+        },
+        {
+          "allowed_blocks": [],
+          "allowed_formatting": [],
+          "allowed_image_types": "adjustable",
+          "allowed_table_blocks": [],
+          "allowed_table_formatting": [],
+          "allowed_table_text_blocks": [
+            "paragraph",
+            "heading-one",
+            "heading-two",
+            "heading-five",
+            "heading-six",
+            "ordered-list",
+            "unordered-list",
+            "heading-four",
+          ],
+          "allowed_text_blocks": [
+            "paragraph",
+            "heading-one",
+            "heading-two",
+            "heading-three",
+            "heading-five",
+            "heading-six",
+            "ordered-list",
+            "unordered-list",
+          ],
+          "codename": "snippet_with_all_elements__rich",
+          "external_id": "17fa3a73-9934-40b5-b239-fe4c7fd5d808",
+          "image_height_limit": {
+            "condition": "at_least",
+            "value": 800,
+          },
+          "image_width_limit": {
+            "condition": "at_least",
+            "value": 1024,
+          },
+          "is_non_localizable": false,
+          "is_required": true,
+          "maximum_image_size": 20480,
+          "maximum_text_length": {
+            "applies_to": "words",
+            "value": 50,
+          },
+          "name": "rich",
+          "type": "rich_text",
+        },
+        {
+          "codename": "snippet_with_all_elements__num",
+          "default": {
+            "global": {
+              "value": 55,
+            },
+          },
+          "external_id": "9806f592-de23-4490-9cbe-d0de05dd1ca8",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "num",
+          "type": "number",
+        },
+        {
+          "codename": "snippet_with_all_elements__multi",
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "n2",
+                },
+              ],
+            },
+          },
+          "external_id": "2e8ab58c-9c21-4818-81f0-d94b0c7dab7b",
+          "is_non_localizable": false,
+          "is_required": true,
+          "mode": "single",
+          "name": "multi",
+          "options": [
+            {
+              "codename": "n1",
+              "external_id": "7b823e1f-7b9d-48e0-8915-3be21d6a7654",
+              "name": "1",
+            },
+            {
+              "codename": "n2",
+              "external_id": "5a0bfee2-4e64-459b-9c1d-178e411ae24e",
+              "name": "2",
+            },
+            {
+              "codename": "n3",
+              "external_id": "162134da-89d1-41c6-a9a3-12dde05e8eda",
+              "name": "3",
+            },
+          ],
+          "type": "multiple_choice",
+        },
+        {
+          "codename": "snippet_with_all_elements__date",
+          "default": {
+            "global": {
+              "value": "2024-01-18T00:00:00Z",
+            },
+          },
+          "external_id": "061ea4a6-d4d1-46b9-a3bc-4dc4c5469805",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "date",
+          "type": "date_time",
+        },
+        {
+          "allowed_file_types": "adjustable",
+          "asset_count_limit": {
+            "condition": "exactly",
+            "value": 1,
+          },
+          "codename": "snippet_with_all_elements__asset",
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "kontent_app_webp",
+                  "external_id": "936c40e5-641d-454b-9c4d-fb64b94c2e98",
+                },
+              ],
+            },
+          },
+          "external_id": "f8a9af97-e76e-42c5-a2e4-101173effc69",
+          "image_height_limit": {
+            "condition": "at_least",
+            "value": 800,
+          },
+          "image_width_limit": {
+            "condition": "at_least",
+            "value": 800,
+          },
+          "is_non_localizable": false,
+          "is_required": true,
+          "maximum_file_size": 3061842,
+          "name": "asset",
+          "type": "asset",
+        },
+        {
+          "codename": "snippet_with_all_elements__linked",
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "small_item_3",
+                  "external_id": "8840652b-cb3b-4eb4-8066-b8d2144fa3b1",
+                },
+                {
+                  "codename": "small_item_1",
+                  "external_id": "1ffa347b-c6c0-4424-953c-b5c01df022ed",
+                },
+              ],
+            },
+          },
+          "external_id": "25ce288b-9b17-4d30-bee2-b8330ca4f274",
+          "is_non_localizable": false,
+          "is_required": true,
+          "item_count_limit": {
+            "condition": "at_least",
+            "value": 1,
+          },
+          "name": "linked",
+          "type": "modular_content",
+        },
+        {
+          "allowed_elements": [
+            {
+              "codename": "snippet_with_all_elements__text",
+            },
+            {
+              "codename": "snippet_with_all_elements__num",
+            },
+          ],
+          "codename": "snippet_with_all_elements__custom",
+          "external_id": "e79f2c49-3892-43f5-8fbb-1acc9098efe4",
+          "is_non_localizable": false,
+          "is_required": true,
+          "json_parameters": "{"key1":"value1","key2":44}",
+          "name": "custom",
+          "source_url": "https://kontent-ai-bynder.netlify.app/",
+          "type": "custom",
+        },
+        {
+          "codename": "snippet_with_all_elements__guidelines",
+          "external_id": "610457cd-fcdf-4baa-aba8-057f5c7ce00b",
+          "guidelines": "<h1>These are some sample guidelines</h1>
+<p><em>content</em> <sup>that</sup> is <sub>so</sub> <code>great</code> to be in <strong>Kontent&nbsp;</strong></p>
+<p><a href="https://example.com" data-new-window="true" title="some title">Here</a> are <a data-email-address="test@kontent.ai" data-email-subject="just some test">some</a> <a data-phone-number="+420 863 947 023">other</a> texts.</p>
+<ul>
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
+</ul>
+<ol>
+  <li>jjj</li>
+  <li>333</li>
+  <li>444</li>
+</ol>
+<table><tbody>
+  <tr><td>1</td><td>2</td><td>3</td></tr>
+  <tr><td>fff</td><td>ggg</td><td>hhh</td></tr>
+  <tr><td>bbb</td><td>bree</td><td>fewf</td></tr>
+</tbody></table>
+<p><br></p>",
+          "type": "guidelines",
+        },
+        {
+          "codename": "snippet_with_all_elements__tax",
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "g1_term2",
+                },
+                {
+                  "codename": "g1_term3",
+                },
+              ],
+            },
+          },
+          "external_id": "dd375446-b13a-4b27-9f79-8538f1e6549e",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "tax",
+          "taxonomy_group": {
+            "codename": "group_1",
+          },
+          "term_count_limit": {
+            "condition": "at_least",
+            "value": 2,
+          },
+          "type": "taxonomy",
+        },
+      ],
+      "external_id": "8e12833b-5e93-43ae-944f-1d13177c42ab",
+      "name": "Snippet with all elements",
+    },
+  ],
+  "contentTypes": [
+    {
+      "codename": "small_type_with_small_snippet",
+      "content_groups": [
+        {
+          "codename": "first_group",
+          "external_id": "c71ad586-bd35-4800-a862-d2839f18af75",
+          "name": "first group",
+        },
+        {
+          "codename": "second_group",
+          "external_id": "72e2ba55-10f9-4287-8a4d-15f698255bc1",
+          "name": "second group",
+        },
+      ],
+      "elements": [
+        {
+          "codename": "just_t",
+          "content_group": {
+            "codename": "first_group",
+          },
+          "external_id": "8217ef94-9ef0-41fb-ad8e-ffd1f9ad6802",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "just t",
+          "type": "text",
+        },
+        {
+          "codename": "not_localized_t",
+          "content_group": {
+            "codename": "first_group",
+          },
+          "external_id": "3223c965-63b7-4586-9020-0d44e5aa5834",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "not-localized t",
+          "type": "text",
+        },
+        {
+          "codename": "small_snippet",
+          "content_group": {
+            "codename": "second_group",
+          },
+          "external_id": "8523f276-c9a5-4a28-a2ac-9b16c9b7dae5",
+          "snippet": {
+            "codename": "small_snippet",
+          },
+          "type": "snippet",
+        },
+        {
+          "codename": "tax",
+          "content_group": {
+            "codename": "second_group",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "g1_term2",
+                },
+                {
+                  "codename": "g1_term3",
+                },
+              ],
+            },
+          },
+          "external_id": "93637326-30ad-4dc4-acfb-89f51fd1b69f",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "tax",
+          "taxonomy_group": {
+            "codename": "group_1",
+          },
+          "term_count_limit": {
+            "condition": "at_least",
+            "value": 2,
+          },
+          "type": "taxonomy",
+        },
+      ],
+      "external_id": "a40861d1-df29-4743-bab9-7b61c47af19e",
+      "name": "Small type with small snippet",
+    },
+    {
+      "codename": "type_with_all_elements",
+      "content_groups": [
+        {
+          "codename": "rest_group",
+          "external_id": "2aefc169-f04f-493a-a995-680da54a3a89",
+          "name": "rest group",
+        },
+        {
+          "codename": "snippet_group_",
+          "external_id": "f6860105-632e-465c-81de-f5989b2507fb",
+          "name": "snippet group ",
+        },
+      ],
+      "elements": [
+        {
+          "codename": "text_333",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": "https://test.com",
+            },
+          },
+          "external_id": "4cc52fed-0aef-480a-ae8d-2834255de705",
+          "guidelines": "gre gre g erg",
+          "is_non_localizable": false,
+          "is_required": true,
+          "maximum_text_length": {
+            "applies_to": "words",
+            "value": 555,
+          },
+          "name": "text 333",
+          "type": "text",
+          "validation_regex": {
+            "is_active": true,
+            "regex": "^(https?:\\/\\/(?:www\\.|(?!www)))?[a-z0-9]{1,63}([\\-\\.]{1}[a-z0-9]{1,63})*\\.[a-z]{2,63}(:[0-9]{1,5})?(\\/\\S*)?$",
+            "validation_message": "Type a valid web URL, such as https://example.org :P",
+          },
+        },
+        {
+          "allowed_blocks": [
+            "text",
+            "images",
+            "components-and-items",
+          ],
+          "allowed_formatting": [
+            "bold",
+            "superscript",
+            "subscript",
+            "code",
+            "link",
+            "unstyled",
+          ],
+          "allowed_image_types": "any",
+          "allowed_table_blocks": [],
+          "allowed_table_formatting": [],
+          "allowed_table_text_blocks": [],
+          "allowed_text_blocks": [
+            "paragraph",
+            "heading-one",
+            "heading-three",
+            "heading-four",
+            "heading-five",
+            "heading-six",
+            "ordered-list",
+            "unordered-list",
+          ],
+          "codename": "rich",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "external_id": "17c130d6-4fd8-4f82-b291-10e67cb89965",
+          "guidelines": "ewgweger ger",
+          "image_height_limit": {
+            "condition": "at_most",
+            "value": 5000,
+          },
+          "image_width_limit": {
+            "condition": "at_least",
+            "value": 1000,
+          },
+          "is_non_localizable": false,
+          "is_required": true,
+          "maximum_image_size": 3407872,
+          "maximum_text_length": {
+            "applies_to": "words",
+            "value": 333,
+          },
+          "name": "rich",
+          "type": "rich_text",
+        },
+        {
+          "codename": "nnn",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": 318,
+            },
+          },
+          "external_id": "3b5bb8fe-b1e9-4059-8370-e168e4dfed47",
+          "guidelines": "fwe wgr erg erge",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "nnn",
+          "type": "number",
+        },
+        {
+          "codename": "multin",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "fff",
+                },
+                {
+                  "codename": "www",
+                },
+              ],
+            },
+          },
+          "external_id": "a5219251-a3c7-4693-b68a-8d9cdeb6d52b",
+          "guidelines": "g erg re gerg re ",
+          "is_non_localizable": false,
+          "is_required": true,
+          "mode": "multiple",
+          "name": "multin",
+          "options": [
+            {
+              "codename": "ggg",
+              "external_id": "c4739ce4-b6c1-44da-9741-73fcb50d209e",
+              "name": "ggg",
+            },
+            {
+              "codename": "fff",
+              "external_id": "bd42df4e-b7f7-47fc-b5a2-0327d4a85fce",
+              "name": "fff",
+            },
+            {
+              "codename": "www",
+              "external_id": "245e4b58-a61b-4eec-a349-70facddb548e",
+              "name": "www",
+            },
+          ],
+          "type": "multiple_choice",
+        },
+        {
+          "codename": "dddate",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": "2022-11-16T00:00:00Z",
+            },
+          },
+          "external_id": "7d3bce51-e553-4107-a1d3-41b1c1bbc8c4",
+          "guidelines": "g re ger gre gre g gre",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "dddate",
+          "type": "date_time",
+        },
+        {
+          "allowed_file_types": "any",
+          "asset_count_limit": {
+            "condition": "at_least",
+            "value": 1,
+          },
+          "codename": "assetttt",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "kai_hp_highlight_3_jpg",
+                  "external_id": "d4d07406-adfd-404b-bbd5-58c5de6adfd2",
+                },
+              ],
+            },
+          },
+          "external_id": "8b9e451f-095f-42a0-97c0-639d6a2101c8",
+          "guidelines": "g reg re gre gre g",
+          "image_height_limit": {
+            "condition": "at_most",
+            "value": 3333,
+          },
+          "image_width_limit": {
+            "condition": "at_least",
+            "value": 200,
+          },
+          "is_non_localizable": false,
+          "is_required": true,
+          "maximum_file_size": 45508199,
+          "name": "assetttt",
+          "type": "asset",
+        },
+        {
+          "codename": "flinked",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "small_item_2",
+                  "external_id": "f5eeaaec-dbcc-4365-a1a7-97d75f3af19b",
+                },
+                {
+                  "codename": "small_item_3",
+                  "external_id": "8840652b-cb3b-4eb4-8066-b8d2144fa3b1",
+                },
+              ],
+            },
+          },
+          "external_id": "10ed86b0-6af3-40fe-ac9f-b34f5f206587",
+          "guidelines": "few few. e fw efw ef ewf",
+          "is_non_localizable": false,
+          "is_required": true,
+          "item_count_limit": {
+            "condition": "at_least",
+            "value": 1,
+          },
+          "name": "flinked",
+          "type": "modular_content",
+        },
+        {
+          "allowed_elements": [
+            {
+              "codename": "text_333",
+            },
+            {
+              "codename": "sluggish",
+            },
+          ],
+          "codename": "custom",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "external_id": "76813e94-417c-48b0-94a2-c7b19981838a",
+          "is_non_localizable": false,
+          "is_required": false,
+          "json_parameters": "{"key1":"fwefwef"}",
+          "name": "custom",
+          "source_url": "https://kontent-ai-bynder.netlify.app/",
+          "type": "custom",
+        },
+        {
+          "codename": "guidelines",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "external_id": "0a2a3334-9f49-40e1-a54c-af6f18fffff6",
+          "guidelines": "<h2>Guidelines test</h2>
+<p><em>This</em> <strong>text</strong> <sup>doesn't</sup> <sub>really</sub> <code>make</code> <a href="https://github.com/kontent-ai/integration-example-recombee" data-new-window="true" title="recombee integration :P">any</a> <a data-asset-codename="kai_logo_ver_black_rgb_svg" data-asset-external-id="032f6aa0-a21a-4a52-ab45-4645d6ef1f44">sense</a>.</p>
+<p>It is <a data-email-address="here@there.wow" data-email-subject="shock">here</a> just to <a data-phone-number="+420 738 930 984">test</a> the <a data-item-codename="no_groups_item" data-item-external-id="b86b6d30-3cf3-4912-98ea-88fc413b0d67">hell</a> <a data-item-codename="small_item_1" data-item-external-id="1ffa347b-c6c0-4424-953c-b5c01df022ed">out</a> of it.</p>
+<ul>
+  <li>1</li>
+  <li>2</li>
+</ul>
+<ol>
+  <li>mjfew</li>
+  <li>fewf</li>
+</ol>
+<h6>A great subtitle is grey</h6>
+<figure data-asset-codename="kontent_logo_2_avif" data-asset-external-id="a20bf557-f7a9-40d6-ae09-4497ae3aac5e"><img src="#" data-asset-codename="kontent_logo_2_avif" data-asset-external-id="a20bf557-f7a9-40d6-ae09-4497ae3aac5e"></figure>
+<table><tbody>
+  <tr><td>33</td><td>44</td><td>ff</td></tr>
+  <tr><td>greg</td><td>gre&nbsp;</td><td>gre</td></tr>
+  <tr><td>gre</td><td><figure data-asset-codename="kontent_ai_png" data-asset-external-id="7497103e-8888-4fb6-a066-a605b0d99615"><img src="#" data-asset-codename="kontent_ai_png" data-asset-external-id="7497103e-8888-4fb6-a066-a605b0d99615"></figure>
+</td><td>reg</td></tr>
+</tbody></table>",
+          "type": "guidelines",
+        },
+        {
+          "codename": "taxxx",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "g2_term1",
+                },
+              ],
+            },
+          },
+          "external_id": "3e8302aa-faf3-4c0c-a661-b7a79b82139a",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "taxxx",
+          "taxonomy_group": {
+            "codename": "group_2",
+          },
+          "term_count_limit": {
+            "condition": "at_most",
+            "value": 33,
+          },
+          "type": "taxonomy",
+        },
+        {
+          "codename": "sluggish",
+          "content_group": {
+            "codename": "rest_group",
+          },
+          "depends_on": {
+            "element": {
+              "codename": "text_333",
+            },
+          },
+          "external_id": "51591fe8-7ba2-4f51-a1d4-d143d509fd7e",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "sluggish",
+          "type": "url_slug",
+          "validation_regex": {
+            "flags": "i",
+            "is_active": true,
+            "regex": "[a-z]+",
+            "validation_message": "This is just not valid...",
+          },
+        },
+        {
+          "codename": "snippet_with_all_elements",
+          "content_group": {
+            "codename": "snippet_group_",
+          },
+          "external_id": "471c3071-b6a8-42e3-9bd5-0b46ced0ee6d",
+          "snippet": {
+            "codename": "snippet_with_all_elements",
+          },
+          "type": "snippet",
+        },
+        {
+          "codename": "ddd",
+          "content_group": {
+            "codename": "snippet_group_",
+          },
+          "default": {
+            "global": {
+              "value": "2024-01-16T00:00:00Z",
+            },
+          },
+          "external_id": "dbc6bf66-ca74-4125-9966-646014f1c2b4",
+          "is_non_localizable": true,
+          "is_required": true,
+          "name": "ddd",
+          "type": "date_time",
+        },
+      ],
+      "external_id": "7df1188a-a8fb-4138-af29-d7faa08c4816",
+      "name": "Type with all elements and big snippet",
+    },
+    {
+      "codename": "type_with_all_elements_non_localisable__variants__",
+      "content_groups": [
+        {
+          "codename": "first_g",
+          "external_id": "d0b6221c-9dbc-4670-a94c-f26a89831b56",
+          "name": "first g",
+        },
+        {
+          "codename": "second_g",
+          "external_id": "8d50edb1-764a-4101-bcb6-111b51815546",
+          "name": "second g",
+        },
+      ],
+      "elements": [
+        {
+          "codename": "untitled_text",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "a65d7a06-86f8-41f8-8f92-43d319b0d69f",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Untitled text",
+          "type": "text",
+        },
+        {
+          "allowed_blocks": [],
+          "allowed_formatting": [],
+          "allowed_image_types": "any",
+          "allowed_table_blocks": [],
+          "allowed_table_formatting": [],
+          "allowed_table_text_blocks": [],
+          "allowed_text_blocks": [],
+          "codename": "untitled_rich_text",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "a3c5fd3c-89a1-4b6d-9602-47f34a6e96aa",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled rich text",
+          "type": "rich_text",
+        },
+        {
+          "codename": "untitled_number",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "b8b85f9c-e4ee-4a4f-85a9-03a2a8180471",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Untitled number",
+          "type": "number",
+        },
+        {
+          "codename": "untitled_multiple_choice",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "n2",
+                },
+              ],
+            },
+          },
+          "external_id": "84bbbc3d-7792-4530-83ac-e7cf32972881",
+          "is_non_localizable": true,
+          "is_required": false,
+          "mode": "single",
+          "name": "Untitled multiple choice",
+          "options": [
+            {
+              "codename": "n1",
+              "external_id": "88bf65b3-d743-4c7c-8ea8-89f0dba8516b",
+              "name": "1",
+            },
+            {
+              "codename": "n2",
+              "external_id": "1123317b-622e-42e2-8a7f-fff3b168d1a5",
+              "name": "2",
+            },
+            {
+              "codename": "n3",
+              "external_id": "096f3dec-dcde-420d-9e08-8c1defdfca62",
+              "name": "3",
+            },
+            {
+              "codename": "n4",
+              "external_id": "1410dd71-d438-4a6f-8d92-63d668dae7fd",
+              "name": "4",
+            },
+          ],
+          "type": "multiple_choice",
+        },
+        {
+          "codename": "untitled_date___time",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "ab119509-2d9a-4698-8a47-d041f8be4602",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Untitled date & time",
+          "type": "date_time",
+        },
+        {
+          "allowed_file_types": "any",
+          "codename": "untitled_asset",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "kai_hp_highlight_3_jpg",
+                  "external_id": "d4d07406-adfd-404b-bbd5-58c5de6adfd2",
+                },
+              ],
+            },
+          },
+          "external_id": "f385a825-2e78-4b05-a5e6-1915e0617ac2",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Untitled asset",
+          "type": "asset",
+        },
+        {
+          "codename": "untitled_linked_items",
+          "content_group": {
+            "codename": "second_g",
+          },
+          "external_id": "1b828a2a-568f-49b3-afb6-d17eca3a1be1",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Untitled linked items",
+          "type": "modular_content",
+        },
+        {
+          "allowed_elements": [
+            {
+              "codename": "untitled_url_slug",
+            },
+          ],
+          "codename": "untitled_custom_element",
+          "content_group": {
+            "codename": "second_g",
+          },
+          "external_id": "a3a2c9d1-a586-469c-be4a-b5f0804da9fb",
+          "is_non_localizable": true,
+          "is_required": false,
+          "json_parameters": "{}",
+          "name": "Untitled custom element",
+          "source_url": "https://kontent-ai-bynder.netlify.app/",
+          "type": "custom",
+        },
+        {
+          "codename": "group_1",
+          "content_group": {
+            "codename": "second_g",
+          },
+          "external_id": "c104fc73-000d-4044-bb17-dd936eadd083",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Group 1",
+          "taxonomy_group": {
+            "codename": "group_1",
+          },
+          "type": "taxonomy",
+        },
+        {
+          "codename": "untitled_url_slug",
+          "content_group": {
+            "codename": "second_g",
+          },
+          "depends_on": {
+            "element": {
+              "codename": "untitled_text",
+            },
+          },
+          "external_id": "c4d4c359-5f11-4766-9b8d-0be2a3ca880f",
+          "is_non_localizable": true,
+          "is_required": false,
+          "name": "Untitled url slug",
+          "type": "url_slug",
+        },
+      ],
+      "external_id": "edd35cac-74ea-4ff9-ad15-d243d37bb9cd",
+      "name": "Type with all elements non-localisable (variants)_",
+    },
+    {
+      "codename": "type_with_all_elements_no_snippet__for_variants_",
+      "content_groups": [
+        {
+          "codename": "first_g",
+          "external_id": "5107e91e-c7e4-40d3-a9d8-1d7c237faebb",
+          "name": "first g",
+        },
+        {
+          "codename": "second_g",
+          "external_id": "672d4be2-85fd-4320-812c-ba13380cef4d",
+          "name": "second g",
+        },
+      ],
+      "elements": [
+        {
+          "codename": "untitled_text",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": "just a default",
+            },
+          },
+          "external_id": "ed5a203d-eb2f-4b6d-be42-8650a8b71d7c",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "Untitled text",
+          "type": "text",
+        },
+        {
+          "allowed_blocks": [],
+          "allowed_formatting": [],
+          "allowed_image_types": "any",
+          "allowed_table_blocks": [],
+          "allowed_table_formatting": [],
+          "allowed_table_text_blocks": [],
+          "allowed_text_blocks": [],
+          "codename": "untitled_rich_text",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "4d2c3b94-1361-433a-aa41-c862b0a75e8b",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "Untitled rich text",
+          "type": "rich_text",
+        },
+        {
+          "codename": "untitled_number",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "15659a40-ff52-45fb-a870-a63f48fc1d83",
+          "is_non_localizable": false,
+          "is_required": true,
+          "name": "Untitled number",
+          "type": "number",
+        },
+        {
+          "codename": "untitled_multiple_choice_20e9a69",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "n2",
+                },
+              ],
+            },
+          },
+          "external_id": "20e9a69c-4f19-4c80-921e-0f5f40ed46b7",
+          "is_non_localizable": false,
+          "is_required": true,
+          "mode": "single",
+          "name": "Untitled multiple choice",
+          "options": [
+            {
+              "codename": "n1",
+              "external_id": "32fa0e44-7df8-430a-a225-eaee75acaf44",
+              "name": "1",
+            },
+            {
+              "codename": "n2",
+              "external_id": "cf1e91b1-cb8b-4cc5-80d9-3c7961ad5c85",
+              "name": "2",
+            },
+            {
+              "codename": "n3",
+              "external_id": "f91c5e03-82a8-4cfe-b297-2e49c034a153",
+              "name": "3",
+            },
+            {
+              "codename": "n4",
+              "external_id": "0e940387-7de4-4656-ae48-75560034c7ea",
+              "name": "4",
+            },
+          ],
+          "type": "multiple_choice",
+        },
+        {
+          "codename": "untitled_multiple_choice",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "c",
+                },
+                {
+                  "codename": "b",
+                },
+              ],
+            },
+          },
+          "external_id": "eb168d84-09e8-4b6a-833d-40dbb78e967e",
+          "is_non_localizable": false,
+          "is_required": false,
+          "mode": "multiple",
+          "name": "Untitled multiple choice",
+          "options": [
+            {
+              "codename": "a",
+              "external_id": "d7e9c119-a3c6-41ab-91b5-d46405995150",
+              "name": "a",
+            },
+            {
+              "codename": "b",
+              "external_id": "2db4452c-e4c7-49bc-8c6d-dc38b1758011",
+              "name": "b",
+            },
+            {
+              "codename": "c",
+              "external_id": "035952b0-36da-44c7-a8c8-e82a345fcbf9",
+              "name": "c",
+            },
+            {
+              "codename": "d",
+              "external_id": "f03cc6d1-87e2-46eb-93ee-a42c1a28e8e5",
+              "name": "d",
+            },
+          ],
+          "type": "multiple_choice",
+        },
+        {
+          "allowed_file_types": "any",
+          "codename": "untitled_asset",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "kai_logo_ver_black_rgb_svg",
+                  "external_id": "032f6aa0-a21a-4a52-ab45-4645d6ef1f44",
+                },
+              ],
+            },
+          },
+          "external_id": "7903315f-51ff-4ac0-b7e4-ff33be80b5f3",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled asset",
+          "type": "asset",
+        },
+        {
+          "codename": "untitled_linked_items",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "66ad2be7-be72-418f-b56e-db0ea8ef440d",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled linked items",
+          "type": "modular_content",
+        },
+        {
+          "allowed_elements": [
+            {
+              "codename": "untitled_text",
+            },
+            {
+              "codename": "untitled_number",
+            },
+          ],
+          "codename": "untitled_custom_element",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "external_id": "9e0c3710-999e-4122-b75b-b9a5be5603e9",
+          "is_non_localizable": false,
+          "is_required": false,
+          "json_parameters": "{}",
+          "name": "Untitled custom element",
+          "source_url": "https://kontent-ai-bynder.netlify.app/",
+          "type": "custom",
+        },
+        {
+          "codename": "group_1",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "default": {
+            "global": {
+              "value": [
+                {
+                  "codename": "g1_term3",
+                },
+              ],
+            },
+          },
+          "external_id": "4d8cad77-4263-4d61-bfd3-99bbd5504f43",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Group 1",
+          "taxonomy_group": {
+            "codename": "group_1",
+          },
+          "type": "taxonomy",
+        },
+        {
+          "codename": "untitled_url_slug",
+          "content_group": {
+            "codename": "first_g",
+          },
+          "depends_on": {
+            "element": {
+              "codename": "untitled_text",
+            },
+          },
+          "external_id": "f5483801-4581-41f6-bfdf-6a1ed885443a",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled url slug",
+          "type": "url_slug",
+        },
+        {
+          "codename": "untitled_date___time",
+          "content_group": {
+            "codename": "second_g",
+          },
+          "default": {
+            "global": {
+              "value": "2024-11-15T00:00:00Z",
+            },
+          },
+          "external_id": "a580d54c-a0db-4d44-8fc9-0ca5b3806e61",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled date & time",
+          "type": "date_time",
+        },
+      ],
+      "external_id": "96da0a83-16b6-433d-8da6-e376f1d871f8",
+      "name": "Type with all elements no snippet (for variants)",
+    },
+    {
+      "codename": "no_content_groups",
+      "content_groups": [],
+      "elements": [
+        {
+          "codename": "untitled_text",
+          "external_id": "1d179f45-5b0c-4a55-ad94-c909306a2575",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled text",
+          "type": "text",
+        },
+        {
+          "allowed_blocks": [],
+          "allowed_formatting": [],
+          "allowed_image_types": "any",
+          "allowed_table_blocks": [],
+          "allowed_table_formatting": [],
+          "allowed_table_text_blocks": [],
+          "allowed_text_blocks": [],
+          "codename": "untitled_rich_text",
+          "external_id": "dafdb1af-7ec8-4ba4-8b67-6cfe375beb7b",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled rich text",
+          "type": "rich_text",
+        },
+      ],
+      "external_id": "9b558df2-6ed1-4eb1-b5ee-f0efeecfdf04",
+      "name": "no content groups",
+    },
+    {
+      "codename": "with_deleted_refs_in_default_value",
+      "content_groups": [],
+      "elements": [
+        {
+          "codename": "untitled_linked_items",
+          "external_id": "28b75fa1-a386-4929-ad85-8bec0bc8032e",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled linked items",
+          "type": "modular_content",
+        },
+        {
+          "allowed_file_types": "any",
+          "codename": "untitled_asset",
+          "external_id": "0017aba9-2646-4797-afb0-8f70a81573a4",
+          "is_non_localizable": false,
+          "is_required": false,
+          "name": "Untitled asset",
+          "type": "asset",
+        },
+        {
+          "codename": "guidelines",
+          "external_id": "39ffcb2b-f815-42bb-bc42-8d191c7867a5",
+          "guidelines": "<p><a data-external-id="e614319c-55b5-4a3c-b401-258b09aa41de">These</a> guidelines are full of <a data-asset-external-id="ad141a63-8eef-4735-8186-01502cabbc08">broken</a> references... :(</p>",
+          "type": "guidelines",
+        },
+      ],
+      "external_id": "4c98fc01-c4d9-44f5-a6bc-0bcca1672c50",
+      "name": "With deleted refs in default value",
+    },
+  ],
+  "taxonomyGroups": [
+    {
+      "codename": "group_2",
+      "external_id": "8e73bdd2-57e2-48fb-bd65-7409b0bf0165",
+      "name": "Group 2",
+      "terms": [
+        {
+          "codename": "g2_term1",
+          "external_id": "9675af6d-2887-4414-8165-64bd91c9d64e",
+          "name": "g2 term1",
+          "terms": [],
+        },
+        {
+          "codename": "g2_term2",
+          "external_id": "d9d8962d-3d1c-49fe-9aee-023e358cca89",
+          "name": "g2 term2",
+          "terms": [],
+        },
+      ],
+    },
+    {
+      "codename": "group_1",
+      "external_id": "f1dde306-09ae-4b07-a9a1-975e794ec0b6",
+      "name": "Group 1",
+      "terms": [
+        {
+          "codename": "g1_term1",
+          "external_id": "cbcfa57e-a15b-4ad6-9fa6-28df4d8b24f3",
+          "name": "g1 term1",
+          "terms": [
+            {
+              "codename": "g1_term2",
+              "external_id": "2666e00b-4759-4a3d-a11c-316d808dd399",
+              "name": "g1 term2",
+              "terms": [],
+            },
+          ],
+        },
+        {
+          "codename": "g1_term3",
+          "external_id": "44d0acf2-e8f3-4df9-ac79-a79ab2a56b51",
+          "name": "g1 term3",
+          "terms": [],
+        },
+        {
+          "codename": "g1_term4",
+          "external_id": "6fff12d8-1fbe-4549-a362-115f2376a4c5",
+          "name": "g1 term4",
+          "terms": [],
+        },
+      ],
+    },
+  ],
+}
+`;

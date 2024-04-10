@@ -15,8 +15,16 @@ import {
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
+import * as fsPromises from "fs/promises";
 import StreamZip, { StreamZipAsync } from "node-stream-zip";
+import * as path from "path";
 
+import {
+  ContentTypeSnippetsSyncModel,
+  ContentTypeSyncModel,
+  FileContentModel,
+  TaxonomySyncModel,
+} from "../../../../src/modules/sync/types/fileContentModel";
 import { serially } from "../../../../src/utils/requests";
 
 dotenvConfig();
@@ -129,6 +137,24 @@ export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvDat
     variants: await loadFile(zip, "languageVariants.json"),
     assetFolders: await loadFile(zip, "assetFolders.json"),
     assets: await loadFile(zip, "assets.json"),
+  };
+};
+
+export const loadContentModelFromFolder = async (folderName: string): Promise<FileContentModel> => {
+  const contentTypes = JSON.parse(
+    await fsPromises.readFile(path.resolve(folderName, "contentTypes.json"), "utf-8"),
+  ) as ReadonlyArray<ContentTypeSyncModel>;
+  const contentTypeSnippets = JSON.parse(
+    await fsPromises.readFile(path.resolve(folderName, "snippets.json"), "utf-8"),
+  ) as ReadonlyArray<ContentTypeSnippetsSyncModel>;
+  const taxonomyGroups = JSON.parse(
+    await fsPromises.readFile(path.resolve(folderName, "taxonomies.json"), "utf-8"),
+  ) as ReadonlyArray<TaxonomySyncModel>;
+
+  return {
+    contentTypes,
+    contentTypeSnippets,
+    taxonomyGroups,
   };
 };
 
