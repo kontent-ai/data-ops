@@ -1,6 +1,7 @@
 import { AssetContracts, ContentItemContracts, ManagementClient, TaxonomyContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import * as fsPromises from "fs/promises";
+import * as path from "path";
 
 import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
@@ -80,7 +81,7 @@ type SaveModelParams =
   & Readonly<{
     syncModel: FileContentModel;
     environmentId: string;
-    fileName: string | undefined;
+    folderName: string | undefined;
   }>
   & LogOptions;
 
@@ -94,13 +95,27 @@ export const saveSyncModel = async (params: SaveModelParams) => {
       generatedFromEnvironmentId: params.environmentId,
     },
   };
-  const fileName = params.fileName ?? `${serializeDateForFileName(now)}-${params.environmentId}.json`;
+  const folderName = params.folderName ?? `${serializeDateForFileName(now)}-${params.environmentId}`;
 
-  logInfo(params, "standard", `Saving the model into "${chalk.yellow(fileName)}".`);
+  logInfo(params, "standard", `Saving the model into a folder "${chalk.yellow(folderName)}".`);
 
-  await fsPromises.writeFile(fileName, JSON.stringify(finalModel, null, 2));
+  await fsPromises.mkdir(folderName, { recursive: true });
 
-  return fileName;
+  await fsPromises.writeFile(
+    path.resolve(folderName, "contentTypes.json"),
+    JSON.stringify(finalModel.contentTypes, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, "snippets.json"),
+    JSON.stringify(finalModel.contentTypeSnippets, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, "taxonomies.json"),
+    JSON.stringify(finalModel.taxonomyGroups, null, 2),
+  );
+  await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
+
+  return folderName;
 };
 
 type FileContentWithMetadata =
