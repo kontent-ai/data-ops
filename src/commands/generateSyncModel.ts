@@ -23,9 +23,9 @@ export const register: RegisterCommand = yargs =>
             demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
             alias: "k",
           })
-          .option("fileName", {
+          .option("folderName", {
             type: "string",
-            describe: "Name of the json file with content model",
+            describe: "Name of the folder to generate content model into.",
             alias: "f",
           }),
       handler: args => generateModel(args),
@@ -36,7 +36,7 @@ export type SyncParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
-    fileName?: string;
+    folderName?: string;
   }>
   & LogOptions;
 
@@ -51,13 +51,13 @@ export const generateModel = async (params: SyncParams) => {
   logInfo(params, "standard", "Transforming the model.");
   const syncModel = transformSyncModel(environmentModel, params);
 
-  const fileName = await logOnError(
+  const folderName = await logOnError(
     params,
     chalk.red("Failed to save the model into the file."),
-    () => saveSyncModel({ syncModel, environmentId: params.environmentId, fileName: params.fileName }),
+    () => saveSyncModel({ syncModel, environmentId: params.environmentId, folderName: params.folderName }),
   );
 
-  logInfo(params, "standard", `Model is successfully saved into ${chalk.green(fileName)}.`);
+  logInfo(params, "standard", `Model is successfully saved into a folder ${chalk.green(folderName)}.`);
 };
 
 const logOnError = async <T>(params: LogOptions, errorMessage: string, action: () => Promise<T>): Promise<T> => {
