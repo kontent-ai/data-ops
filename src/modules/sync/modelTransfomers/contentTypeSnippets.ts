@@ -28,7 +28,7 @@ export const transformContentTypeSnippetsModel = (
     const transformedSnippet = {
       ...omit(snippet, ["id", "last_modified"]),
       elements: syncSnippetElements,
-      external_id: snippet.external_id ?? snippet.id,
+      external_id: snippet.external_id ?? snippet.codename,
     };
 
     return extractNulls(transformedSnippet) as ContentTypeSnippetsSyncModel;
@@ -44,6 +44,7 @@ const transformElement = (
     case "guidelines":
       return transformGuidelinesElement(
         element,
+        snippet,
         environmentModel.assets,
         environmentModel.items,
         logOptions,
@@ -51,6 +52,7 @@ const transformElement = (
     case "modular_content":
       return transformLinkedItemsElement(
         element,
+        snippet,
         environmentModel.contentTypes,
         environmentModel.items,
         logOptions,
@@ -58,18 +60,19 @@ const transformElement = (
     case "taxonomy":
       return transformTaxonomyElement(
         element,
+        snippet,
         environmentModel.taxonomyGroups,
         logOptions,
       );
     case "multiple_choice":
-      return transformMultipleChoiceElement(element);
+      return transformMultipleChoiceElement(element, snippet);
     case "custom":
       return transformCustomElement(element, snippet);
     case "asset":
-      return transformAssetElement(element, environmentModel.assets, logOptions);
+      return transformAssetElement(element, snippet, environmentModel.assets, logOptions);
     case "rich_text":
-      return transformRichTextElement(element, environmentModel.contentTypes, logOptions);
+      return transformRichTextElement(element, snippet, environmentModel.contentTypes, logOptions);
     default:
-      return transformDefaultElement(element);
+      return transformDefaultElement(element, snippet);
   }
 };
