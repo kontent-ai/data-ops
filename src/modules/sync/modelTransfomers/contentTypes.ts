@@ -6,6 +6,7 @@ import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeWithUnionElements } from "../types/contractModels.js";
 import { ContentTypeSyncModel } from "../types/fileContentModel.js";
 import { SyncTypeElement } from "../types/syncModel.js";
+import { makeNestedExternalId } from "../utils/entitiesHelpers.js";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -47,10 +48,10 @@ export const transformContentTypeModel = (
       elements: transformedElements,
       content_groups: type.content_groups?.map(group => ({
         ...omit(group, ["id"]),
-        external_id: group.external_id ?? group.id,
+        external_id: group.external_id ?? makeNestedExternalId(type.codename, group.codename as string),
         codename: group.codename as string,
       })),
-      external_id: type.external_id ?? type.id,
+      external_id: type.external_id ?? type.codename,
     };
 
     return extractNulls(transformedContentType) as ContentTypeSyncModel;
@@ -67,6 +68,7 @@ const transformElement = (
     case "guidelines":
       return transformGuidelinesElement(
         element,
+        type,
         environmentModel.assets,
         environmentModel.items,
         logOptions,
@@ -74,6 +76,7 @@ const transformElement = (
     case "modular_content":
       return transformLinkedItemsElement(
         element,
+        type,
         environmentModel.contentTypes,
         environmentModel.items,
         logOptions,
@@ -81,24 +84,25 @@ const transformElement = (
     case "taxonomy":
       return transformTaxonomyElement(
         element,
+        type,
         environmentModel.taxonomyGroups,
         logOptions,
       );
     case "multiple_choice":
-      return transformMultipleChoiceElement(element);
+      return transformMultipleChoiceElement(element, type);
     case "custom":
       return transformCustomElement(element, type);
     case "asset":
-      return transformAssetElement(element, environmentModel.assets, logOptions);
+      return transformAssetElement(element, type, environmentModel.assets, logOptions);
     case "rich_text":
-      return transformRichTextElement(element, environmentModel.contentTypes, logOptions);
+      return transformRichTextElement(element, type, environmentModel.contentTypes, logOptions);
     case "subpages":
-      return transformSubpagesElement(element, environmentModel.contentTypes, environmentModel.items, logOptions);
+      return transformSubpagesElement(element, type, environmentModel.contentTypes, environmentModel.items, logOptions);
     case "snippet":
-      return transformSnippetElement(element, environmentModel.contentTypeSnippets);
+      return transformSnippetElement(element, type, environmentModel.contentTypeSnippets);
     case "url_slug":
       return transformUrlSlugElement(element, type, environmentModel.contentTypeSnippets);
     default:
-      return transformDefaultElement(element);
+      return transformDefaultElement(element, type);
   }
 };

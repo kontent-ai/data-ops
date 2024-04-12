@@ -49,7 +49,7 @@ const expectedOutput = [
         ...input[0].terms[0],
         id: undefined,
         last_modified: undefined,
-        external_id: "nestedTermId1",
+        external_id: `${input[0].codename}-${input[0].terms[0].codename}`,
       },
     ],
   },
