@@ -48,17 +48,17 @@ describe("content type snippet transfomers", () => {
         ...snippets[0],
         id: undefined,
         last_modified: undefined,
-        external_id: snippets[0].id,
+        external_id: snippets[0].codename,
         elements: [
           {
             ...snippets[0].elements[0],
             id: undefined,
-            external_id: snippets[0].elements[0].id,
+            external_id: `${snippets[0].codename}_${snippets[0].elements[0].codename}`,
           },
           {
             ...snippets[0].elements[1],
             id: undefined,
-            external_id: snippets[0].elements[1].id,
+            external_id: `${snippets[0].codename}_${snippets[0].elements[1].codename}`,
           },
         ],
       },
