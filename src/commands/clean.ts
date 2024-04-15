@@ -12,11 +12,11 @@ import { contentItemsEntity } from "./importExportEntities/entities/contentItems
 import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./importExportEntities/entities/languages.js";
+import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
 import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
-import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.
