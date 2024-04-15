@@ -7,7 +7,7 @@ import {
 } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { spotlightInUseErrorCode } from "../../../constants/ids.js";
+import { spotlightInUseErrorCode } from "../../../constants/responseCodes.js";
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
