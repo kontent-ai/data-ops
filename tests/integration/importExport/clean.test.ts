@@ -55,7 +55,7 @@ describe("clean command", () => {
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(async (environmentId) => {
       const command =
-        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems contentTypes contentTypeSnippets`;
+        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets`;
 
       await runCommand(command);
 
@@ -86,6 +86,8 @@ describe("clean command", () => {
       await expectNoTaxonomies(environmentId);
       await expectNoAssets(environmentId);
       await expectNoAssetFolders(environmentId);
+      await expectNoSnippets(environmentId);
+      await expectNoTypes(environmentId, true);
     }, false),
   );
 
@@ -93,7 +95,10 @@ describe("clean command", () => {
     withTestEnvironment(async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes`;
 
-      await runCommand(command);
+      const result = await runCommand(command).catch(err => err as CommandError);
+
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toContain("is still used and cannot be deleted.");
     });
   });
 
