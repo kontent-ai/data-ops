@@ -101,25 +101,7 @@ const cleanEnvironment = async (
       logInfo(params, "standard", `Removing ${chalk.yellow(def.name)}`);
 
       const entities = await def.fetchEntities(client);
-      return def.cleanEntities(client, entities, params).catch((err) => {
-        if (
-          err instanceof SharedModels.ContentManagementBaseKontentError
-          && err.errorCode === spotlightInUseErrorCode
-        ) {
-          return err;
-        } else {
-          logError(
-            params,
-            `Failed to clean entity ${chalk.red(def.name)}.`,
-            `Message: ${
-              err?.validationErrors?.map((e: SharedModels.ContentManagementBaseKontentError) => e.message)?.join("\n")
-                ?? JSON.stringify(err)
-            }`,
-            "\nStopping clean operation...",
-          );
-          process.exit(1);
-        }
-      });
+      return def.cleanEntities(client, entities, params).catch((err) => handleError(params, err, def));
     }),
   ).then((res) => {
     const spotlightWarning = res.filter(
@@ -136,4 +118,37 @@ const cleanEnvironment = async (
       chalk.green(`Environment clean finished successfully.${spotlightWarning}`),
     );
   });
+};
+
+const getErrorMessages = (err: any) => {
+  const messages: string[] = [];
+
+  if (err instanceof SharedModels.ContentManagementBaseKontentError) {
+    messages.push(err.message, ...err.validationErrors.map((e) => e.message));
+  } else {
+    messages.push(err.message ?? JSON.stringify(err));
+  }
+
+  return messages.join("\n");
+};
+
+const handleError = (
+  params: CleanEnvironmentParams,
+  err: any,
+  entity: EntityDefinition<any>,
+) => {
+  if (
+    err instanceof SharedModels.ContentManagementBaseKontentError
+    && err.errorCode === spotlightInUseErrorCode
+  ) {
+    return err;
+  } else {
+    logError(
+      params,
+      `Failed to clean entity ${chalk.red(entity.name)}.`,
+      `Message: ${getErrorMessages(err)}`,
+      "\nStopping clean operation...",
+    );
+    process.exit(1);
+  }
 };
