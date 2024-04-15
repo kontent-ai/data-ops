@@ -1,7 +1,7 @@
 import { ContentTypeElements } from "@kontent-ai/management-sdk";
 
 import { LogOptions } from "../../../log.js";
-import { extractNulls, omit } from "../../../utils/object.js";
+import { omit, removeNulls } from "../../../utils/object.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeWithUnionElements } from "../types/contractModels.js";
 import { ContentTypeSyncModel } from "../types/fileContentModel.js";
@@ -54,7 +54,7 @@ export const transformContentTypeModel = (
       external_id: type.external_id ?? type.codename,
     };
 
-    return extractNulls(transformedContentType) as ContentTypeSyncModel;
+    return removeNulls(transformedContentType) as ContentTypeSyncModel;
   });
 };
 

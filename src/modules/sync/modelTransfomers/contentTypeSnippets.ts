@@ -1,5 +1,5 @@
 import { LogOptions } from "../../../log.js";
-import { extractNulls, omit } from "../../../utils/object.js";
+import { omit, removeNulls } from "../../../utils/object.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../types/contractModels.js";
 import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
@@ -31,7 +31,7 @@ export const transformContentTypeSnippetsModel = (
       external_id: snippet.external_id ?? snippet.codename,
     };
 
-    return extractNulls(transformedSnippet) as ContentTypeSnippetsSyncModel;
+    return removeNulls(transformedSnippet) as ContentTypeSnippetsSyncModel;
   });
 
 const transformElement = (

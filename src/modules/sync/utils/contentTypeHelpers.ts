@@ -44,7 +44,9 @@ export const getRequiredIds = (
     element.type === "guidelines"
   ) as unknown as ContentTypeElements.IGuidelinesElement[];
   const linkedItemElements = elements.filter((element): element is ContentTypeElements.ILinkedItemsElement =>
-    element.type === "modular_content"
+    // currently, the subpages type in SDK does not contain default property, therefore subpages are narrowed to ILinkedItemsElement.
+    // since the subpages element is the same as the linked items element apart from the type property.
+    element.type === "modular_content" || element.type === "subpages"
   );
 
   const parsedGuidelines = guidelinesElements.map(g => nodeParse(g.guidelines));
