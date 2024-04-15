@@ -1,7 +1,7 @@
 import { ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { spotlightInUseErrorCode } from "../constants/ids.js";
+import { spotlightInUseErrorCode } from "../constants/responseCodes.js";
 import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
