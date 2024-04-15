@@ -63,7 +63,7 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
                 err instanceof SharedModels.ContentManagementBaseKontentError
                 && err.errorCode === spotlightInUseErrorCode
               ) {
-                await createCleanElementsFromTypeFetcher(client)(type)();
+                await cleanElementsFromType(client, type);
                 return err;
               } else {
                 throw err;
@@ -221,7 +221,7 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
     .toPromise();
 };
 
-const createCleanElementsFromTypeFetcher = (client: ManagementClient) => (type: Type) => () => {
+const cleanElementsFromType = (client: ManagementClient, type: Type) => {
   const patchOps = type.elements
     // subpages element must be present on WSL root type
     .filter((el) => el.type !== "subpages")
