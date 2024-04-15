@@ -3,10 +3,7 @@ import { PreviewContracts } from "@kontent-ai/management-sdk";
 import { notNull } from "../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const previewUrlsEntity: Omit<
-  EntityDefinition<PreviewContracts.IPreviewConfigurationContract>,
-  "cleanEntities"
-> = {
+export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfigurationContract> = {
   name: "previewUrls",
   fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
   serializeEntities: collections => JSON.stringify(collections),
@@ -46,6 +43,15 @@ export const previewUrlsEntity: Omit<
 
             return { content_type: { id: newTypeId }, url_patterns: newUrlPatterns };
           }),
+      })
+      .toPromise();
+  },
+  cleanEntities: async client => {
+    await client
+      .modifyPreviewConfiguration()
+      .withData({
+        preview_url_patterns: [],
+        space_domains: [],
       })
       .toPromise();
   },

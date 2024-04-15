@@ -16,6 +16,7 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
+import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.
@@ -28,6 +29,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   assetFoldersEntity,
   contentTypesEntity,
   contentTypesSnippetsEntity,
+  previewUrlsEntity,
   workflowsEntity,
   collectionsEntity,
   languagesEntity,
@@ -97,15 +99,15 @@ const cleanEnvironment = async (
   );
 
   await serially(
-    entitiesToClean.map((def) => async () => {
+    entitiesToClean.map(def => async () => {
       logInfo(params, "standard", `Removing ${chalk.yellow(def.name)}`);
 
       const entities = await def.fetchEntities(client);
-      return def.cleanEntities(client, entities, params).catch((err) => handleError(params, err, def));
+      return def.cleanEntities(client, entities, params).catch(err => handleError(params, err, def));
     }),
-  ).then((res) => {
+  ).then(res => {
     const spotlightWarning = res.filter(
-        (e) => e instanceof SharedModels.ContentManagementBaseKontentError,
+        e => e instanceof SharedModels.ContentManagementBaseKontentError,
       ).length > 0
       ? chalk.cyan(
         "\n⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment. Please disable Web Spotlight and run the clean operation again or remove the types manually.",
@@ -124,7 +126,7 @@ const getErrorMessages = (err: any) => {
   const messages: string[] = [];
 
   if (err instanceof SharedModels.ContentManagementBaseKontentError) {
-    messages.push(err.message, ...err.validationErrors.map((e) => e.message));
+    messages.push(err.message, ...err.validationErrors.map(e => e.message));
   } else {
     messages.push(err.message ?? JSON.stringify(err));
   }
