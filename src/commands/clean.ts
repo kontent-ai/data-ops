@@ -1,7 +1,6 @@
 import { ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { spotlightInUseErrorCode } from "../constants/responseCodes.js";
 import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
@@ -17,6 +16,7 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
+import { isSpotlightInUseError } from "../utils/typeguards.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.
@@ -108,7 +108,7 @@ const cleanEnvironment = async (
   ).then(res => {
     const spotlightWarning = res.filter(
         e => e instanceof SharedModels.ContentManagementBaseKontentError,
-      ).length > 0
+      ).length
       ? chalk.cyan(
         "\n⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment. Please disable Web Spotlight and run the clean operation again or remove the types manually.",
       )
@@ -122,27 +122,21 @@ const cleanEnvironment = async (
   });
 };
 
-const getErrorMessages = (err: any) => {
-  const messages: string[] = [];
-
-  if (err instanceof SharedModels.ContentManagementBaseKontentError) {
-    messages.push(err.message, ...err.validationErrors.map(e => e.message));
-  } else {
-    messages.push(err.message ?? JSON.stringify(err));
-  }
-
-  return messages.join("\n");
-};
-
-const handleError = (
-  params: CleanEnvironmentParams,
+const getErrorMessages = (
   err: any,
-  entity: EntityDefinition<any>,
+) =>
+  [
+    ...err instanceof SharedModels.ContentManagementBaseKontentError
+      ? [err.message, ...err.validationErrors.map(e => e.message)]
+      : [err.message ?? JSON.stringify(err)],
+  ].join("\n");
+
+const handleError = <T extends LogOptions>(
+  params: T,
+  err: any,
+  entity: EntityDefinition<T>,
 ) => {
-  if (
-    err instanceof SharedModels.ContentManagementBaseKontentError
-    && err.errorCode === spotlightInUseErrorCode
-  ) {
+  if (isSpotlightInUseError(err)) {
     return err;
   } else {
     logError(
