@@ -1,3 +1,5 @@
+import readline from "node:readline";
+
 import { ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
@@ -68,6 +70,11 @@ export const register: RegisterCommand = (yargs) =>
           alias: "x",
           choices: entityChoices,
           conflicts: "include",
+        })
+        .option("skipWarning", {
+          type: "boolean",
+          describe: "Skip warning message.",
+          alias: "s",
         }),
     handler: (args) => cleanEnvironment(args),
   });
@@ -78,6 +85,7 @@ type CleanEnvironmentParams =
     apiKey: string;
     include?: ReadonlyArray<string>;
     exclude?: ReadonlyArray<string>;
+    skipWarning?: boolean;
   }>
   & LogOptions;
 
@@ -91,6 +99,17 @@ const cleanEnvironment = async (
 
   const entitiesToClean = entityDefinitions
     .filter(e => (!params.include || params.include.includes(e.name)) && !params.exclude?.includes(e.name));
+
+  const warningMessage = chalk.yellow(
+    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
+  );
+
+  const confirmed = !params.skipWarning ? await requestConfirmation(warningMessage) : true;
+
+  if (!confirmed) {
+    logError(params, chalk.red("Operation aborted."));
+    process.exit(1);
+  }
 
   logInfo(
     params,
@@ -147,4 +166,18 @@ const handleError = <T extends LogOptions>(
     );
     process.exit(1);
   }
+};
+
+const requestConfirmation = async (message: string) => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise<boolean>(resolve => {
+    rl.question(message, answer => {
+      rl.close();
+      resolve(answer.trim().toLowerCase() === "y");
+    });
+  });
 };
