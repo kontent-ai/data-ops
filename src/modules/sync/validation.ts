@@ -46,17 +46,19 @@ const handleDiffObjectsSameExtId = (
   sourceEntities: ReadonlyArray<EntityBase>,
   targetEntities: ReadonlyArray<EntityBase>,
 ) =>
-  sourceEntities.flatMap(entity => {
-    const targetEntityByExternalId = targetEntities.find(e => e.external_id === entity.external_id);
+  sourceEntities
+    .filter(e => e.external_id)
+    .flatMap(entity => {
+      const targetEntityByExternalId = targetEntities.find(e => e.external_id === entity.external_id);
 
-    return targetEntityByExternalId && targetEntityByExternalId.codename !== entity.codename
-      ? [
-        chalk.red(
-          `The target project contains a type with external_id ${
-            chalk.yellow(entity.external_id)
-          }, however, target codename ${chalk.yellow(targetEntityByExternalId.codename)} `
-            + `does not match with the codename of source object ${chalk.yellow(entity.codename)}`,
-        ),
-      ]
-      : [];
-  });
+      return targetEntityByExternalId && targetEntityByExternalId.codename !== entity.codename
+        ? [
+          chalk.red(
+            `The target project contains a type with external_id ${
+              chalk.yellow(entity.external_id)
+            }, however, target codename ${chalk.yellow(targetEntityByExternalId.codename)} `
+              + `does not match with the codename of source object ${chalk.yellow(entity.codename)}`,
+          ),
+        ]
+        : [];
+    });

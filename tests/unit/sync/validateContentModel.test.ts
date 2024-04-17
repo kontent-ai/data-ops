@@ -50,7 +50,7 @@ const sourceContentModel = {
 } as const satisfies FileContentModel;
 
 describe("validate content model", () => {
-  it("validationModel returns array of errors", () => {
+  it("validationModel returns array of errors", async () => {
     const targetContentModel: FileContentModel = {
       ...sourceContentModel,
       contentTypes: [
@@ -72,7 +72,7 @@ describe("validate content model", () => {
       ],
     };
 
-    const validationErrors = validateContentModel(targetContentModel, sourceContentModel, {});
+    const validationErrors = await validateContentModel(targetContentModel, sourceContentModel);
 
     expect(validationErrors).toHaveLength(2);
   });
