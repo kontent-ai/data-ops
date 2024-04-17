@@ -4,6 +4,7 @@ import chalk from "chalk";
 import { logError, logInfo, LogOptions } from "../log.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { serially } from "../utils/requests.js";
+import { isSpotlightInUseError } from "../utils/typeguards.js";
 import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
 import { assetsEntity } from "./importExportEntities/entities/assets.js";
 import { collectionsEntity } from "./importExportEntities/entities/collections.js";
@@ -16,7 +17,6 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
-import { isSpotlightInUseError } from "../utils/typeguards.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.

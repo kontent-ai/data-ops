@@ -123,6 +123,23 @@ npx @kontent-ai/data-ops import --fileName <file-to-import> --environmentId <tar
 ```
 To see all supported parameters, run `npx @kontent-ai/data-ops import --help`.
 
+## Clean
+
+The `clean` command allows you to delete data in your Kontent.ai environment using [the Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2).
+
+> [!WARNING]
+> Running this command may result in **irreversible changes to your content**. Proceed with caution to avoid any unintended data loss.
+
+> [!TIP]
+> You can select specific subset of entities to clean using either `include` or `exclude` parameter. Note that the clean operation will fail if you attempt to delete an entity with existing dependants (e.g. a content type with existing items based on it).
+
+### Usage
+
+```bash
+npx @kontent-ai/data-ops clean --environmentId <target-environment-id> --apiKey <Management-API-key>
+```
+To see all supported parameters, run `npx @kontent-ai/data-ops clean --help`.
+
 ## Known Limitations
 ### Entity limitations
 
@@ -137,7 +154,7 @@ Published language variants that don't exist in any other workflow step are expo
 As the current API format doesn't support inclusion of the publishing time for variants scheduled to be published, the tool instead puts the scheduled variants into the draft step (the first step in the workflow).
 
 ### Web Spotlight
-[Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) currently can't be enabled through the tool. As a result, it is not possible to set root item for spaces as this can only be done on environments with Web Spotlight enabled.
+[Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) currently can't be enabled/disabled through the tool. As a result, it is not possible to set root item for spaces as this can only be done on environments with Web Spotlight enabled. Furthermore, the `clean` operation cannot delete the root type associated with Web Spotlight as long as it's enabled and therefore skips it.
 
 ### Asset Size
 The management API accepts only assets smaller than 100MB.
