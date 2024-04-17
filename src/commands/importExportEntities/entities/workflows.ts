@@ -1,7 +1,7 @@
 import { ManagementClient, WorkflowContracts, WorkflowModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { emptyId } from "../../../constants/ids.js";
+import { defaultCodename, defaultName, emptyId } from "../../../constants/ids.js";
 import { logInfo, LogOptions } from "../../../log.js";
 import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
@@ -218,8 +218,8 @@ const extractAllStepIds = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArr
   extractAllSteps(wf).map(s => s.id);
 
 const createDefaultWorkflowData = (wf: Workflow): WorkflowModels.IUpdateWorkflowData => ({
-  name: "Default",
-  codename: "default",
+  name: defaultName,
+  codename: defaultCodename,
   scopes: wf.scopes,
   steps: wf.steps,
   published_step: { ...wf.published_step, codename: "published", name: "Published" },
