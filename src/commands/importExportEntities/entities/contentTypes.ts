@@ -64,7 +64,7 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
                 && err.errorCode === spotlightInUseErrorCode
               ) {
                 // subpages element must be present on WS root
-                await cleanElementsFromType(client, type, "subpages");
+                await cleanElementsFromType(client, type, ["subpages"]);
                 return err;
               } else {
                 throw err;
@@ -222,7 +222,7 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
     .toPromise();
 };
 
-const cleanElementsFromType = (client: ManagementClient, type: Type, excludeElementTypes?: string | string[]) => {
+const cleanElementsFromType = (client: ManagementClient, type: Type, excludeElementTypes?: string[]) => {
   const patchOps = type.elements
     .filter(el => !excludeElementTypes?.includes(el.type))
     .map(el => ({
@@ -230,13 +230,11 @@ const cleanElementsFromType = (client: ManagementClient, type: Type, excludeElem
       path: `/elements/id:${el.id}`,
     }));
 
-  if (!patchOps.length) {
-    return Promise.resolve();
-  }
-
-  return client
-    .modifyContentType()
-    .byTypeId(type.id)
-    .withData(patchOps)
-    .toPromise();
+  return !patchOps.length
+    ? Promise.resolve()
+    : client
+      .modifyContentType()
+      .byTypeId(type.id)
+      .withData(patchOps)
+      .toPromise();
 };

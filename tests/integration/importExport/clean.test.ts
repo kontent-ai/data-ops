@@ -32,7 +32,7 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans all entities in the target environment, prints info on manual WSL removal.",
     withTestEnvironment(async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY}`;
+      const command = `clean -e=${environmentId} -k=${API_KEY} -s`;
 
       const result = await runCommand(command);
 
@@ -55,7 +55,7 @@ describe("clean command", () => {
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(async (environmentId) => {
       const command =
-        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets`;
+        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets -s`;
 
       await runCommand(command);
 
@@ -73,7 +73,7 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans only entities not specified in the exclude parameter.",
     withTestEnvironment(async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections`;
+      const command = `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections -s`;
 
       await runCommand(command);
 
@@ -93,7 +93,7 @@ describe("clean command", () => {
 
   it.concurrent("Errors when removing types with existing items, prints message.", async () => {
     withTestEnvironment(async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes`;
+      const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
 
       const result = await runCommand(command).catch(err => err as CommandError);
 
@@ -103,7 +103,7 @@ describe("clean command", () => {
   });
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
-    const command = "clean --include collections contentTypes --exclude contentTypes -e test -k test";
+    const command = "clean --include collections contentTypes --exclude contentTypes -e test -k test -s";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
@@ -113,7 +113,7 @@ describe("clean command", () => {
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "clean --include collections invalidEntity -k test -e test";
+    const command = "clean --include collections invalidEntity -k test -e test -s";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
@@ -124,7 +124,7 @@ describe("clean command", () => {
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "clean --exclude collections invalidEntity -k test -e test";
+    const command = "clean --exclude collections invalidEntity -k test -e test -s";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
