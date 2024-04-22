@@ -17,6 +17,7 @@ import { languagesEntity } from "../importExportEntities/entities/languages.js";
 import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
 import { spacesEntity } from "../importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
+import { webhooksEntity } from "../importExportEntities/entities/webhooks.js";
 import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "../importExportEntities/entityDefinition.js";
 
@@ -35,6 +36,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   workflowsEntity,
   collectionsEntity,
   languagesEntity,
+  webhooksEntity,
 ];
 
 const entityChoices = entityDefinitions.map(e => e.name);

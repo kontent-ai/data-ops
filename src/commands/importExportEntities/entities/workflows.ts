@@ -16,7 +16,7 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
   name: "workflows",
   displayName: "workflows",
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
-  serializeEntities: collections => JSON.stringify(collections),
+  serializeEntities: workflows => JSON.stringify(workflows),
   deserializeEntities: JSON.parse,
   importEntities: async (client, importWfs, context, logOptions) => {
     const oldProjectDefaultWf = await client.listWorkflows().toPromise()

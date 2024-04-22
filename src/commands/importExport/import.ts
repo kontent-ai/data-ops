@@ -23,6 +23,7 @@ import { languageVariantsEntity } from "../importExportEntities/entities/languag
 import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
 import { spacesEntity } from "../importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
+import { webhooksEntity } from "../importExportEntities/entities/webhooks.js";
 import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
 import { EntityImportDefinition, ImportContext } from "../importExportEntities/entityDefinition.js";
 
@@ -43,6 +44,7 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   spacesEntity,
   previewUrlsEntity,
   languageVariantsEntity,
+  webhooksEntity,
 ];
 
 const entityChoices = entityDefinitions.filter(e => !e.isDependentOn).map(e => e.name);
