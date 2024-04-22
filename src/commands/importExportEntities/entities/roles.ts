@@ -6,5 +6,5 @@ export const rolesExportEntity: EntityExportDefinition<ReadonlyArray<RoleContrac
   name: "roles",
   displayName: "roles",
   fetchEntities: client => client.listRoles().toPromise().then(res => res.rawData.roles),
-  serializeEntities: collections => JSON.stringify(collections),
+  serializeEntities: roles => JSON.stringify(roles),
 };

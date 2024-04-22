@@ -104,6 +104,17 @@ export const expectNoItems = async (envId: string) => {
   expect(items).toStrictEqual([]);
 };
 
+export const expectNoWebhooks = async (envId: string) => {
+  const client = makeClientFor(envId);
+
+  const webhooks = await client
+    .listWebhooks()
+    .toPromise()
+    .then(res => res.data.webhooks);
+
+  expect(webhooks).toStrictEqual([]);
+};
+
 const makeClientFor = (envId: string) =>
   new ManagementClient({
     apiKey: API_KEY,
