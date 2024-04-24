@@ -29,8 +29,8 @@ export const validateContentModel = async (
   environmentModel: FileContentModel,
 ) => {
   // terms have different scope for externalIds than taxonomyGroups
-  const targetTerms = extractTerms(targetModel.taxonomyGroups);
-  const sourceTerms = extractTerms(environmentModel.taxonomyGroups);
+  const targetTerms = targetModel.taxonomyGroups.flatMap(extractTerms);
+  const sourceTerms = sourceModel.taxonomyGroups.flatMap(extractTerms);
 
   return [
     ...handleDiffObjectsSameExtId(environmentModel.contentTypes, targetModel.contentTypes),

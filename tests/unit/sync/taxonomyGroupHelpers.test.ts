@@ -53,7 +53,7 @@ describe("extractTerms tests", () => {
       syncTaxonomyGroups[1].terms[1],
     ];
 
-    const extractedTerms = extractTerms(syncTaxonomyGroups);
+    const extractedTerms = syncTaxonomyGroups.flatMap(extractTerms);
 
     expect(extractedTerms).toEqual(resultTerms);
   });
