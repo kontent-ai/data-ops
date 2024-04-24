@@ -17,7 +17,7 @@ export const allLogLevels = Object.keys(logLevelsPriority);
 type LoggableLogLevel = Exclude<LogLevel, "none">;
 
 export const logError = (options: LogOptions, ...messages: ReadonlyArray<string>) =>
-  logInternal(options, "standard", console.error, ...messages.map(m => `${chalk.red("Error:")} ${m}`));
+  logInternal(options, "standard", console.error, ...messages.map(m => `${chalk.red("Error:")} ${m}\n`));
 
 export const logWarning = (
   options: LogOptions,
