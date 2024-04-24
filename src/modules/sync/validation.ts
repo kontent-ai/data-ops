@@ -13,7 +13,7 @@ export const validateContentFolder = async (folderPath: string) => {
     return [`The provided path ${chalk.yellow(folderPath)} is not a valid content model folder`];
   }
 
-  const promiseArray = await Promise.all(
+  const fileStatuses = await Promise.all(
     [contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName].map(filename =>
       fs.stat(path.resolve(folderPath, filename)).catch(e => {
         return `Could not find required file ${chalk.yellow(filename)} due to ${chalk.red(e)}`;
@@ -21,30 +21,31 @@ export const validateContentFolder = async (folderPath: string) => {
     ),
   );
 
-  return promiseArray.filter((p): p is string => typeof p === "string");
+  return fileStatuses.filter((p): p is string => typeof p === "string");
 };
 
 export const validateContentModel = async (
   targetModel: FileContentModel,
-  environmentModel: FileContentModel,
+  sourceModel: FileContentModel,
 ) => {
   // terms have different scope for externalIds than taxonomyGroups
   const targetTerms = targetModel.taxonomyGroups.flatMap(extractTerms);
   const sourceTerms = sourceModel.taxonomyGroups.flatMap(extractTerms);
 
   return [
-    ...handleDiffObjectsSameExtId(environmentModel.contentTypes, targetModel.contentTypes),
-    ...handleDiffObjectsSameExtId(environmentModel.contentTypeSnippets, targetModel.contentTypeSnippets),
-    ...handleDiffObjectsSameExtId(environmentModel.taxonomyGroups, targetModel.taxonomyGroups),
-    ...handleDiffObjectsSameExtId(sourceTerms, targetTerms),
+    ...handleDiffObjectsSameExtId(sourceModel.contentTypes, targetModel.contentTypes, "type"),
+    ...handleDiffObjectsSameExtId(sourceModel.contentTypeSnippets, targetModel.contentTypeSnippets, "snippet"),
+    ...handleDiffObjectsSameExtId(sourceModel.taxonomyGroups, targetModel.taxonomyGroups, "taxonomy group"),
+    ...handleDiffObjectsSameExtId(sourceTerms, targetTerms, "term"),
   ];
 };
 
-type EntityBase = { codename: string; external_id?: string };
+type EntityBase = Readonly<{ readonly codename: string; readonly external_id?: string }>;
 
 const handleDiffObjectsSameExtId = (
   sourceEntities: ReadonlyArray<EntityBase>,
   targetEntities: ReadonlyArray<EntityBase>,
+  entityType: "type" | "snippet" | "taxonomy group" | "term",
 ) =>
   sourceEntities
     .filter(e => e.external_id)
@@ -54,7 +55,7 @@ const handleDiffObjectsSameExtId = (
       return targetEntityByExternalId && targetEntityByExternalId.codename !== entity.codename
         ? [
           chalk.red(
-            `The target project contains a type with external_id ${
+            `The target project contains a ${entityType} with external_id ${
               chalk.yellow(entity.external_id)
             }, however, target codename ${chalk.yellow(targetEntityByExternalId.codename)} `
               + `does not match with the codename of source object ${chalk.yellow(entity.codename)}`,
