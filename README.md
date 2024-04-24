@@ -150,7 +150,7 @@ The tool leverages the Management API to work with the project data and thus is 
 The `generate-sync-model` command is connected to the flow of content model synchronization (sync) between two environments. Its purpose is to generate a folder containing the model of the given Kontent.ai environment for the content types, content type snippets, and taxonomies. The given folder can be used as the source environment for the `sync` command. 
 
 The generated model follows `MAPI` format and is stripped of IDs and unnecessary fields (last_modified). 
-References to the other entities (such as snippet in snippet element) are replaced from using `id` to `codename`. 
+References to other entities (for example, a snippet within a snippet element) are updated to use `codename` instead of `id`.
 Moreover, all entities have filled external ID - if the entity already had an external ID then its value is preserved. Otherwise, the entity gets the value of its ID as an external ID.
 We also added custom properties `data-asset-codename`, `data-item-codename` and `data-codename` that can be used to reference item or asset inside guidelines' rich-text. 
 These values are removed and transformed to the corresponding ids or external ids during sync.
