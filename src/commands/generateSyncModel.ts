@@ -64,7 +64,7 @@ const logOnError = async <T>(params: LogOptions, errorMessage: string, action: (
   try {
     return action();
   } catch (e) {
-    logError(params, errorMessage, " Error: ", JSON.stringify(e));
+    logError(params, errorMessage, JSON.stringify(e));
     throw e;
   }
 };

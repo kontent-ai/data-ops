@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import { Argv } from "yargs";
 
 export type LogLevel =
@@ -16,7 +17,7 @@ export const allLogLevels = Object.keys(logLevelsPriority);
 type LoggableLogLevel = Exclude<LogLevel, "none">;
 
 export const logError = (options: LogOptions, ...messages: ReadonlyArray<string>) =>
-  logInternal(options, "standard", console.error, ...messages);
+  logInternal(options, "standard", console.error, ...messages.map(m => `${chalk.red("Error:")} ${m}\n`));
 
 export const logWarning = (
   options: LogOptions,
