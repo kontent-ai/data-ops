@@ -2,6 +2,7 @@ import chalk from "chalk";
 import * as fs from "fs/promises";
 
 import { logInfo, LogOptions } from "../log.js";
+import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "../modules/sync/constants/filename.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
@@ -98,16 +99,17 @@ export const diffAsync = async (params: SyncParams) => {
 };
 
 const readFolder = async (folderName: string): Promise<FileContentModel> => {
+  // in future we should use typeguard to check whether the content is valid
   const contentTypes = JSON.parse(
-    await fs.readFile(`${folderName}/contentTypes.json`, "utf8"),
+    await fs.readFile(`${folderName}/${contentTypesFileName}`, "utf8"),
   ) as unknown as ReadonlyArray<
     ContentTypeSyncModel
   >;
-  const snippets = JSON.parse(await fs.readFile(`${folderName}/snippets.json`, "utf8")) as unknown as ReadonlyArray<
+  const snippets = JSON.parse(await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8")) as unknown as ReadonlyArray<
     ContentTypeSnippetsSyncModel
   >;
   const taxonomyGroups = JSON.parse(
-    await fs.readFile(`${folderName}/taxonomies.json`, "utf8"),
+    await fs.readFile(`${folderName}/${taxonomiesFileName}`, "utf8"),
   ) as unknown as ReadonlyArray<
     TaxonomySyncModel
   >;
