@@ -2,7 +2,11 @@ import chalk from "chalk";
 import * as fs from "fs/promises";
 
 import { logInfo, LogOptions } from "../log.js";
-import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "../modules/sync/constants/filename.js";
+import {
+  contentTypesFileName,
+  contentTypeSnippetsFileName,
+  taxonomiesFileName,
+} from "../modules/sync/constants/filename.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
@@ -84,8 +88,8 @@ export const diffAsync = async (params: SyncParams) => {
     );
 
   const targetModel = await fetchModel({ apiKey: params.apiKey, environmentId: params.environmentId });
-  const assetsReferences = new Map(targetModel.assets.map(a => [a.codename, { id: a.id, codename: a.codename }]))
-  const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]))
+  const assetsReferences = new Map(targetModel.assets.map(a => [a.codename, { id: a.id, codename: a.codename }]));
+  const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]));
   const transformedTargetModel = transformSyncModel(targetModel, params);
 
   const diffModel = diff({
@@ -105,7 +109,9 @@ const readFolder = async (folderName: string): Promise<FileContentModel> => {
   ) as unknown as ReadonlyArray<
     ContentTypeSyncModel
   >;
-  const snippets = JSON.parse(await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8")) as unknown as ReadonlyArray<
+  const snippets = JSON.parse(
+    await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8"),
+  ) as unknown as ReadonlyArray<
     ContentTypeSnippetsSyncModel
   >;
   const taxonomyGroups = JSON.parse(
