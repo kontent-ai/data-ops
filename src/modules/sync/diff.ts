@@ -10,7 +10,7 @@ import {
 import { DiffModel, PatchOperation } from "./types/diffModel.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 
-export type TargetReference = { id: string; codename: string };
+type TargetReference = { id: string; codename: string };
 
 export type DiffParams = Readonly<{
   targetItemsReferencedFromSourceByCodenames: ReadonlyMap<string, Readonly<TargetReference>>;
