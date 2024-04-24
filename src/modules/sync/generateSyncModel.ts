@@ -7,6 +7,7 @@ import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { serializeDateForFileName } from "../../utils/files.js";
+import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "./constants/filename.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
@@ -102,15 +103,15 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   await fsPromises.mkdir(folderName, { recursive: true });
 
   await fsPromises.writeFile(
-    path.resolve(folderName, "contentTypes.json"),
+    path.resolve(folderName, contentTypesFileName),
     JSON.stringify(finalModel.contentTypes, null, 2),
   );
   await fsPromises.writeFile(
-    path.resolve(folderName, "snippets.json"),
+    path.resolve(folderName, contentTypeSnippetsFileName),
     JSON.stringify(finalModel.contentTypeSnippets, null, 2),
   );
   await fsPromises.writeFile(
-    path.resolve(folderName, "taxonomies.json"),
+    path.resolve(folderName, taxonomiesFileName),
     JSON.stringify(finalModel.taxonomyGroups, null, 2),
   );
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
