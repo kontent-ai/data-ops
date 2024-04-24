@@ -28,12 +28,12 @@ export const register: RegisterCommand = yargs =>
         .option("environmentId", {
           type: "string",
           describe: "Id of the target Kontent.ai environment that should be diffed",
-          demandOption: "You need to provide the environmentId of the Kontent.ai",
+          demandOption: "You need to provide the environmentId of your Kontent.ai environment",
           alias: "e",
         })
         .option("apiKey", {
           type: "string",
-          describe: "Management API key of target Kontent.ai project",
+          describe: "Management API key of target Kontent.ai environment",
           demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
