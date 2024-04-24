@@ -147,7 +147,18 @@ If your export file contains assets bigger than that (they can be uploaded throu
 The tool leverages the Management API to work with the project data and thus is bound by the API rate limitations.
 
 ## Generate-sync-model
-The `generate-sync-model` command is connected to the flow of content model synchronization (sync) between two environments. Its purpose is to generate a folder containing the model of the given Kontent.ai environment for the content types, content type snippets, and taxonomies. The given folder can be used as the source environment for the `sync` command. The generated model follows MAPI format and is stripped of IDs and unnecessary fields (last_modified). References to the other entities (such as snippet in snippet element) are replaced from using `id` to `codename`. Moreover, all entities have filled external ID - if the entity already had an external ID then its value is preserved. Otherwise, the entity gets the value of its ID as an external ID. We also added custom properties `data-asset-codename`, `data-item-codename` and `data-codename` that can be used to reference item or asset inside guidelines' rich-text. These values are removed and transformed to the corresponding ids or external ids during sync. If you want to manually update the values inside this folder, be aware to use the correct values. After the succesfull execution of the command, four files are generated: 
+The `generate-sync-model` command is connected to the flow of content model synchronization (sync) between two environments. Its purpose is to generate a folder containing the model of the given Kontent.ai environment for the content types, content type snippets, and taxonomies. The given folder can be used as the source environment for the `sync` command. 
+
+The generated model follows `MAPI` format and is stripped of IDs and unnecessary fields (last_modified). 
+References to the other entities (such as snippet in snippet element) are replaced from using `id` to `codename`. 
+Moreover, all entities have filled external ID - if the entity already had an external ID then its value is preserved. Otherwise, the entity gets the value of its ID as an external ID.
+We also added custom properties `data-asset-codename`, `data-item-codename` and `data-codename` that can be used to reference item or asset inside guidelines' rich-text. 
+These values are removed and transformed to the corresponding ids or external ids during sync.
+
+> [!CAUTION]
+> If you want to manually update the values inside this folder, be aware to use the correct values.
+
+ After the successful execution of the command, four files are generated: 
 - `contentTypes.json`
 - `contentTypeSnippets.json`
 - `taxonomies.json`
@@ -160,7 +171,7 @@ npx @kontent-ai/data-ops generate-sync-model --environmentId <environment-id> --
 ```
 
 ## Diff
-The `diff` command compares and prints the diff between two environments. It is possible to enter either two environments parameters (environment ID and MAPI key), or generated folder name (see generate-sync-model), that will be treated as a source content model, with target environment parameters.
+The `diff` command compares and prints the diff between two environments. It is possible to compare two environments by providing parameters for both (environment ID and MAPI key). The other option is to compare the target environment with the file model (that can be generated, see [generate-sync-model](#generate-sync-model)), which will be treated as a source content model.
 
 ### Usage
 
