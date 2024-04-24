@@ -15,45 +15,43 @@ import { RegisterCommand } from "../types/yargs.js";
 import { throwError } from "../utils/error.js";
 
 export const register: RegisterCommand = yargs =>
-  yargs.command(
-    {
-      command: "diff",
-      describe: "compares two Kontent.ai content models",
-      builder: yargs =>
-        yargs
-          .option("environmentId", {
-            type: "string",
-            describe: "Id of the target Kontent.ai environment that should be diffed",
-            demandOption: "You need to provide the environmentId of the Kontent.ai to be synced",
-            alias: "e",
-          })
-          .option("apiKey", {
-            type: "string",
-            describe: "Management API key of target Kontent.ai project",
-            demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
-            alias: "k",
-          })
-          .option("folderName", {
-            type: "string",
-            describe: "Name of the folder containing source content model",
-            alias: "f",
+  yargs.command({
+    command: "diff",
+    describe: "Compares content models from two Kontent.ai environments",
+    builder: yargs =>
+      yargs
+        .option("environmentId", {
+          type: "string",
+          describe: "Id of the target Kontent.ai environment that should be diffed",
+          demandOption: "You need to provide the environmentId of the Kontent.ai",
+          alias: "e",
+        })
+        .option("apiKey", {
+          type: "string",
+          describe: "Management API key of target Kontent.ai project",
+          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
+          alias: "k",
+        })
+        .option("folderName", {
+          type: "string",
+          describe: "Name of the folder containing source content model",
+          alias: "f",
           conflicts: ["sourceApiKey", "sourceEnvironmentId"],
-          })
-          .option("sourceEnvironmentId", {
-            type: "string",
-            describe: "Id of Kontent.ai environmnent containing source contet model",
-            conflicts: "folderName",
+        })
+        .option("sourceEnvironmentId", {
+          type: "string",
+          describe: "Id of Kontent.ai environmnent containing source content model",
+          conflicts: "folderName",
           implies: ["sourceApiKey"],
-          })
-          .option("sourceApiKey", {
-            type: "string",
-            describe: "Management API key of Kontent.ai environmnent containing source contet model",
-            conflicts: "folderName",
+        })
+        .option("sourceApiKey", {
+          type: "string",
+          describe: "Management API key of Kontent.ai environmnent containing source content model",
+          conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
-          }),
-      handler: args => diffAsync(args),
-    },
-  );
+        }),
+    handler: args => diffAsync(args),
+  });
 
 export type SyncParams =
   & Readonly<{
