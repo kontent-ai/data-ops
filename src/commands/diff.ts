@@ -2,7 +2,7 @@ import chalk from "chalk";
 import * as fs from "fs/promises";
 
 import { logInfo, LogOptions } from "../log.js";
-import { diff, TargetReference } from "../modules/sync/diff.js";
+import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import {
   ContentTypeSnippetsSyncModel,
@@ -84,16 +84,8 @@ export const diffAsync = async (params: SyncParams) => {
     );
 
   const targetModel = await fetchModel({ apiKey: params.apiKey, environmentId: params.environmentId });
-  const assetsReferences = targetModel.assets.reduce((prev, current) => {
-    prev.set(current.codename, { id: current.id, codename: current.codename });
-
-    return prev;
-  }, new Map<string, TargetReference>());
-  const itemReferences = targetModel.items.reduce((prev, current) => {
-    prev.set(current.codename, { id: current.id, codename: current.codename });
-
-    return prev;
-  }, new Map<string, TargetReference>());
+  const assetsReferences = new Map(targetModel.assets.map(a => [a.codename, { id: a.id, codename: a.codename }]))
+  const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]))
   const transformedTargetModel = transformSyncModel(targetModel, params);
 
   const diffModel = diff({
