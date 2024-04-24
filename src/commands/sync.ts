@@ -46,5 +46,6 @@ export const syncContentModel = async (params: SyncParams) => {
     process.exit(1);
   }
 
+  // uncomment when dealing with sync
   // const modelErrors = await validateContentModel(sourceModel, targetModel);
 };
