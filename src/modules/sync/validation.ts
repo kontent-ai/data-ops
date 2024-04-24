@@ -40,7 +40,7 @@ export const validateContentModel = async (
   ];
 };
 
-type EntityBase = Readonly<{ readonly codename: string; readonly external_id?: string }>;
+type EntityBase = Readonly<{ codename: string; external_id?: string }>;
 
 const handleDiffObjectsSameExtId = (
   sourceEntities: ReadonlyArray<EntityBase>,
