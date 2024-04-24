@@ -4,6 +4,7 @@ import * as fs from "fs/promises";
 import { logInfo, LogOptions } from "../log.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
+import { printDiff } from "../modules/sync/printDiff.js";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
@@ -95,9 +96,7 @@ export const diffAsync = async (params: SyncParams) => {
     sourceEnvModel: sourceModel,
   });
 
-  diffModel as never;
-
-  // printDiff(diffModel, params);
+  printDiff(diffModel, params);
 };
 
 const readFolder = async (folderName: string): Promise<FileContentModel> => {
