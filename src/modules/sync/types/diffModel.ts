@@ -4,7 +4,7 @@ import { RequiredCodename } from "../../../utils/types.js";
 
 type Codename = string;
 
-type DiffObject<AddModel> = Readonly<{
+export type DiffObject<AddModel> = Readonly<{
   added: ReadonlyArray<AddModel>;
   updated: ReadonlyMap<Codename, ReadonlyArray<PatchOperation>>;
   deleted: ReadonlySet<Codename>;
