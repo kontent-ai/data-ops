@@ -36,22 +36,19 @@ export const register: RegisterCommand = yargs =>
             type: "string",
             describe: "Name of the folder containing source content model",
             alias: "f",
+          conflicts: ["sourceApiKey", "sourceEnvironmentId"],
           })
           .option("sourceEnvironmentId", {
             type: "string",
             describe: "Id of Kontent.ai environmnent containing source contet model",
             conflicts: "folderName",
+          implies: ["sourceApiKey"],
           })
           .option("sourceApiKey", {
             type: "string",
             describe: "Management API key of Kontent.ai environmnent containing source contet model",
             conflicts: "folderName",
-          })
-          .check(argv => {
-            if (!argv.folderName && (!argv.sourceEnvironmentId || !argv.sourceApiKey)) {
-              return "You must specify either content model foldername or source Environment id with corresponding MAPI key.";
-            }
-            return true;
+          implies: ["sourceEnvironmentId"],
           }),
       handler: args => diffAsync(args),
     },
