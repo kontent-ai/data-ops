@@ -1,7 +1,8 @@
-import { LogOptions } from "../log.js";
+import { logError, LogOptions } from "../log.js";
+import { validateContentFolder } from "../modules/sync/validation.js";
 import { RegisterCommand } from "../types/yargs.js";
 
-export const sync: RegisterCommand = yargs =>
+export const register: RegisterCommand = yargs =>
   yargs.command(
     {
       command: "sync",
@@ -38,7 +39,13 @@ export type SyncParams =
   }>
   & LogOptions;
 
-export const syncContentModel = (params: SyncParams) => {
-  // TODO
-  params as never;
+export const syncContentModel = async (params: SyncParams) => {
+  const folderErrors = await validateContentFolder(params.fileName);
+  if (folderErrors.length) {
+    folderErrors.forEach(e => logError(params, "standard", e));
+    process.exit(1);
+  }
+
+  // uncomment when dealing with sync
+  // const modelErrors = await validateContentModel(sourceModel, targetModel);
 };

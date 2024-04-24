@@ -13,6 +13,10 @@ const jestConfig: JestConfigWithTsJest = {
       tsconfig: "tsconfig.tests.jsonc"
     }]
   },
+  //node_module are not trannsformed by default
+  transformIgnorePatterns: [
+    "/node_modules/(?!chalk/.*)" // chalk has problem without transformation
+  ]
 }
 
 export default jestConfig
