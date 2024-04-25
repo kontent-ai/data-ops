@@ -131,7 +131,9 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     } catch (err) {
       logError(
         params,
-        `Failed to export an entity ${chalk.red(def.name)} due to error ${JSON.stringify(err)}. Stopping export...`,
+        `Failed to export an entity ${chalk.red(def.name)} due to error ${
+          JSON.stringify(err, Object.getOwnPropertyNames(err))
+        }. Stopping export...`,
       );
       process.exit(1);
     }
