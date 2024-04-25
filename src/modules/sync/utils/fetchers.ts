@@ -1,6 +1,7 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
 import { serially } from "../../../utils/requests.js";
+import { notNullOrUndefined } from "../../../utils/typeguards.js";
 
 export const fetchRequiredAssets = async (client: ManagementClient, assetIds: ReadonlyArray<string>) => {
   const promises = assetIds.map(id => () =>
@@ -9,9 +10,30 @@ export const fetchRequiredAssets = async (client: ManagementClient, assetIds: Re
       .byAssetId(id)
       .toPromise()
       .then(res => res.data._raw)
+      .catch(() => undefined)
   );
 
-  return await serially(promises);
+  const assets = await serially(promises);
+
+  return assets.filter(notNullOrUndefined);
+};
+
+export const fetchRequiredAssetsByCodename = async (
+  client: ManagementClient,
+  assetCodenames: ReadonlyArray<string>,
+) => {
+  const promises = assetCodenames.map(codename => () =>
+    client
+      .viewAsset()
+      .byAssetCodename(codename)
+      .toPromise()
+      .then(res => res.data._raw)
+      .catch(() => undefined)
+  );
+
+  const assets = await serially(promises);
+
+  return assets.filter(notNullOrUndefined);
 };
 
 export const fetchRequiredContentItems = async (client: ManagementClient, itemsIds: ReadonlyArray<string>) => {
@@ -21,9 +43,28 @@ export const fetchRequiredContentItems = async (client: ManagementClient, itemsI
       .byItemId(id)
       .toPromise()
       .then(res => res.data._raw)
+      .catch(undefined)
   );
 
-  return await serially(promises);
+  const items = await serially(promises);
+  return items.filter(notNullOrUndefined);
+};
+
+export const fetchRequiredContentItemsByCodename = async (
+  client: ManagementClient,
+  itemCodenames: ReadonlyArray<string>,
+) => {
+  const promises = itemCodenames.map(codename => () =>
+    client
+      .viewContentItem()
+      .byItemCodename(codename)
+      .toPromise()
+      .then(res => res.data._raw)
+      .catch(undefined)
+  );
+
+  const items = await serially(promises);
+  return items.filter(notNullOrUndefined);
 };
 
 export const fetchContentTypes = (client: ManagementClient) =>
