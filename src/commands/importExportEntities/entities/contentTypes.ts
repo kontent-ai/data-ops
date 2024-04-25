@@ -165,6 +165,10 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
 
   const makeGroupFallbackExternalId = (groupCodename: string | undefined) => `${type.codename}_${groupCodename}`;
 
+  const getElementContentGroupCodename = (element: TypeElement) =>
+    type.content_groups?.find(g => g.id === (element as ContentTypeElements.IElementShared).content_group?.id)
+      ?.codename;
+
   return params.client
     .addContentType()
     .withData(builder => ({
@@ -180,7 +184,15 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
         builder,
         typeOrSnippetCodename: type.codename,
         elementExternalIdsByOldId: new Map(
-          type.elements.map(el => [el.id, el.external_id ?? `${type.codename}_${el.codename}`]),
+          type.elements.map(
+            el => [
+              el.id,
+              el.external_id
+                ?? `${type.codename}${
+                  getElementContentGroupCodename(el) ? `_${getElementContentGroupCodename(el)}_` : "_"
+                }${el.codename}`,
+            ],
+          ),
         ),
         contentGroupExternalIdByOldId: new Map(
           type.content_groups
