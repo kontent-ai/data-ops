@@ -6,7 +6,7 @@ import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncMode
 import { printDiff } from "../modules/sync/printDiff.js";
 import { requestConfirmation } from "../modules/sync/utils/consoleHelpers.js";
 import { readContentModelFromFolder } from "../modules/sync/utils/getContentModel.js";
-import { validateContentFolder } from "../modules/sync/validation.js";
+import { validateContentFolder, validateContentModel } from "../modules/sync/validation.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { throwError } from "../utils/error.js";
 
@@ -89,6 +89,12 @@ export const syncContentModel = async (params: SyncParams) => {
   const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]));
   const transformedTargetModel = transformSyncModel(targetModel, params);
 
+  const modelErrors = await validateContentModel(sourceModel, transformedTargetModel);
+  if (modelErrors.length) {
+    modelErrors.forEach(e => logError(params, "standard", e));
+    process.exit(1);
+  }
+
   const diffModel = diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,
     targetItemsReferencedFromSourceByCodenames: itemReferences,
@@ -108,7 +114,4 @@ export const syncContentModel = async (params: SyncParams) => {
     logError(params, chalk.red("Operation aborted."));
     process.exit(1);
   }
-
-  // uncomment when dealing with sync
-  // const modelErrors = await validateContentModel(sourceModel, targetModel);
 };
