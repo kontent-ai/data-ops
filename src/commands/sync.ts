@@ -1,3 +1,4 @@
+import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, LogOptions } from "../log.js";
@@ -5,6 +6,8 @@ import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
 import { requestConfirmation } from "../modules/sync/utils/consoleHelpers.js";
+import { getRequiredCodenames } from "../modules/sync/utils/contentTypeHelpers.js";
+import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "../modules/sync/utils/fetchers.js";
 import { readContentModelFromFolder } from "../modules/sync/utils/getContentModel.js";
 import { validateContentFolder, validateContentModel } from "../modules/sync/validation.js";
 import { RegisterCommand } from "../types/yargs.js";
@@ -84,9 +87,36 @@ export const syncContentModel = async (params: SyncParams) => {
       params,
     );
 
+  const allCodenames = [...sourceModel.contentTypes, ...sourceModel.contentTypeSnippets].reduce<
+    { assetCodenames: Set<string>; itemCodenames: Set<string> }
+  >(
+    (previous, type) => {
+      const ids = getRequiredCodenames(type.elements);
+
+      return {
+        assetCodenames: new Set([...previous.assetCodenames, ...ids.assetCodenames]),
+        itemCodenames: new Set([...previous.itemCodenames, ...ids.itemCodenames]),
+      };
+    },
+    { assetCodenames: new Set(), itemCodenames: new Set() },
+    );
+
   const targetModel = await fetchModel({ apiKey: params.apiKey, environmentId: params.environmentId });
-  const assetsReferences = new Map(targetModel.assets.map(a => [a.codename, { id: a.id, codename: a.codename }]));
-  const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]));
+  const targetAssetsBySourceCodenames = await fetchRequiredAssetsByCodename(
+    new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey }),
+    Array.from(allCodenames.assetCodenames),
+  );
+  const targetItemsBySourceCodenames = await fetchRequiredContentItemsByCodename(
+    new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey }),
+    Array.from(allCodenames.itemCodenames),
+  );
+
+  const assetsReferences = new Map(
+    targetAssetsBySourceCodenames.map(i => [i.codename, { id: i.id, codename: i.codename }]),
+  );
+  const itemReferences = new Map(
+    targetItemsBySourceCodenames.map(i => [i.codename, { id: i.id, codename: i.codename }]),
+  );
   const transformedTargetModel = transformSyncModel(targetModel, params);
 
   const modelErrors = await validateContentModel(sourceModel, transformedTargetModel);
