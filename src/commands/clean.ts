@@ -119,7 +119,7 @@ const cleanEnvironment = async (
 
   await serially(
     entitiesToClean.map(def => async () => {
-      logInfo(params, "standard", `Removing ${chalk.yellow(def.name)}`);
+      logInfo(params, "standard", `Removing ${chalk.yellow(def.displayName)}`);
 
       const entities = await def.fetchEntities(client);
       return def.cleanEntities(client, entities, params).catch(err => handleError(params, err, def));
@@ -160,7 +160,7 @@ const handleError = <T extends LogOptions>(
   } else {
     logError(
       params,
-      `Failed to clean entity ${chalk.red(entity.name)}.`,
+      `Failed to clean entity ${chalk.red(entity.displayName)}.`,
       `Message: ${getErrorMessages(err)}`,
       "\nStopping clean operation...",
     );

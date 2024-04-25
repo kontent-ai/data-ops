@@ -31,6 +31,7 @@ type ElementGroup = RequiredId<ContentTypeContracts.IContentTypeGroup>;
 
 export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
   name: "contentTypes",
+  displayName: "contentTypes",
   fetchEntities: client =>
     client
       .listContentTypes()
@@ -81,6 +82,7 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
 
 export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinition<ReadonlyArray<Type>> = {
   name: "contentTypes",
+  displayName: "references in contentTypes",
   isDependentOn: contentTypesEntity.name,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileTypes, context, logOptions) => {

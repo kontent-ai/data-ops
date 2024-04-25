@@ -120,7 +120,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   archive.pipe(outputStream);
 
   await serially(definitionsToExport.map(def => async () => {
-    logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.name)}`);
+    logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.displayName)}`);
 
     try {
       const entities = await def.fetchEntities(client);
@@ -131,7 +131,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
     } catch (err) {
       logError(
         params,
-        `Failed to export an entity ${chalk.red(def.name)} due to error ${
+        `Failed to export an entity ${chalk.red(def.displayName)} due to error ${
           JSON.stringify(err, Object.getOwnPropertyNames(err))
         }. Stopping export...`,
       );

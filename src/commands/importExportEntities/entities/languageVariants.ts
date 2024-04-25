@@ -19,6 +19,7 @@ type Variant = FixReferences<LanguageVariantContracts.ILanguageVariantModelContr
 
 export const languageVariantsEntity: Omit<EntityDefinition<ReadonlyArray<Variant>>, "cleanEntities"> = {
   name: "languageVariants",
+  displayName: "languageVariants",
   fetchEntities: async client => {
     const collections = await client.listCollections().toPromise().then(res => res.data.collections);
 

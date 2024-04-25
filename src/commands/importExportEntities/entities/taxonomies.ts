@@ -8,6 +8,7 @@ import { EntityDefinition } from "../entityDefinition.js";
 
 export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.ITaxonomyContract>> = {
   name: "taxonomies",
+  displayName: "taxonomies",
   fetchEntities: client => client.listTaxonomies().toAllPromise().then(res => res.data.items.map(t => t._raw)),
   serializeEntities: taxonomies => JSON.stringify(taxonomies),
   importEntities: async (client, fileTaxonomies, context, logOptions) => {

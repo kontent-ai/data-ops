@@ -11,6 +11,7 @@ const defaultLanguageCodename = defaultCodename;
 
 export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.ILanguageModelContract>> = {
   name: "languages",
+  displayName: "languages",
   fetchEntities: client => client.listLanguages().toAllPromise().then(res => res.data.items.map(l => l._raw)),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: serialized => JSON.parse(serialized),

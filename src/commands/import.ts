@@ -121,7 +121,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
   let context = createInitialContext();
 
   await serially(definitionsToImport.map(def => async () => {
-    logInfo(params, "standard", `Importing: ${chalk.yellow(def.name)}`);
+    logInfo(params, "standard", `Importing: ${chalk.yellow(def.displayName)}`);
 
     try {
       context = await root.entryData(`${def.name}.json`)
@@ -132,7 +132,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
     } catch (err) {
       logError(
         params,
-        `Failed to import entity ${chalk.red(def.name)}. `,
+        `Failed to import entity ${chalk.red(def.displayName)}. `,
         JSON.stringify(err, Object.getOwnPropertyNames(err)),
         "\nStopping import...",
       );

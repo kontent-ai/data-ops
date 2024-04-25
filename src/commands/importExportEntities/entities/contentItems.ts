@@ -12,6 +12,7 @@ type Item = FixReferences<ContentItemContracts.IContentItemModelContract>;
 
 export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
   name: "contentItems",
+  displayName: "contentItems",
   fetchEntities: client =>
     client.listContentItems().toAllPromise().then(res => res.data.items.map(i => i._raw as Item)),
   serializeEntities: collections => JSON.stringify(collections),

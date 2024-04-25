@@ -22,6 +22,7 @@ type SnippetElement = RequiredId<FixReferences<ElementContracts.IContentTypeElem
 
 export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>> = {
   name: "contentTypeSnippets",
+  displayName: "contentTypeSnippets",
   fetchEntities: client =>
     client
       .listContentTypeSnippets()
@@ -61,6 +62,7 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>
 
 export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<Snippet>> = {
   name: "contentTypeSnippets",
+  displayName: "references in contentTypeSnippets",
   isDependentOn: contentTypesSnippetsEntity.name,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileSnippets, context, logOptions) => {
