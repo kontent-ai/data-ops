@@ -52,7 +52,17 @@ const transformElementToAddModel = (params: TransformElementParams) =>
       return {
         ...el,
         // the casting is needed to fix match the SDK mutable arrays, we can remove it once we change the SDK types
-        default: el.default ? { global: el.default.global as MakeArraysMutable<typeof el.default.global> } : undefined,
+        default: el.default
+          ? {
+            global: {
+              value: el.default.global.value.map(a =>
+                params.targetAssetsReferencedFromSourceByCodenames.has(a.codename)
+                  ? { codename: a.codename }
+                  : { external_id: a.external_id }
+              ),
+            },
+          }
+          : undefined,
       };
     case "custom":
       return el as MakeArraysMutable<typeof el>;
@@ -60,7 +70,17 @@ const transformElementToAddModel = (params: TransformElementParams) =>
     case "modular_content":
       return {
         ...el,
-        default: el.default ? { global: el.default.global as MakeArraysMutable<typeof el.default.global> } : undefined,
+        default: el.default
+          ? {
+            global: {
+              value: el.default.global.value.map(a =>
+                params.targetAssetsReferencedFromSourceByCodenames.has(a.codename)
+                  ? { codename: a.codename }
+                  : { external_id: a.external_id }
+              ),
+            },
+          }
+          : undefined,
         allowed_content_types: el.allowed_content_types as MakeArrayMutable<typeof el.allowed_content_types>,
       };
     case "taxonomy":
