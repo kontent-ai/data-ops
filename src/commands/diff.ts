@@ -1,21 +1,10 @@
 import chalk from "chalk";
-import * as fs from "fs/promises";
 
 import { logInfo, LogOptions } from "../log.js";
-import {
-  contentTypesFileName,
-  contentTypeSnippetsFileName,
-  taxonomiesFileName,
-} from "../modules/sync/constants/filename.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
-import {
-  ContentTypeSnippetsSyncModel,
-  ContentTypeSyncModel,
-  FileContentModel,
-  TaxonomySyncModel,
-} from "../modules/sync/types/fileContentModel.js";
+import { readContentModelFromFolder } from "../modules/sync/utils/getContentModel.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { throwError } from "../utils/error.js";
 
@@ -78,7 +67,7 @@ export const diffAsync = async (params: SyncParams) => {
   );
 
   const sourceModel = params.folderName
-    ? await readFolder(params.folderName)
+    ? await readContentModelFromFolder(params.folderName)
     : transformSyncModel(
       await fetchModel({
         environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
@@ -100,29 +89,4 @@ export const diffAsync = async (params: SyncParams) => {
   });
 
   printDiff(diffModel, params);
-};
-
-const readFolder = async (folderName: string): Promise<FileContentModel> => {
-  // in future we should use typeguard to check whether the content is valid
-  const contentTypes = JSON.parse(
-    await fs.readFile(`${folderName}/${contentTypesFileName}`, "utf8"),
-  ) as unknown as ReadonlyArray<
-    ContentTypeSyncModel
-  >;
-  const snippets = JSON.parse(
-    await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8"),
-  ) as unknown as ReadonlyArray<
-    ContentTypeSnippetsSyncModel
-  >;
-  const taxonomyGroups = JSON.parse(
-    await fs.readFile(`${folderName}/${taxonomiesFileName}`, "utf8"),
-  ) as unknown as ReadonlyArray<
-    TaxonomySyncModel
-  >;
-
-  return {
-    contentTypes,
-    contentTypeSnippets: snippets,
-    taxonomyGroups: taxonomyGroups,
-  };
 };
