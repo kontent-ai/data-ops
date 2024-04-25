@@ -5,6 +5,7 @@ import { EntityDefinition } from "../entityDefinition.js";
 
 export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfigurationContract> = {
   name: "previewUrls",
+  displayName: "previewUrls",
   fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: JSON.parse,

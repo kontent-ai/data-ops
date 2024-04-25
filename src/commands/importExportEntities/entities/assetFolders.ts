@@ -5,6 +5,7 @@ import { EntityDefinition } from "../entityDefinition.js";
 
 export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContracts.IAssetFolderContract>> = {
   name: "assetFolders",
+  displayName: "assetFolders",
   fetchEntities: client => client.listAssetFolders().toPromise().then(res => res.rawData.folders),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,

@@ -10,6 +10,7 @@ const defaultCollectionName = defaultName;
 
 export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContracts.ICollectionContract>> = {
   name: "collections",
+  displayName: "collections",
   fetchEntities: client => client.listCollections().toPromise().then(res => res.rawData.collections),
   serializeEntities: collections => JSON.stringify(collections),
   importEntities: async (client, fileCollections, context) => {

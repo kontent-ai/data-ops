@@ -8,6 +8,7 @@ export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefini
 
 export type EntityExportDefinition<T> = Readonly<{
   name: string;
+  displayName: string;
   fetchEntities: (client: ManagementClient) => Promise<T>;
   serializeEntities: (entities: T) => string;
   addOtherFiles?: (loadedEntities: T, archive: archiver.Archiver, logOptions: LogOptions) => Promise<void>;
@@ -15,6 +16,7 @@ export type EntityExportDefinition<T> = Readonly<{
 
 export type EntityImportDefinition<T> = Readonly<{
   name: string;
+  displayName: string;
   isDependentOn?: string;
   deserializeEntities: (serialized: string) => T;
   importEntities: (

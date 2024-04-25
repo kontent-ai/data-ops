@@ -20,6 +20,7 @@ type AssetWithElements = FixReferences<AssetContracts.IAssetModelContract> & {
 
 export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = {
   name: "assets",
+  displayName: "assets",
   fetchEntities: client =>
     client.listAssets().toAllPromise().then(res => res.data.items.map(a => a._raw as AssetWithElements)),
   serializeEntities: JSON.stringify,

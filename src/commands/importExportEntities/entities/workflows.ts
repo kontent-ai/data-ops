@@ -15,6 +15,7 @@ type Workflow = FixReferences<WorkflowContracts.IWorkflowContract>;
 
 export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
   name: "workflows",
+  displayName: "workflows",
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
   serializeEntities: collections => JSON.stringify(collections),
   deserializeEntities: JSON.parse,

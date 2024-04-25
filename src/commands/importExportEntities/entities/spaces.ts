@@ -7,6 +7,7 @@ import { EntityDefinition } from "../entityDefinition.js";
 
 export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceContract>> = {
   name: "spaces",
+  displayName: "spaces",
   fetchEntities: client => client.listSpaces().toPromise().then(res => res.rawData),
   serializeEntities: spaces => JSON.stringify(spaces),
   deserializeEntities: JSON.parse,
