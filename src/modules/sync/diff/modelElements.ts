@@ -303,7 +303,7 @@ const makeDefaultReferencesHandler = (
     apply(tC => source => ({
       global: {
         value: source.global.value
-          .map(ref => tC.has(ref.codename) ? ref : { external_id: ref.external_id }),
+          .map(ref => tC.has(ref.codename) ? { codename: ref.codename } : { external_id: ref.external_id }),
       },
     }), targetCodenames) ?? undefined,
   ));
