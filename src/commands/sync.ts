@@ -5,6 +5,7 @@ import { logError, LogOptions } from "../log.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
+import { sync } from "../modules/sync/sync.js";
 import { requestConfirmation } from "../modules/sync/utils/consoleHelpers.js";
 import { getRequiredCodenames } from "../modules/sync/utils/contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "../modules/sync/utils/fetchers.js";
@@ -99,7 +100,7 @@ export const syncContentModel = async (params: SyncParams) => {
       };
     },
     { assetCodenames: new Set(), itemCodenames: new Set() },
-    );
+  );
 
   const targetModel = await fetchModel({ apiKey: params.apiKey, environmentId: params.environmentId });
   const targetAssetsBySourceCodenames = await fetchRequiredAssetsByCodename(
@@ -144,4 +145,6 @@ export const syncContentModel = async (params: SyncParams) => {
     logError(params, chalk.red("Operation aborted."));
     process.exit(1);
   }
+
+  await sync(new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey }), diffModel);
 };
