@@ -147,7 +147,7 @@ const getErrorMessages = (
   [
     ...err instanceof SharedModels.ContentManagementBaseKontentError
       ? [err.message, ...err.validationErrors.map(e => e.message)]
-      : [err.message ?? JSON.stringify(err)],
+      : [err.message ?? JSON.stringify(err, Object.getOwnPropertyNames(err))],
   ].join("\n");
 
 const handleError = <T extends LogOptions>(

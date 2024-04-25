@@ -130,7 +130,12 @@ const importEntities = async (params: ImportEntitiesParams) => {
         .then(e => def.importEntities(client, e, context, params, root))
         ?? context;
     } catch (err) {
-      logError(params, `Failed to import entity ${chalk.red(def.name)}. `, JSON.stringify(err), "\nStopping import...");
+      logError(
+        params,
+        `Failed to import entity ${chalk.red(def.name)}. `,
+        JSON.stringify(err, Object.getOwnPropertyNames(err)),
+        "\nStopping import...",
+      );
       process.exit(1);
     }
   }));
