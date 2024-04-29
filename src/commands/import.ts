@@ -22,9 +22,9 @@ import { languageVariantsEntity } from "./importExportEntities/entities/language
 import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
 import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
+import { webhooksEntity } from "./importExportEntities/entities/webhooks.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
-import { webhooksEntity } from "./importExportEntities/entities/webhooks.js";
 
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.
@@ -43,7 +43,7 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   spacesEntity,
   previewUrlsEntity,
   languageVariantsEntity,
-  webhooksEntity
+  webhooksEntity,
 ];
 
 const entityChoices = entityDefinitions.filter(e => !e.isDependentOn).map(e => e.name);

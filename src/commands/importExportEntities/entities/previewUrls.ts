@@ -7,7 +7,7 @@ export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfig
   name: "previewUrls",
   displayName: "previewUrls",
   fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
-  serializeEntities: collections => JSON.stringify(collections),
+  serializeEntities: previewUrls => JSON.stringify(previewUrls),
   deserializeEntities: JSON.parse,
   importEntities: async (client, previews, context) => {
     await client

@@ -13,7 +13,7 @@ export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.I
   name: "languages",
   displayName: "languages",
   fetchEntities: client => client.listLanguages().toAllPromise().then(res => res.data.items.map(l => l._raw)),
-  serializeEntities: collections => JSON.stringify(collections),
+  serializeEntities: languages => JSON.stringify(languages),
   deserializeEntities: serialized => JSON.parse(serialized),
   importEntities: async (client, entities, context) => {
     const importDefaultLanguage = entities.find(l =>

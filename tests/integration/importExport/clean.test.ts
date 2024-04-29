@@ -13,6 +13,7 @@ import {
   expectNoSnippets,
   expectNoTaxonomies,
   expectNoTypes,
+  expectNoWebhooks,
   expectNoWorkflows,
 } from "./utils/isEmpty";
 
@@ -48,6 +49,7 @@ describe("clean command", () => {
       await expectNoWorkflows(environmentId);
       await expectNoPreviewUrls(environmentId);
       await expectNoTaxonomies(environmentId);
+      await expectNoWebhooks(environmentId);
     }, false),
   );
 
