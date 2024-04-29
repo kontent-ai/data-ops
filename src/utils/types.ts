@@ -22,3 +22,8 @@ export type RequiredId<T extends { [key in "id"]?: string }> = Replace<T, "id", 
 export type Replace<T, Key extends keyof T, NewValue, IsOptional extends boolean = false> =
   & Omit<T, Key>
   & (IsOptional extends true ? { readonly [key in Key]?: NewValue } : { readonly [key in Key]: NewValue });
+
+export type ExtractSelfId<T> = T extends ReadonlyMap<string, infer U>
+  ? U extends { selfId: infer V } ? ReadonlyMap<string, V>
+  : T
+  : T;

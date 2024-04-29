@@ -3,6 +3,7 @@ import archiver from "archiver";
 import { StreamZipAsync } from "node-stream-zip";
 
 import { LogOptions } from "../../log.js";
+import { ExtractSelfId } from "../../utils/types.js";
 
 export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T> & EntityCleanDefinition<T>;
 
@@ -94,5 +95,9 @@ export type ImportContext = Readonly<{
   >;
   spaceIdsByOldIds: IdsMap;
 }>;
+
+export type SimplifiedImportContext = {
+  -readonly [K in keyof ImportContext]: ExtractSelfId<ImportContext[K]>;
+};
 
 type IdsMap = ReadonlyMap<string, string>;
