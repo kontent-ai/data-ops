@@ -4,7 +4,8 @@ import chalk from "chalk";
 import { logInfo } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences } from "../../../utils/types.js";
-import { EntityDefinition, SimplifiedImportContext } from "../entityDefinition.js";
+import { EntityDefinition } from "../entityDefinition.js";
+import { simplifyContext, transformReferences } from "./utils/referece.js";
 
 type Webhook = FixReferences<WebhookContracts.IWebhookContract>;
 
@@ -35,7 +36,7 @@ export const webhooksEntity: EntityDefinition<ReadonlyArray<Webhook>> = {
             enabled: webhook.enabled,
             delivery_triggers: transformReferences(
               webhook.delivery_triggers,
-              context as unknown as SimplifiedImportContext,
+              simplifyContext(context), // TODO: extract only relevant references
             ),
           })
           .toPromise();
@@ -54,45 +55,3 @@ export const webhooksEntity: EntityDefinition<ReadonlyArray<Webhook>> = {
     );
   },
 };
-
-const transformReferences = <T extends object>(
-  object: Transformable<T>,
-  context: SimplifiedImportContext,
-): T => {
-  const findInContext = (key: string): string | undefined => {
-    let mapKey: keyof SimplifiedImportContext;
-    for (mapKey in context) {
-      if (context[mapKey].has(key)) {
-        return context[mapKey].get(key);
-      }
-    }
-    return undefined;
-  };
-
-  const traverseAndReplace = (value: Transformable<T>): Transformable<any> => {
-    switch (typeof value) {
-      case "string":
-        return findInContext(value) ?? value;
-      case "object":
-        if (Array.isArray(value)) {
-          return value.map((item) => traverseAndReplace(item));
-        } else {
-          return Object.keys(value).reduce<Transformable<any>>((acc, key) => {
-            acc[key] = traverseAndReplace(value[key]);
-            return acc;
-          }, {});
-        }
-      default:
-        return value;
-    }
-  };
-
-  return traverseAndReplace(object);
-};
-
-type Transformable<T> = T extends object ?
-    & {
-      [P in keyof T]: Transformable<T[P]>;
-    }
-    & { [index: string]: Transformable<any> }
-  : T;

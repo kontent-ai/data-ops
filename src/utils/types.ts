@@ -23,7 +23,22 @@ export type Replace<T, Key extends keyof T, NewValue, IsOptional extends boolean
   & Omit<T, Key>
   & (IsOptional extends true ? { readonly [key in Key]?: NewValue } : { readonly [key in Key]: NewValue });
 
+/**
+ * Extracts a transformed `ReadonlyMap` where the values are simplified to the `selfId` property
+ * of the objects if available. Otherwise returns the type as is.
+ *
+ * @template T - The type to transform, e.g. `ReadonlyMap<string, object>`.
+ * @returns A `ReadonlyMap` keyed similarly but with values as the `selfId` of the objects,
+ *          or the original type `T` if `T` is not a `ReadonlyMap` or the objects don't have `selfId`.
+ */
 export type ExtractSelfId<T> = T extends ReadonlyMap<string, infer U>
   ? U extends { selfId: infer V } ? ReadonlyMap<string, V>
   : T
+  : T;
+
+export type Transformable<T> = T extends object ?
+    & {
+      [P in keyof T]: Transformable<T[P]>;
+    }
+    & { [index: string]: Transformable<any> }
   : T;
