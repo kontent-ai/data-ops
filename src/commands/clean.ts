@@ -19,6 +19,7 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
+import { webhooksEntity } from "./importExportEntities/entities/webhooks.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.
@@ -35,6 +36,7 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   workflowsEntity,
   collectionsEntity,
   languagesEntity,
+  webhooksEntity,
 ];
 
 const entityChoices = entityDefinitions.map(e => e.name);
