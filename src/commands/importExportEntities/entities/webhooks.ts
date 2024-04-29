@@ -5,7 +5,7 @@ import { logInfo } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences } from "../../../utils/types.js";
 import { EntityDefinition } from "../entityDefinition.js";
-import { simplifyContext, transformReferences } from "./utils/referece.js";
+import { simplifyContext, transformReferences } from "./utils/reference.js";
 
 type Webhook = FixReferences<WebhookContracts.IWebhookContract>;
 

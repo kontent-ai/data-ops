@@ -7,7 +7,7 @@ import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences, MapValues } from "../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
-import { createReference } from "./utils/referece.js";
+import { createReference } from "./utils/reference.js";
 
 const defaultWorkflowId = emptyId;
 
@@ -98,7 +98,7 @@ const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) =>
       const transitionWorkflow = extractAllSteps(importWorkflow).find(s => s.id === transition.step.id);
 
       if (!transitionWorkflow) {
-        throw new Error(`Could not find worklow step with id ${transition.step.id}. This should never happen.`);
+        throw new Error(`Could not find workflow step with id ${transition.step.id}. This should never happen.`);
       }
 
       return { step: { codename: transitionWorkflow.codename } };

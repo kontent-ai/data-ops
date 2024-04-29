@@ -12,7 +12,7 @@ import { notNull } from "../../../utils/typeguards.js";
 import { FixReferences } from "../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
-import { createReference } from "./utils/referece.js";
+import { createReference } from "./utils/reference.js";
 import { replaceImportRichTextReferences } from "./utils/richText.js";
 
 type Variant = FixReferences<LanguageVariantContracts.ILanguageVariantModelContract>;
