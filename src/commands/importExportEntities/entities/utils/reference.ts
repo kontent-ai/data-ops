@@ -19,7 +19,7 @@ export const simplifyContext = <T extends keyof ImportContext = keyof ImportCont
   const keysToExtract = keys ?? Object.keys(context) as T[];
   const simpleContext = Object.fromEntries(
     Object.entries(context)
-      .filter(([k, _]) => keysToExtract.includes(k as T))
+      .filter(([k]) => keysToExtract.includes(k as T))
       .map(([k, v]) => [k, getSimplifiedMap(v)]),
   );
 
