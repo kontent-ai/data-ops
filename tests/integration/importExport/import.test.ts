@@ -69,7 +69,7 @@ describe("import command", () => {
     "Imports all entities except those specified in the exclude parameter",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --exclude assets contentTypes contentTypeSnippets taxonomies contentItems languageVariants workflows previewUrls`;
+        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --exclude assets contentTypes contentTypeSnippets taxonomies contentItems languageVariants workflows previewUrls webhooks`;
 
       await runCommand(command);
 
@@ -84,6 +84,7 @@ describe("import command", () => {
           "variants",
           "workflows",
           "previewUrls",
+          "webhooks",
         ],
       });
 
