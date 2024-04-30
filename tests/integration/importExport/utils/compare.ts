@@ -13,6 +13,7 @@ import {
   RoleContracts,
   SpaceContracts,
   TaxonomyContracts,
+  WebhookContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
@@ -93,6 +94,7 @@ export const expectSameAllEnvData = (
     );
   has("items") && expect(sortByCodename(data1.items)).toStrictEqual(sortByCodename(data2.items));
   has("variants") && expect(sortedVariants(data1)).toStrictEqual(sortedVariants(data2));
+  has("webhooks") && expect(sortBy(data1.webhooks, w => w.name)).toStrictEqual(sortBy(data2.webhooks, w => w.name));
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
@@ -126,6 +128,7 @@ const prepareReferences = (data: AllEnvData): AllEnvData => ({
   types: data.types.map(createPrepareTypeReferences(data)),
   items: data.items.map(createPrepareItemReferences(data)),
   variants: data.variants.map(createPrepareVariantReferences(data)),
+  webhooks: data.webhooks.map(createPrepareWebhookReferences(data)),
 });
 
 type PrepareReferencesCreator<T> = (data: AllEnvData) => PrepareReferencesFnc<T>;
@@ -657,6 +660,35 @@ const prepareRoleReferences: PrepareReferencesFnc<RoleContracts.IRoleContract> =
   ...role,
   id: "-",
 });
+
+const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.IWebhookContract> =
+  data => webhook => ({
+    ...webhook,
+    id: "-",
+    last_modified: "-",
+    health_status: "-",
+    delivery_triggers: {
+      ...webhook.delivery_triggers, // TODO: update to add filters for other entities like type and taxonomy (or update sdk version?)
+      content_item: webhook.delivery_triggers.content_item
+        ? {
+          ...webhook.delivery_triggers.content_item,
+          filters: webhook.delivery_triggers.content_item.filters
+            ? {
+              ...webhook.delivery_triggers.content_item.filters,
+              collections: webhook.delivery_triggers.content_item.filters.collections
+                ?.map(ref => ({
+                  id: data.collections.find(c => c.id === ref.id)?.name ?? "non-existing-collection",
+                })),
+              content_types: webhook.delivery_triggers.content_item.filters.content_types
+                ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing-type" })),
+              languages: webhook.delivery_triggers.content_item.filters.languages
+                ?.map(ref => ({ id: data.languages.find(l => l.id === ref.id)?.name ?? "non-existing language" })),
+            }
+            : undefined,
+        }
+        : undefined,
+    },
+  });
 
 const getAllTerms = (
   group: TaxonomyContracts.ITaxonomyContract | undefined,

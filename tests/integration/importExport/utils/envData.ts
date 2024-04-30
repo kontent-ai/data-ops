@@ -12,6 +12,7 @@ import {
   RoleContracts,
   SpaceContracts,
   TaxonomyContracts,
+  WebhookContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
@@ -42,6 +43,7 @@ export type AllEnvData = Readonly<{
   types: ReadonlyArray<ContentTypeContracts.IContentTypeContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
   variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
+  webhooks: ReadonlyArray<WebhookContracts.IWebhookContract>;
 }>;
 
 export const loadAllEnvData = (envId: string, filterParam: FilterParam = { exclude: [] }) => {
@@ -146,6 +148,12 @@ const loadData = async (
         )))
         .flat()
       : [],
+    webhooks: has("webhooks")
+      ? await client
+        .listWebhooks()
+        .toPromise()
+        .then(res => res.data.webhooks.map(w => w._raw))
+      : [],
   };
 };
 
@@ -166,6 +174,7 @@ export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvDat
     variants: await loadFile(zip, "languageVariants.json"),
     assetFolders: await loadFile(zip, "assetFolders.json"),
     assets: await loadFile(zip, "assets.json"),
+    webhooks: await loadFile(zip, "webhooks.json"),
   };
 };
 

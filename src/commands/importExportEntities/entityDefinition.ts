@@ -98,13 +98,13 @@ export type ImportContext = Readonly<{
 
 /**
  * Allows extracting a subset of `ImportContext` based on keys specified. Nested values in maps are simplified
- * (replaces object by its `selfId`, hence the `Root` in name).
+ * (replaces object by its `selfId`).
  *
  * @template K - A subset of keys from `ImportContext` (defaults to all keys).
  *
  * @example type SimplifiedContext = ExtractRootEntityMaps<'workflowIdsByOldIds' | 'collectionIdsByOldIds'>;
  */
-export type ExtractRootEntityMaps<K extends keyof ImportContext = keyof ImportContext> = {
+export type SimplifyContext<K extends keyof ImportContext = keyof ImportContext> = {
   -readonly [P in K]: ExtractSelfId<ImportContext[P]>;
 };
 
