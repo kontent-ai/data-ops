@@ -90,6 +90,7 @@ describe("clean command", () => {
       await expectNoAssetFolders(environmentId);
       await expectNoSnippets(environmentId);
       await expectNoTypes(environmentId, true);
+      await expectNoWebhooks(environmentId);
     }, false),
   );
 
