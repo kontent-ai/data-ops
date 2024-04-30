@@ -1,6 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { simplifyContext, transformReferences } from "../../../src/commands/importExportEntities/entities/utils/reference";
+import {
+  simplifyContext,
+  transformReferences,
+} from "../../../src/commands/importExportEntities/entities/utils/reference";
 import { ImportContext } from "../../../src/commands/importExportEntities/entityDefinition";
 
 const emptyMap = new Map();
@@ -32,8 +35,7 @@ describe("simplifyContext", () => {
 
   it("substitutes object in string:object pairs with selfId", () => {
     const context: Partial<ImportContext> = {
-      contentTypeSnippetContextByOldIds:
-        contextTemplate.contentTypeSnippetContextByOldIds,
+      contentTypeSnippetContextByOldIds: contextTemplate.contentTypeSnippetContextByOldIds,
     };
     const actual = simplifyContext(context);
     const expected = {

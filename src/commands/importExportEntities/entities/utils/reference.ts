@@ -1,5 +1,5 @@
 import { Transformable } from "../../../../utils/types.js";
-import { SimplifyContext, ImportContext } from "../../entityDefinition.js";
+import { ImportContext, SimplifyContext } from "../../entityDefinition.js";
 
 type Params = Readonly<{
   newId: string | undefined;
@@ -13,7 +13,7 @@ export const createReference = (params: Params) =>
 /**
  * extracts top level values from import context. `string:string` pairs are left unchanged,
  * `string:object` are simplified, with `selfId` string replacing the object as value.
- * 
+ *
  * @param context `ImportContext` object
  * @param keys specifies which root keys to extract from the context, defaults to all keys
  * @returns flattened map of string:string pairs
