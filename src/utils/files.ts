@@ -1,2 +1,4 @@
 export const serializeDateForFileName = (date: Date) =>
-  `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()}-${date.getUTCHours()}-${date.getUTCMinutes()}`;
+  `${date.getUTCFullYear()}-${
+    date.getUTCMonth() + 1
+  }-${date.getUTCDate()}-${date.getUTCHours()}-${date.getUTCMinutes()}`;
