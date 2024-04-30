@@ -113,7 +113,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
 
   const now = new Date();
   const fileName = params.fileName
-    ?? `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}-${now.getUTCHours()}-${now.getUTCMinutes()}-export-${params.environmentId}.zip`;
+    ?? `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}-${now.getUTCDate()}-${now.getUTCHours()}-${now.getUTCMinutes()}-export-${params.environmentId}.zip`;
 
   const outputStream = fs.createWriteStream(fileName);
   const archive = archiver("zip");
