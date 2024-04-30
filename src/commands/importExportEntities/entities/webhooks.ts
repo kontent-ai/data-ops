@@ -11,6 +11,7 @@ type Webhook = FixReferences<WebhookContracts.IWebhookContract>;
 
 export const webhooksEntity: EntityDefinition<ReadonlyArray<Webhook>> = {
   name: "webhooks",
+  displayName: "webhooks",
   fetchEntities: (client) =>
     client
       .listWebhooks()
