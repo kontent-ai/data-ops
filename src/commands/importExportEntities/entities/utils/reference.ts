@@ -1,5 +1,5 @@
 import { Transformable } from "../../../../utils/types.js";
-import { ExtractRootEntityMaps, ImportContext } from "../../entityDefinition.js";
+import { SimplifyContext, ImportContext } from "../../entityDefinition.js";
 
 type Params = Readonly<{
   newId: string | undefined;
@@ -10,8 +10,16 @@ type Params = Readonly<{
 export const createReference = (params: Params) =>
   params.newId ? { id: params.newId } : { external_id: `non-existent-${params.entityName}-${params.oldId}` };
 
+/**
+ * extracts top level values from import context. `string:string` pairs are left unchanged,
+ * `string:object` are simplified, with `selfId` string replacing the object as value.
+ * 
+ * @param context `ImportContext` object
+ * @param keys specifies which root keys to extract from the context, defaults to all keys
+ * @returns flattened map of string:string pairs
+ */
 export const simplifyContext = <T extends keyof ImportContext = keyof ImportContext>(
-  context: ImportContext,
+  context: Partial<ImportContext>,
   keys?: T[],
 ) => {
   const getSimplifiedMap = (map: ReadonlyMap<string, any>) => new Map([...map].map(([k, v]) => [k, v.selfId ?? v]));
@@ -23,12 +31,12 @@ export const simplifyContext = <T extends keyof ImportContext = keyof ImportCont
       .map(([k, v]) => [k, getSimplifiedMap(v)]),
   );
 
-  return simpleContext as unknown as ExtractRootEntityMaps<T>;
+  return simpleContext as unknown as SimplifyContext<T>;
 };
 
 export const transformReferences = <T extends object>(
   object: Transformable<T>,
-  flatContext: ExtractRootEntityMaps<any>, // TODO: improve this type
+  flatContext: SimplifyContext<any>, // TODO: improve this type
 ): T => {
   /**
    * this merges all simplified context maps into a single map, which is subsequently used
