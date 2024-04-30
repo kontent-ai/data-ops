@@ -1,3 +1,4 @@
+import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { Transformable } from "../../../../utils/types.js";
 import { ImportContext, SimplifyContext } from "../../entityDefinition.js";
 
@@ -51,6 +52,9 @@ export const transformReferences = <T extends object>(
       case "string":
         return flatContextMap.get(value) ?? value;
       case "object":
+        if (!notNullOrUndefined(value)) {
+          return value;
+        }
         if (Array.isArray(value)) {
           return value.map((item) => traverseAndReplace(item));
         } else {
