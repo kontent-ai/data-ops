@@ -55,6 +55,18 @@ export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.I
             .toPromise()
         ),
     );
+
+    await serially(
+      languages
+        .filter(l => !l.is_default)
+        .map((lang) => () =>
+          client
+            .modifyLanguage()
+            .byLanguageId(lang.id)
+            .withData([createReplaceIsActiveOperation(false)])
+            .toPromise()
+        ),
+    );
   },
 };
 
@@ -99,6 +111,7 @@ const createPatchToCleanLanguage = (
        * only active languages can be modified.
        */
       createReplaceIsActiveOperation(true),
+      createReplaceFallbackLanguageOperation(defaultLanguageCodename),
       createReplaceCodenameOperation(language.id.slice(0, 7)),
       createReplaceNameOperation(language.id.slice(0, 7)),
     ];
