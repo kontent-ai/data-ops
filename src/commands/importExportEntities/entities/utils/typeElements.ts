@@ -68,7 +68,11 @@ export const createTransformTypeElement =
           external_id: typedElement.external_id ?? fallbackExternalId,
           content_group,
           allowed_elements: typedElement.allowed_elements
-            ?.map(ref => ({ external_id: params.elementExternalIdsByOldId.get(ref.id) ?? "non-existent-element" })),
+            ?.map(ref =>
+              params.elementExternalIdsByOldId.get(ref.id)
+                ? { external_id: params.elementExternalIdsByOldId.get(ref.id) }
+                : undefined
+            ).filter(notNullOrUndefined),
         });
       }
       case "date_time": {
