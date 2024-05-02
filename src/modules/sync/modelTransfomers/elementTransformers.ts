@@ -93,10 +93,15 @@ export const transformCustomElement = (
   element: ContentTypeElements.ICustomElement,
   type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
 ): ElementWithOldContentGroup<SyncCustomElement> => {
-  const syncAllowedElements = element.allowed_elements?.map(element => ({
-    codename: type.elements.find(el => el.id === element.id)?.codename
-      ?? throwError(`Could not find codename of element ${element.id} in ${type.codename}`),
-  }));
+  const syncAllowedElements = element.allowed_elements?.map(element => {
+    const el = type.elements.find(el => el.id === element.id);
+    return el
+      ? {
+        codename: element.codename
+          ?? throwError(`Could not find codename of element ${el.id}. This should never happen`),
+      }
+      : undefined;
+  }).filter(notNullOrUndefined);
 
   return {
     ...omit(element, ["id"]),
