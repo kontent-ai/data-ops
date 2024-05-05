@@ -646,8 +646,13 @@ const prepareRoleReferences: PrepareReferencesFnc<RoleContracts.IRoleContract> =
   id: "-",
 });
 
-const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.IWebhookContract> =
-  data => webhook => ({
+const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.IWebhookContract> = data => webhook => {
+  const remappedContentTypes = webhook.delivery_triggers.content_item?.filters?.content_types?.map(ref => ({
+    id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing-type",
+  }));
+
+  console.log("Remapped Content Types:", remappedContentTypes); // Debug output to inspect remapped values
+  return {
     ...webhook,
     id: "-",
     last_modified: "-",
@@ -673,7 +678,8 @@ const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.
         }
         : undefined,
     },
-  });
+  };
+};
 
 const getAllTerms = (
   group: TaxonomyContracts.ITaxonomyContract | undefined,
