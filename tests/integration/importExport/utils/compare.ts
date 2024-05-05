@@ -648,7 +648,7 @@ const prepareRoleReferences: PrepareReferencesFnc<RoleContracts.IRoleContract> =
 
 const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.IWebhookContract> = data => webhook => {
   const remappedContentTypes = webhook.delivery_triggers.content_item?.filters?.content_types?.map(ref => ({
-    id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing-type",
+    id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing-types",
   }));
 
   console.log("Remapped Content Types:", remappedContentTypes); // Debug output to inspect remapped values
