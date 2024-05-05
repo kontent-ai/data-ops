@@ -57,12 +57,12 @@ describe("clean command", () => {
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets -s`;
+        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets webhooks -s`;
 
       await runCommand(command);
 
       await expectSameEnvironments(environmentId, CLEAN_TEST_DATA_ENVIRONMENT_ID, {
-        exclude: ["spaces", "items", "types", "snippets", "previewUrls", "variants"],
+        exclude: ["spaces", "items", "types", "snippets", "previewUrls", "variants", "webhooks"],
       });
 
       await expectNoItems(environmentId);
