@@ -35,7 +35,7 @@
   "homepage": "https://github.com/kontent-ai/data-ops#readme",
   "dependencies": {
     "@kontent-ai/core-sdk": "^10.5.0",
-    "@kontent-ai/management-sdk": "^6.1.0",
+    "@kontent-ai/management-sdk": "^6.2.1",
     "@kontent-ai/rich-text-resolver": "^1.1.0-beta",
     "archiver": "^6.0.1",
     "axios": "^1.7.2",
