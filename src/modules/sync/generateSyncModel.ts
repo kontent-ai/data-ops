@@ -5,7 +5,6 @@ import * as path from "path";
 
 import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
-import { ManagementClientBaseOptions } from "../../types/managementClient.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "./constants/filename.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
@@ -30,12 +29,7 @@ export type EnvironmentModel = {
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
 
-export const fetchModel = async (config: ManagementClientBaseOptions): Promise<EnvironmentModel> => {
-  const client = new ManagementClient({
-    environmentId: config.environmentId,
-    apiKey: config.apiKey,
-  });
-
+export const fetchModel = async (client: ManagementClient): Promise<EnvironmentModel> => {
   const contentTypes = await fetchContentTypes(client) as unknown as ContentTypeWithUnionElements[];
   const contentTypeSnippets = await fetchContentTypeSnippets(
     client,

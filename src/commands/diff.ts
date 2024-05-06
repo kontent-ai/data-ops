@@ -1,3 +1,4 @@
+import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../log.js";
@@ -69,14 +70,18 @@ export const diffAsync = async (params: SyncParams) => {
   const sourceModel = params.folderName
     ? await readContentModelFromFolder(params.folderName)
     : transformSyncModel(
-      await fetchModel({
-        environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
-        apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
-      }),
+      await fetchModel(
+        new ManagementClient({
+          environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
+          apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
+        }),
+      ),
       params,
     );
 
-  const targetModel = await fetchModel({ apiKey: params.apiKey, environmentId: params.environmentId });
+  const targetModel = await fetchModel(
+    new ManagementClient({ apiKey: params.apiKey, environmentId: params.environmentId }),
+  );
   const assetsReferences = new Map(targetModel.assets.map(a => [a.codename, { id: a.id, codename: a.codename }]));
   const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]));
   const transformedTargetModel = transformSyncModel(targetModel, params);
