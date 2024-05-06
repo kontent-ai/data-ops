@@ -5,7 +5,11 @@ import { logInfo, LogOptions } from "../log.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
-import { readContentModelFromFolder } from "../modules/sync/utils/getContentModel.js";
+import {
+  getSourceItemAndAssetCodenames,
+  getTargetContentModel,
+  readContentModelFromFolder,
+} from "../modules/sync/utils/getContentModel.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { throwError } from "../utils/error.js";
 
@@ -79,12 +83,15 @@ export const diffAsync = async (params: SyncParams) => {
       params,
     );
 
-  const targetModel = await fetchModel(
-    new ManagementClient({ apiKey: params.apiKey, environmentId: params.environmentId }),
+  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
+
+  const targetEnvironmentClient = new ManagementClient({ apiKey: params.apiKey, environmentId: params.environmentId });
+
+  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
+    targetEnvironmentClient,
+    allCodenames,
+    params,
   );
-  const assetsReferences = new Map(targetModel.assets.map(a => [a.codename, { id: a.id, codename: a.codename }]));
-  const itemReferences = new Map(targetModel.items.map(i => [i.codename, { id: i.id, codename: i.codename }]));
-  const transformedTargetModel = transformSyncModel(targetModel, params);
 
   const diffModel = diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,
