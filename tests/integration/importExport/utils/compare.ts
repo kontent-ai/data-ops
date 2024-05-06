@@ -668,7 +668,7 @@ const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.
     last_modified: "-",
     health_status: "-",
     delivery_triggers: {
-      ...webhook.delivery_triggers, // TODO: update to add filters for other entities like type and taxonomy (or update sdk version?)
+      ...webhook.delivery_triggers,
       content_item: webhook.delivery_triggers.content_item
         ? {
           ...webhook.delivery_triggers.content_item,
@@ -677,12 +677,54 @@ const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.
               ...webhook.delivery_triggers.content_item.filters,
               collections: webhook.delivery_triggers.content_item.filters.collections
                 ?.map(ref => ({
-                  id: data.collections.find(c => c.id === ref.id)?.name ?? "non-existing-collection",
+                  id: data.collections.find(c => c.id === ref.id)?.name ?? "non-existing collection",
                 })),
               content_types: webhook.delivery_triggers.content_item.filters.content_types
-                ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing-type" })),
+                ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing type" })),
               languages: webhook.delivery_triggers.content_item.filters.languages
                 ?.map(ref => ({ id: data.languages.find(l => l.id === ref.id)?.name ?? "non-existing language" })),
+            }
+            : undefined,
+        }
+        : undefined,
+      content_type: webhook.delivery_triggers.content_type
+        ? {
+          ...webhook.delivery_triggers.content_type,
+          filters: webhook.delivery_triggers.content_type.filters
+            ? {
+              ...webhook.delivery_triggers.content_type.filters,
+              content_types: webhook.delivery_triggers.content_type.filters.content_types
+                ?.map(ref => ({
+                  id: data.types.find(t => t.id === ref.id)?.name ?? "non-existing type",
+                })),
+            }
+            : undefined,
+        }
+        : undefined,
+      taxonomy: webhook.delivery_triggers.taxonomy
+        ? {
+          ...webhook.delivery_triggers.taxonomy,
+          filters: webhook.delivery_triggers.taxonomy.filters
+            ? {
+              ...webhook.delivery_triggers.taxonomy.filters,
+              taxonomies: webhook.delivery_triggers.taxonomy.filters.taxonomies
+                ?.map(ref => ({
+                  id: data.taxonomies.find(t => t.id === ref.id)?.name ?? "non-existing taxonomy",
+                })),
+            }
+            : undefined,
+        }
+        : undefined,
+      language: webhook.delivery_triggers.language
+        ? {
+          ...webhook.delivery_triggers.language,
+          filters: webhook.delivery_triggers.language.filters
+            ? {
+              ...webhook.delivery_triggers.language.filters,
+              languages: webhook.delivery_triggers.language.filters.languages
+                ?.map(ref => ({
+                  id: data.languages.find(l => l.id === ref.id)?.name ?? "non-existing language",
+                })),
             }
             : undefined,
         }

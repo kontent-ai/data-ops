@@ -39,7 +39,7 @@ export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContr
 
 const createPatchToAddFolder = (
   folder: AssetFolderContracts.IAssetFolderContract,
-): AssetFolderModels.AddIntoOperation => ({
+): AssetFolderModels.IModifyAssetFolderData => ({
   op: "addInto",
   value: {
     name: folder.name,
