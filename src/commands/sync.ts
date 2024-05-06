@@ -81,10 +81,12 @@ export const syncContentModel = async (params: SyncParams) => {
   const sourceModel = params.folderName
     ? await readContentModelFromFolder(params.folderName)
     : transformSyncModel(
-      await fetchModel({
-        environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
-        apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
-      }),
+      await fetchModel(
+        new ManagementClient({
+          environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
+          apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
+        }),
+      ),
       params,
     );
 
@@ -102,13 +104,15 @@ export const syncContentModel = async (params: SyncParams) => {
     { assetCodenames: new Set(), itemCodenames: new Set() },
   );
 
-  const targetModel = await fetchModel({ apiKey: params.apiKey, environmentId: params.environmentId });
+  const targetEnvironmentClient = new ManagementClient({ apiKey: params.apiKey, environmentId: params.environmentId });
+
+  const targetModel = await fetchModel(targetEnvironmentClient);
   const targetAssetsBySourceCodenames = await fetchRequiredAssetsByCodename(
-    new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey }),
+    targetEnvironmentClient,
     Array.from(allCodenames.assetCodenames),
   );
   const targetItemsBySourceCodenames = await fetchRequiredContentItemsByCodename(
-    new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey }),
+    targetEnvironmentClient,
     Array.from(allCodenames.itemCodenames),
   );
 

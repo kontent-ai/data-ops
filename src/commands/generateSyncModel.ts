@@ -1,3 +1,4 @@
+import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../log.js";
@@ -45,7 +46,7 @@ export const generateModel = async (params: SyncParams) => {
   const environmentModel = await logOnError(
     params,
     chalk.red("Failed to fetch the model."),
-    () => fetchModel({ environmentId: params.environmentId, apiKey: params.apiKey }),
+    () => fetchModel(new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey })),
   );
 
   logInfo(params, "standard", "Transforming the model.");
