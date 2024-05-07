@@ -91,6 +91,8 @@ export const createTransformTypeElement =
           type: "guidelines",
           external_id: typedElement.external_id ?? fallbackExternalId,
           content_group,
+          // guidelines are added in importing references step
+          guidelines: "",
         });
       }
       case "modular_content": {
@@ -303,7 +305,7 @@ export const createPatchItemAndTypeReferencesInTypeElement =
         const typedElement = fileElement as unknown as ContentTypeElements.IGuidelinesElement;
         const newGuidelines = replaceImportRichTextReferences(typedElement.guidelines, context, new Set(), logOptions);
 
-        return newGuidelines === typedElement.guidelines ? [] : [
+        return [
           {
             op: "replace",
             path: `/elements/id:${newElementId}/guidelines`,
