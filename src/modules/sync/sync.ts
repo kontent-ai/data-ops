@@ -11,8 +11,6 @@ import { DiffModel } from "./types/diffModel.js";
 
 export const sync = async (client: ManagementClient, diff: DiffModel) => {
   await serially(diff.taxonomyGroups.added.map(g => () => addTaxonomyGroup(client, g)));
-  await serially(diff.contentTypeSnippets.added.map(s => () => addSnippet(client, s)));
-  await serially(diff.contentTypes.added.map(t => () => addContentType(client, t)));
 
   await serially(
     Array.from(diff.taxonomyGroups.updated.entries()).map(([codename, operations]) => () =>
@@ -25,6 +23,8 @@ export const sync = async (client: ManagementClient, diff: DiffModel) => {
         : Promise.resolve()
     ),
   );
+
+  await serially(diff.contentTypeSnippets.added.map(s => () => addSnippet(client, s)));
 
   // fix once sdks type are fixed
   await serially(
@@ -42,6 +42,8 @@ export const sync = async (client: ManagementClient, diff: DiffModel) => {
         : Promise.resolve()
     ),
   );
+
+  await serially(diff.contentTypes.added.map(t => () => addContentType(client, t)));
 
   await serially(
     Array.from(diff.contentTypes.updated.entries()).map(([codename, operations]) => () =>
