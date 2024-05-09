@@ -4,9 +4,10 @@ import {
   LanguageVariantElements,
   LanguageVariantElementsBuilder,
   ManagementClient,
+  SharedModels,
 } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../../../log.js";
+import { logInfo, LogOptions, logWarning } from "../../../../log.js";
 import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
 import { serially } from "../../../../utils/requests.js";
 import { notNull } from "../../../../utils/typeguards.js";
@@ -96,8 +97,8 @@ const createImportVariant =
       case "schedule":
         await publishVariant(client, logOptions, projectVariant, newWorkflowContext.nextAction.to);
         return true;
-      case "archive":
-        await publishVariant(client, logOptions, projectVariant);
+      case "archive": {
+        const wasPublished = await publishVariant(client, logOptions, projectVariant);
 
         logInfo(
           logOptions,
@@ -105,13 +106,23 @@ const createImportVariant =
           `Archiving: variant of item ${projectVariant.item.id} of langauge ${projectVariant.language.id}`,
         );
 
-        await client
-          .unpublishLanguageVariant()
-          .byItemId(projectVariant.item.id)
-          .byLanguageId(projectVariant.language.id)
-          .withoutData()
-          .toPromise();
+        if (wasPublished) {
+          await client
+            .unpublishLanguageVariant()
+            .byItemId(projectVariant.item.id)
+            .byLanguageId(projectVariant.language.id)
+            .withoutData()
+            .toPromise();
+        } else { // remove this once we add element requirements after variants are imported
+          logWarning(
+            logOptions,
+            "standard",
+            `Skipping archiving of item ${projectVariant.item.id} of langauge ${projectVariant.language.id}, because it could not be published.`,
+          );
+        }
+
         return true;
+      }
     }
   };
 
@@ -134,7 +145,7 @@ const publishVariant = (
     }: variant of item ${variant.item.id} of language ${variant.language.id}`,
   );
 
-  return scheduleTo
+  return (scheduleTo
     ? sharedRequest
       .withData({
         scheduled_to: scheduleTo.toISOString(),
@@ -142,7 +153,28 @@ const publishVariant = (
       .toPromise()
     : sharedRequest
       .withoutData()
-      .toPromise();
+      .toPromise())
+    .then(() => true)
+    .catch(err => {
+      // remove this once we add element requirements after variants are imported
+      if (!(err instanceof SharedModels.ContentManagementBaseKontentError)) {
+        throw err;
+      }
+      const incompleteElementsErrorCodes = [4040027, 4040028];
+
+      if (incompleteElementsErrorCodes.includes(err.errorCode)) {
+        logWarning(
+          logOptions,
+          "standard",
+          `Skipping ${
+            scheduleTo ? "scheduling" : "publishing"
+          } of variant of item ${variant.item.id} of langauge ${variant.language.id}, because some of its elements are incomplete. Please check the variant's elements.`,
+        );
+        return Promise.resolve(false);
+      }
+
+      throw err as unknown;
+    });
 };
 
 type TransformElementParams = Readonly<{
