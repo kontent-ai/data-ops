@@ -40,23 +40,3 @@ export type SuperiorPick<T, K extends keyof T> = T extends any ? {
  * Original Omit type extended to work on Union type objects
  */
 export type SuperiorOmit<T, K extends keyof any> = T extends any ? SuperiorPick<T, Exclude<keyof T, K>> : never;
-
-/**
- * Extracts a transformed `ReadonlyMap` where the values are simplified to the `selfId` property
- * of the objects if available. Otherwise returns the type as is.
- *
- * @template T - The type to transform, e.g. `ReadonlyMap<string, object>`.
- * @returns A `ReadonlyMap` keyed similarly but with values as the `selfId` of the objects,
- *          or the original type `T` if `T` is not a `ReadonlyMap` or the objects don't have `selfId`.
- */
-export type ExtractSelfId<T> = T extends ReadonlyMap<string, infer U>
-  ? U extends { selfId: infer V } ? ReadonlyMap<string, V>
-  : T
-  : T;
-
-export type Transformable<T> = T extends object ?
-    & {
-      [P in keyof T]: Transformable<T[P]>;
-    }
-    & { [index: string]: Transformable<any> }
-  : T;

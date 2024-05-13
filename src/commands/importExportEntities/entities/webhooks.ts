@@ -33,7 +33,15 @@ export const webhooksEntity: EntityDefinition<ReadonlyArray<Webhook>> = {
             enabled: webhook.enabled,
             delivery_triggers: transformReferences(
               webhook.delivery_triggers,
-              simplifyContext(context), // TODO: extract only relevant references
+              simplifyContext(context, [
+                "collectionIdsByOldIds",
+                "languageIdsByOldIds",
+                "contentTypeContextByOldIds",
+                "workflowIdsByOldIds",
+                "workflowStepsIdsWithTransitionsByOldIds",
+                "taxonomyGroupIdsByOldIds",
+                "taxonomyTermIdsByOldIds",
+              ]),
             ),
           })
           .toPromise();

@@ -7,7 +7,7 @@ import {
 import { ImportContext } from "../../../src/commands/importExportEntities/entityDefinition";
 
 const emptyMap = new Map();
-const contextTemplate: Partial<ImportContext> = {
+const contextTemplate: Pick<ImportContext, "collectionIdsByOldIds" | "contentTypeSnippetContextByOldIds"> = {
   collectionIdsByOldIds: new Map([["oldId", "newId"]]),
   contentTypeSnippetContextByOldIds: new Map([
     [
@@ -24,23 +24,21 @@ const contextTemplate: Partial<ImportContext> = {
 
 describe("simplifyContext", () => {
   it("leaves string:string maps as-is", () => {
-    const context: Partial<ImportContext> = {
+    const context: Pick<ImportContext, "collectionIdsByOldIds"> = {
       collectionIdsByOldIds: contextTemplate.collectionIdsByOldIds,
     };
-    const actual = simplifyContext(context);
-    const expected = context;
+    const actual = simplifyContext(context, ["collectionIdsByOldIds"]);
+    const expected = context.collectionIdsByOldIds;
 
     expect(actual).toEqual(expected);
   });
 
   it("substitutes object in string:object pairs with selfId", () => {
-    const context: Partial<ImportContext> = {
+    const context: Pick<ImportContext, "contentTypeSnippetContextByOldIds"> = {
       contentTypeSnippetContextByOldIds: contextTemplate.contentTypeSnippetContextByOldIds,
     };
-    const actual = simplifyContext(context);
-    const expected = {
-      contentTypeSnippetContextByOldIds: new Map([["oldId", "selfId"]]),
-    };
+    const actual = simplifyContext(context, ["contentTypeSnippetContextByOldIds"]);
+    const expected = new Map([["oldId", "selfId"]]);
 
     expect(actual).toEqual(expected);
   });

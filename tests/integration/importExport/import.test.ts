@@ -13,6 +13,7 @@ import {
   expectNoSnippets,
   expectNoTaxonomies,
   expectNoTypes,
+  expectNoWebhooks,
   expectNoWorkflows,
 } from "./utils/isEmpty";
 
@@ -62,6 +63,7 @@ describe("import command", () => {
       await expectNoItems(environmentId);
       await expectNoWorkflows(environmentId);
       await expectNoPreviewUrls(environmentId);
+      await expectNoWebhooks(environmentId);
     }),
   );
 
@@ -95,6 +97,7 @@ describe("import command", () => {
       await expectNoItems(environmentId);
       await expectNoWorkflows(environmentId);
       await expectNoPreviewUrls(environmentId);
+      await expectNoWebhooks(environmentId);
     }),
   );
 
