@@ -3,7 +3,6 @@ import archiver from "archiver";
 import { StreamZipAsync } from "node-stream-zip";
 
 import { LogOptions } from "../../log.js";
-import { ExtractSelfId } from "../../utils/types.js";
 
 export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T> & EntityCleanDefinition<T>;
 
@@ -95,17 +94,5 @@ export type ImportContext = Readonly<{
   >;
   spaceIdsByOldIds: IdsMap;
 }>;
-
-/**
- * Allows extracting a subset of `ImportContext` based on keys specified. Nested values in maps are simplified
- * (replaces object by its `selfId`).
- *
- * @template K - A subset of keys from `ImportContext` (defaults to all keys).
- *
- * @example type SimplifiedContext = ExtractRootEntityMaps<'workflowIdsByOldIds' | 'collectionIdsByOldIds'>;
- */
-export type SimplifyContext<K extends keyof ImportContext = keyof ImportContext> = {
-  -readonly [P in K]: ExtractSelfId<ImportContext[P]>;
-};
 
 type IdsMap = ReadonlyMap<string, string>;

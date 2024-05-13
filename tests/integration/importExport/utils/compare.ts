@@ -674,7 +674,6 @@ const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.
           ...webhook.delivery_triggers.content_item,
           filters: webhook.delivery_triggers.content_item.filters
             ? {
-              ...webhook.delivery_triggers.content_item.filters,
               collections: webhook.delivery_triggers.content_item.filters.collections
                 ?.map(ref => ({
                   id: data.collections.find(c => c.id === ref.id)?.name ?? "non-existing collection",
