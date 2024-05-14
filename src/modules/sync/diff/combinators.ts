@@ -1,5 +1,4 @@
 import { zip } from "../../../utils/array.js";
-import { apply } from "../../../utils/function.js";
 import { PatchOperation } from "../types/diffModel.js";
 
 export type Handler<Entity> = (sourceValue: Entity, targetValue: Entity) => ReadonlyArray<PatchOperation>;
@@ -70,7 +69,7 @@ type LazyHandler<T> = Readonly<{ lazyHandler: () => Handler<T> }>;
 
 /**
  * Creates patch operations for entities in an array.
- * It matches the entities by codename and creates "move", "addInto", "remove" and "replace" operations.
+ * It matches the entities by codename and creates "addInto", "remove" and "replace" operations.
  *
  * @param getCodename - function to get the codename from an entity inside the array
  *
@@ -82,57 +81,91 @@ export const makeArrayHandler = <Entity>(
   getCodename: (el: Entity) => string,
   createUpdateOps: Handler<Entity> | LazyHandler<Entity>,
   transformBeforeAdd: (el: Entity) => Entity = x => x,
+  pathPrefix: string = "codename:",
 ): Handler<readonly Entity[]> =>
 (sourceValue, targetValue) => {
+  // needs to be function due to lazy handling
   const getCreateUpdateOps = () =>
     typeof createUpdateOps === "object" ? createUpdateOps.lazyHandler() : createUpdateOps;
 
   const sourceCodenamesSet = new Set(sourceValue.map(getCodename));
   const targetWithoutRemoved = targetValue.filter(v => sourceCodenamesSet.has(getCodename(v)));
   const addAndUpdateOps = sourceValue
-    .flatMap((v, i) => {
+    .flatMap(v => {
       const sourceCodename = getCodename(v);
-      const targetOnIndex = targetWithoutRemoved[i];
-      if (targetOnIndex && sourceCodename === getCodename(targetOnIndex)) {
-        return getCreateUpdateOps()(v, targetOnIndex)
-          .map(prefixOperationPath(`codename:${getCodename(v)}`));
-      }
-      const targetOnOtherIndex = targetWithoutRemoved.find(t => getCodename(t) === sourceCodename);
-      if (targetOnOtherIndex) {
-        const neighbourCodename = apply(getCodename, sourceValue[i - 1])
-          || apply(getCodename, targetValue[0]) || null;
+
+      const targetEntity = targetWithoutRemoved.find(t => getCodename(t) === sourceCodename);
+      if (targetEntity) {
         return [
-          ...neighbourCodename === null ? [] : [
-            {
-              op: "move" as const,
-              path: `/codename:${getCodename(targetOnOtherIndex)}`,
-              ...sourceValue[i - 1]
-                ? { after: { codename: neighbourCodename } }
-                : { before: { codename: neighbourCodename } },
-            },
-          ],
-          ...getCreateUpdateOps()(v, targetOnOtherIndex)
-            .map(prefixOperationPath(`codename:${getCodename(v)}`)),
+          ...getCreateUpdateOps()(v, targetEntity)
+            .map(prefixOperationPath(pathPrefix + getCodename(v))),
         ];
       }
 
-      const neighbourCodename = apply(getCodename, sourceValue[i - 1])
-        || apply(getCodename, targetValue[0]) || null;
       return [
         {
           op: "addInto" as const,
           path: "",
           value: transformBeforeAdd(v),
-          ...neighbourCodename ? { [sourceValue[i - 1] ? "after" : "before"]: { codename: neighbourCodename } } : {},
         },
       ];
     });
 
   const removeOps = targetValue
     .filter(v => !sourceCodenamesSet.has(getCodename(v)))
-    .map(v => ({ op: "remove" as const, path: `/codename:${getCodename(v)}`, oldValue: v }));
+    .map(v => ({ op: "remove" as const, path: `/${pathPrefix + getCodename(v)}`, oldValue: v }));
 
   return [...addAndUpdateOps, ...removeOps];
+};
+
+/**
+ * Creates move operations for entities in an array.
+ * It matches the entities by codename and creates "move" operations and concatenates operations
+ * from arrayHandler.
+ *
+ * Unless the target is ordered same as the source, the algorithm generates one move operation
+ * for every element except the first one in each group and assigns them the "after" property
+ * to reference the previous element from source
+ *
+ * @param arrayHandler - handler that creates 'addInto', 'replace' and 'remove' operations.
+ *
+ * @param getCodename - function to obtain codename from entity (entities are sorted based on codename)
+ *
+ * @param groupBy - Optional function to obtain property on which the entities should be grouped by
+ * (if unspecified all entities are considered to be in the same group).
+ * Only entities inside groups are ordered, however, groups are not ordered amongst themselves.
+ */
+export const makeOrderingHandler = <Entity>(
+  arrayHandler: Handler<readonly Entity[]>,
+  getCodename: (el: Entity) => string,
+  groupBy: (el: Entity) => string = () => "",
+): Handler<readonly Entity[]> =>
+(sourceValue, targetValue) => {
+  const sourceCodenamesSet = new Set(sourceValue.map(getCodename));
+  const targetWithoutRemoved = targetValue.filter(v => sourceCodenamesSet.has(getCodename(v)));
+
+  const entityGroups = sourceValue.reduce((prev, entity) => {
+    prev.set(groupBy(entity), [...(prev.get(groupBy(entity)) ?? []), getCodename(entity)]);
+    return prev;
+  }, new Map<string, Array<string>>());
+
+  const isSorted = zip(sourceValue, targetWithoutRemoved).every(([source, target]) =>
+    getCodename(source) === getCodename(target)
+  );
+
+  const moveOps = isSorted
+    ? []
+    : Array.from(entityGroups.values()).flatMap(value =>
+      value.length <= 1 ? [] : value.slice(1).map((entity, index) => ({
+        op: "move" as const,
+        path: `/codename:${entity}`,
+        after: {
+          codename: value[index] as string,
+        },
+      }))
+    );
+
+  return [...arrayHandler(sourceValue, targetValue), ...moveOps];
 };
 
 /**

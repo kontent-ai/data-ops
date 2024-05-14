@@ -7,6 +7,7 @@ import {
   makeArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
+  makeOrderingHandler,
   makeUnionHandler,
   optionalHandler,
 } from "../../../../src/modules/sync/diff/combinators";
@@ -128,36 +129,20 @@ describe("makeLeafObjectHandler", () => {
 });
 
 describe("makeArrayHandler", () => {
-  it("Creates move operations to sort target based on source elements' codenames", () => {
+  it("Return empty array when source and target are only different in order", () => {
     type TestedElement = Readonly<{ a: string }>;
     const source: ReadonlyArray<TestedElement> = [{ a: "first" }, { a: "second" }, { a: "third" }];
     const target: ReadonlyArray<TestedElement> = [{ a: "third" }, { a: "first" }, { a: "second" }];
 
     const result = makeArrayHandler<TestedElement>(el => el.a, () => [])(source, target);
 
-    expect(result).toStrictEqual([
-      {
-        op: "move",
-        path: "/codename:first",
-        before: { codename: "third" },
-      },
-      {
-        op: "move",
-        path: "/codename:second",
-        after: { codename: "first" },
-      },
-      {
-        op: "move",
-        path: "/codename:third",
-        after: { codename: "second" },
-      },
-    ]);
+    expect(result).toStrictEqual([]);
   });
 
-  it("Creates update operations along with move operations when needed", () => {
+  it("Creates update operations", () => {
     type TestedElement = Readonly<{ a: string; b: number }>;
-    const source: ReadonlyArray<TestedElement> = [{ a: "first", b: 42 }, { a: "second", b: 69 }];
-    const target: ReadonlyArray<TestedElement> = [{ a: "second", b: 32 }, { a: "first", b: 42 }];
+    const source: ReadonlyArray<TestedElement> = [{ a: "first", b: 42 }, { a: "second", b: 69 }, { a: "third", b: 32 }];
+    const target: ReadonlyArray<TestedElement> = [{ a: "second", b: 32 }, { a: "first", b: 42 }, { a: "third", b: 69 }];
 
     const result = makeArrayHandler<TestedElement>(
       el => el.a,
@@ -166,20 +151,16 @@ describe("makeArrayHandler", () => {
 
     expect(result).toStrictEqual([
       {
-        op: "move",
-        path: "/codename:first",
-        before: { codename: "second" },
-      },
-      {
-        op: "move",
-        path: "/codename:second",
-        after: { codename: "first" },
-      },
-      {
         op: "replace",
         path: "/codename:second/test",
         value: { a: "second", b: 69 },
         oldValue: { a: "second", b: 32 },
+      },
+      {
+        op: "replace",
+        path: "/codename:third/test",
+        value: { a: "third", b: 32 },
+        oldValue: { a: "third", b: 69 },
       },
     ]);
   });
@@ -196,16 +177,6 @@ describe("makeArrayHandler", () => {
 
     expect(result).toStrictEqual([
       {
-        op: "move",
-        path: "/codename:first",
-        before: { codename: "second" },
-      },
-      {
-        op: "move",
-        path: "/codename:second",
-        after: { codename: "first" },
-      },
-      {
         op: "remove",
         path: "/codename:toDelete",
         oldValue: { a: "toDelete" },
@@ -213,7 +184,7 @@ describe("makeArrayHandler", () => {
     ]);
   });
 
-  it("Creates add operations with proper position argument", () => {
+  it.only("Creates add operations with proper position argument", () => {
     type TestedElement = Readonly<{ a: string }>;
     const source: ReadonlyArray<TestedElement> = [
       { a: "newFirst" },
@@ -233,23 +204,11 @@ describe("makeArrayHandler", () => {
         op: "addInto",
         path: "",
         value: { a: "newFirst" },
-        before: { codename: "first" },
-      },
-      {
-        op: "move",
-        path: "/codename:first",
-        after: { codename: "newFirst" },
       },
       {
         op: "addInto",
         path: "",
         value: { a: "newSecond" },
-        after: { codename: "first" },
-      },
-      {
-        op: "move",
-        path: "/codename:second",
-        after: { codename: "newSecond" },
       },
     ]);
   });
@@ -277,6 +236,88 @@ describe("makeArrayHandler", () => {
         after: { codename: "1" },
       },
     ]);
+  });
+});
+
+describe("makeOrderingHandler", () => {
+  const createMoveOp = (codename: string, afterCodename: string) => ({
+    op: "move",
+    path: `/codename:${codename}`,
+    after: {
+      codename: afterCodename,
+    },
+  });
+
+  it("returns empty array for same source and target order", () => {
+    const source = ["a", "b", "c"];
+    const target = ["a", "b", "c"];
+
+    const result = makeOrderingHandler<string>(() => [], entity => entity)(source, target);
+
+    expect(result).toStrictEqual([]);
+  });
+
+  it("returns move ops array for different source and target order", () => {
+    const source = ["a", "b", "c"];
+    const target = ["b", "a", "c"];
+
+    const result = makeOrderingHandler<string>(() => [], entity => entity)(source, target);
+
+    expect(result).toStrictEqual([createMoveOp("b", "a"), createMoveOp("c", "b")]);
+  });
+
+  type TestType = { codename: string; content_group: string };
+
+  it("returns move ops grouped by groupBy array for different source and target order", () => {
+    const source: TestType[] = [
+      { codename: "a", content_group: "1" },
+      { codename: "e", content_group: "3" },
+      { codename: "b", content_group: "1" },
+      { codename: "c", content_group: "2" },
+      { codename: "d", content_group: "2" },
+    ];
+    const target: TestType[] = [
+      { codename: "b", content_group: "1" },
+      { codename: "a", content_group: "1" },
+      { codename: "e", content_group: "3" },
+      { codename: "d", content_group: "2" },
+      { codename: "c", content_group: "2" },
+    ];
+
+    const result = makeOrderingHandler<TestType>(() => [], entity => entity.codename, entity => entity.content_group)(
+      source,
+      target,
+    );
+
+    expect(result).toStrictEqual([createMoveOp("b", "a"), createMoveOp("d", "c")]);
+  });
+
+  it("does not return move op using removed element for different source and target order", () => {
+    const source = ["a", "b"];
+    const target = ["a", "c", "b"];
+
+    const removeOp = { op: "remove", path: "/codename:c", oldValue: "c" } as const;
+
+    const result = makeOrderingHandler<string>(
+      () => [removeOp],
+      x => x,
+    )(source, target);
+
+    expect(result).toStrictEqual([removeOp]);
+  });
+
+  it("does not return move op using removed element for different source and target order", () => {
+    const source = ["a", "b"];
+    const target = ["b", "c", "a"];
+
+    const removeOp = { op: "remove", path: "/codename:c", oldValue: "c" } as const;
+
+    const result = makeOrderingHandler<string>(
+      () => [removeOp],
+      x => x,
+    )(source, target);
+
+    expect(result).toStrictEqual([removeOp, createMoveOp("b", "a")]);
   });
 });
 
