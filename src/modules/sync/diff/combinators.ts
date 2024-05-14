@@ -71,6 +71,8 @@ type LazyHandler<T> = Readonly<{ lazyHandler: () => Handler<T> }>;
  * Creates patch operations for entities in an array.
  * It matches the entities by codename and creates "addInto", "remove" and "replace" operations.
  *
+ * This adds the "codename:" prefix before the codename in the path property.
+ *
  * @param getCodename - function to get the codename from an entity inside the array
  *
  * @param createUpdateOps - update handler for entities inside the array (will only be called on entities with matching codenames)
@@ -81,7 +83,29 @@ export const makeArrayHandler = <Entity>(
   getCodename: (el: Entity) => string,
   createUpdateOps: Handler<Entity> | LazyHandler<Entity>,
   transformBeforeAdd: (el: Entity) => Entity = x => x,
-  pathPrefix: string = "codename:",
+): Handler<readonly Entity[]> =>
+  makePrefixHandler(
+    "codename:",
+    op => !!op.path,
+    makeBaseArrayHandler(getCodename, createUpdateOps, transformBeforeAdd),
+  );
+
+/**
+ * Creates patch operations for entities in an array.
+ * It matches the entities by codename and creates "addInto", "remove" and "replace" operations.
+ *
+ * This does not add any prefix before the entity codename in path property.
+ *
+ * @param getCodename - function to get the codename from an entity inside the array
+ *
+ * @param createUpdateOps - update handler for entities inside the array (will only be called on entities with matching codenames)
+ *
+ * @param transformBeforeAdd - optional transformation of entities before they are added into the "addInto" patch operation
+ */
+export const makeBaseArrayHandler = <Entity>(
+  getCodename: (el: Entity) => string,
+  createUpdateOps: Handler<Entity> | LazyHandler<Entity>,
+  transformBeforeAdd: (el: Entity) => Entity = x => x,
 ): Handler<readonly Entity[]> =>
 (sourceValue, targetValue) => {
   // needs to be function due to lazy handling
@@ -98,7 +122,7 @@ export const makeArrayHandler = <Entity>(
       if (targetEntity) {
         return [
           ...getCreateUpdateOps()(v, targetEntity)
-            .map(prefixOperationPath(pathPrefix + getCodename(v))),
+            .map(prefixOperationPath(getCodename(v))),
         ];
       }
 
@@ -113,10 +137,37 @@ export const makeArrayHandler = <Entity>(
 
   const removeOps = targetValue
     .filter(v => !sourceCodenamesSet.has(getCodename(v)))
-    .map(v => ({ op: "remove" as const, path: `/${pathPrefix + getCodename(v)}`, oldValue: v }));
+    .map(v => ({ op: "remove" as const, path: "/" + getCodename(v), oldValue: v }));
 
   return [...addAndUpdateOps, ...removeOps];
 };
+
+/**
+ * Adds a specified prefix to the first segment from the left in the path property when the "shouldAdd" returns true for the operation.
+ *
+ * @param prefix - the prefix to add to path
+ *
+ * @param shouldAdd - predicate that determines to which operations to add the prefix
+ *
+ * @param handler - handler that produces the operations that will be transformed
+ *
+ * @example makePrefixHandler("test:", () => true, () => [{ op: "remove", path: "/abc/efg", oldValue: 44 }])(x, y) ==> [{ op: "remove", path: "/test:abc/efg", oldValue: 44 }]
+ */
+export const makePrefixHandler = <Entity>(
+  prefix: string,
+  shouldAdd: (op: PatchOperation) => boolean,
+  handler: Handler<Entity>,
+): Handler<Entity> =>
+(source, target) =>
+  handler(source, target)
+    .map(op =>
+      shouldAdd(op)
+        ? {
+          ...op,
+          path: `/${prefix}${op.path.slice(1)}`,
+        }
+        : op
+    );
 
 /**
  * Creates move operations for entities in an array.
