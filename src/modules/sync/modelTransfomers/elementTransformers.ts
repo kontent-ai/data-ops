@@ -97,7 +97,7 @@ export const transformCustomElement = (
     const el = type.elements.find(el => el.id === element.id);
     return el
       ? {
-        codename: element.codename
+        codename: el.codename
           ?? throwError(`Could not find codename of element ${el.id}. This should never happen`),
       }
       : undefined;
