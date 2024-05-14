@@ -22,26 +22,25 @@ describe("makeContentTypeHandler", () => {
           name: "group to be added",
           codename: "groupToBeAdded",
         },
-        {
-          name: "group 3",
-          codename: "group3",
-        },
       ],
       elements: [
         {
           type: "number",
           codename: "element_1",
           name: "number",
+          content_group: { codename: "group1" },
         },
         {
           type: "text",
           codename: "element_2",
           name: "text",
+          content_group: { codename: "group2" },
         },
         {
           type: "date_time",
           codename: "element_3",
           name: "date",
+          content_group: { codename: "group1" },
         },
       ],
     };
@@ -58,10 +57,6 @@ describe("makeContentTypeHandler", () => {
           codename: "groupToBeDeleted",
         },
         {
-          name: "group 3",
-          codename: "group3",
-        },
-        {
           name: "group 1",
           codename: "group1",
         },
@@ -71,21 +66,25 @@ describe("makeContentTypeHandler", () => {
           type: "number",
           codename: "element_1",
           name: "num",
+          content_group: { codename: "group1" },
         },
         {
           type: "date_time",
           codename: "element_3",
           name: "date",
+          content_group: { codename: "group1" },
         },
         {
           type: "text",
           codename: "toDelete",
           name: "to delete",
+          content_group: { codename: "group1" },
         },
         {
           type: "text",
           codename: "element_2",
           name: "txt",
+          content_group: { codename: "group2" },
         },
       ],
     };
@@ -103,16 +102,6 @@ describe("makeContentTypeHandler", () => {
         oldValue: "old name",
       },
       {
-        op: "move",
-        path: "/content_groups/codename:group1",
-        before: { codename: "group2" },
-      },
-      {
-        op: "move",
-        path: "/content_groups/codename:group2",
-        after: { codename: "group1" },
-      },
-      {
         op: "replace",
         path: "/content_groups/codename:group2/name",
         value: "group 2 with new name",
@@ -125,12 +114,6 @@ describe("makeContentTypeHandler", () => {
           name: "group to be added",
           codename: "groupToBeAdded",
         },
-        after: { codename: "group2" },
-      },
-      {
-        op: "move",
-        path: "/content_groups/codename:group3",
-        after: { codename: "groupToBeAdded" },
       },
       {
         op: "remove",
@@ -141,15 +124,20 @@ describe("makeContentTypeHandler", () => {
         },
       },
       {
+        op: "move",
+        path: "/content_groups/codename:group2",
+        after: { codename: "group1" },
+      },
+      {
+        op: "move",
+        path: "/content_groups/codename:groupToBeAdded",
+        after: { codename: "group2" },
+      },
+      {
         op: "replace",
         path: "/elements/codename:element_1/name",
         value: "number",
         oldValue: "num",
-      },
-      {
-        op: "move",
-        path: "/elements/codename:element_2",
-        after: { codename: "element_1" },
       },
       {
         op: "replace",
@@ -158,18 +146,19 @@ describe("makeContentTypeHandler", () => {
         oldValue: "txt",
       },
       {
-        op: "move",
-        path: "/elements/codename:element_3",
-        after: { codename: "element_2" },
-      },
-      {
         op: "remove",
         path: "/elements/codename:toDelete",
         oldValue: {
           type: "text",
           codename: "toDelete",
           name: "to delete",
+          content_group: { codename: "group1" },
         },
+      },
+      {
+        op: "move",
+        path: "/elements/codename:element_3",
+        after: { codename: "element_1" },
       },
     ]);
   });

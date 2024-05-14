@@ -5,12 +5,15 @@ import {
   constantHandler,
   Handler,
   makeArrayHandler,
+  makeBaseArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
   makeOrderingHandler,
+  makePrefixHandler,
   makeUnionHandler,
   optionalHandler,
 } from "../../../../src/modules/sync/diff/combinators";
+import { PatchOperation } from "../../../../src/modules/sync/types/diffModel";
 
 describe("makeObjectHandler", () => {
   it("concatenates results of all property handlers and prepends property names to paths", () => {
@@ -184,7 +187,7 @@ describe("makeArrayHandler", () => {
     ]);
   });
 
-  it.only("Creates add operations with proper position argument", () => {
+  it("Creates add operations with proper position argument", () => {
     type TestedElement = Readonly<{ a: string }>;
     const source: ReadonlyArray<TestedElement> = [
       { a: "newFirst" },
@@ -233,8 +236,27 @@ describe("makeArrayHandler", () => {
         op: "addInto",
         path: "",
         value: { a: "2", b: 4 },
-        after: { codename: "1" },
       },
+    ]);
+  });
+});
+
+describe("makeBaseArrayHandler", () => {
+  it("Create same ops as makeArrayHandler, but without the 'codename:' prefix", () => {
+    type TestedElement = Readonly<{ a: string; b: number }>;
+    const source: ReadonlyArray<TestedElement> = [{ a: "1", b: 1 }, { a: "2", b: 2 }];
+    const target: ReadonlyArray<TestedElement> = [{ a: "1", b: 2 }, { a: "3", b: 2 }];
+
+    const result = makeBaseArrayHandler<TestedElement>(
+      e => e.a,
+      (e1, e2) => e1.b === e2.b ? [] : [{ op: "replace", path: "/b", value: e1.b, oldValue: e2.b }],
+      el => ({ ...el, b: 666 }),
+    )(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "replace", path: "/1/b", value: 1, oldValue: 2 },
+      { op: "addInto", path: "", value: { a: "2", b: 666 } },
+      { op: "remove", path: "/3", oldValue: { a: "3", b: 2 } },
     ]);
   });
 });
@@ -433,6 +455,41 @@ describe("makeUnionHandler", () => {
         path: "here",
         oldValue: "test",
       },
+    ]);
+  });
+});
+
+describe("makePrefixHandler", () => {
+  it("Adds the specified prefix to path", () => {
+    const ops: ReadonlyArray<PatchOperation> = [
+      { op: "remove", path: "/somePath", oldValue: 666 },
+      { op: "move", path: "/movePath", after: { codename: "cd" } },
+      { op: "addInto", path: "/addPath", value: 99 },
+      { op: "replace", path: "/replacePath/prop", value: 77, oldValue: 33 },
+    ];
+
+    const result = makePrefixHandler("test:", () => true, () => ops)(42, 44);
+
+    expect(result).toStrictEqual([
+      { op: "remove", path: "/test:somePath", oldValue: 666 },
+      { op: "move", path: "/test:movePath", after: { codename: "cd" } },
+      { op: "addInto", path: "/test:addPath", value: 99 },
+      { op: "replace", path: "/test:replacePath/prop", value: 77, oldValue: 33 },
+    ]);
+  });
+  it("Adds the specified prefix only where it should be added", () => {
+    const ops: ReadonlyArray<PatchOperation> = [
+      { op: "remove", path: "/toDelete", oldValue: 666 },
+      { op: "move", path: "/toDelete", after: { codename: "cd" } },
+      { op: "addInto", path: "/addPath", value: 99 },
+    ];
+
+    const result = makePrefixHandler("test:", op => op.path !== "/toDelete", () => ops)(42, 44);
+
+    expect(result).toStrictEqual([
+      { op: "remove", path: "/toDelete", oldValue: 666 },
+      { op: "move", path: "/toDelete", after: { codename: "cd" } },
+      { op: "addInto", path: "/test:addPath", value: 99 },
     ]);
   });
 });

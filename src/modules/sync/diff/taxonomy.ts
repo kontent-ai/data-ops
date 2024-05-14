@@ -1,12 +1,22 @@
 import { TaxonomySyncModel } from "../types/fileContentModel.js";
-import { baseHandler, Handler, makeArrayHandler, makeLeafObjectHandler, makeObjectHandler } from "./combinators.js";
+import {
+  baseHandler,
+  Handler,
+  makeArrayHandler,
+  makeLeafObjectHandler,
+  makeObjectHandler,
+  makeOrderingHandler,
+} from "./combinators.js";
 
 export const makeTaxonomyGroupHandler = (): Handler<TaxonomySyncModel> =>
   makeObjectHandler({
     name: baseHandler,
-    terms: makeArrayHandler(
+    terms: makeOrderingHandler(
+      makeArrayHandler(
+        t => t.codename,
+        { lazyHandler: makeTaxonomyGroupHandler },
+      ),
       t => t.codename,
-      { lazyHandler: makeTaxonomyGroupHandler },
     ),
   });
 

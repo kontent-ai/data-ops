@@ -60,20 +60,10 @@ describe("makeTaxonomyGroupHandler", () => {
         oldValue: "Old group name",
       },
       {
-        op: "move",
-        path: "/terms/codename:term1",
-        before: { codename: "term2" },
-      },
-      {
         op: "replace",
         path: "/terms/codename:term1/name",
         value: "New term name",
         oldValue: "Old term name",
-      },
-      {
-        op: "move",
-        path: "/terms/codename:term2",
-        after: { codename: "term1" },
       },
       {
         op: "addInto",
@@ -83,7 +73,6 @@ describe("makeTaxonomyGroupHandler", () => {
           codename: "newTerm",
           terms: [],
         },
-        before: { codename: "termToDelete" },
       },
       {
         op: "remove",
@@ -93,6 +82,11 @@ describe("makeTaxonomyGroupHandler", () => {
           codename: "termToDelete",
           terms: [],
         },
+      },
+      {
+        op: "move",
+        path: "/terms/codename:term2",
+        after: { codename: "term1" },
       },
     ]);
   });
