@@ -6,6 +6,7 @@ import {
   makeArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
+  makeOrderingHandler,
   makeUnionHandler,
 } from "./combinators.js";
 import {
@@ -41,27 +42,30 @@ export const makeContentTypeSnippetHandler = (
           targetTypeOrSnippet: target,
         };
 
-        return makeArrayHandler(
-          el => el.codename,
-          makeUnionHandler("type", {
-            number: makeNumberElementHandler(ctx),
-            text: makeTextElementHandler(ctx),
-            asset: makeAssetElementHandler(ctx),
-            guidelines: makeGuidelinesElementHandler(ctx),
-            custom: makeCustomElementHandler(ctx),
-            taxonomy: makeTaxonomyElementHandler(ctx),
-            date_time: makeDateTimeElementHandler(ctx),
-            rich_text: makeRichTextElementHandler(ctx),
-            modular_content: makeLinkedItemsElementHandler(ctx),
-            multiple_choice: makeMultiChoiceElementHandler(ctx),
-          }),
-          el =>
-            el.type === "guidelines"
-              ? transformGuidelinesElementToAddModel({
-                targetItemsReferencedFromSourceByCodenames: params.targetItemsByCodenames,
-                targetAssetsReferencedFromSourceByCodenames: params.targetAssetsByCodenames,
-              }, el) as SyncGuidelinesElement
-              : el,
+        return makeOrderingHandler(
+          makeArrayHandler(
+            el => el.codename,
+            makeUnionHandler("type", {
+              number: makeNumberElementHandler(ctx),
+              text: makeTextElementHandler(ctx),
+              asset: makeAssetElementHandler(ctx),
+              guidelines: makeGuidelinesElementHandler(ctx),
+              custom: makeCustomElementHandler(ctx),
+              taxonomy: makeTaxonomyElementHandler(ctx),
+              date_time: makeDateTimeElementHandler(ctx),
+              rich_text: makeRichTextElementHandler(ctx),
+              modular_content: makeLinkedItemsElementHandler(ctx),
+              multiple_choice: makeMultiChoiceElementHandler(ctx),
+            }),
+            el =>
+              el.type === "guidelines"
+                ? transformGuidelinesElementToAddModel({
+                  targetItemsReferencedFromSourceByCodenames: params.targetItemsByCodenames,
+                  targetAssetsReferencedFromSourceByCodenames: params.targetAssetsByCodenames,
+                }, el) as SyncGuidelinesElement
+                : el,
+          ),
+          e => e.codename,
         );
       },
     },

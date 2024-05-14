@@ -25,6 +25,7 @@ import {
   makeArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
+  makeOrderingHandler,
   optionalHandler,
 } from "./combinators.js";
 import {
@@ -73,11 +74,14 @@ export const makeMultiChoiceElementHandler = (
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
     mode: baseHandler,
-    options: makeArrayHandler(
-      o => o.codename,
-      makeObjectHandler({
-        name: baseHandler,
-      }),
+    options: makeOrderingHandler(
+      makeArrayHandler(
+        o => o.codename,
+        makeObjectHandler({
+          name: baseHandler,
+        }),
+      ),
+      e => e.codename,
     ),
     default: makeDefaultReferencesHandler(),
   });
