@@ -23,6 +23,7 @@ import {
   constantHandler,
   Handler,
   makeArrayHandler,
+  makeBaseArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
   makeOrderingHandler,
@@ -91,19 +92,19 @@ export const makeRichTextElementHandler = (
 ): Handler<SyncRichTextElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
-    allowed_blocks: optionalHandler(makeArrayHandler(b => b, () => [])),
+    allowed_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
     image_width_limit: optionalHandler(makeLeafObjectHandler({})),
-    allowed_formatting: optionalHandler(makeArrayHandler(f => f, () => [])),
+    allowed_formatting: optionalHandler(makeBaseArrayHandler(f => f, () => [])),
     image_height_limit: optionalHandler(makeLeafObjectHandler({})),
     maximum_image_size: optionalHandler(baseHandler),
     allowed_image_types: optionalHandler(baseHandler),
-    allowed_text_blocks: optionalHandler(makeArrayHandler(b => b, () => [])),
+    allowed_text_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
     maximum_text_length: optionalHandler(makeLeafObjectHandler({})),
-    allowed_table_blocks: optionalHandler(makeArrayHandler(b => b, () => [])),
+    allowed_table_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
     allowed_content_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
     allowed_item_link_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
-    allowed_table_formatting: optionalHandler(makeArrayHandler(f => f, () => [])),
-    allowed_table_text_blocks: optionalHandler(makeArrayHandler(b => b, () => [])),
+    allowed_table_formatting: optionalHandler(makeBaseArrayHandler(f => f, () => [])),
+    allowed_table_text_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
   });
 
 export const makeTaxonomyElementHandler = (
