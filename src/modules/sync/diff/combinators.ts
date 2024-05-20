@@ -203,19 +203,27 @@ export const makeOrderingHandler = <Entity>(
   const sourceCodenamesSet = new Set(sourceValue.map(getCodename));
   const targetWithoutRemoved = targetValue.filter(v => sourceCodenamesSet.has(getCodename(v)));
 
-  const entityGroups = sourceValue.reduce((prev, entity) => {
+  const sourceEntityGroups = sourceValue.reduce((prev, entity) => {
     prev.set(groupBy(entity), [...(prev.get(groupBy(entity)) ?? []), entity]);
 
     return prev;
   }, new Map<string, Array<Entity>>());
 
-  const isSorted = zip(sourceValue, targetWithoutRemoved).every(([source, target]) =>
-    getCodename(source) === getCodename(target)
-  );
+  const targetEntityGroups = targetWithoutRemoved.reduce((prev, entity) => {
+    prev.set(groupBy(entity), [...(prev.get(groupBy(entity)) ?? []), entity]);
+
+    return prev;
+  }, new Map<string, Array<Entity>>());
+
+  const isSorted = Array.from(sourceEntityGroups.entries()).every(([groupCodename, entities]) => {
+    const targetEntities = targetEntityGroups.get(groupCodename);
+
+    return targetEntities ? zip(entities, targetEntities).every(([s, t]) => getCodename(s) === getCodename(t)) : true;
+  });
 
   const moveOps = isSorted
     ? []
-    : Array.from(entityGroups.values()).flatMap(group => {
+    : Array.from(sourceEntityGroups.values()).flatMap(group => {
       const filteredArray = group.filter(filter);
 
       return filteredArray.length <= 1
