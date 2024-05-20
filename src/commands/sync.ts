@@ -22,48 +22,53 @@ export const register: RegisterCommand = yargs =>
     describe: "Synchronize content model between two Kontent.ai environments",
     builder: yargs =>
       yargs
-        .option("environmentId", {
+        .option("targetEnvironmentId", {
           type: "string",
           describe: "Id of the target Kontent.ai environment.",
           demandOption: "You need to provide the environmentId of your Kontent.ai environment",
-          alias: "e",
+          alias: "t",
         })
-        .option("apiKey", {
+        .option("targetApiKey", {
           type: "string",
           describe: "Management API key of target Kontent.ai environment",
           demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
-          alias: "k",
+          alias: "tk",
         })
         .option("folderName", {
           type: "string",
-          describe: "Name of the folder containing source content model",
+          describe:
+            "Name of the folder containing source content model. Can't be used with --sourceEnvironmentId and --sourceApiKey options.",
           alias: "f",
           conflicts: ["sourceApiKey", "sourceEnvironmentId"],
         })
         .option("sourceEnvironmentId", {
           type: "string",
-          describe: "Id of Kontent.ai environmnent containing source content model",
+          describe:
+            "Id of Kontent.ai environmnent containing source content model. Must be used --sourceApiKey. with Can't be used at the same time with option --folderName",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
+          alias: "s",
         })
         .option("sourceApiKey", {
           type: "string",
-          describe: "Management API key of Kontent.ai environmnent containing source content model",
+          describe:
+            "Management API key of Kontent.ai environmnent containing source content model. Must be used --sourceEnvironmentId. Can't be used at the same time with option --folderName",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
+          alias: "sk",
         })
         .option("skipWarning", {
           type: "boolean",
           describe: "Skip warning message.",
-          alias: "s",
+          alias: "sw",
         }),
     handler: args => syncContentModel(args),
   });
 
 export type SyncParams =
   & Readonly<{
-    environmentId: string;
-    apiKey: string;
+    targetEnvironmentId: string;
+    targetApiKey: string;
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
@@ -94,7 +99,10 @@ export const syncContentModel = async (params: SyncParams) => {
 
   const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
 
-  const targetEnvironmentClient = new ManagementClient({ apiKey: params.apiKey, environmentId: params.environmentId });
+  const targetEnvironmentClient = new ManagementClient({
+    apiKey: params.targetApiKey,
+    environmentId: params.targetEnvironmentId,
+  });
 
   const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
     targetEnvironmentClient,
@@ -118,7 +126,7 @@ export const syncContentModel = async (params: SyncParams) => {
   printDiff(diffModel, params);
 
   const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
+    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
   );
 
   const confirmed = !params.skipWarning ? await requestConfirmation(warningMessage) : true;
@@ -128,5 +136,8 @@ export const syncContentModel = async (params: SyncParams) => {
     process.exit(1);
   }
 
-  await sync(new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey }), diffModel);
+  await sync(
+    new ManagementClient({ environmentId: params.targetEnvironmentId, apiKey: params.targetApiKey }),
+    diffModel,
+  );
 };
