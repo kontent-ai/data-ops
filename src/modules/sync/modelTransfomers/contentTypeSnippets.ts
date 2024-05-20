@@ -21,9 +21,10 @@ export const transformContentTypeSnippetsModel = (
 ) =>
   environmentModel.contentTypeSnippets.map(snippet => {
     const syncSnippetElements = snippet.elements
-      .map<SyncSnippetElement>(element =>
-        omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"])
-      );
+      .map<SyncSnippetElement>(element => ({
+        ...omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"]),
+        external_id: element.external_id ?? element.codename,
+      }));
 
     const transformedSnippet = {
       ...omit(snippet, ["id", "last_modified"]),
@@ -44,7 +45,6 @@ const transformElement = (
     case "guidelines":
       return transformGuidelinesElement(
         element,
-        snippet,
         environmentModel.assets,
         environmentModel.items,
         logOptions,
@@ -52,7 +52,6 @@ const transformElement = (
     case "modular_content":
       return transformLinkedItemsElement(
         element,
-        snippet,
         environmentModel.contentTypes,
         environmentModel.items,
         logOptions,
@@ -60,7 +59,6 @@ const transformElement = (
     case "taxonomy":
       return transformTaxonomyElement(
         element,
-        snippet,
         environmentModel.taxonomyGroups,
         logOptions,
       );
@@ -69,10 +67,10 @@ const transformElement = (
     case "custom":
       return transformCustomElement(element, snippet);
     case "asset":
-      return transformAssetElement(element, snippet, environmentModel.assets, logOptions);
+      return transformAssetElement(element, environmentModel.assets, logOptions);
     case "rich_text":
-      return transformRichTextElement(element, snippet, environmentModel.contentTypes, logOptions);
+      return transformRichTextElement(element, environmentModel.contentTypes, logOptions);
     default:
-      return transformDefaultElement(element, snippet);
+      return transformDefaultElement(element);
   }
 };

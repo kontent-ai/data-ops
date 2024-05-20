@@ -138,7 +138,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${snippet.codename}_${element.codename}`,
       allowed_elements: [
         {
           codename: dummyElement.codename,
@@ -175,7 +174,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       default: { global: { value: [{ codename: element.options[0]?.codename }] } },
       options: [
         {
@@ -205,11 +203,10 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       default: { global: { value: [{ external_id: assets[0].external_id, codename: assets[0].codename }] } },
     };
 
-    const transformedElement = transformAssetElement(element, contentTypes[0], assets, logOptions);
+    const transformedElement = transformAssetElement(element, assets, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -224,11 +221,10 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       default: undefined,
     };
 
-    const transformedElement = transformAssetElement(element, contentTypes[0], [], logOptions);
+    const transformedElement = transformAssetElement(element, [], logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -244,12 +240,11 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       allowed_content_types: [{ codename: contentTypes[0].codename }],
       allowed_item_link_types: [{ codename: contentTypes[0].codename }],
     };
 
-    const transformedElement = transformRichTextElement(element, contentTypes[0], contentTypes, logOptions);
+    const transformedElement = transformRichTextElement(element, contentTypes, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -265,12 +260,11 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       allowed_content_types: undefined,
       allowed_item_link_types: undefined,
     };
 
-    const transformedElement = transformRichTextElement(element, contentTypes[0], [], logOptions);
+    const transformedElement = transformRichTextElement(element, [], logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -290,7 +284,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       taxonomy_group: {
         codename: taxonomyGroups[0].codename,
       },
@@ -308,7 +301,7 @@ describe("elementTransfomers test", () => {
       },
     };
 
-    const transformedElement = transformTaxonomyElement(element, contentTypes[0], taxonomyGroups, logOptions);
+    const transformedElement = transformTaxonomyElement(element, taxonomyGroups, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -326,7 +319,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       default: {
         global: {
           value: [
@@ -340,7 +332,7 @@ describe("elementTransfomers test", () => {
       allowed_content_types: [{ codename: contentTypes[0].codename }],
     };
 
-    const transformedElement = transformLinkedItemsElement(element, contentTypes[0], contentTypes, items, logOptions);
+    const transformedElement = transformLinkedItemsElement(element, contentTypes, items, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -358,12 +350,11 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       default: undefined,
       allowed_content_types: undefined,
     };
 
-    const transformedElement = transformLinkedItemsElement(element, contentTypes[0], [], [], logOptions);
+    const transformedElement = transformLinkedItemsElement(element, [], [], logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -385,7 +376,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="${
         items[0].id
       }">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-codename="${assets[0].codename}" data-asset-external-id="${
@@ -397,19 +387,18 @@ describe("elementTransfomers test", () => {
       }"></figure>`,
     };
 
-    const transformedElement = transformGuidelinesElement(element, contentTypes[0], assets, items, logOptions);
+    const transformedElement = transformGuidelinesElement(element, assets, items, logOptions);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
 
   it("transformDefaultElement correctly transforms element", () => {
-    const transformedElement = transformDefaultElement(dummyElement, contentTypes[0]);
+    const transformedElement = transformDefaultElement(dummyElement);
 
     expect(transformedElement).toEqual(
       {
         ...dummyElement,
         id: undefined,
-        external_id: `${contentTypes[0].codename}_${dummyElement.codename}`,
       },
     );
   });
@@ -426,7 +415,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       depends_on: {
         element: { codename: contentTypes[0].elements[0].codename },
       },
@@ -450,7 +438,6 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       depends_on: {
         element: { codename: contentTypes[0].elements[0].codename },
         snippet: { codename: snippet.codename },
@@ -491,11 +478,10 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       snippet: { codename: snippet.codename },
     };
 
-    expect(transformSnippetElement(element, contentTypes[0], [snippet])).toEqual(expectedOutput);
+    expect(transformSnippetElement(element, [snippet])).toEqual(expectedOutput);
   });
 
   it("transformSubpagesElement correctly transforms element", () => {
@@ -510,12 +496,11 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      external_id: `${contentTypes[0].codename}_${element.codename}`,
       allowed_content_types: [{
         codename: contentTypes[0].codename,
       }],
     };
 
-    expect(transformSubpagesElement(element, contentTypes[0], contentTypes, items, logOptions)).toEqual(expectedOutput);
+    expect(transformSubpagesElement(element, contentTypes, items, logOptions)).toEqual(expectedOutput);
   });
 });
