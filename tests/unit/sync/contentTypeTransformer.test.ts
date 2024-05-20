@@ -55,12 +55,12 @@ describe("content type transfomers", () => {
           {
             ...contentTypes[0].elements[0],
             id: undefined,
-            external_id: `${contentTypes[0].codename}_${contentTypes[0].elements[0].codename}`,
+            external_id: `${contentTypes[0].codename}__${contentTypes[0].elements[0].codename}`,
           },
           {
             ...contentTypes[0].elements[1],
             id: undefined,
-            external_id: `${contentTypes[0].codename}_${contentTypes[0].elements[1].codename}`,
+            external_id: `${contentTypes[0].codename}__${contentTypes[0].elements[1].codename}`,
           },
         ],
       },
@@ -122,13 +122,17 @@ describe("content type transfomers", () => {
           {
             ...contentTypes[0].elements[0],
             id: undefined,
-            external_id: `${inputContentTypes[0].codename}_${contentTypes[0].elements[0].codename}`,
+            external_id: `${inputContentTypes[0].codename}_${inputContentTypes[0].content_groups[0].codename}_${
+              contentTypes[0].elements[0].codename
+            }`,
             content_group: { codename: inputContentTypes[0].content_groups[0].codename },
           },
           {
             ...contentTypes[0].elements[1],
             id: undefined,
-            external_id: `${contentTypes[0].codename}_${contentTypes[0].elements[1].codename}`,
+            external_id: `${contentTypes[0].codename}_${inputContentTypes[0].content_groups[1].codename}_${
+              contentTypes[0].elements[1].codename
+            }`,
             content_group: { codename: inputContentTypes[0].content_groups[1].codename },
           },
         ],

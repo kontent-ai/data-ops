@@ -39,6 +39,10 @@ export const transformContentTypeModel = (
 
       return ({
         ...transformedElement,
+        external_id: element.external_id ?? makeNestedExternalId(
+          makeNestedExternalId(type.codename, contentGroup?.codename ?? ""),
+          element.codename as string,
+        ),
         content_group: contentGroup ? { codename: contentGroup.codename as string } : undefined,
       });
     });
@@ -68,7 +72,6 @@ const transformElement = (
     case "guidelines":
       return transformGuidelinesElement(
         element,
-        type,
         environmentModel.assets,
         environmentModel.items,
         logOptions,
@@ -76,7 +79,6 @@ const transformElement = (
     case "modular_content":
       return transformLinkedItemsElement(
         element,
-        type,
         environmentModel.contentTypes,
         environmentModel.items,
         logOptions,
@@ -84,7 +86,6 @@ const transformElement = (
     case "taxonomy":
       return transformTaxonomyElement(
         element,
-        type,
         environmentModel.taxonomyGroups,
         logOptions,
       );
@@ -93,16 +94,16 @@ const transformElement = (
     case "custom":
       return transformCustomElement(element, type);
     case "asset":
-      return transformAssetElement(element, type, environmentModel.assets, logOptions);
+      return transformAssetElement(element, environmentModel.assets, logOptions);
     case "rich_text":
-      return transformRichTextElement(element, type, environmentModel.contentTypes, logOptions);
+      return transformRichTextElement(element, environmentModel.contentTypes, logOptions);
     case "subpages":
-      return transformSubpagesElement(element, type, environmentModel.contentTypes, environmentModel.items, logOptions);
+      return transformSubpagesElement(element, environmentModel.contentTypes, environmentModel.items, logOptions);
     case "snippet":
-      return transformSnippetElement(element, type, environmentModel.contentTypeSnippets);
+      return transformSnippetElement(element, environmentModel.contentTypeSnippets);
     case "url_slug":
       return transformUrlSlugElement(element, type, environmentModel.contentTypeSnippets);
     default:
-      return transformDefaultElement(element, type);
+      return transformDefaultElement(element);
   }
 };

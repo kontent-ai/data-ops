@@ -107,7 +107,6 @@ export const transformCustomElement = (
     ...omit(element, ["id"]),
     allowed_elements: syncAllowedElements,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
@@ -137,13 +136,11 @@ export const transformMultipleChoiceElement = (
     default: defaultOptions,
     options,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformAssetElement = (
   element: ContentTypeElements.IAssetElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncAssetElement> => {
@@ -173,13 +170,11 @@ export const transformAssetElement = (
     ...omit(element, ["id"]),
     default: defaultAssets,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformRichTextElement = (
   element: ContentTypeElements.IRichTextElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncRichTextElement> => {
@@ -205,13 +200,11 @@ export const transformRichTextElement = (
     allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : undefined,
     allowed_item_link_types: allowedItemLinkTypes?.length ? allowedItemLinkTypes : undefined,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformTaxonomyElement = (
   element: ContentTypeElements.ITaxonomyElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncTaxonomyElement> => {
@@ -257,13 +250,11 @@ export const transformTaxonomyElement = (
     name: element.name as string,
     default: defaultTerms,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformLinkedItemsElement = (
   element: ContentTypeElements.ILinkedItemsElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
@@ -298,13 +289,11 @@ export const transformLinkedItemsElement = (
     allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : undefined,
     default: defaultReference,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformGuidelinesElement = (
   element: ContentTypeElements.IGuidelinesElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
@@ -312,16 +301,13 @@ export const transformGuidelinesElement = (
   ...omit(element, ["id"]),
   guidelines: replaceRichTextReferences(element.guidelines, assets, items, logOptions),
   codename: element.codename as string,
-  external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
 });
 
 export const transformDefaultElement = (
   element: ContentTypeElements.ITextElement | ContentTypeElements.INumberElement | ContentTypeElements.IDateTimeElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
 ) => ({
   ...omit(element, ["id"]),
   codename: element.codename as string,
-  external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
 });
 
 export const transformUrlSlugElement = (
@@ -360,13 +346,11 @@ export const transformUrlSlugElement = (
     ...omit(element, ["id"]),
     depends_on,
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformSnippetElement = (
   element: ContentTypeElements.ISnippetElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   snippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>,
 ): ElementWithOldContentGroup<SyncTypeSnippetElement> => {
   const snippet = snippets.find(s => s.id === element.snippet.id)
@@ -376,17 +360,15 @@ export const transformSnippetElement = (
     ...omit(element, ["id"]),
     snippet: { codename: snippet.codename },
     codename: element.codename as string,
-    external_id: element.external_id ?? makeNestedExternalId(type.codename, element.codename as string),
   };
 };
 
 export const transformSubpagesElement = (
   element: ContentTypeElements.ISubpagesElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncSubpagesElement> => ({
-  ...transformLinkedItemsElement({ ...element, type: "modular_content" }, type, contentTypes, items, logOptions),
+  ...transformLinkedItemsElement({ ...element, type: "modular_content" }, contentTypes, items, logOptions),
   type: "subpages",
 });
