@@ -182,23 +182,32 @@ export const makePrefixHandler = <Entity>(
  *
  * @param getCodename - function to obtain codename from entity (entities are sorted based on codename)
  *
- * @param groupBy - Optional function to obtain property on which the entities should be grouped by
+ * @param options - Optional configuration object.
+ * @param options.groupBy - Optional function to obtain property on which the entities should be grouped by
  * (if unspecified all entities are considered to be in the same group).
  * Only entities inside groups are ordered, however, groups are not ordered amongst themselves.
+ * @param options.filter - Optional function to filter entities from source before ordering with move operations.
  */
 export const makeOrderingHandler = <Entity>(
   arrayHandler: Handler<readonly Entity[]>,
   getCodename: (el: Entity) => string,
-  groupBy: (el: Entity) => string = () => "",
+  {
+    groupBy = () => "",
+    filter = () => true,
+  }: {
+    groupBy?: (el: Entity) => string;
+    filter?: (el: Entity) => boolean;
+  } = {},
 ): Handler<readonly Entity[]> =>
 (sourceValue, targetValue) => {
   const sourceCodenamesSet = new Set(sourceValue.map(getCodename));
   const targetWithoutRemoved = targetValue.filter(v => sourceCodenamesSet.has(getCodename(v)));
 
   const entityGroups = sourceValue.reduce((prev, entity) => {
-    prev.set(groupBy(entity), [...(prev.get(groupBy(entity)) ?? []), getCodename(entity)]);
+    prev.set(groupBy(entity), [...(prev.get(groupBy(entity)) ?? []), entity]);
+
     return prev;
-  }, new Map<string, Array<string>>());
+  }, new Map<string, Array<Entity>>());
 
   const isSorted = zip(sourceValue, targetWithoutRemoved).every(([source, target]) =>
     getCodename(source) === getCodename(target)
@@ -206,18 +215,37 @@ export const makeOrderingHandler = <Entity>(
 
   const moveOps = isSorted
     ? []
-    : Array.from(entityGroups.values()).flatMap(value =>
-      value.length <= 1 ? [] : value.slice(1).map((entity, index) => ({
-        op: "move" as const,
-        path: `/codename:${entity}`,
-        after: {
-          codename: value[index] as string,
-        },
-      }))
-    );
+    : Array.from(entityGroups.values()).flatMap(group => {
+      const filteredArray = group.filter(filter);
+
+      return filteredArray.length <= 1
+        ? []
+        : filteredArray
+          .slice(1)
+          .map((entity, index) => ({
+            op: "move" as const,
+            path: `/codename:${getCodename(entity)}`,
+            after: {
+              codename: getCodename(filteredArray[index] as Entity),
+            },
+          }));
+    });
 
   return [...arrayHandler(sourceValue, targetValue), ...moveOps];
 };
+
+/**
+ * Calls the provided callback allowing adjustments to the patch operations
+ * returned by the provided handler.
+ *
+ * @param adjustArray - callback to be called
+ * @param handler - handler returning patch operations
+ */
+export const makeAdjustOperationHandler = <Entity>(
+  adjustArray: (array: ReadonlyArray<PatchOperation>) => ReadonlyArray<PatchOperation>,
+  handler: Handler<Entity>,
+): Handler<Entity> =>
+(source, target) => adjustArray(handler(source, target));
 
 /**
  * Creates a handler for a union of different types discriminated by a single property
