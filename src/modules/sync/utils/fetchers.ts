@@ -60,7 +60,7 @@ export const fetchRequiredContentItemsByCodename = async (
       .byItemCodename(codename)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(undefined)
+      .catch(() => undefined)
   );
 
   const items = await serially(promises);
