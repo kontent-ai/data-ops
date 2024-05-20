@@ -155,11 +155,6 @@ describe("makeContentTypeHandler", () => {
         path: "/content_groups/codename:groupToBeAdded",
         after: { codename: "group2" },
       },
-      {
-        op: "move",
-        path: "/elements/codename:element_3",
-        after: { codename: "element_1" },
-      },
     ]);
   });
 

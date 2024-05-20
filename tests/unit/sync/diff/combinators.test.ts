@@ -337,6 +337,28 @@ describe("makeOrderingHandler", () => {
     expect(result).toStrictEqual([createMoveOp("b", "a"), createMoveOp("d", "c")]);
   });
 
+  it("returns empty array grouped by groupBy array for same source and target order but different order due to content groups", () => {
+    const source: TestType[] = [
+      { codename: "c", content_group: "2" },
+      { codename: "a", content_group: "1" },
+      { codename: "b", content_group: "1" },
+    ];
+    const target: TestType[] = [
+      { codename: "a", content_group: "1" },
+      { codename: "b", content_group: "1" },
+      { codename: "c", content_group: "2" },
+    ];
+
+    const result = makeOrderingHandler<TestType>(() => [], entity => entity.codename, {
+      groupBy: entity => entity.content_group,
+    })(
+      source,
+      target,
+    );
+
+    expect(result).toStrictEqual([]);
+  });
+
   it("does not return move op using removed element for different source and target order", () => {
     const source = ["a", "b"];
     const target = ["a", "c", "b"];
