@@ -96,6 +96,14 @@ describe("makeContentTypeHandler", () => {
 
     expect(result).toStrictEqual([
       {
+        op: "addInto",
+        path: "/content_groups",
+        value: {
+          name: "group to be added",
+          codename: "groupToBeAdded",
+        },
+      },
+      {
         op: "replace",
         path: "/name",
         value: "new name",
@@ -106,32 +114,6 @@ describe("makeContentTypeHandler", () => {
         path: "/content_groups/codename:group2/name",
         value: "group 2 with new name",
         oldValue: "group 2",
-      },
-      {
-        op: "addInto",
-        path: "/content_groups",
-        value: {
-          name: "group to be added",
-          codename: "groupToBeAdded",
-        },
-      },
-      {
-        op: "remove",
-        path: "/content_groups/codename:groupToBeDeleted",
-        oldValue: {
-          name: "group to be deleted",
-          codename: "groupToBeDeleted",
-        },
-      },
-      {
-        op: "move",
-        path: "/content_groups/codename:group2",
-        after: { codename: "group1" },
-      },
-      {
-        op: "move",
-        path: "/content_groups/codename:groupToBeAdded",
-        after: { codename: "group2" },
       },
       {
         op: "replace",
@@ -154,6 +136,24 @@ describe("makeContentTypeHandler", () => {
           name: "to delete",
           content_group: { codename: "group1" },
         },
+      },
+      {
+        op: "remove",
+        path: "/content_groups/codename:groupToBeDeleted",
+        oldValue: {
+          name: "group to be deleted",
+          codename: "groupToBeDeleted",
+        },
+      },
+      {
+        op: "move",
+        path: "/content_groups/codename:group2",
+        after: { codename: "group1" },
+      },
+      {
+        op: "move",
+        path: "/content_groups/codename:groupToBeAdded",
+        after: { codename: "group2" },
       },
       {
         op: "move",

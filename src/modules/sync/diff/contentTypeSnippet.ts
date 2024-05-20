@@ -1,8 +1,10 @@
+import { PatchOperation } from "../types/diffModel.js";
 import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
-import { SyncGuidelinesElement } from "../types/syncModel.js";
+import { isSyncCustomElement, SyncGuidelinesElement } from "../types/syncModel.js";
 import {
   baseHandler,
   Handler,
+  makeAdjustOperationHandler,
   makeArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
@@ -42,34 +44,60 @@ export const makeContentTypeSnippetHandler = (
           targetTypeOrSnippet: target,
         };
 
-        return makeOrderingHandler(
-          makeArrayHandler(
-            el => el.codename,
-            makeUnionHandler("type", {
-              number: makeNumberElementHandler(ctx),
-              text: makeTextElementHandler(ctx),
-              asset: makeAssetElementHandler(ctx),
-              guidelines: makeGuidelinesElementHandler(ctx),
-              custom: makeCustomElementHandler(ctx),
-              taxonomy: makeTaxonomyElementHandler(ctx),
-              date_time: makeDateTimeElementHandler(ctx),
-              rich_text: makeRichTextElementHandler(ctx),
-              modular_content: makeLinkedItemsElementHandler(ctx),
-              multiple_choice: makeMultiChoiceElementHandler(ctx),
-            }),
-            el =>
-              el.type === "guidelines"
-                ? transformGuidelinesElementToAddModel({
-                  targetItemsReferencedFromSourceByCodenames: params.targetItemsByCodenames,
-                  targetAssetsReferencedFromSourceByCodenames: params.targetAssetsByCodenames,
-                }, el) as SyncGuidelinesElement
-                : el,
+        return makeAdjustOperationHandler(
+          ops => ops.toSorted(snippetOperationsComparator),
+          makeOrderingHandler(
+            makeArrayHandler(
+              el => el.codename,
+              makeUnionHandler("type", {
+                number: makeNumberElementHandler(ctx),
+                text: makeTextElementHandler(ctx),
+                asset: makeAssetElementHandler(ctx),
+                guidelines: makeGuidelinesElementHandler(ctx),
+                custom: makeCustomElementHandler(ctx),
+                taxonomy: makeTaxonomyElementHandler(ctx),
+                date_time: makeDateTimeElementHandler(ctx),
+                rich_text: makeRichTextElementHandler(ctx),
+                modular_content: makeLinkedItemsElementHandler(ctx),
+                multiple_choice: makeMultiChoiceElementHandler(ctx),
+              }),
+              el =>
+                el.type === "guidelines"
+                  ? transformGuidelinesElementToAddModel({
+                    targetItemsReferencedFromSourceByCodenames: params.targetItemsByCodenames,
+                    targetAssetsReferencedFromSourceByCodenames: params.targetAssetsByCodenames,
+                  }, el) as SyncGuidelinesElement
+                  : el,
+            ),
+            e => e.codename,
           ),
-          e => e.codename,
         );
       },
     },
   });
+
+const patchOpToOrdNumber = (op: PatchOperation) => {
+  switch (op.op) {
+    case "addInto": {
+      if (isSyncCustomElement(op.value)) {
+        return 50;
+      }
+      return 10;
+    }
+    case "replace": {
+      return 100;
+    }
+    case "remove": {
+      return 200;
+    }
+    case "move": {
+      return 300;
+    }
+  }
+};
+
+const snippetOperationsComparator = (el1: PatchOperation, el2: PatchOperation): number =>
+  patchOpToOrdNumber(el1) - patchOpToOrdNumber(el2);
 
 export const wholeContentTypeSnippetsHandler: Handler<ReadonlyArray<ContentTypeSnippetsSyncModel>> = makeArrayHandler(
   s => s.codename,

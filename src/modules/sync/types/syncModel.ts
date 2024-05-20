@@ -89,3 +89,9 @@ export type SyncTypeElement =
   | SyncTextElement
   | SyncTypeSnippetElement
   | SyncUrlSlugElement;
+
+export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>
+  typeof entity === "object" && entity !== null && "type" in entity && entity.type === "custom";
+
+export const isSyncUrlSlugElement = (entity: unknown): entity is SyncUrlSlugElement =>
+  typeof entity === "object" && entity !== null && "type" in entity && entity.type === "url_slug";
