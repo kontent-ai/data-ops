@@ -4,6 +4,7 @@ import {
   baseHandler,
   constantHandler,
   Handler,
+  makeAdjustOperationHandler,
   makeArrayHandler,
   makeBaseArrayHandler,
   makeLeafObjectHandler,
@@ -261,6 +262,26 @@ describe("makeBaseArrayHandler", () => {
   });
 });
 
+describe("makeAdjustOperationHandler", () => {
+  it("Adjust operation is called on the result of ther provided handler", () => {
+    const source = "testSource";
+    const target = "testTarget";
+
+    const handler: Handler<string> = (source, target) => [
+      { op: "replace", path: "/test", oldValue: target, value: source },
+    ];
+
+    const result = makeAdjustOperationHandler<string>(
+      (ops) => ops.map(op => ({ ...op, path: "/newTest" })),
+      handler,
+    )(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "replace", path: "/newTest", oldValue: target, value: source },
+    ]);
+  });
+});
+
 describe("makeOrderingHandler", () => {
   const createMoveOp = (codename: string, afterCodename: string) => ({
     op: "move",
@@ -306,7 +327,9 @@ describe("makeOrderingHandler", () => {
       { codename: "c", content_group: "2" },
     ];
 
-    const result = makeOrderingHandler<TestType>(() => [], entity => entity.codename, entity => entity.content_group)(
+    const result = makeOrderingHandler<TestType>(() => [], entity => entity.codename, {
+      groupBy: entity => entity.content_group,
+    })(
       source,
       target,
     );
@@ -340,6 +363,32 @@ describe("makeOrderingHandler", () => {
     )(source, target);
 
     expect(result).toStrictEqual([removeOp, createMoveOp("b", "a")]);
+  });
+
+  it("should only consider elements that pass the filter function", () => {
+    const source = ["a", "b", "c"];
+    const target = ["c", "b"];
+
+    const result = makeOrderingHandler<string>(() => [], el => el, { filter: el => el !== "a" })(
+      source,
+      target,
+    );
+
+    expect(result).toStrictEqual([
+      createMoveOp("c", "b"),
+    ]);
+  });
+
+  it("should return empty array when there is only one entity after filtering", () => {
+    const source = ["a", "b", "c"];
+    const target = ["c", "b"];
+
+    const result = makeOrderingHandler<string>(() => [], el => el, { filter: el => el === "b" })(
+      source,
+      target,
+    );
+
+    expect(result).toStrictEqual([]);
   });
 });
 
