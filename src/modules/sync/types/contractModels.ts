@@ -16,3 +16,5 @@ export type ContentTypeWithUnionElements = Replace<
   ContentTypeContracts.IContentTypeContract,
   { elements: ContentTypeElements.Element[] }
 >;
+
+export type ElementsTypes = ContentTypeElements.Element["type"];
