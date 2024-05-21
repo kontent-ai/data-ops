@@ -134,7 +134,7 @@ export const syncContentModel = async (params: SyncParams) => {
   const warningMessage = chalk.yellow(
     `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentoined changes might include:
 - Removing content due to element deletion
-OK to proceed y/n? (suppress this message with -s parameter)\n`,
+OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   );
 
   const confirmed = !params.skipWarning ? await requestConfirmation(warningMessage) : true;
@@ -147,6 +147,7 @@ OK to proceed y/n? (suppress this message with -s parameter)\n`,
   await sync(
     new ManagementClient({ environmentId: params.targetEnvironmentId, apiKey: params.targetApiKey }),
     diffModel,
+    params,
   );
 };
 
