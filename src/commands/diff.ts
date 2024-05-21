@@ -19,17 +19,17 @@ export const register: RegisterCommand = yargs =>
     describe: "Compares content models from two Kontent.ai environments",
     builder: yargs =>
       yargs
-        .option("environmentId", {
+        .option("targetEnvironmentId", {
           type: "string",
           describe: "Id of the target Kontent.ai environment that should be diffed",
           demandOption: "You need to provide the environmentId of your Kontent.ai environment",
-          alias: "e",
+          alias: "t",
         })
-        .option("apiKey", {
+        .option("targetApiKey", {
           type: "string",
           describe: "Management API key of target Kontent.ai environment",
           demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
-          alias: "k",
+          alias: "tk",
         })
         .option("folderName", {
           type: "string",
@@ -42,20 +42,22 @@ export const register: RegisterCommand = yargs =>
           describe: "Id of Kontent.ai environmnent containing source content model",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
+          alias: "s",
         })
         .option("sourceApiKey", {
           type: "string",
           describe: "Management API key of Kontent.ai environmnent containing source content model",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
+          alias: "sk",
         }),
     handler: args => diffAsync(args),
   });
 
 export type SyncParams =
   & Readonly<{
-    environmentId: string;
-    apiKey: string;
+    targetEnvironmentId: string;
+    targetApiKey: string;
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
@@ -67,8 +69,8 @@ export const diffAsync = async (params: SyncParams) => {
     params,
     "standard",
     `Diff content model between source environment ${
-      chalk.blue(params.folderName ? `in ${params.folderName}` : params.environmentId)
-    } and target environment ${chalk.blue(params.environmentId)}\n`,
+      chalk.blue(params.folderName ? `in ${params.folderName}` : params.sourceEnvironmentId)
+    } and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
   );
 
   const sourceModel = params.folderName
@@ -85,7 +87,10 @@ export const diffAsync = async (params: SyncParams) => {
 
   const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
 
-  const targetEnvironmentClient = new ManagementClient({ apiKey: params.apiKey, environmentId: params.environmentId });
+  const targetEnvironmentClient = new ManagementClient({
+    apiKey: params.targetApiKey,
+    environmentId: params.targetEnvironmentId,
+  });
 
   const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
     targetEnvironmentClient,
