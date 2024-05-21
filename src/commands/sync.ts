@@ -1,7 +1,7 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logError, LogOptions } from "../log.js";
+import { logError, logInfo, LogOptions } from "../log.js";
 import { diff } from "../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
 import { printDiff } from "../modules/sync/printDiff.js";
@@ -12,7 +12,7 @@ import {
   getTargetContentModel,
   readContentModelFromFolder,
 } from "../modules/sync/utils/getContentModel.js";
-import { validateContentFolder, validateContentModel } from "../modules/sync/validation.js";
+import { validateContentFolder, validateContentModel, validateDiffedModel } from "../modules/sync/validation.js";
 import { RegisterCommand } from "../types/yargs.js";
 import { throwError } from "../utils/error.js";
 
@@ -79,10 +79,7 @@ export type SyncParams =
 export const syncContentModel = async (params: SyncParams) => {
   if (params.folderName) {
     const folderErrors = await validateContentFolder(params.folderName);
-    if (folderErrors.length) {
-      folderErrors.forEach(e => logError(params, "standard", e));
-      process.exit(1);
-    }
+    checkValidation(folderErrors, params);
   }
 
   const sourceModel = params.folderName
@@ -111,10 +108,7 @@ export const syncContentModel = async (params: SyncParams) => {
   );
 
   const modelErrors = await validateContentModel(sourceModel, transformedTargetModel);
-  if (modelErrors.length) {
-    modelErrors.forEach(e => logError(params, "standard", e));
-    process.exit(1);
-  }
+  checkValidation(modelErrors, params);
 
   const diffModel = diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,
@@ -125,14 +119,28 @@ export const syncContentModel = async (params: SyncParams) => {
 
   printDiff(diffModel, params);
 
+  logInfo(params, "standard", "Validating patch operations...\n");
+
+  const diffErrors = await validateDiffedModel(
+    new ManagementClient({
+      apiKey: params.targetApiKey,
+      environmentId: params.targetEnvironmentId,
+    }),
+    diffModel,
+  );
+
+  checkValidation(diffErrors, params);
+
   const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
+    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentoined changes might include:
+- Removing content due to element deletion
+OK to proceed y/n? (suppress this message with -s parameter)\n`,
   );
 
   const confirmed = !params.skipWarning ? await requestConfirmation(warningMessage) : true;
 
   if (!confirmed) {
-    logError(params, chalk.red("Operation aborted."));
+    logInfo(params, "standard", chalk.red("Operation aborted."));
     process.exit(1);
   }
 
@@ -140,4 +148,12 @@ export const syncContentModel = async (params: SyncParams) => {
     new ManagementClient({ environmentId: params.targetEnvironmentId, apiKey: params.targetApiKey }),
     diffModel,
   );
+};
+
+const checkValidation = (errors: ReadonlyArray<string>, logOptions: LogOptions) => {
+  if (errors.length) {
+    errors.forEach(e => logError(logOptions, "standard", e));
+    logInfo(logOptions, "standard", chalk.red("Operation aborted"));
+    process.exit(1);
+  }
 };
