@@ -11,6 +11,7 @@ import { omit } from "../../utils/object.js";
 import { serially } from "../../utils/requests.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { RequiredCodename } from "../../utils/types.js";
+import { elementTypes } from "./constants/elements.js";
 import { ElementsTypes } from "./types/contractModels.js";
 import { DiffModel, PatchOperation } from "./types/diffModel.js";
 
@@ -39,29 +40,63 @@ export const sync = async (client: ManagementClient, diff: DiffModel) => {
   const addSnippetsWithoutReferencesOps = diff.contentTypeSnippets.added.map(removeReferencesFromAddOp);
   const addTypesWithoutReferencesOps = diff.contentTypes.added.map(removeReferencesFromAddOp);
 
+  const addSnippetsOps = [...diff.contentTypeSnippets.updated]
+    .map(([c, ops]) =>
+      [
+        c,
+        ops
+          .filter(isOp("addInto"))
+          .map(op =>
+            typeof op.value === "object" && op.value !== null
+              ? ({
+                ...op,
+                value: { ...op.value, allowed_content_types: undefined, allowed_item_link_types: undefined },
+              })
+              : op
+          ),
+      ] as const
+    );
+
+  await serially(addSnippetsOps.map(
+    ([codename, operations]) => () =>
+      operations.length
+        ? updateSnippet(
+          client,
+          codename,
+          operations,
+        )
+        : Promise.resolve(),
+  ));
+
   await serially(addSnippetsWithoutReferencesOps.map(s => () => addSnippet(client, s)));
   await serially(addTypesWithoutReferencesOps.map(t => () => addContentType(client, t)));
 
+  const snippetReplaceOpsAddIntoReferencingElements = addSnippetsOps.map((
+    [codename, ops],
+  ) =>
+    [
+      codename,
+      ops
+        .filter((op): op is typeof op & { value: ReferencingElement } =>
+          isElement(op.value) && isReferencingElement(op.value)
+        )
+        .flatMap(op => createUpdateReferenceOps(op.value)),
+    ] as const
+  );
   const snippetsReplaceReferencesOps = diff.contentTypeSnippets.added.map(createUpdateReferencesOps);
   const typesReplaceReferencesOps = diff.contentTypes.added.map(createUpdateReferencesOps);
 
-  const addSnippetsOps = [...diff.contentTypeSnippets.updated.entries()]
-    .map(([c, ops]) => [c, ops.filter(isOp("addInto"))] as const);
   const otherSnippetOps = [...diff.contentTypeSnippets.updated.entries()]
     .map(([c, ops]) => [c, ops.filter(o => !isOp("addInto")(o))] as const);
 
   await serially(
-    [...addSnippetsOps, ...snippetsReplaceReferencesOps].map(
+    [...snippetReplaceOpsAddIntoReferencingElements, ...snippetsReplaceReferencesOps].map(
       ([codename, operations]) => () =>
         operations.length
           ? updateSnippet(
             client,
             codename,
-            operations.map(o =>
-              o.op === "replace"
-                ? omit(o, ["oldValue"])
-                : o as unknown as ContentTypeSnippetModels.IModifyContentTypeSnippetData // fix once sdks type are fixed
-            ),
+            operations.map(o => omit(o, ["oldValue"])),
           )
           : Promise.resolve(),
     ),
@@ -198,6 +233,17 @@ const transformTaxonomyOperations = (
   } as unknown as TaxonomyModels.IModifyTaxonomyData;
 };
 
+const createUpdateReferenceOps = (
+  element: ReferencingElement,
+) =>
+  (element.type === "rich_text"
+    ? [
+      createUpdateOp(element.codename as string, "allowed_content_types", element.allowed_content_types ?? []),
+      createUpdateOp(element.codename as string, "allowed_item_link_types", element.allowed_item_link_types ?? []),
+    ]
+    : [createUpdateOp(element.codename as string, "allowed_content_types", element.allowed_content_types ?? [])])
+    .filter(notNullOrUndefined);
+
 const createUpdateReferencesOps = (
   entity:
     | RequiredCodename<ContentTypeModels.IAddContentTypeData>
@@ -207,23 +253,22 @@ const createUpdateReferencesOps = (
     entity.codename,
     entity.elements
       .filter(isReferencingElement)
-      .flatMap(e =>
-        e.type === "rich_text"
-          ? [
-            createUpdateOp(e.codename as string, "allowed_content_types", e.allowed_content_types ?? []),
-            createUpdateOp(e.codename as string, "allowed_item_link_types", e.allowed_item_link_types ?? []),
-          ]
-          : [createUpdateOp(e.codename as string, "allowed_content_types", e.allowed_content_types ?? [])]
-      )
+      .flatMap(createUpdateReferenceOps)
       .filter(notNullOrUndefined),
   ] as const;
 
-const isReferencingElement = (
-  element: ContentTypeElements.Element,
-): element is
+type ReferencingElement =
   | ContentTypeElements.ILinkedItemsElement
   | ContentTypeElements.IRichTextElement
-  | ContentTypeElements.ISubpagesElement => referencingElements.includes(element.type);
+  | ContentTypeElements.ISubpagesElement;
+
+const isElement = (entity: unknown): entity is ContentTypeElements.Element =>
+  typeof entity === "object" && entity !== null && "type" in entity && typeof entity.type === "string"
+  && elementTypes.has(entity.type);
+
+const isReferencingElement = (
+  element: ContentTypeElements.Element,
+): element is ReferencingElement => referencingElements.includes(element.type);
 
 const removeReferencesFromAddOp = (
   entity:
