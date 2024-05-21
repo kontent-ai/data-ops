@@ -210,14 +210,10 @@ export const transformTaxonomyElement = (
 ): ElementWithOldContentGroup<SyncTaxonomyElement> => {
   const taxonomyGroup = taxonomies.find(t => t.id === element.taxonomy_group.id);
   if (!taxonomyGroup) {
-    logWarning(
-      logOptions,
-      "standard",
-      `could not find taxonomyGroup with id ${element.taxonomy_group.id} in element with codename ${element.codename}`,
+    throw new Error(
+      `Could not find taxonomy group (id: ${element.taxonomy_group.id}) in element(codename: ${element.codename})`,
     );
   }
-
-  const taxonomyGroupReference = taxonomyGroup ? { codename: taxonomyGroup.codename } : undefined;
 
   const findTerm = (
     term: TaxonomyContracts.ITaxonomyContract,
@@ -226,27 +222,26 @@ export const transformTaxonomyElement = (
     term.id === id ? term : term.terms
       .reduce<TaxonomyContracts.ITaxonomyContract | null>((res, term) => res || findTerm(term, id), null);
 
-  const defaultTermsReferences = taxonomyGroup
-    ? element.default?.global.value.map(t => {
-      const term = findTerm(taxonomyGroup, t.id as string);
+  const defaultTermsReferences = element.default?.global.value.map(t => {
+    const term = findTerm(taxonomyGroup, t.id as string);
 
-      if (!term) {
-        logWarning(
-          logOptions,
-          "standard",
-          `Could not find term with id ${t.id} in element with codename ${element.codename}`,
-        );
-        return null;
-      }
+    if (!term) {
+      logWarning(
+        logOptions,
+        "standard",
+        `Could not find term with id ${t.id} in element with codename ${element.codename}`,
+      );
+      return null;
+    }
 
-      return { codename: term.codename };
-    }).filter(notNullOrUndefined)
-    : undefined;
+    return { codename: term.codename };
+  }).filter(notNullOrUndefined);
+
   const defaultTerms = defaultTermsReferences ? { global: { value: defaultTermsReferences } } : undefined;
 
   return {
     ...omit(element, ["id"]),
-    taxonomy_group: taxonomyGroupReference ?? { external_id: element.taxonomy_group.id as string },
+    taxonomy_group: { codename: taxonomyGroup.codename },
     name: element.name as string,
     default: defaultTerms,
     codename: element.codename as string,
