@@ -7,7 +7,6 @@ import { zip } from "../../../utils/array.js";
 import { serially } from "../../../utils/requests.js";
 import { FixReferences, MapValues } from "../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
-import { createReference } from "./utils/referece.js";
 
 const defaultWorkflowId = emptyId;
 
@@ -75,20 +74,11 @@ const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) =>
   ...importWorkflow,
   scopes: importWorkflow.scopes.map(scope => ({
     content_types: scope.content_types
-      .map(type =>
-        createReference({
-          newId: context.contentTypeContextByOldIds.get(type.id)?.selfId,
-          oldId: type.id,
-          entityName: "type",
-        })
-      ),
-    collections: scope.collections.map(collection =>
-      createReference({
-        newId: context.collectionIdsByOldIds.get(collection.id),
-        oldId: collection.id,
-        entityName: "collection",
-      })
-    ),
+      .filter(t => context.contentTypeContextByOldIds.get(t.id))
+      .map(type => ({ id: context.contentTypeContextByOldIds.get(type.id)?.selfId })),
+    collections: scope.collections
+      .filter(c => context.collectionIdsByOldIds.get(c.id))
+      .map(collection => ({ id: context.collectionIdsByOldIds.get(collection.id) })),
   })),
   steps: importWorkflow.steps.map(step => ({
     ...step,
