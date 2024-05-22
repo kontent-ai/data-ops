@@ -2,28 +2,28 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import StreamZip from "node-stream-zip";
 
-import { logError, logInfo, LogOptions } from "../log.js";
-import { RegisterCommand } from "../types/yargs.js";
-import { serially } from "../utils/requests.js";
-import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "./importExportEntities/entities/assets.js";
-import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
+import { logError, logInfo, LogOptions } from "../../log.js";
+import { RegisterCommand } from "../../types/yargs.js";
+import { serially } from "../../utils/requests.js";
+import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
+import { assetsEntity } from "../importExportEntities/entities/assets.js";
+import { collectionsEntity } from "../importExportEntities/entities/collections.js";
+import { contentItemsEntity } from "../importExportEntities/entities/contentItems.js";
 import {
   contentTypesEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
-} from "./importExportEntities/entities/contentTypes.js";
+} from "../importExportEntities/entities/contentTypes.js";
 import {
   contentTypesSnippetsEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
-} from "./importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./importExportEntities/entities/languages.js";
-import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
-import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
-import { spacesEntity } from "./importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
-import { EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
+} from "../importExportEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "../importExportEntities/entities/languages.js";
+import { languageVariantsEntity } from "../importExportEntities/entities/languageVariants.js";
+import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
+import { spacesEntity } from "../importExportEntities/entities/spaces.js";
+import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
+import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
+import { EntityImportDefinition, ImportContext } from "../importExportEntities/entityDefinition.js";
 
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.

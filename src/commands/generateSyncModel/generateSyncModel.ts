@@ -1,9 +1,9 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logError, logInfo, LogOptions } from "../log.js";
-import { fetchModel, saveSyncModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
-import { RegisterCommand } from "../types/yargs.js";
+import { logError, logInfo, LogOptions } from "../../log.js";
+import { fetchModel, saveSyncModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
+import { RegisterCommand } from "../../types/yargs.js";
 
 export const register: RegisterCommand = yargs =>
   yargs.command(
