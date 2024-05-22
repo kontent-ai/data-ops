@@ -1,20 +1,20 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logError, logInfo, LogOptions } from "../log.js";
-import { diff } from "../modules/sync/diff.js";
-import { fetchModel, transformSyncModel } from "../modules/sync/generateSyncModel.js";
-import { printDiff } from "../modules/sync/printDiff.js";
-import { sync } from "../modules/sync/sync.js";
-import { requestConfirmation } from "../modules/sync/utils/consoleHelpers.js";
+import { logError, logInfo, LogOptions } from "../../log.js";
+import { diff } from "../../modules/sync/diff.js";
+import { fetchModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
+import { printDiff } from "../../modules/sync/printDiff.js";
+import { sync } from "../../modules/sync/sync.js";
+import { requestConfirmation } from "../../modules/sync/utils/consoleHelpers.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,
   readContentModelFromFolder,
-} from "../modules/sync/utils/getContentModel.js";
-import { validateContentFolder, validateContentModel, validateDiffedModel } from "../modules/sync/validation.js";
-import { RegisterCommand } from "../types/yargs.js";
-import { throwError } from "../utils/error.js";
+} from "../../modules/sync/utils/getContentModel.js";
+import { validateContentFolder, validateContentModel, validateDiffedModel } from "../../modules/sync/validation.js";
+import { RegisterCommand } from "../../types/yargs.js";
+import { throwError } from "../../utils/error.js";
 
 export const register: RegisterCommand = yargs =>
   yargs.command({

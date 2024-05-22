@@ -5,25 +5,25 @@ import archiver from "archiver";
 import chalk from "chalk";
 import * as fs from "fs";
 
-import packageFile from "../../package.json" with { type: "json" };
-import { logError, logInfo, LogOptions } from "../log.js";
-import { RegisterCommand } from "../types/yargs.js";
-import { serializeDateForFileName } from "../utils/files.js";
-import { serially } from "../utils/requests.js";
-import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "./importExportEntities/entities/assets.js";
-import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
-import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
-import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./importExportEntities/entities/languages.js";
-import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
-import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
-import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
-import { spacesEntity } from "./importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
-import { EntityExportDefinition } from "./importExportEntities/entityDefinition.js";
+import packageFile from "../../../package.json" with { type: "json" };
+import { logError, logInfo, LogOptions } from "../../log.js";
+import { RegisterCommand } from "../../types/yargs.js";
+import { serializeDateForFileName } from "../../utils/files.js";
+import { serially } from "../../utils/requests.js";
+import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
+import { assetsEntity } from "../importExportEntities/entities/assets.js";
+import { collectionsEntity } from "../importExportEntities/entities/collections.js";
+import { contentItemsEntity } from "../importExportEntities/entities/contentItems.js";
+import { contentTypesEntity } from "../importExportEntities/entities/contentTypes.js";
+import { contentTypesSnippetsEntity } from "../importExportEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "../importExportEntities/entities/languages.js";
+import { languageVariantsEntity } from "../importExportEntities/entities/languageVariants.js";
+import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
+import { rolesExportEntity } from "../importExportEntities/entities/roles.js";
+import { spacesEntity } from "../importExportEntities/entities/spaces.js";
+import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
+import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
+import { EntityExportDefinition } from "../importExportEntities/entityDefinition.js";
 
 const {
   version,
