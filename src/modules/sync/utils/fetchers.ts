@@ -1,5 +1,6 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
+import { skipKontentErrors } from "../../../utils/error.js";
 import { serially } from "../../../utils/requests.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
 
@@ -10,7 +11,7 @@ export const fetchRequiredAssets = async (client: ManagementClient, assetIds: Re
       .byAssetId(id)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(() => undefined)
+      .catch(skipKontentErrors([105, 106]))
   );
 
   const assets = await serially(promises);
@@ -28,7 +29,7 @@ export const fetchRequiredAssetsByCodename = async (
       .byAssetCodename(codename)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(() => undefined)
+      .catch(skipKontentErrors([105, 106]))
   );
 
   const assets = await serially(promises);
@@ -43,7 +44,7 @@ export const fetchRequiredContentItems = async (client: ManagementClient, itemsI
       .byItemId(id)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(undefined)
+      .catch(skipKontentErrors([100]))
   );
 
   const items = await serially(promises);
@@ -60,7 +61,7 @@ export const fetchRequiredContentItemsByCodename = async (
       .byItemCodename(codename)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(() => undefined)
+      .catch(skipKontentErrors([100]))
   );
 
   const items = await serially(promises);

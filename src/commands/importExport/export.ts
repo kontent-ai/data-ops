@@ -1,6 +1,5 @@
 import { finished } from "node:stream/promises";
 
-import { ManagementClient } from "@kontent-ai/management-sdk";
 import archiver from "archiver";
 import chalk from "chalk";
 import * as fs from "fs";
@@ -8,6 +7,8 @@ import * as fs from "fs";
 import packageFile from "../../../package.json" with { type: "json" };
 import { logError, logInfo, LogOptions } from "../../log.js";
 import { RegisterCommand } from "../../types/yargs.js";
+import { createClient } from "../../utils/client.js";
+import { simplifyErrors } from "../../utils/error.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import { serially } from "../../utils/requests.js";
 import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
@@ -84,7 +85,7 @@ export const register: RegisterCommand = yargs =>
           choices: entityChoices,
           conflicts: "include",
         }),
-    handler: args => exportEntities(args),
+    handler: args => exportEntities(args).catch(simplifyErrors),
   });
 
 type ExportEntitiesParams =
@@ -98,7 +99,7 @@ type ExportEntitiesParams =
   & LogOptions;
 
 const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
-  const client = new ManagementClient({
+  const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
   });

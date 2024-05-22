@@ -1,4 +1,3 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
@@ -14,7 +13,8 @@ import {
 } from "../../modules/sync/utils/getContentModel.js";
 import { validateContentFolder, validateContentModel, validateDiffedModel } from "../../modules/sync/validation.js";
 import { RegisterCommand } from "../../types/yargs.js";
-import { throwError } from "../../utils/error.js";
+import { createClient } from "../../utils/client.js";
+import { simplifyErrors, throwError } from "../../utils/error.js";
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
@@ -62,7 +62,7 @@ export const register: RegisterCommand = yargs =>
           describe: "Skip warning message.",
           alias: "sw",
         }),
-    handler: args => syncContentModel(args),
+    handler: args => syncContentModel(args).catch(simplifyErrors),
   });
 
 export type SyncParams =
@@ -86,7 +86,7 @@ export const syncContentModel = async (params: SyncParams) => {
     ? await readContentModelFromFolder(params.folderName)
     : transformSyncModel(
       await fetchModel(
-        new ManagementClient({
+        createClient({
           environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
           apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
         }),
@@ -96,7 +96,7 @@ export const syncContentModel = async (params: SyncParams) => {
 
   const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
 
-  const targetEnvironmentClient = new ManagementClient({
+  const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
   });
@@ -122,7 +122,7 @@ export const syncContentModel = async (params: SyncParams) => {
   logInfo(params, "standard", "Validating patch operations...\n");
 
   const diffErrors = await validateDiffedModel(
-    new ManagementClient({
+    createClient({
       apiKey: params.targetApiKey,
       environmentId: params.targetEnvironmentId,
     }),
@@ -145,7 +145,7 @@ OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   }
 
   await sync(
-    new ManagementClient({ environmentId: params.targetEnvironmentId, apiKey: params.targetApiKey }),
+    createClient({ environmentId: params.targetEnvironmentId, apiKey: params.targetApiKey }),
     diffModel,
     params,
   );
