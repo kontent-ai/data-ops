@@ -1,9 +1,10 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
 import { fetchModel, saveSyncModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
 import { RegisterCommand } from "../../types/yargs.js";
+import { createClient } from "../../utils/client.js";
+import { simplifyErrors } from "../../utils/error.js";
 
 export const register: RegisterCommand = yargs =>
   yargs.command(
@@ -29,7 +30,7 @@ export const register: RegisterCommand = yargs =>
             describe: "Name of the folder to generate content model into.",
             alias: "f",
           }),
-      handler: args => generateModel(args),
+      handler: args => generateModel(args).catch(simplifyErrors),
     },
   );
 
@@ -46,7 +47,7 @@ export const generateModel = async (params: SyncParams) => {
   const environmentModel = await logOnError(
     params,
     chalk.red("Failed to fetch the model."),
-    () => fetchModel(new ManagementClient({ environmentId: params.environmentId, apiKey: params.apiKey })),
+    () => fetchModel(createClient({ environmentId: params.environmentId, apiKey: params.apiKey })),
   );
 
   logInfo(params, "standard", "Transforming the model.");

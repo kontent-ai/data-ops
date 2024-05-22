@@ -1,4 +1,3 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../log.js";
@@ -11,7 +10,8 @@ import {
   readContentModelFromFolder,
 } from "../../modules/sync/utils/getContentModel.js";
 import { RegisterCommand } from "../../types/yargs.js";
-import { throwError } from "../../utils/error.js";
+import { createClient } from "../../utils/client.js";
+import { simplifyErrors, throwError } from "../../utils/error.js";
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
@@ -51,7 +51,7 @@ export const register: RegisterCommand = yargs =>
           implies: ["sourceEnvironmentId"],
           alias: "sk",
         }),
-    handler: args => diffAsync(args),
+    handler: args => diffAsync(args).catch(simplifyErrors),
   });
 
 export type SyncParams =
@@ -77,7 +77,7 @@ export const diffAsync = async (params: SyncParams) => {
     ? await readContentModelFromFolder(params.folderName)
     : transformSyncModel(
       await fetchModel(
-        new ManagementClient({
+        createClient({
           environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
           apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
         }),
@@ -87,7 +87,7 @@ export const diffAsync = async (params: SyncParams) => {
 
   const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
 
-  const targetEnvironmentClient = new ManagementClient({
+  const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
   });

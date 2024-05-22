@@ -1,9 +1,10 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import StreamZip from "node-stream-zip";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
 import { RegisterCommand } from "../../types/yargs.js";
+import { createClient } from "../../utils/client.js";
+import { simplifyErrors } from "../../utils/error.js";
 import { serially } from "../../utils/requests.js";
 import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
 import { assetsEntity } from "../importExportEntities/entities/assets.js";
@@ -86,7 +87,7 @@ export const register: RegisterCommand = yargs =>
           choices: entityChoices,
           conflicts: "include",
         }),
-    handler: args => importEntities(args),
+    handler: args => importEntities(args).catch(simplifyErrors),
   });
 
 type ImportEntitiesParams =
@@ -101,7 +102,7 @@ type ImportEntitiesParams =
 
 const importEntities = async (params: ImportEntitiesParams) => {
   const root = new StreamZip.async({ file: params.fileName });
-  const client = new ManagementClient({
+  const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
   });
