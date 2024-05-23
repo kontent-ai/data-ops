@@ -197,8 +197,8 @@ export const transformRichTextElement = (
 
   return {
     ...omit(element, ["id"]),
-    allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : undefined,
-    allowed_item_link_types: allowedItemLinkTypes?.length ? allowedItemLinkTypes : undefined,
+    allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : [],
+    allowed_item_link_types: allowedItemLinkTypes?.length ? allowedItemLinkTypes : [],
     codename: element.codename as string,
   };
 };
@@ -281,7 +281,7 @@ export const transformLinkedItemsElement = (
 
   return {
     ...omit(element, ["id"]),
-    allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : undefined,
+    allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : [],
     default: defaultReference,
     codename: element.codename as string,
   };
