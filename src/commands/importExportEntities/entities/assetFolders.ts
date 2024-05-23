@@ -50,7 +50,7 @@ const createPatchToAddFolder = (
 
 const createPatchToRemoveFolder = (
   folder: AssetFolderContracts.IAssetFolderContract,
-): AssetFolderModels.IModifyAssetFoldersData => ({
+): AssetFolderModels.IModifyAssetFolderData => ({
   op: "remove",
   reference: {
     id: folder.id,
