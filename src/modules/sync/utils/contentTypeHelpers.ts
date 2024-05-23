@@ -66,13 +66,7 @@ const getRequiredItemOrAssetIds = (
   parsedGuidelines: ParseResult[],
   resolveDomTextNode: (node: DomHtmlNode, traverse: (node: DomNode) => unknown) => unknown,
 ) => {
-  const elementsIds = elements.reduce((previous, e) => {
-    e.default?.global.value.forEach(i => {
-      previous.add(i.id as string);
-    });
-
-    return previous;
-  }, new Set<string>());
+  const elementsIds = new Set(elements.flatMap(el => el.default?.global.value.map(ref => ref.id as string) ?? []));
 
   const idsFromGuidelines = parsedGuidelines.reduce<string[]>((prev, guideline) =>
     [
@@ -93,7 +87,7 @@ export const getRequiredCodenames = (
   // Use typeguard once types in SDKs are fixed
   const guidelinesElements = elements.filter(element =>
     element.type === "guidelines"
-  ) as unknown as ContentTypeElements.IGuidelinesElement[];
+  ) as ContentTypeElements.IGuidelinesElement[];
   const linkedItemElements = elements.filter((element): element is SyncLinkedItemsElement =>
     // currently, the subpages type in SDK does not contain default property, therefore subpages are narrowed to ILinkedItemsElement.
     // since the subpages element is the same as the linked items element apart from the type property.
