@@ -169,7 +169,7 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
   const makeGroupFallbackExternalId = (groupCodename: string | undefined) => `${type.codename}_${groupCodename}`;
 
   const getElementContentGroupCodename = (element: TypeElement) =>
-    type.content_groups?.find(g => g.id === (element as ContentTypeElements.IElementShared).content_group?.id)
+    type.content_groups?.find(g => g.id === (element as ContentTypeElements.Element).content_group?.id)
       ?.codename;
 
   return params.client
