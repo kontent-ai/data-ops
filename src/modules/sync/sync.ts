@@ -49,7 +49,7 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
   await serially(Array.from(diff.contentTypeSnippets.deleted).map(c => () => deleteSnippet(client, c)));
 
   // replace, remove, move operations
-  logInfo(logOptions, "standard", "Update conten type snippets");
+  logInfo(logOptions, "standard", "Updating content type snippets");
   await updateSnippets(client, diff.contentTypeSnippets.updated);
 };
 
@@ -103,25 +103,25 @@ const addElementsIntoSnippetsWithoutReferences = async (
   await serially(addSnippetsOpsWithoutRefs.map(
     ([codename, operations]) => () =>
       operations.length
-        ? updateSnippet(client, codename, operations as ContentTypeSnippetModels.IModifyContentTypeSnippetData[])
+        ? updateSnippet(client, codename, operations)
         : Promise.resolve(),
   ));
 };
 
 const addSnippetsWithoutReferences = async (
   client: ManagementClient,
-  addSnippetsOps: DiffModel["contentTypeSnippets"]["added"],
+  addSnippets: DiffModel["contentTypeSnippets"]["added"],
 ) => {
-  const addSnippetsWithoutReferencesOps = addSnippetsOps.map(removeReferencesFromAddOp);
-  await serially(addSnippetsWithoutReferencesOps.map(s => () => addSnippet(client, s)));
+  const addSnippetsWithoutReferences = addSnippets.map(removeReferencesFromAddOp);
+  await serially(addSnippetsWithoutReferences.map(s => () => addSnippet(client, s)));
 };
 
 const addTypesWithoutReferences = async (
   client: ManagementClient,
   addContentTypes: DiffModel["contentTypes"]["added"],
 ) => {
-  const addTypesWithoutReferencesOps = addContentTypes.map(removeReferencesFromAddOp);
-  await serially(addTypesWithoutReferencesOps.map(t => () => addContentType(client, t)));
+  const addTypesWithoutReferences = addContentTypes.map(removeReferencesFromAddOp);
+  await serially(addTypesWithoutReferences.map(t => () => addContentType(client, t)));
 };
 
 const addSnippetsReferences = async (

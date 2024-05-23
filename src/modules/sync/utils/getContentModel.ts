@@ -17,9 +17,8 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
   // in future we should use typeguard to check whether the content is valid
   const contentTypes = JSON.parse(
     await fs.readFile(`${folderName}/${contentTypesFileName}`, "utf8"),
-  ) as unknown as ReadonlyArray<
-    ContentTypeSyncModel
-  >;
+  ) as ReadonlyArray<ContentTypeSyncModel>;
+
   const snippets = JSON.parse(
     await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8"),
   ) as unknown as ReadonlyArray<
@@ -38,22 +37,22 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
   };
 };
 
-type AssetItemsCodenames = {
-  assetCodenames: Set<string>;
-  itemCodenames: Set<string>;
-};
+type AssetItemsCodenames = Readonly<{
+  assetCodenames: ReadonlySet<string>;
+  itemCodenames: ReadonlySet<string>;
+}>;
 
 export const getSourceItemAndAssetCodenames = (sourceModel: FileContentModel): AssetItemsCodenames =>
   [...sourceModel.contentTypes, ...sourceModel.contentTypeSnippets].reduce<
     { assetCodenames: Set<string>; itemCodenames: Set<string> }
   >(
     (previous, type) => {
-      const ids = getRequiredCodenames(type.elements);
+      const requiredIds = getRequiredCodenames(type.elements);
 
-      return {
-        assetCodenames: new Set([...previous.assetCodenames, ...ids.assetCodenames]),
-        itemCodenames: new Set([...previous.itemCodenames, ...ids.itemCodenames]),
-      };
+      requiredIds.assetCodenames.forEach(c => previous.assetCodenames.add(c));
+      requiredIds.itemCodenames.forEach(c => previous.itemCodenames.add(c));
+
+      return previous;
     },
     { assetCodenames: new Set(), itemCodenames: new Set() },
   );
