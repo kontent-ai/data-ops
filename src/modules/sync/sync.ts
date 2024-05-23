@@ -284,14 +284,17 @@ const transformTaxonomyOperations = (
 ): TaxonomyModels.IModifyTaxonomyData => {
   const pathParts = operation.path.split("/");
   const propertyName = pathParts[pathParts.length - 1];
-  const termReference = pathParts[pathParts.length - 2];
+  const termReference = operation.op === "replace" ? pathParts[pathParts.length - 2] : pathParts[pathParts.length - 1];
+  const codename = termReference?.split(":")[1];
 
   return {
     ...operation,
     path: undefined,
-    reference: termReference === "" ? undefined : {
-      codename: termReference?.split(":")[1],
-    },
+    reference: codename
+      ? {
+        codename: codename,
+      }
+      : undefined,
     property_name: operation.op === "replace" ? propertyName : undefined,
     oldValue: undefined,
   } as unknown as TaxonomyModels.IModifyTaxonomyData;
