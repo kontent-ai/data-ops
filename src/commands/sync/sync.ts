@@ -25,13 +25,13 @@ export const register: RegisterCommand = yargs =>
         .option("targetEnvironmentId", {
           type: "string",
           describe: "Id of the target Kontent.ai environment.",
-          demandOption: "You need to provide the environmentId of your Kontent.ai environment",
+          demandOption: "You need to provide the environmentId for target Kontent.ai environment",
           alias: "t",
         })
         .option("targetApiKey", {
           type: "string",
           describe: "Management API key of target Kontent.ai environment",
-          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
+          demandOption: "You need to provide a Management API key for target Kontent.ai environment.",
           alias: "tk",
         })
         .option("folderName", {
@@ -44,7 +44,7 @@ export const register: RegisterCommand = yargs =>
         .option("sourceEnvironmentId", {
           type: "string",
           describe:
-            "Id of Kontent.ai environmnent containing source content model. Must be used --sourceApiKey. with Can't be used at the same time with option --folderName",
+            "Id of Kontent.ai environmnent containing source content model. Must be used --sourceApiKey. Can't be used at the same time with option --folderName",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
           alias: "s",
@@ -57,10 +57,9 @@ export const register: RegisterCommand = yargs =>
           implies: ["sourceEnvironmentId"],
           alias: "sk",
         })
-        .option("skipWarning", {
+        .option("skipConfirmation", {
           type: "boolean",
-          describe: "Skip warning message.",
-          alias: "sw",
+          describe: "Skip confirmation message.",
         }),
     handler: args => syncContentModel(args).catch(simplifyErrors),
   });
@@ -121,13 +120,7 @@ export const syncContentModel = async (params: SyncParams) => {
 
   logInfo(params, "standard", "Validating patch operations...\n");
 
-  const diffErrors = await validateDiffedModel(
-    createClient({
-      apiKey: params.targetApiKey,
-      environmentId: params.targetEnvironmentId,
-    }),
-    diffModel,
-  );
+  const diffErrors = await validateDiffedModel(targetEnvironmentClient, diffModel);
 
   checkValidation(diffErrors, params);
 
@@ -145,7 +138,7 @@ OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   }
 
   await sync(
-    createClient({ environmentId: params.targetEnvironmentId, apiKey: params.targetApiKey }),
+    targetEnvironmentClient,
     diffModel,
     params,
   );
