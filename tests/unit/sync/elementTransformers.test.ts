@@ -260,8 +260,8 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
-      allowed_content_types: undefined,
-      allowed_item_link_types: undefined,
+      allowed_content_types: [],
+      allowed_item_link_types: [],
     };
 
     const transformedElement = transformRichTextElement(element, [], logOptions);
@@ -351,7 +351,7 @@ describe("elementTransfomers test", () => {
       ...element,
       id: undefined,
       default: undefined,
-      allowed_content_types: undefined,
+      allowed_content_types: [],
     };
 
     const transformedElement = transformLinkedItemsElement(element, [], [], logOptions);
