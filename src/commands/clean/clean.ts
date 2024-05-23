@@ -3,22 +3,22 @@ import readline from "node:readline";
 import { ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logError, logInfo, LogOptions } from "../log.js";
-import { RegisterCommand } from "../types/yargs.js";
-import { serially } from "../utils/requests.js";
-import { isSpotlightInUseError } from "../utils/typeguards.js";
-import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "./importExportEntities/entities/assets.js";
-import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
-import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
-import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./importExportEntities/entities/languages.js";
-import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
-import { spacesEntity } from "./importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
-import { EntityDefinition } from "./importExportEntities/entityDefinition.js";
+import { logError, logInfo, LogOptions } from "../../log.js";
+import { RegisterCommand } from "../../types/yargs.js";
+import { serially } from "../../utils/requests.js";
+import { isSpotlightInUseError } from "../../utils/typeguards.js";
+import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
+import { assetsEntity } from "../importExportEntities/entities/assets.js";
+import { collectionsEntity } from "../importExportEntities/entities/collections.js";
+import { contentItemsEntity } from "../importExportEntities/entities/contentItems.js";
+import { contentTypesEntity } from "../importExportEntities/entities/contentTypes.js";
+import { contentTypesSnippetsEntity } from "../importExportEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "../importExportEntities/entities/languages.js";
+import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
+import { spacesEntity } from "../importExportEntities/entities/spaces.js";
+import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
+import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
+import { EntityDefinition } from "../importExportEntities/entityDefinition.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.

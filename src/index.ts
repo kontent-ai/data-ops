@@ -10,7 +10,7 @@ import { RegisterCommand } from "./types/yargs.js";
 const commandsToRegister: ReadonlyArray<RegisterCommand> = [
   (await import("./commands/importExport/export.js")).register,
   (await import("./commands/importExport/import.js")).register,
-  (await import("./commands/clean.js")).register,
+  (await import("./commands/clean/clean.js")).register,
   (await import("./commands/generateSyncModel/generateSyncModel.js")).register,
   (await import("./commands/sync/sync.js")).register,
   (await import("./commands/diff/diff.js")).register,
