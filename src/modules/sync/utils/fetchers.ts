@@ -11,7 +11,7 @@ export const fetchRequiredAssets = async (client: ManagementClient, assetIds: Re
       .byAssetId(id)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(skipKontentErrors([105, 106]))
+      .catch(skipKontentErrors([105, 106, 20404]))
   );
 
   const assets = await serially(promises);
@@ -29,7 +29,7 @@ export const fetchRequiredAssetsByCodename = async (
       .byAssetCodename(codename)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(skipKontentErrors([105, 106]))
+      .catch(skipKontentErrors([105, 106, 20404]))
   );
 
   const assets = await serially(promises);
@@ -44,7 +44,7 @@ export const fetchRequiredContentItems = async (client: ManagementClient, itemsI
       .byItemId(id)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(skipKontentErrors([100]))
+      .catch(skipKontentErrors([100, 20404]))
   );
 
   const items = await serially(promises);
@@ -61,7 +61,7 @@ export const fetchRequiredContentItemsByCodename = async (
       .byItemCodename(codename)
       .toPromise()
       .then(res => res.data._raw)
-      .catch(skipKontentErrors([100]))
+      .catch(skipKontentErrors([100, 20404]))
   );
 
   const items = await serially(promises);
