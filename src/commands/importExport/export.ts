@@ -48,9 +48,11 @@ const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
 
 const entityChoices = entityDefinitions.map(e => e.name);
 
+const commandName = "export";
+
 export const register: RegisterCommand = yargs =>
   yargs.command({
-    command: "export",
+    command: commandName,
     describe: "Exports data from the specified Kontent.ai project into a .zip file.",
     builder: yargs =>
       yargs
@@ -102,6 +104,7 @@ const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
+    commandName,
   });
 
   const definitionsToExport = entityDefinitions
