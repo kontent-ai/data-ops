@@ -6,10 +6,12 @@ import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { simplifyErrors } from "../../utils/error.js";
 
+const commandName = "generate-sync-model";
+
 export const register: RegisterCommand = yargs =>
   yargs.command(
     {
-      command: "generate-sync-model",
+      command: commandName,
       describe: "generates content model json file used for sync from Kontent.ai environment",
       builder: yargs =>
         yargs
@@ -47,7 +49,7 @@ export const generateModel = async (params: SyncParams) => {
   const environmentModel = await logOnError(
     params,
     chalk.red("Failed to fetch the model."),
-    () => fetchModel(createClient({ environmentId: params.environmentId, apiKey: params.apiKey })),
+    () => fetchModel(createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName })),
   );
 
   logInfo(params, "standard", "Transforming the model.");

@@ -16,9 +16,11 @@ import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { simplifyErrors, throwError } from "../../utils/error.js";
 
+const commandName = "sync";
+
 export const register: RegisterCommand = yargs =>
   yargs.command({
-    command: "sync",
+    command: commandName,
     describe: "Synchronize content model between two Kontent.ai environments",
     builder: yargs =>
       yargs
@@ -88,6 +90,7 @@ export const syncContentModel = async (params: SyncParams) => {
         createClient({
           environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
           apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
+          commandName,
         }),
       ),
       params,
@@ -98,6 +101,7 @@ export const syncContentModel = async (params: SyncParams) => {
   const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
+    commandName,
   });
 
   const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
