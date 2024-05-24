@@ -47,9 +47,11 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
 
 const entityChoices = entityDefinitions.filter(e => !e.isDependentOn).map(e => e.name);
 
+const commandName = "import";
+
 export const register: RegisterCommand = yargs =>
   yargs.command({
-    command: "import",
+    command: commandName,
     describe: "Imports data into the specified Kontent.ai project.",
     builder: yargs =>
       yargs
@@ -105,6 +107,7 @@ const importEntities = async (params: ImportEntitiesParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
+    commandName,
   });
 
   const shouldImport = (name: string) =>

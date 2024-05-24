@@ -13,9 +13,11 @@ import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { simplifyErrors, throwError } from "../../utils/error.js";
 
+const commandName = "diff";
+
 export const register: RegisterCommand = yargs =>
   yargs.command({
-    command: "diff",
+    command: commandName,
     describe: "Compares content models from two Kontent.ai environments",
     builder: yargs =>
       yargs
@@ -80,6 +82,7 @@ export const diffAsync = async (params: SyncParams) => {
         createClient({
           environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
           apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
+          commandName,
         }),
       ),
       params,
@@ -90,6 +93,7 @@ export const diffAsync = async (params: SyncParams) => {
   const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
+    commandName,
   });
 
   const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
