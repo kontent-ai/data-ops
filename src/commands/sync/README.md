@@ -1,7 +1,7 @@
 # Sync
 > [!CAUTION] 
 > Synchronizing content model might lead to irreversible changes to the environment such as:
-> - Deletion of the content by deleting content type's elements
+> - Deletion of the content by deleting the content type's elements
 > - Deletion of used taxonomies.
 
 `Sync` command synchronizes the source content model into the target environment via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). The source content can be obtained from an existing Kontent.ai environment(considering you have access to the required credentials) or a folder structure in a required format (see [generate-sync-model](../generateSyncModel/README.md) command for more information). In the context of this command, the content model represents these entities: `Taxonomies`, `Content Types`, and `Content Type Snippets`. The command starts with the comparison of provided content models and creates patch operations that are printed as a diff. We `ENCOURAGE` you to examine the changes, before you proceed to the model synchronization. After the diff, a simple validation of corner cases follows, leading to an operation abortion, if an inconsistency is found. Otherwise, you will be asked to confirm the changes to begin the synchronization.
@@ -32,22 +32,31 @@ npx @kontent-ai/data-ops export --targetEnvironmentId=<target-environment-id> --
 ```
 
 > [!NOTE]  
-> As command might get long, we recommend to pass parameters in a JSON configuration file (e.g. --configFile params.json) 
+> As the command might get long, we recommend passing parameters in a JSON configuration file (e.g. --configFile params.json)
+> ```JSON
+> // params.json example
+> {
+>   "targetApiKey": "<target-mapi-key>",
+>   "targetEnvironmentId": "<target-env-id>",
+>   "sourceEnvironmentId": "<source-env-id>",
+>   "sourceApiKey": "<source-mapi-key>"
+> }
+> ```
 
 To see all supported parameters, run `npx @kontent-ai/data-ops sync --help`.
 
 ## Known limitations
 Using Management API introduces some limitations. Synchrozining content model won't let you:
 - Change the state of Web Spotlight
-- Snippet element can't be referenced in the same request when it is created. Because of this, the tool can't move it to the correct place in the content type.
+- Snippet element can't be referenced in the same request when it's created. Because of this, the tool can't move it to the correct place in the content type.
 
 ## Contributing
 
-When syncing the content model, add, patch, and delete operations must come in a specific order, otherwise, MAPI won't be able to reference some of the entities. Check the image below for more details.
+When syncing the content model, add, patch, and delete operations must come in a specific order, otherwise, MAPI won't be able to reference some entities. Check the image below for more details.
 
 ![Content model operations order](./content_model_operations_order.png)
 
-To successfully patch a content type, its operations for content groups and elements must also be in specific order:
+To successfully patch a content type, its operations for content groups and elements must also be in a specific order:
 ![Content type operations order](./content_type_operations_order.png)
 
 
