@@ -52,7 +52,7 @@ The tool usage is based on commands provided in the following format:
 npx @kontent-ai/data-ops <command-name> <command-options>
 ```
 
-The instruction for the command are presented in the README.md files in command's individual folders ([./src/commands](./src/commands)). Data-ops supports these commands:
+The instructions for every command are presented in the README.md files in the command's individual folders ([./src/commands](./src/commands)). Data-ops supports these commands:
 - [import & export](./src/commands/importExport/README.md)
 - [clean](./src/commands/clean/README.md)
 - [sync](./src/commands/sync/README.md)
@@ -85,7 +85,7 @@ The configuration is only necessary to run the integration tests.
 ## Structure
 
 The main part of the tool is in the `src` folder.
-The project is structured around commands, with each command defined on the [yargs](https://yargs.js.org/) object in its own file (with the same name) in the `src/commands` folder.
+The project is structured around commands, with each command defined on the [yargs](https://yargs.js.org/) object in its own folder (with the same name) in the `src/commands` folder.
 The exported `register` function (of type `RegisterCommand`) must be included in `src/index.ts` in the `commandsToRegister` array.
 
 You can find tests in the `tests/integration` and `tests/unit` folders.
