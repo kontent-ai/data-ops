@@ -15,11 +15,11 @@ import { simplifyErrors, throwError } from "../../utils/error.js";
 
 const commandName = "diff";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "Compares content models from two Kontent.ai environments",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
@@ -52,6 +52,11 @@ export const register: RegisterCommand = yargs =>
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
           alias: "sk",
+        })
+        .option("advancedLog", {
+          type: "boolean",
+          describe: "Generate a detailed diff to an HTML file.",
+          alias: "a",
         }),
     handler: args => diffAsync(args).catch(simplifyErrors),
   });
@@ -63,6 +68,7 @@ export type SyncParams =
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
+    advancedLog?: boolean;
   }>
   & LogOptions;
 
@@ -109,5 +115,7 @@ export const diffAsync = async (params: SyncParams) => {
     sourceEnvModel: sourceModel,
   });
 
-  printDiff(diffModel, params);
+  return params.advancedLog
+    ? resolveTemplate({ ...diffModel, ...params })
+    : printDiff(diffModel, params);
 };
