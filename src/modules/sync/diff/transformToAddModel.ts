@@ -6,8 +6,12 @@ import {
 } from "@kontent-ai/management-sdk";
 
 import { RequiredCodename } from "../../../utils/types.js";
-import { ContentTypeSnippetsSyncModel, ContentTypeSyncModel, TaxonomySyncModel } from "../types/fileContentModel.js";
-import { SyncGuidelinesElement } from "../types/syncModel.js";
+import {
+  ContentTypeSnippetsSyncModel,
+  ContentTypeSyncModel,
+  SyncGuidelinesElement,
+  TaxonomySyncModel,
+} from "../types/syncModel.js";
 import { replaceAssetReferences, replaceItemReferences } from "./guidelinesRichText.js";
 
 export const transformTaxonomyToAddModel = (

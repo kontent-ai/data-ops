@@ -1,4 +1,4 @@
-import { TaxonomySyncModel } from "../types/fileContentModel.js";
+import { TaxonomySyncModel } from "../types/syncModel.js";
 import {
   baseHandler,
   Handler,

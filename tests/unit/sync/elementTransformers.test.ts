@@ -138,6 +138,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       allowed_elements: [
         {
           codename: dummyElement.codename,
@@ -174,21 +175,23 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       default: { global: { value: [{ codename: element.options[0]?.codename }] } },
       options: [
         {
           ...element.options[0],
           id: undefined,
+          external_id: undefined,
         },
         {
           ...element.options[1],
           id: undefined,
-          external_id: `${contentTypes[0].codename}_${element.options[1]?.codename}`,
+          external_id: undefined,
         },
       ],
     };
 
-    const transformedElement = transformMultipleChoiceElement(element, contentTypes[0]);
+    const transformedElement = transformMultipleChoiceElement(element);
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -203,6 +206,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       default: { global: { value: [{ external_id: assets[0].external_id, codename: assets[0].codename }] } },
     };
 
@@ -221,6 +225,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       default: undefined,
     };
 
@@ -240,6 +245,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       allowed_content_types: [{ codename: contentTypes[0].codename }],
       allowed_item_link_types: [{ codename: contentTypes[0].codename }],
     };
@@ -260,6 +266,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       allowed_content_types: [],
       allowed_item_link_types: [],
     };
@@ -284,6 +291,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       taxonomy_group: {
         codename: taxonomyGroups[0].codename,
       },
@@ -319,6 +327,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       default: {
         global: {
           value: [
@@ -350,6 +359,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       default: undefined,
       allowed_content_types: [],
     };
@@ -376,6 +386,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="${
         items[0].id
       }">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-codename="${assets[0].codename}" data-asset-external-id="${
@@ -398,6 +409,7 @@ describe("elementTransfomers test", () => {
     expect(transformedElement).toEqual(
       {
         ...dummyElement,
+        external_id: undefined,
         id: undefined,
       },
     );
@@ -415,6 +427,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       depends_on: {
         element: { codename: contentTypes[0].elements[0].codename },
       },
@@ -438,6 +451,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       depends_on: {
         element: { codename: contentTypes[0].elements[0].codename },
         snippet: { codename: snippet.codename },
@@ -478,6 +492,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       snippet: { codename: snippet.codename },
     };
 
@@ -496,6 +511,7 @@ describe("elementTransfomers test", () => {
     const expectedOutput = {
       ...element,
       id: undefined,
+      external_id: undefined,
       allowed_content_types: [{
         codename: contentTypes[0].codename,
       }],

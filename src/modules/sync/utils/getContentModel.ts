@@ -4,12 +4,8 @@ import * as fs from "fs/promises";
 import { LogOptions } from "../../../log.js";
 import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "../constants/filename.js";
 import { fetchModel, transformSyncModel } from "../generateSyncModel.js";
-import {
-  ContentTypeSnippetsSyncModel,
-  ContentTypeSyncModel,
-  FileContentModel,
-  TaxonomySyncModel,
-} from "../types/fileContentModel.js";
+import { FileContentModel } from "../types/fileContentModel.js";
+import { ContentTypeSnippetsSyncModel, ContentTypeSyncModel, TaxonomySyncModel } from "../types/syncModel.js";
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "./fetchers.js";
 

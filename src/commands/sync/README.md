@@ -8,12 +8,12 @@
 
 ## Key principles
 - Sync matches entities between the source and the target models via a `codename`.
-- If the model contains `guidelines` that reference content items or assets that are not present in the target environment, they will be referenced by their `externalId`(if externalId is non-existent `id` is used as `externalId`) after the synchronization. Don't forget to migrate the missing content to the target environment afterwards (or even better, beforehand) to achieve the desired results. 
-- If `Linked items` or `Rich text element` references non-existent content types, they will be referenced using the `externalId` (entity `codename` or a combination of multiple entities `codenames` is used as `externalId`) after the synchronization.
+- The command does not sync `external_id` properties of content model entities (existing `external_id` cannot be changed and can conflict with other entities). 
+- If the model contains `guidelines` that reference content items or assets that are not present in the target environment, they will be referenced by their `external_id`(if externalId is non-existent `id` is used as `external_id`) after the synchronization. Don't forget to migrate the missing content to the target environment afterwards (or even better, beforehand) to achieve the desired results. 
+- If `Linked items` or `Rich text element` references non-existent content types, they will be referenced using the `external_id` (entity `codename` or a combination of multiple entities `codenames` is used as `external_id`) after the synchronization.
   
 ## Sync conditions
 To successfully synchronize the content model, we introduced a couple of conditions your environment **must follow** before attempting the sync:
-- There mustn't be an entity with the same codename but different externalId in source and target content models - checked by validation.
 - There mustn't be an operation that changes the content type or content type snippet's element type - checked by validation.
 - There mustn't be an operation deleting a used content type (there is at least one content item of that type) - checked by validation.
 - Source content model mustn't reference a deleted taxonomy group.

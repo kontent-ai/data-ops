@@ -1,7 +1,7 @@
 import { TaxonomyContracts } from "@kontent-ai/management-sdk";
 
 import { omit, removeNulls } from "../../../utils/object.js";
-import { TaxonomySyncModel } from "../types/fileContentModel.js";
+import { TaxonomySyncModel } from "../types/syncModel.js";
 
 export const transformTaxonomyGroupsModel = (
   taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>,
@@ -9,8 +9,7 @@ export const transformTaxonomyGroupsModel = (
 ): ReadonlyArray<TaxonomySyncModel> =>
   taxonomies.map(t =>
     removeNulls({
-      ...omit(t, ["id", "last_modified"]),
+      ...omit(t, ["id", "last_modified", "external_id"]),
       terms: transformTaxonomyGroupsModel(t.terms, taxonomyGroupCodename ?? t.codename),
-      external_id: t.external_id ?? `${taxonomyGroupCodename ? taxonomyGroupCodename + "-" : ""}${t.codename}`,
     }) as TaxonomySyncModel
   );

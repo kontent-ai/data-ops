@@ -44,12 +44,13 @@ const expectedOutput = [
     ...input[0],
     id: undefined,
     last_modified: undefined,
+    external_id: undefined,
     terms: [
       {
         ...input[0].terms[0],
         id: undefined,
         last_modified: undefined,
-        external_id: `${input[0].codename}-${input[0].terms[0].codename}`,
+        external_id: undefined,
       },
     ],
   },
@@ -57,11 +58,13 @@ const expectedOutput = [
     ...input[1],
     id: undefined,
     last_modified: undefined,
+    external_id: undefined,
     terms: [
       {
         ...input[1].terms[0],
         id: undefined,
         last_modified: undefined,
+        external_id: undefined,
       },
     ],
   },
