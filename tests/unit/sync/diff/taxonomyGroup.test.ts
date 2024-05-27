@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { makeTaxonomyGroupHandler } from "../../../../src/modules/sync/diff/taxonomy";
-import { TaxonomySyncModel } from "../../../../src/modules/sync/types/fileContentModel";
+import { TaxonomySyncModel } from "../../../../src/modules/sync/types/syncModel";
 
 describe("makeTaxonomyGroupHandler", () => {
   it("correctly create patch operations for taxonomy groups with nested terms", () => {

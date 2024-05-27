@@ -32,7 +32,6 @@ import {
   SyncTypeSnippetElement,
   SyncUrlSlugElement,
 } from "../types/syncModel.js";
-import { makeNestedExternalId } from "../utils/entitiesHelpers.js";
 
 type ElementWithOldContentGroup<E extends { content_group?: CodenameReference }> = Replace<
   E,
@@ -104,7 +103,7 @@ export const transformCustomElement = (
   }).filter(notNullOrUndefined);
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     allowed_elements: syncAllowedElements,
     codename: element.codename as string,
   };
@@ -112,7 +111,6 @@ export const transformCustomElement = (
 
 export const transformMultipleChoiceElement = (
   element: ContentTypeElements.IMultipleChoiceElement,
-  type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
 ): ElementWithOldContentGroup<SyncMultipleChoiceElement> => {
   const defaultOptionId = element.default?.global.value.map(o => o.id);
 
@@ -126,13 +124,12 @@ export const transformMultipleChoiceElement = (
     : undefined;
 
   const options = element.options.map(option => ({
-    ...omit(option, ["id"]),
+    ...omit(option, ["id", "external_id"]),
     codename: option.codename as string,
-    external_id: option.external_id ?? makeNestedExternalId(type.codename, option.codename as string),
   }));
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     default: defaultOptions,
     options,
     codename: element.codename as string,
@@ -167,7 +164,7 @@ export const transformAssetElement = (
   const defaultAssets = defaultAssetsReferences?.length ? { global: { value: defaultAssetsReferences } } : undefined;
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     default: defaultAssets,
     codename: element.codename as string,
   };
@@ -196,7 +193,7 @@ export const transformRichTextElement = (
   ).filter(notNullOrUndefined);
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : [],
     allowed_item_link_types: allowedItemLinkTypes?.length ? allowedItemLinkTypes : [],
     codename: element.codename as string,
@@ -240,7 +237,7 @@ export const transformTaxonomyElement = (
   const defaultTerms = defaultTermsReferences ? { global: { value: defaultTermsReferences } } : undefined;
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     taxonomy_group: { codename: taxonomyGroup.codename },
     name: element.name as string,
     default: defaultTerms,
@@ -280,7 +277,7 @@ export const transformLinkedItemsElement = (
   const defaultReference = defaultValues?.length ? { global: { value: defaultValues } } : undefined;
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     allowed_content_types: allowedContentTypes?.length ? allowedContentTypes : [],
     default: defaultReference,
     codename: element.codename as string,
@@ -293,7 +290,7 @@ export const transformGuidelinesElement = (
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncGuidelinesElement> => ({
-  ...omit(element, ["id"]),
+  ...omit(element, ["id", "external_id"]),
   guidelines: replaceRichTextReferences(element.guidelines, assets, items, logOptions),
   codename: element.codename as string,
 });
@@ -301,7 +298,7 @@ export const transformGuidelinesElement = (
 export const transformDefaultElement = (
   element: ContentTypeElements.ITextElement | ContentTypeElements.INumberElement | ContentTypeElements.IDateTimeElement,
 ) => ({
-  ...omit(element, ["id"]),
+  ...omit(element, ["id", "external_id"]),
   codename: element.codename as string,
 });
 
@@ -338,7 +335,7 @@ export const transformUrlSlugElement = (
   };
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     depends_on,
     codename: element.codename as string,
   };
@@ -352,7 +349,7 @@ export const transformSnippetElement = (
     ?? throwError(`snippet with id ${element.snippet.id} not found`);
 
   return {
-    ...omit(element, ["id"]),
+    ...omit(element, ["id", "external_id"]),
     snippet: { codename: snippet.codename },
     codename: element.codename as string,
   };

@@ -2,8 +2,7 @@ import { LogOptions } from "../../../log.js";
 import { omit, removeNulls } from "../../../utils/object.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../types/contractModels.js";
-import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
-import { SyncSnippetElement } from "../types/syncModel.js";
+import { ContentTypeSnippetsSyncModel, SyncSnippetElement } from "../types/syncModel.js";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -21,18 +20,14 @@ export const transformContentTypeSnippetsModel = (
 ) =>
   environmentModel.contentTypeSnippets.map(snippet => {
     const syncSnippetElements = snippet.elements
-      .map<SyncSnippetElement>(element => ({
-        ...omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"]),
-        external_id: element.external_id ?? element.codename,
-      }));
+      .map<SyncSnippetElement>(
+        element => omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"]),
+      );
 
-    const transformedSnippet = {
-      ...omit(snippet, ["id", "last_modified"]),
+    return removeNulls({
+      ...omit(snippet, ["id", "last_modified", "external_id"]),
       elements: syncSnippetElements,
-      external_id: snippet.external_id ?? snippet.codename,
-    };
-
-    return removeNulls(transformedSnippet) as ContentTypeSnippetsSyncModel;
+    }) as ContentTypeSnippetsSyncModel;
   });
 
 const transformElement = (
@@ -63,7 +58,7 @@ const transformElement = (
         logOptions,
       );
     case "multiple_choice":
-      return transformMultipleChoiceElement(element, snippet);
+      return transformMultipleChoiceElement(element);
     case "custom":
       return transformCustomElement(element, snippet);
     case "asset":

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
 import { makeContentTypeHandler } from "../../../../src/modules/sync/diff/contentType";
-import { ContentTypeSyncModel } from "../../../../src/modules/sync/types/fileContentModel";
+import { ContentTypeSyncModel } from "../../../../src/modules/sync/types/syncModel";
 import { removeSpaces } from "./utils";
 
 describe("makeContentTypeHandler", () => {

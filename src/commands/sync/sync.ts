@@ -11,7 +11,7 @@ import {
   getTargetContentModel,
   readContentModelFromFolder,
 } from "../../modules/sync/utils/getContentModel.js";
-import { validateContentFolder, validateContentModel, validateDiffedModel } from "../../modules/sync/validation.js";
+import { validateContentFolder, validateDiffedModel } from "../../modules/sync/validation.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { simplifyErrors, throwError } from "../../utils/error.js";
@@ -109,9 +109,6 @@ export const syncContentModel = async (params: SyncParams) => {
     allCodenames,
     params,
   );
-
-  const modelErrors = await validateContentModel(sourceModel, transformedTargetModel);
-  checkValidation(modelErrors, params);
 
   const diffModel = diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,

@@ -5,8 +5,9 @@ import { PatchOperation } from "../../../../src/modules/sync/types/diffModel";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
-} from "../../../../src/modules/sync/types/fileContentModel";
-import { SyncAssetElement, SyncGuidelinesElement } from "../../../../src/modules/sync/types/syncModel";
+  SyncAssetElement,
+  SyncGuidelinesElement,
+} from "../../../../src/modules/sync/types/syncModel";
 import { removeSpaces } from "./utils";
 
 const basicType: ContentTypeSnippetsSyncModel = {

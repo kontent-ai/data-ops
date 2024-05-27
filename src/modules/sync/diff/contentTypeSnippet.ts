@@ -1,6 +1,5 @@
 import { PatchOperation } from "../types/diffModel.js";
-import { ContentTypeSnippetsSyncModel } from "../types/fileContentModel.js";
-import { isSyncCustomElement, SyncGuidelinesElement } from "../types/syncModel.js";
+import { ContentTypeSnippetsSyncModel, isSyncCustomElement, SyncGuidelinesElement } from "../types/syncModel.js";
 import {
   baseHandler,
   Handler,

@@ -9,8 +9,6 @@ import { elementTypes } from "./constants/elements.js";
 import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "./constants/filename.js";
 import { ElementsTypes } from "./types/contractModels.js";
 import { DiffModel, PatchOperation } from "./types/diffModel.js";
-import { FileContentModel } from "./types/fileContentModel.js";
-import { extractTerms } from "./utils/taxonomyGroupHelpers.js";
 
 export const validateContentFolder = async (folderPath: string) => {
   const stats = await fs.stat(folderPath);
@@ -28,22 +26,6 @@ export const validateContentFolder = async (folderPath: string) => {
   );
 
   return fileStatuses.filter((p): p is string => typeof p === "string");
-};
-
-export const validateContentModel = async (
-  targetModel: FileContentModel,
-  sourceModel: FileContentModel,
-) => {
-  // terms have different scope for externalIds than taxonomyGroups
-  const targetTerms = targetModel.taxonomyGroups.flatMap(extractTerms);
-  const sourceTerms = sourceModel.taxonomyGroups.flatMap(extractTerms);
-
-  return [
-    ...handleDiffObjectsSameExtId(sourceModel.contentTypes, targetModel.contentTypes, "type"),
-    ...handleDiffObjectsSameExtId(sourceModel.contentTypeSnippets, targetModel.contentTypeSnippets, "snippet"),
-    ...handleDiffObjectsSameExtId(sourceModel.taxonomyGroups, targetModel.taxonomyGroups, "taxonomy group"),
-    ...handleDiffObjectsSameExtId(sourceTerms, targetTerms, "term"),
-  ];
 };
 
 export const validateDiffedModel = async (
@@ -90,30 +72,6 @@ const isElement = (el: unknown): el is ElementTypeCodename =>
 const isReplaceElementOp = (
   op: PatchOperation,
 ): op is ReplaceElementOperation => op.op === "replace" && isElement(op.oldValue) && isElement(op.value);
-
-type EntityBase = Readonly<{ codename: string; external_id?: string }>;
-
-const handleDiffObjectsSameExtId = (
-  sourceEntities: ReadonlyArray<EntityBase>,
-  targetEntities: ReadonlyArray<EntityBase>,
-  entityType: "type" | "snippet" | "taxonomy group" | "term",
-) =>
-  sourceEntities
-    .filter(e => e.external_id)
-    .flatMap(entity => {
-      const targetEntityByExternalId = targetEntities.find(e => e.external_id === entity.external_id);
-
-      return targetEntityByExternalId && targetEntityByExternalId.codename !== entity.codename
-        ? [
-          chalk.red(
-            `The target project contains a ${entityType} with external_id ${
-              chalk.yellow(entity.external_id)
-            }, however, target codename ${chalk.yellow(targetEntityByExternalId.codename)} `
-              + `does not match with the codename of source object ${chalk.yellow(entity.codename)}`,
-          ),
-        ]
-        : [];
-    });
 
 const getUsedContentTypesCodenames = async (client: ManagementClient, contentTypeCodenames: ReadonlySet<string>) => {
   const promises = [...contentTypeCodenames].map(typeCodename => () =>

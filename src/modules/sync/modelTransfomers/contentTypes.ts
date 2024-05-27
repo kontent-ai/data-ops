@@ -4,9 +4,7 @@ import { LogOptions } from "../../../log.js";
 import { omit, removeNulls } from "../../../utils/object.js";
 import { EnvironmentModel } from "../generateSyncModel.js";
 import { ContentTypeWithUnionElements } from "../types/contractModels.js";
-import { ContentTypeSyncModel } from "../types/fileContentModel.js";
-import { SyncTypeElement } from "../types/syncModel.js";
-import { makeNestedExternalId } from "../utils/entitiesHelpers.js";
+import { ContentTypeSyncModel, SyncTypeElement } from "../types/syncModel.js";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -27,7 +25,7 @@ export const transformContentTypeModel = (
 ) => {
   return environmentModel.contentTypes.map(type => {
     const transformedElements = type.elements.map<SyncTypeElement>(element => {
-      const transformedElement = transformElement(element, type, environmentModel, logOptions);
+      const updatedElement = transformElement(element, type, environmentModel, logOptions);
 
       const contentGroup = type.content_groups?.find(group => group.id === element.content_group?.id);
 
@@ -38,27 +36,19 @@ export const transformContentTypeModel = (
       }
 
       return ({
-        ...transformedElement,
-        external_id: element.external_id ?? makeNestedExternalId(
-          makeNestedExternalId(type.codename, contentGroup?.codename ?? ""),
-          element.codename as string,
-        ),
+        ...updatedElement,
         content_group: contentGroup ? { codename: contentGroup.codename as string } : undefined,
       });
     });
 
-    const transformedContentType = {
-      ...omit(type, ["id", "last_modified"]),
+    return removeNulls({
+      ...omit(type, ["id", "last_modified", "external_id"]),
       elements: transformedElements,
       content_groups: type.content_groups?.map(group => ({
-        ...omit(group, ["id"]),
-        external_id: group.external_id ?? makeNestedExternalId(type.codename, group.codename as string),
+        ...omit(group, ["id", "external_id"]),
         codename: group.codename as string,
       })),
-      external_id: type.external_id ?? type.codename,
-    };
-
-    return removeNulls(transformedContentType) as ContentTypeSyncModel;
+    }) as ContentTypeSyncModel;
   });
 };
 
@@ -90,7 +80,7 @@ const transformElement = (
         logOptions,
       );
     case "multiple_choice":
-      return transformMultipleChoiceElement(element, type);
+      return transformMultipleChoiceElement(element);
     case "custom":
       return transformCustomElement(element, type);
     case "asset":

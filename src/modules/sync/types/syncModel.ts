@@ -1,14 +1,19 @@
-import { ContentTypeElements } from "@kontent-ai/management-sdk";
+import {
+  ContentTypeContracts,
+  ContentTypeElements,
+  ContentTypeSnippetContracts,
+  TaxonomyContracts,
+} from "@kontent-ai/management-sdk";
 
 import { CodenameReference, Replace } from "../../../utils/types.js";
 
-export type ReplaceReferences<T, Reference extends CodenameReference = CodenameReference> = T extends
-  ReadonlyArray<infer R> ? ReadonlyArray<ReplaceReferences<R>>
+type ReplaceReferences<T, Reference extends CodenameReference = CodenameReference> = T extends ReadonlyArray<infer R>
+  ? ReadonlyArray<ReplaceReferences<R>>
   : T extends object ?
       & (T extends { id?: string; codename?: string; external_id?: string } ? Reference
         : object)
       & {
-        [K in keyof Omit<T, "id" | "codename">]: ReplaceReferences<T[K]>;
+        [K in keyof Omit<T, "id" | "codename" | "external_id">]: ReplaceReferences<T[K]>;
       }
   : T;
 
@@ -89,6 +94,28 @@ export type SyncTypeElement =
   | SyncTextElement
   | SyncTypeSnippetElement
   | SyncUrlSlugElement;
+
+export type TaxonomySyncModel = Replace<
+  Omit<TaxonomyContracts.ITaxonomyContract, "id" | "last_modified" | "external_id">,
+  Readonly<{ codename: string; terms: ReadonlyArray<TaxonomySyncModel> }>
+>;
+
+export type ContentTypeSnippetsSyncModel = Replace<
+  Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "last_modified" | "external_id">,
+  Readonly<{
+    codename: string;
+    elements: ReadonlyArray<SyncSnippetElement>;
+  }>
+>;
+
+export type ContentTypeSyncModel = Replace<
+  Omit<ContentTypeContracts.IContentTypeContract, "id" | "last_modified" | "external_id">,
+  Readonly<{
+    codename: string;
+    elements: ReadonlyArray<Replace<SyncTypeElement, { codename: string }>>;
+    content_groups?: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, { codename: string }>>;
+  }>
+>;
 
 export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>
   typeof entity === "object" && entity !== null && "type" in entity && entity.type === "custom";

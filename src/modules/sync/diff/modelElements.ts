@@ -1,8 +1,9 @@
 import { zip } from "../../../utils/array.js";
 import { apply } from "../../../utils/function.js";
 import { CodenameReference } from "../../../utils/types.js";
-import { ContentTypeSnippetsSyncModel, ContentTypeSyncModel } from "../types/fileContentModel.js";
 import {
+  ContentTypeSnippetsSyncModel,
+  ContentTypeSyncModel,
   SyncAssetElement,
   SyncCustomElement,
   SyncDateTimeElement,
