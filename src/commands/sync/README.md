@@ -31,7 +31,7 @@ OR
 npx @kontent-ai/data-ops export --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
 ```
 
-> [!SUGGESTION]  
+> [!NOTE]  
 > As the command might get long, we recommend passing parameters in a JSON configuration file (e.g. --configFile params.json)
 > ```JSON
 > // params.json example
