@@ -46,7 +46,7 @@ export const register: RegisterCommand = yargs =>
         .option("sourceEnvironmentId", {
           type: "string",
           describe:
-            "Id of Kontent.ai environmnent containing source content model. Must be used --sourceApiKey. Can't be used at the same time with option --folderName",
+            "Id of Kontent.ai environment containing source content model. Must be used with --sourceApiKey. Can't be used at the same time with option --folderName",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
           alias: "s",
@@ -54,7 +54,7 @@ export const register: RegisterCommand = yargs =>
         .option("sourceApiKey", {
           type: "string",
           describe:
-            "Management API key of Kontent.ai environmnent containing source content model. Must be used --sourceEnvironmentId. Can't be used at the same time with option --folderName",
+            "Management API key of Kontent.ai environment containing source content model. Must be used --sourceEnvironmentId. Can't be used at the same time with option --folderName",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
           alias: "sk",
