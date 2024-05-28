@@ -428,14 +428,14 @@ describe("optionalHandler", () => {
     expect(result).toStrictEqual([]);
   });
 
-  it("Replaces target when only source is undefined", () => {
+  it("Replaces target with null when only source is undefined", () => {
     type TestedType = number | undefined;
     const source: TestedType = undefined;
     const target: TestedType = 42;
 
     const result = optionalHandler(timesTwoHandler)(source, target);
 
-    expect(result).toStrictEqual([{ op: "replace", path: "", value: undefined, oldValue: 42 }]);
+    expect(result).toStrictEqual([{ op: "replace", path: "", value: null, oldValue: 42 }]);
   });
 
   it("Replaces target when only target is undefined", () => {
@@ -445,7 +445,7 @@ describe("optionalHandler", () => {
 
     const result = optionalHandler(timesTwoHandler)(source, target);
 
-    expect(result).toStrictEqual([{ op: "replace", path: "", value: 42, oldValue: undefined }]);
+    expect(result).toStrictEqual([{ op: "replace", path: "", value: 42, oldValue: null }]);
   });
 
   it("Returns inner handler result when both are defined", () => {
