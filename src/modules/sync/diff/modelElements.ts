@@ -79,6 +79,7 @@ export const makeMultiChoiceElementHandler = (
 ): Handler<SyncMultipleChoiceElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
+    default: makeDefaultReferencesHandler(),
     mode: baseHandler,
     options: makeOrderingHandler(
       makeArrayHandler(
@@ -89,7 +90,6 @@ export const makeMultiChoiceElementHandler = (
       ),
       e => e.codename,
     ),
-    default: makeDefaultReferencesHandler(),
   });
 
 export const makeRichTextElementHandler = (
