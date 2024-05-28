@@ -92,7 +92,7 @@ describe("makeAssetElementHandler", () => {
         op: "replace",
         path: "/guidelines",
         value: "new guidelines",
-        oldValue: undefined,
+        oldValue: null,
       },
       {
         op: "replace",
@@ -110,12 +110,12 @@ describe("makeAssetElementHandler", () => {
         op: "replace",
         path: "/is_non_localizable",
         value: true,
-        oldValue: undefined,
+        oldValue: null,
       },
       {
         op: "replace",
         path: "/asset_count_limit",
-        value: undefined,
+        value: null,
         oldValue: {
           value: 44,
           condition: "at_least",
@@ -128,7 +128,7 @@ describe("makeAssetElementHandler", () => {
           value: 33,
           condition: "exactly",
         },
-        oldValue: undefined,
+        oldValue: null,
       },
       {
         op: "replace",

@@ -282,7 +282,7 @@ const makeContentGroupHandler = (
   if (!("content_groups" in sourceTypeOrSnippet)) {
     return []; // elements in snippets can never have content_group defined
   }
-  const defaultGroup = apply(g => ({ codename: g.codename }), sourceTypeOrSnippet.content_groups?.[0]) ?? undefined;
+  const defaultGroup = apply(g => ({ codename: g.codename }), sourceTypeOrSnippet.content_groups?.[0]) ?? null;
 
   return source?.codename === target?.codename
     ? []

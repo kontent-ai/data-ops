@@ -293,8 +293,8 @@ export const optionalHandler =
       return [{
         op: "replace",
         path: "",
-        value: sourceVal,
-        oldValue: targetVal,
+        value: sourceVal ?? null,
+        oldValue: targetVal ?? null,
       }];
     }
 
