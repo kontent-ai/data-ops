@@ -1,6 +1,9 @@
+import { ContentTypeElements } from "@kontent-ai/management-sdk";
+
 import { zip } from "../../../utils/array.js";
 import { apply } from "../../../utils/function.js";
 import { CodenameReference } from "../../../utils/types.js";
+import { PatchOperation } from "../types/diffModel.js";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
@@ -23,6 +26,7 @@ import {
   baseHandler,
   constantHandler,
   Handler,
+  makeAdjustOperationHandler,
   makeArrayHandler,
   makeBaseArrayHandler,
   makeLeafObjectHandler,
@@ -95,7 +99,9 @@ export const makeRichTextElementHandler = (
     ...makeCommonPropsHandlers(ctx),
     allowed_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
     image_width_limit: optionalHandler(makeLeafObjectHandler({})),
-    allowed_formatting: optionalHandler(makeBaseArrayHandler(f => f, () => [])),
+    allowed_formatting: optionalHandler(
+      makeAdjustOperationHandler(adjustFormattingOps, makeBaseArrayHandler(f => f, () => [])),
+    ),
     image_height_limit: optionalHandler(makeLeafObjectHandler({})),
     maximum_image_size: optionalHandler(baseHandler),
     allowed_image_types: optionalHandler(baseHandler),
@@ -104,9 +110,27 @@ export const makeRichTextElementHandler = (
     allowed_table_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
     allowed_content_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
     allowed_item_link_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
-    allowed_table_formatting: optionalHandler(makeBaseArrayHandler(f => f, () => [])),
+    allowed_table_formatting: optionalHandler(
+      makeAdjustOperationHandler(adjustFormattingOps, makeBaseArrayHandler(f => f, () => [])),
+    ),
     allowed_table_text_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
   });
+
+const adjustFormattingOps = (ops: readonly PatchOperation[]): readonly PatchOperation[] => {
+  const unstyledFmt: ContentTypeElements.RichTextAllowedFormatting = "unstyled";
+
+  const getPatchOpValue = (op: PatchOperation): number => {
+    if (op.op === "addInto" && op.value === unstyledFmt) {
+      return 0;
+    }
+    if (op.op === "remove" && op.path.endsWith(unstyledFmt)) {
+      return 100;
+    }
+    return 50;
+  };
+
+  return ops.toSorted((a, b) => getPatchOpValue(a) - getPatchOpValue(b));
+};
 
 export const makeTaxonomyElementHandler = (
   ctx: CommonPropsHandlersContext,
