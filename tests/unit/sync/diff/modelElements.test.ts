@@ -1,12 +1,17 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { makeAssetElementHandler, makeGuidelinesElementHandler } from "../../../../src/modules/sync/diff/modelElements";
+import {
+  makeAssetElementHandler,
+  makeGuidelinesElementHandler,
+  makeRichTextElementHandler,
+} from "../../../../src/modules/sync/diff/modelElements";
 import { PatchOperation } from "../../../../src/modules/sync/types/diffModel";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   SyncAssetElement,
   SyncGuidelinesElement,
+  SyncRichTextElement,
 } from "../../../../src/modules/sync/types/syncModel";
 import { removeSpaces } from "./utils";
 
@@ -492,6 +497,90 @@ describe("makeGuidelinesElementHandler", () => {
         value:
           `<p>abc<a data-item-id="e89cb81a-fdea-46b5-86bb-0a0a46480146" test="someOtherValue">item link</a>xyz</p>`,
       }]));
+    });
+  });
+});
+
+describe("makeRichTextElementHandler", () => {
+  (["allowed_formatting", "allowed_table_formatting"] as const).forEach(propName => {
+    it(`should remove unstyled last when all formattings are removed in "${propName}"`, () => {
+      const source: SyncRichTextElement = {
+        name: "test",
+        codename: "test",
+        type: "rich_text",
+        [propName]: [],
+      };
+      const sourceType: ContentTypeSyncModel = { ...basicType, elements: [source] };
+      const target: SyncRichTextElement = {
+        name: "test",
+        codename: "test",
+        type: "rich_text",
+        [propName]: ["italic", "unstyled", "bold"],
+      };
+      const targetType: ContentTypeSyncModel = { ...basicType, elements: [target] };
+
+      const result = makeRichTextElementHandler({ sourceTypeOrSnippet: sourceType, targetTypeOrSnippet: targetType })(
+        source,
+        target,
+      );
+
+      expect(result).toEqual([
+        {
+          op: "remove",
+          path: `/${propName}/italic`,
+          oldValue: "italic",
+        },
+        {
+          op: "remove",
+          path: `/${propName}/bold`,
+          oldValue: "bold",
+        },
+        {
+          op: "remove",
+          path: `/${propName}/unstyled`,
+          oldValue: "unstyled",
+        },
+      ]);
+    });
+
+    it(`should add unstyled first when formattings are added into an empty array in "${propName}"`, () => {
+      const source: SyncRichTextElement = {
+        name: "test",
+        codename: "test",
+        type: "rich_text",
+        [propName]: ["bold", "unstyled", "italic"],
+      };
+      const sourceType: ContentTypeSyncModel = { ...basicType, elements: [source] };
+      const target: SyncRichTextElement = {
+        name: "test",
+        codename: "test",
+        type: "rich_text",
+        [propName]: [],
+      };
+      const targetType: ContentTypeSyncModel = { ...basicType, elements: [target] };
+
+      const result = makeRichTextElementHandler({ sourceTypeOrSnippet: sourceType, targetTypeOrSnippet: targetType })(
+        source,
+        target,
+      );
+
+      expect(result).toEqual([
+        {
+          op: "addInto",
+          path: `/${propName}`,
+          value: "unstyled",
+        },
+        {
+          op: "addInto",
+          path: `/${propName}`,
+          value: "bold",
+        },
+        {
+          op: "addInto",
+          path: `/${propName}`,
+          value: "italic",
+        },
+      ]);
     });
   });
 });
