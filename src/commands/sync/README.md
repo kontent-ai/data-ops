@@ -16,19 +16,19 @@
 To successfully synchronize the content model, we introduced a couple of conditions your environment **must follow** before attempting the sync:
 - There mustn't be an operation that changes the content type or content type snippet's element type - checked by validation.
 - There mustn't be an operation deleting a used content type (there is at least one content item of that type) - checked by validation.
-- Source content model mustn't reference a deleted taxonomy group.
+- Source content model mustn't reference a deleted taxonomy group - not checked by validation.
 - If providing source content model via a folder, you must ensure that the content model is in a valid state - not checked by validation!
-- Both environments must have the same status of Web Spotlight (either activated, or deactivated).
+- Both environments must have the same status of Web Spotlight (either activated, or deactivated) - not checked by validation..
 
 ## Usage
 ```bash
-npx @kontent-ai/data-ops export --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
+npx @kontent-ai/data-ops sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
 --sourceApiKey=<source-api-key>
 ```
 OR
 
 ```bash
-npx @kontent-ai/data-ops export --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
+npx @kontent-ai/data-ops sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
 ```
 
 > [!NOTE]  
