@@ -7,7 +7,7 @@ import {
   contentTypeSnippetsFileName,
   taxonomiesFileName,
 } from "../../../src/modules/sync/constants/filename";
-import { expectSameEnvironments } from "../importExport/utils/compare";
+import { expectSameSyncEnvironments } from "../importExport/utils/compare";
 import { runCommand } from "../utils/runCommand";
 import { withTestEnvironment } from "../utils/setup";
 
@@ -32,7 +32,7 @@ describe("Sync two environments with credentials", () => {
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, {
+      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, {
         include: ["types", "taxonomies", "snippets"],
       });
     }),
@@ -46,7 +46,7 @@ describe("Sync two environments with credentials", () => {
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID, {
+      await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID, {
         include: ["types", "taxonomies", "snippets"],
       });
     }),
@@ -56,7 +56,7 @@ describe("Sync two environments with credentials", () => {
 describe("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
-  it.only("generate sync model test", async () => {
+  it("generate sync model test", async () => {
     const command = `generate-sync-model -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
@@ -87,7 +87,7 @@ describe("Sync environment from folder", () => {
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, {
+      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, {
         include: ["types", "taxonomies", "snippets"],
       });
     }),

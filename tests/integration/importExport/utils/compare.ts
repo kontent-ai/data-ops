@@ -28,7 +28,7 @@ if (!API_KEY) {
   throw new Error("API_KEY is missing in environment variables.");
 }
 
-type FilterParam = { include: ReadonlyArray<keyof AllEnvData> } | { exclude: ReadonlyArray<keyof AllEnvData> };
+export type FilterParam = { include: ReadonlyArray<keyof AllEnvData> } | { exclude: ReadonlyArray<keyof AllEnvData> };
 
 export const expectSameEnvironments = async (
   environmentId1: string,
@@ -37,6 +37,21 @@ export const expectSameEnvironments = async (
 ): Promise<void> => {
   const data1 = await loadAllEnvData(environmentId1).then(prepareReferences);
   const data2 = await loadAllEnvData(environmentId2).then(prepareReferences);
+
+  expectSameAllEnvData(data1, data2, filterParam);
+};
+
+export const expectSameSyncEnvironments = async (
+  environmentId1: string,
+  environmentId2: string,
+  filterParam: FilterParam = { include: ["types", "snippets", "taxonomies"] },
+): Promise<void> => {
+  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies"] }).then(
+    prepareReferences,
+  );
+  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies"] }).then(
+    prepareReferences,
+  );
 
   expectSameAllEnvData(data1, data2, filterParam);
 };
