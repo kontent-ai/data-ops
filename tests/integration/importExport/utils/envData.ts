@@ -18,6 +18,7 @@ import { config as dotenvConfig } from "dotenv";
 import StreamZip, { StreamZipAsync } from "node-stream-zip";
 
 import { serially } from "../../../../src/utils/requests";
+import { FilterParam } from "./compare";
 
 dotenvConfig();
 
@@ -43,74 +44,110 @@ export type AllEnvData = Readonly<{
   variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
 }>;
 
-export const loadAllEnvData = (envId: string) => {
+export const loadAllEnvData = (envId: string, filterParam: FilterParam = { exclude: [] }) => {
   const client = new ManagementClient({
     apiKey: API_KEY,
     environmentId: envId,
   });
 
-  return loadAllData(client);
+  return loadData(client, filterParam);
 };
 
-const loadAllData = async (client: ManagementClient): Promise<AllEnvData> => ({
-  collections: await client
-    .listCollections()
-    .toPromise()
-    .then(res => res.rawData.collections),
-  spaces: await client
-    .listSpaces()
-    .toPromise()
-    .then(res => res.rawData),
-  languages: await client
-    .listLanguages()
-    .toAllPromise()
-    .then(res => res.data.items.map(l => l._raw)),
-  previewUrls: await client
-    .getPreviewConfiguration()
-    .toPromise()
-    .then(res => res.rawData),
-  taxonomies: await client
-    .listTaxonomies()
-    .toAllPromise()
-    .then(res => res.data.items.map(t => t._raw)),
-  assetFolders: await client
-    .listAssetFolders()
-    .toPromise()
-    .then(res => res.rawData.folders),
-  assets: await client
-    .listAssets()
-    .toAllPromise()
-    .then(res => res.data.items.map(a => a._raw)),
-  roles: await client
-    .listRoles()
-    .toPromise()
-    .then(res => res.rawData.roles),
-  workflows: await client
-    .listWorkflows()
-    .toPromise()
-    .then(res => res.rawData),
-  snippets: await client
-    .listContentTypeSnippets()
-    .toAllPromise()
-    .then(res => res.data.items.map(s => s._raw)),
-  types: await client
-    .listContentTypes()
-    .toAllPromise()
-    .then(res => res.data.items.map(t => t._raw)),
-  items: await client
-    .listContentItems()
-    .toAllPromise()
-    .then(res => res.data.items.map(i => i._raw)),
-  variants: (await serially((await client.listCollections().toPromise().then(res => res.rawData.collections))
-    .map(collection => async () =>
-      await client
-        .listLanguageVariantsByCollection()
-        .byCollectionId(collection.id)
+const loadData = async (
+  client: ManagementClient,
+  filterParam: FilterParam,
+): Promise<AllEnvData> => {
+  const has = (e: keyof AllEnvData) =>
+    "exclude" in filterParam
+      ? !filterParam.exclude.includes(e)
+      : filterParam.include.includes(e);
+
+  return {
+    collections: has("collections")
+      ? await client
+        .listCollections()
+        .toPromise()
+        .then(res => res.rawData.collections)
+      : [],
+    spaces: has("spaces")
+      ? await client
+        .listSpaces()
+        .toPromise()
+        .then(res => res.rawData)
+      : [],
+    languages: has("languages")
+      ? await client
+        .listLanguages()
         .toAllPromise()
-        .then(res => res.data.items.map(v => v._raw))
-    )))
-    .flat(),
-});
+        .then(res => res.data.items.map(l => l._raw))
+      : [],
+    previewUrls: has("previewUrls")
+      ? await client
+        .getPreviewConfiguration()
+        .toPromise()
+        .then(res => res.rawData)
+      : { space_domains: [], preview_url_patterns: [] },
+    taxonomies: has("taxonomies")
+      ? await client
+        .listTaxonomies()
+        .toAllPromise()
+        .then(res => res.data.items.map(t => t._raw))
+      : [],
+    assetFolders: has("assetFolders")
+      ? await client
+        .listAssetFolders()
+        .toPromise()
+        .then(res => res.rawData.folders)
+      : [],
+    assets: has("assets")
+      ? await client
+        .listAssets()
+        .toAllPromise()
+        .then(res => res.data.items.map(a => a._raw))
+      : [],
+    roles: has("roles")
+      ? await client
+        .listRoles()
+        .toPromise()
+        .then(res => res.rawData.roles)
+      : [],
+    workflows: has("workflows")
+      ? await client
+        .listWorkflows()
+        .toPromise()
+        .then(res => res.rawData)
+      : [],
+    snippets: has("snippets")
+      ? await client
+        .listContentTypeSnippets()
+        .toAllPromise()
+        .then(res => res.data.items.map(s => s._raw))
+      : [],
+    types: has("types")
+      ? await client
+        .listContentTypes()
+        .toAllPromise()
+        .then(res => res.data.items.map(t => t._raw))
+      : [],
+    items: has("items")
+      ? await client
+        .listContentItems()
+        .toAllPromise()
+        .then(res => res.data.items.map(i => i._raw))
+      : [],
+    variants: has("variants")
+      ? (await serially((await client.listCollections().toPromise().then(res => res.rawData.collections))
+        .map(collection => async () =>
+          await client
+            .listLanguageVariantsByCollection()
+            .byCollectionId(collection.id)
+            .toAllPromise()
+            .then(res => res.data.items.map(v => v._raw))
+        )))
+        .flat()
+      : [],
+  };
+};
 
 export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvData> => {
   const zip = new StreamZip.async({ file: fileName });

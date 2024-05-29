@@ -18,10 +18,13 @@ import {
 
 dotenvConfig();
 
-const { EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, API_KEY } = process.env;
+const { EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, API_KEY, EMPTY_TEST_ENVIRONMENT_ID } = process.env;
 
 if (!EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID) {
   throw new Error("EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID environment variable is not defined.");
+}
+if (!EMPTY_TEST_ENVIRONMENT_ID) {
+  throw new Error("EMPTY_TEST_ENVIRONMENT_ID env variable was not provided.");
 }
 if (!API_KEY) {
   throw new Error("API_KEY environment variable is not defined.");
@@ -30,7 +33,7 @@ if (!API_KEY) {
 describe("import command", () => {
   it.concurrent(
     "Imports all entities properly into the target project",
-    withTestEnvironment(async environmentId => {
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
         `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
 
@@ -42,7 +45,7 @@ describe("import command", () => {
 
   it.concurrent(
     "Imports only entities specified in the include parameter",
-    withTestEnvironment(async environmentId => {
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
         `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --include collections languages spaces taxonomies`;
 
@@ -64,7 +67,7 @@ describe("import command", () => {
 
   it.concurrent(
     "Imports all entities except those specified in the exclude parameter",
-    withTestEnvironment(async environmentId => {
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
         `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --exclude assets contentTypes contentTypeSnippets taxonomies contentItems languageVariants workflows previewUrls`;
 

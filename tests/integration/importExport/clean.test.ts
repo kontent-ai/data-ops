@@ -31,7 +31,7 @@ if (!API_KEY) {
 describe("clean command", () => {
   it.concurrent(
     "Cleans all entities in the target environment, prints info on manual WSL removal.",
-    withTestEnvironment(async (environmentId) => {
+    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} -s`;
 
       const result = await runCommand(command);
@@ -48,12 +48,12 @@ describe("clean command", () => {
       await expectNoWorkflows(environmentId);
       await expectNoPreviewUrls(environmentId);
       await expectNoTaxonomies(environmentId);
-    }, false),
+    }),
   );
 
   it.concurrent(
     "Cleans only entities specified in the include parameter.",
-    withTestEnvironment(async (environmentId) => {
+    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command =
         `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets -s`;
 
@@ -67,12 +67,12 @@ describe("clean command", () => {
       await expectNoPreviewUrls(environmentId);
       await expectNoSnippets(environmentId);
       await expectNoTypes(environmentId, true);
-    }, false),
+    }),
   );
 
   it.concurrent(
     "Cleans only entities not specified in the exclude parameter.",
-    withTestEnvironment(async (environmentId) => {
+    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections -s`;
 
       await runCommand(command);
@@ -88,11 +88,11 @@ describe("clean command", () => {
       await expectNoAssetFolders(environmentId);
       await expectNoSnippets(environmentId);
       await expectNoTypes(environmentId, true);
-    }, false),
+    }),
   );
 
   it.concurrent("Errors when removing types with existing items, prints message.", async () => {
-    withTestEnvironment(async (environmentId) => {
+    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
 
       const result = await runCommand(command).catch(err => err as CommandError);
