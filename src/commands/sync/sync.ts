@@ -73,7 +73,7 @@ export type SyncParams =
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
-    skipWarning?: boolean;
+    skipConfirmation?: boolean;
   }>
   & LogOptions;
 
@@ -131,7 +131,7 @@ export const syncContentModel = async (params: SyncParams) => {
 OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   );
 
-  const confirmed = !params.skipWarning ? await requestConfirmation(warningMessage) : true;
+  const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
 
   if (!confirmed) {
     logInfo(params, "standard", chalk.red("Operation aborted."));

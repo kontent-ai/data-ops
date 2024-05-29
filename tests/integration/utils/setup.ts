@@ -4,32 +4,19 @@ import { v4 as createUuid } from "uuid";
 
 dotenvConfig();
 
-const { CLEAN_TEST_DATA_ENVIRONMENT_ID, EMPTY_TEST_ENVIRONMENT_ID, API_KEY } = process.env;
+const { API_KEY } = process.env;
 const testsRunPrefix = createUuid();
 
-if (!EMPTY_TEST_ENVIRONMENT_ID) {
-  throw new Error("EMPTY_TEST_ENVIRONMENT_ID env variable was not provided.");
-}
 if (!API_KEY) {
   throw new Error("API_KEY env variable was not provided.");
 }
 
-const emptyTestEnvClient = new ManagementClient({
-  apiKey: API_KEY,
-  environmentId: EMPTY_TEST_ENVIRONMENT_ID,
-});
-
-const cleanTestEnvClient = new ManagementClient({
-  apiKey: API_KEY,
-  environmentId: CLEAN_TEST_DATA_ENVIRONMENT_ID,
-});
-
 export const withTestEnvironment =
-  (testFnc: (environmentId: string) => Promise<void>, fromEmpty = true) => async (): Promise<void> => {
+  (cloneEnvironmentId: string, testFnc: (environmentId: string) => Promise<void>) => async (): Promise<void> => {
     const envName = `${testsRunPrefix}-test-${createUuid()}`;
     console.log(`Creating test environment "${envName}".`);
 
-    const environmentId = await createTestEnvironment(envName, fromEmpty);
+    const environmentId = await createTestEnvironment(envName, cloneEnvironmentId);
     console.log(`Environment created with id "${environmentId}". Running the test.`);
 
     try {
@@ -41,8 +28,12 @@ export const withTestEnvironment =
     }
   };
 
-const createTestEnvironment = async (name: string, fromEmpty: boolean) => {
-  const client = fromEmpty ? emptyTestEnvClient : cleanTestEnvClient;
+const createTestEnvironment = async (name: string, cloneEnvironmentId: string) => {
+  const client = new ManagementClient({
+    apiKey: API_KEY,
+    environmentId: cloneEnvironmentId,
+  });
+
   const testEnvironmentId = await client
     .cloneEnvironment()
     .withData({
