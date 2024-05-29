@@ -1,7 +1,7 @@
 import { ContentTypeElements } from "@kontent-ai/management-sdk";
 
 import { zip } from "../../../utils/array.js";
-import { apply } from "../../../utils/function.js";
+import { apply, not } from "../../../utils/function.js";
 import { CodenameReference } from "../../../utils/types.js";
 import { PatchOperation } from "../types/diffModel.js";
 import {
@@ -77,20 +77,27 @@ export const makeCustomElementHandler = (
 export const makeMultiChoiceElementHandler = (
   ctx: CommonPropsHandlersContext,
 ): Handler<SyncMultipleChoiceElement> =>
-  makeObjectHandler({
-    ...makeCommonPropsHandlers(ctx),
-    default: makeDefaultReferencesHandler(),
-    mode: baseHandler,
-    options: makeOrderingHandler(
-      makeArrayHandler(
-        o => o.codename,
-        makeObjectHandler({
-          name: baseHandler,
-        }),
+  makeAdjustOperationHandler(
+    ops => [...ops.filter(not(isSetModeSingleOp)), ...ops.filter(isSetModeSingleOp)],
+    makeObjectHandler({
+      ...makeCommonPropsHandlers(ctx),
+      // order of the properties is important
+      mode: baseHandler,
+      default: makeDefaultReferencesHandler(),
+      options: makeOrderingHandler(
+        makeArrayHandler(
+          o => o.codename,
+          makeObjectHandler({
+            name: baseHandler,
+          }),
+        ),
+        e => e.codename,
       ),
-      e => e.codename,
-    ),
-  });
+    }),
+  );
+
+const isSetModeSingleOp = (op: PatchOperation): boolean =>
+  op.op === "replace" && op.path.endsWith("/mode") && op.value === "single";
 
 export const makeRichTextElementHandler = (
   ctx: CommonPropsHandlersContext,
