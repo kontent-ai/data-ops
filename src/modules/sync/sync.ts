@@ -45,11 +45,11 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
   logInfo(logOptions, "standard", "Removing content types");
   await serially(Array.from(diff.contentTypes.deleted).map(c => () => deleteContentType(client, c)));
 
-  logInfo(logOptions, "standard", "Removing content type snippets");
+  logInfo(logOptions, "standard", "Deleting content type snippets");
   await serially(Array.from(diff.contentTypeSnippets.deleted).map(c => () => deleteSnippet(client, c)));
 
   // replace, remove, move operations
-  logInfo(logOptions, "standard", "Updating content type snippets");
+  logInfo(logOptions, "standard", "Deleting content type snippets");
   await updateSnippets(client, diff.contentTypeSnippets.updated);
 };
 
