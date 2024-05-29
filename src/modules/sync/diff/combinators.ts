@@ -284,22 +284,25 @@ const prefixOperationPath = (prefix: string) => (op: PatchOperation): PatchOpera
 /**
  * Replace the whole value when only one is undefined, do nothing when both are undefined and call the inner handler when neither are undefined.
  */
-export const optionalHandler =
-  <Entity>(handler: Handler<Entity>): Handler<Entity | undefined> => (sourceVal, targetVal) => {
-    if (sourceVal === targetVal && sourceVal === undefined) {
-      return [];
-    }
-    if (sourceVal === undefined || targetVal === undefined) {
-      return [{
-        op: "replace",
-        path: "",
-        value: sourceVal ?? null,
-        oldValue: targetVal ?? null,
-      }];
-    }
+export const optionalHandler = <Entity>(
+  handler: Handler<Entity>,
+  transformBeforeReplace: (v: Entity) => unknown = x => x,
+): Handler<Entity | undefined> =>
+(sourceVal, targetVal) => {
+  if (sourceVal === targetVal && sourceVal === undefined) {
+    return [];
+  }
+  if (sourceVal === undefined || targetVal === undefined) {
+    return [{
+      op: "replace",
+      path: "",
+      value: sourceVal ? transformBeforeReplace(sourceVal) : null,
+      oldValue: targetVal ?? null,
+    }];
+  }
 
-    return handler(sourceVal, targetVal);
-  };
+  return handler(sourceVal, targetVal);
+};
 
 /**
  * For basic values only. Replace when they are different.

@@ -325,18 +325,34 @@ type ReferencesDefault = DefaultValue<ReadonlyArray<Readonly<{ codename: string;
 const makeDefaultReferencesHandler = (
   targetCodenames?: { has: (codename: string) => boolean },
 ): Handler<ReferencesDefault | undefined> =>
-  optionalHandler(makeLeafObjectHandler(
-    {
-      global: ({ value: source }, { value: target }) =>
-        source.length === target.length && zip(source, target).every(([s, t]) => s.codename === t.codename),
-    },
-    apply(tC => source => ({
-      global: {
-        value: source.global.value
-          .map(ref => tC.has(ref.codename) ? { codename: ref.codename } : { external_id: ref.external_id }),
+  optionalHandler(
+    makeLeafObjectHandler(
+      {
+        global: ({ value: source }, { value: target }) =>
+          source.length === target.length && zip(source, target).every(([s, t]) => s.codename === t.codename),
       },
-    }), targetCodenames) ?? undefined,
-  ));
+      source => ({
+        global: {
+          value: source.global.value
+            .map(ref =>
+              !targetCodenames || targetCodenames.has(ref.codename)
+                ? { codename: ref.codename }
+                : { external_id: ref.external_id }
+            ),
+        },
+      }),
+    ),
+    (entity) => ({
+      global: {
+        value: entity.global.value
+          .map(ref =>
+            !targetCodenames || targetCodenames.has(ref.codename)
+              ? { codename: ref.codename }
+              : { external_id: ref.external_id }
+          ),
+      },
+    }),
+  );
 
 const simpleDefaultValueComparator = <Value extends string | number>(
   source: DefaultValue<Value>["global"],
