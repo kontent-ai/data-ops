@@ -44,16 +44,13 @@ export const expectSameEnvironments = async (
 export const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
-  filterParam: FilterParam = { include: ["types", "snippets", "taxonomies"] },
 ): Promise<void> => {
-  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies"] }).then(
-    prepareReferences,
-  );
-  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies"] }).then(
-    prepareReferences,
-  );
+  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies"] })
+    .then(prepareReferences);
+  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies"] })
+    .then(prepareReferences);
 
-  expectSameAllEnvData(data1, data2, filterParam);
+  expectSameAllEnvData(data1, data2, { include: ["types", "snippets", "taxonomies"] });
 };
 
 export const expectSameAllEnvData = (

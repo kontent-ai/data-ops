@@ -28,30 +28,26 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
 
 describe("Sync two environments with credentials", () => {
   it.concurrent(
-    "Sync source environment to target environment with providing credentials for both",
+    "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
         `sync -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
 
       await runCommand(command);
 
-      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, {
-        include: ["types", "taxonomies", "snippets"],
-      });
+      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID);
     }),
   );
 
   it.concurrent(
-    "Sync target environment to source environment with providing credentials for both",
+    "Sync target environment to source environment directly from target environment",
     withTestEnvironment(SYNC_SOURCE_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
         `sync -s=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
 
       await runCommand(command);
 
-      await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID, {
-        include: ["types", "taxonomies", "snippets"],
-      });
+      await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID);
     }),
   );
 });
@@ -90,9 +86,7 @@ describe("Sync environment from folder", () => {
 
       await runCommand(command);
 
-      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, {
-        include: ["types", "taxonomies", "snippets"],
-      });
+      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID);
     }),
   );
 });
