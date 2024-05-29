@@ -1,4 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
+import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 import * as path from "path";
 
@@ -11,16 +12,18 @@ import { expectSameSyncEnvironments } from "../importExport/utils/compare";
 import { runCommand } from "../utils/runCommand";
 import { withTestEnvironment } from "../utils/setup";
 
+dotenvConfig();
+
 const { SYNC_SOURCE_TEST_ENVIRONMENT_ID, API_KEY, SYNC_TARGET_TEST_ENVIRONMENT_ID } = process.env;
 
+if (!API_KEY) {
+  throw new Error("API_KEY env variable was not provided.");
+}
 if (!SYNC_SOURCE_TEST_ENVIRONMENT_ID) {
   throw new Error("SYNC_SOURCE_TEST_ENVIRONMENT_ID environment variable is not defined.");
 }
 if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
   throw new Error("SYNC_TARGET_TEST_ENVIRONMENT_ID env variable was not provided.");
-}
-if (!API_KEY) {
-  throw new Error("API_KEY env variable was not provided.");
 }
 
 describe("Sync two environments with credentials", () => {
