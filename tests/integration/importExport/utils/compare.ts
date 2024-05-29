@@ -80,7 +80,20 @@ export const expectSameAllEnvData = (
   has("roles") && expect(sortBy(data1.roles, r => r.name)).toStrictEqual(sortBy(data2.roles, r => r.name));
   has("workflows") && expect(sortByCodename(data1.workflows)).toStrictEqual(sortByCodename(data2.workflows));
   has("snippets") && expect(sortByCodename(data1.snippets)).toStrictEqual(sortByCodename(data2.snippets));
-  has("types") && expect(sortByCodename(data1.types)).toStrictEqual(sortByCodename(data2.types));
+  has("types")
+    && expect(
+      sortByCodename(
+        data1.types.map(t => ({
+          ...t,
+          elements: t.content_groups?.length ? sortTypesElements(t.elements) : t.elements,
+        })),
+      ),
+    ).toStrictEqual(
+      sortByCodename(data2.types.map(t => ({
+        ...t,
+        elements: t.content_groups?.length ? sortTypesElements(t.elements) : t.elements,
+      }))),
+    );
   has("items") && expect(sortByCodename(data1.items)).toStrictEqual(sortByCodename(data2.items));
   has("variants") && expect(sortedVariants(data1)).toStrictEqual(sortedVariants(data2));
   /* eslint-enable @typescript-eslint/no-unused-expressions */
@@ -91,6 +104,9 @@ const sortBy = <T>(entities: ReadonlyArray<T>, sortByPicker: (e: T) => string): 
 
 const sortByCodename = <T extends { readonly codename: string }>(entities: ReadonlyArray<T>): ReadonlyArray<T> =>
   sortBy(entities, e => e.codename);
+
+const sortTypesElements = (elements: ElementContracts.IContentTypeElementContract[]) =>
+  elements.toSorted((e1, e2) => (e1 as any).content_group.id < (e2 as any).content_group.id ? -2 : 0);
 
 const prepareReferences = (data: AllEnvData): AllEnvData => ({
   collections: data.collections.map(c => ({ ...c, id: "-", external_id: "-" })),
@@ -338,7 +354,8 @@ element => {
           }
           : undefined,
         allowed_content_types: baseElement.allowed_content_types
-          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
+          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" }))
+          .toSorted((e1, e2) => e1.id < e2.id ? -1 : 0),
       };
 
       return result;
@@ -363,10 +380,14 @@ element => {
     case "rich_text": {
       const result: ContentTypeElements.IRichTextElement = {
         ...baseElement,
+        allowed_table_formatting: baseElement.allowed_table_formatting?.toSorted(),
+        allowed_formatting: baseElement.allowed_formatting?.toSorted(),
         allowed_content_types: baseElement.allowed_content_types
-          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
+          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" }))
+          .toSorted((e1, e2) => e1.id < e2.id ? -1 : 0),
         allowed_item_link_types: baseElement.allowed_item_link_types
-          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
+          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" }))
+          .toSorted((e1, e2) => e1.id < e2.id ? -1 : 0),
       };
 
       return result;
@@ -388,7 +409,8 @@ element => {
       const result: SubPagesElement = {
         ...typedElement,
         allowed_content_types: typedElement.allowed_content_types
-          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" })),
+          ?.map(ref => ({ id: data.types.find(t => t.id === ref.id)?.codename ?? "non-existing-type" }))
+          .toSorted((e1, e2) => e1.id < e2.id ? -1 : 0),
         default: typedElement.default
           ? {
             global: {
@@ -577,9 +599,9 @@ const createPrepareVariantElementReferences: PrepareReferencesCreator<ElementCon
               return item ? asInternal(item.codename) : asExternal("non-existing-item");
             },
           })
-            .replaceAll(assetExternalIdRegex, () => `${assetExternalIdAttributeName}="non-existing-asset"`)
-            .replaceAll(itemExternalIdRegex, () => `${itemExternalIdAttributeName}="non-existing-item"`)
-            .replaceAll(itemLinkExternalIdRegex, () => `${itemLinkExternalIdAttributeName}="non-existing-item"`),
+            .replaceAll(assetExternalIdRegex, () => ` ${assetExternalIdAttributeName}="non-existing-asset"`)
+            .replaceAll(itemExternalIdRegex, () => ` ${itemExternalIdAttributeName}="non-existing-item"`)
+            .replaceAll(itemLinkExternalIdRegex, () => ` ${itemLinkExternalIdAttributeName}="non-existing-item"`),
           components: typedElement.components?.map(component => ({
             id: "-",
             type: { id: data.types.find(t => t.id === component.type.id)?.codename ?? "non-existing-type" },
@@ -660,6 +682,6 @@ const itemExternalIdAttributeName = "data-external-id";
 const itemLinkExternalIdAttributeName = "data-item-external-id";
 const assetExternalIdAttributeName = "data-asset-external-id";
 
-const itemExternalIdRegex = new RegExp(`${itemExternalIdAttributeName}="(.+)"`, "gi");
-const itemLinkExternalIdRegex = new RegExp(`${itemLinkExternalIdAttributeName}="(.+)"`, "gi");
-const assetExternalIdRegex = new RegExp(`${assetExternalIdAttributeName}="(.+)"`, "gi");
+const itemExternalIdRegex = new RegExp(`\\s+${itemExternalIdAttributeName}="(.+)"`, "gi");
+const itemLinkExternalIdRegex = new RegExp(`\\s+${itemLinkExternalIdAttributeName}="(.+)"`, "gi");
+const assetExternalIdRegex = new RegExp(`\\s+${assetExternalIdAttributeName}="(.+)"`, "gi");
