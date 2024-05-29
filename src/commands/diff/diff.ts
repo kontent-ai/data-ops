@@ -4,6 +4,7 @@ import { logInfo, LogOptions } from "../../log.js";
 import { diff } from "../../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
 import { printDiff } from "../../modules/sync/printDiff.js";
+import { writeDiffToFile } from "../../modules/sync/advancedDiff.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,
@@ -57,6 +58,13 @@ export const register: RegisterCommand = (yargs) =>
           type: "boolean",
           describe: "Generate a detailed diff to an HTML file.",
           alias: "a",
+          implies: ["outPath"],
+        })
+        .option("outPath", {
+          type: "string",
+          describe: "Absolute path to the directory where the diff HTML files will be saved.",
+          alias: "o",
+          implies: ["advancedLog"],
         }),
     handler: args => diffAsync(args).catch(simplifyErrors),
   });
@@ -69,6 +77,7 @@ export type SyncParams =
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
     advancedLog?: boolean;
+    outPath?: string;
   }>
   & LogOptions;
 
@@ -116,6 +125,6 @@ export const diffAsync = async (params: SyncParams) => {
   });
 
   return params.advancedLog
-    ? resolveTemplate({ ...diffModel, ...params })
+    ? writeDiffToFile({ ...diffModel, ...params })
     : printDiff(diffModel, params);
 };

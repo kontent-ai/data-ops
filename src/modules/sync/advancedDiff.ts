@@ -18,7 +18,7 @@ export const writeDiffToFile = (diffData: DiffData) => {
     (match) => templateHandlerMap.get(match)?.(diffData) ?? match,
   );
   const outputPath = resolve(
-    "./",
+    diffData.outPath!,
     `diff_${new Date().toISOString().replace(/[:.-]/g, "_")}.html`,
   );
 
@@ -42,22 +42,12 @@ export const writeDiffToFile = (diffData: DiffData) => {
   open(outputPath).catch((err) =>
     logError(
       diffData,
-      `Failed to open the file: ${outputPath}\nMessage: ${JSON.stringify(err)}`
+      `Failed to open the file: ${outputPath}\nMessage: ${JSON.stringify(err)}`,
     )
   );
 };
 
 const processPatchOp = (patchOp: PatchOperation) => {
-  const extractEntityIdentifier = (value: unknown): string | string[] =>
-    Array.isArray(value)
-      ? value.flatMap(extractEntityIdentifier)
-      : typeof value === "object"
-          && value
-          && (("codename" in value && typeof value.codename === "string")
-            || ("id" in value && typeof value.id === "string"))
-      ? `"${"codename" in value ? value.codename : value.id}"`
-      : `${value}`;
-
   switch (patchOp.op) {
     case "remove":
       return `Path ${patchOp.path} object to be removed.`;
@@ -86,20 +76,26 @@ const processPatchOp = (patchOp: PatchOperation) => {
 
 const processAddedEntities = (entity: unknown): string => {
   if (isTaxonomyRequestModel(entity)) {
-    return `<pre><h2>${entity.name}</h2><h4>${entity.terms
-      .map((e) => e.name)
-      .join(", ")}</h4></pre>`;
+    return `<pre><h2>${entity.name}</h2><h4>${
+      entity.terms
+        .map((e) => e.name)
+        .join(", ")
+    }</h4></pre>`;
   }
 
   if (isContentTypeData(entity)) {
-    return `<pre><h2>${entity.name}</h2><h4>${entity.elements
-      .flatMap((e) => `${e.codename}: ${e.type}`)
-      .join(", ")}</h4></pre>`;
+    return `<pre><h2>${entity.name}</h2><h4>${
+      entity.elements
+        .flatMap((e) => `${e.codename}: ${e.type}`)
+        .join(", ")
+    }</h4></pre>`;
   }
   if (isContentTypeSnippetData(entity)) {
-    return `<pre><h2>${entity.name}</h2><h4>${entity.elements
-      .flatMap((e) => `${e.codename}: ${e.type}`)
-      .join(", ")}</h4></pre>`;
+    return `<pre><h2>${entity.name}</h2><h4>${
+      entity.elements
+        .flatMap((e) => `${e.codename}: ${e.type}`)
+        .join(", ")
+    }</h4></pre>`;
   }
   return `Unknown type`;
 };
@@ -214,7 +210,7 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
     ({ taxonomyGroups, contentTypes, contentTypeSnippets }: DiffData) =>
       [taxonomyGroups, contentTypes, contentTypeSnippets]
         .reduce(
-          (acc, {added, deleted, updated}) => acc + added.length + deleted.size + updated.size,
+          (acc, { added, deleted, updated }) => acc + added.length + deleted.size + updated.size,
           0,
         )
         .toString(),
