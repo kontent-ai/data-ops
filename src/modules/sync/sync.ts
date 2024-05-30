@@ -284,7 +284,9 @@ const transformTaxonomyOperations = (
 ): TaxonomyModels.IModifyTaxonomyData => {
   const pathParts = operation.path.split("/");
   const propertyName = pathParts[pathParts.length - 1];
-  const termReference = operation.op === "replace" ? pathParts[pathParts.length - 2] : pathParts[pathParts.length - 1];
+  const termReference = operation.op === "replace" || operation.op === "addInto"
+    ? pathParts[pathParts.length - 2]
+    : pathParts[pathParts.length - 1];
   const codename = termReference?.split(":")[1];
 
   return {
