@@ -55,9 +55,9 @@ Using Management API introduces some limitations. Synchrozining content model wo
 
 When syncing the content model, add, patch, and delete operations must come in a specific order, otherwise, MAPI won't be able to reference some entities. Check the image below for more details.
 
-![Content model operations order](./content_model_operations_order.png)
+![Content model operations order](./images/content_model_operations_order.png)
 
 To successfully patch a content type, its operations for content groups and elements must also be in a specific order:
-![Content type operations order](./content_type_operations_order.png)
+![Content type operations order](./images/content_type_operations_order.png)
 
 
