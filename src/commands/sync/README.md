@@ -49,7 +49,9 @@ To see all supported parameters, run `npx @kontent-ai/data-ops sync --help`.
 Using Management API introduces some limitations. Synchrozining content model won't let you:
 - Change the state of Web Spotlight (coming soon)
 - Snippet element can't be referenced in the same request its created in. Because of this, the tool can't move it to the correct place in the content type.
-- At the moment, the command does not utilize the `under` property in the `move` operation to change the hierarchy of taxonomy terms - coming.
+- At the moment, the command does not utilize the `under` property in the `move` operation to move a taxonomy term in the structure under a different term (coming soon).
+  Currently, it will remove the term in the original place and add it in the new place. 
+  This leads to the added term having different id and therefore it is a different term with the same codename.
 
 ## Contributing
 
