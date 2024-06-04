@@ -7,8 +7,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
             height: auto;
+            width: 100vw;
         }
         h1 {
             font-size: 1.5em;
@@ -63,21 +63,29 @@
             margin: 10px 0;
             color: #333;
         }
+        .push {
+            margin-left: auto;
+        }
         .dropdown {
             margin: 10px 0;
+            border-radius: 16px;
+            padding: 10px;
+            border: #ccc solid 1px;
+            box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 8px;
+            background-color: white;
         }
         .dropdown-header {
             display: flex;
             justify-content: stretch;
-            width: 60vw;
+            width: 100%;
+            position: sticky;
+            top: 50px;
+            background-color: white;
         }
         .dropdown-header div {
             font-size: large;
             font-weight: bold;
             padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 16px;
-            box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 8px;
             align-content: center;
             margin-right: 10px;
         }
@@ -86,20 +94,17 @@
             width: 60%;
         }
         .num_added {
-            background: #005f3c;
-            color: white;
+            color: #005f3c;
             min-width: 2em;
             text-align: center;
         }
         .num_modified {
-            background: #5b4ff5;
-            color: white;
+            color: #5b4ff5;
             min-width: 2em;
             text-align: center;
         }
         .num_removed {
-            background: #ff005c;
-            color: white;
+            color: #ff005c;
             min-width: 2em;
             text-align: center;
         }
@@ -108,6 +113,13 @@
             margin-top: 5px;
             border-radius: 16px;
         }
+        .entityDetail {
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            margin-bottom: 5px;
+            padding-left: 10px;
+            cursor: pointer;
+        }
         .addedAndDeleted {
             display: flex;
         }
@@ -115,15 +127,8 @@
             border: 1px solid #005f3c;
             border-radius: 16px;
             margin-right: 5px;
-            padding: 10px;
+            padding: 16px;
             flex: 1;
-        }
-        .entityDetail {
-            border: 1px solid #ccc;
-            border-radius: 16px;
-            margin-bottom: 5px;
-            padding-left: 10px;
-            cursor: pointer;
         }
         .added h3 {
             color: #005f3c;
@@ -134,7 +139,7 @@
         .updated {
             border: 1px solid #5b4ff5;
             border-radius: 16px;
-            padding: 10px;
+            padding: 16px;
             margin-top: 10px;
             margin-bottom: 10px;
         }
@@ -149,7 +154,7 @@
             border: 1px solid #ff005c;
             border-radius: 16px;
             margin-left: 5px;
-            padding: 10px;
+            padding: 16px;
             flex: 1;
         }
         .deleted h3 {
@@ -183,6 +188,7 @@
             padding-top: 2em;
             padding-left: 8em;
             padding-right: 8em;
+            margin: auto;
         }
         .diffContainer {
             margin-top: 2em;
@@ -212,6 +218,15 @@
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
+        .compared-environments {
+            display: flex;
+            justify-content: space-between;
+            position: sticky;
+            top: 0px;
+            background-color: white;
+            align-items: baseline;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
@@ -225,19 +240,22 @@
             </div>
         </div>
         <h2>Compared environments</h2>
-        <div class="environment-info">
-           <div class="env-type">SOURCE</div><div>{{source_env_id}}</div><a href="https://app.kontent.ai/{{source_env_id}}">OPEN ENVIRONMENT</a>
-        </div>
-        <div class="environment-info">
-            <div class="env-type">TARGET</div><div>{{target_env_id}}</div><a href="https://app.kontent.ai/{{target_env_id}}">OPEN ENVIRONMENT</a>
+        <div class="compared-environments">
+            <div class="environment-info">
+                <div class="env-type">SOURCE</div><div>{{source_env_id}}</div><a href="https://app.kontent.ai/{{source_env_id}}">OPEN ENVIRONMENT</a>
+            </div>
+            <div class="environment-info">⇉</div>
+            <div class="environment-info">
+                <div class="env-type">TARGET</div><div>{{target_env_id}}</div><a href="https://app.kontent.ai/{{target_env_id}}">OPEN ENVIRONMENT</a>
+            </div>
         </div>
         <div class="diffContainer">
             <h2>Modified entities</h2>
             <div>state from <strong>{{datetime_generated}}</strong></div>
             <div class="dropdown">
                 <div class="dropdown-header" onclick="toggleVisibility('content-types')">
-                    <div class="entity">Content Types</div>
-                    <div class="num_modified">✎ {{num_types_to_mod}}</div>
+                    <div>Content Types</div>
+                    <div class="num_modified push">✎ {{num_types_to_mod}}</div>
                     <div class="num_added">+ {{num_types_to_add}}</div>
                     <div class="num_removed">− {{num_types_to_remove}}</div>
                 </div>
@@ -262,7 +280,7 @@
             <div class="dropdown">
                 <div class="dropdown-header" onclick="toggleVisibility('snippets')">
                     <div class="entity">Snippets</div>
-                    <div class="num_modified tooltip">✎ {{num_snippets_to_mod}}<span class="tooltiptext">modified</span></div>
+                    <div class="num_modified push tooltip">✎ {{num_snippets_to_mod}}<span class="tooltiptext">modified</span></div>
                     <div class="num_added tooltip">+ {{num_snippets_to_add}}<span class="tooltiptext">added</span></div>
                     <div class="num_removed tooltip">− {{num_snippets_to_remove}}<span class="tooltiptext">removed</span></div>
                 </div>
@@ -287,7 +305,7 @@
             <div class="dropdown">
                 <div class="dropdown-header" onclick="toggleVisibility('taxonomy-groups')">
                     <div class="entity">Taxonomy groups</div>
-                    <div class="num_modified">✎ {{num_taxonomy_to_mod}}</div>
+                    <div class="num_modified push">✎ {{num_taxonomy_to_mod}}</div>
                     <div class="num_added">+ {{num_taxonomy_to_add}}</div>
                     <div class="num_removed">− {{num_taxonomy_to_remove}}</div>
                 </div>
