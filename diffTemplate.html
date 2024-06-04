@@ -7,7 +7,8 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            padding: 20px;
+            height: auto;
         }
         h1 {
             font-size: 1.5em;
@@ -17,10 +18,45 @@
         h2 {
             font-size: 1.2em;
             margin-top: 20px;
-            color: #007BFF;
+        }
+        .env {
+            display: flex;
         }
         .environment-info {
             margin: 10px 0;
+            font-size: x-large;
+            display: flex;
+        }
+        .environment-info div {
+            border-radius: 20px;
+            padding: 9px 16px;
+            margin-right: 5px;
+            font-size: small;
+            font-family: 'Courier New', Courier, monospace;
+            color: black;
+            border: 1px solid rgb(223, 223, 223);
+            align-content: center;
+        }
+        .environment-info div.env-type {
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            border-radius: 30px;
+            font-size: xx-small;
+            font-weight: bold;
+            text-align: center;
+        }
+        .environment-info a {
+            background: #5b4ff5;
+            color: white;
+            font-family: Arial, sans-serif;
+            border-radius: 20px;
+            font-size: x-small;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            align-content: center;
+            padding: 9px 16px;
         }
         .total-changes {
             font-size: 1.2em;
@@ -31,123 +67,259 @@
             margin: 10px 0;
         }
         .dropdown-header {
-            cursor: pointer;
-            background-color: #f1f1f1;
-            padding: 10px;
+            display: flex;
+            justify-content: stretch;
+            width: 60vw;
+        }
+        .dropdown-header div {
+            font-size: large;
+            font-weight: bold;
+            padding: 15px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 16px;
+            box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 8px;
+            align-content: center;
+            margin-right: 10px;
+        }
+        .dropdown-header div.entity {
+            cursor: pointer;
+            width: 60%;
+        }
+        .num_added {
+            background: #005f3c;
+            color: white;
+            min-width: 2em;
+            text-align: center;
+        }
+        .num_modified {
+            background: #5b4ff5;
+            color: white;
+            min-width: 2em;
+            text-align: center;
+        }
+        .num_removed {
+            background: #ff005c;
+            color: white;
+            min-width: 2em;
+            text-align: center;
         }
         .dropdown-content {
             display: none;
             margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            background-color: #f9f9f9;
+            border-radius: 16px;
+        }
+        .addedAndDeleted {
+            display: flex;
         }
         .added {
-            background-color: #D4EDDA;
-            border: 1px solid #C3E6CB;
+            border: 1px solid #005f3c;
+            border-radius: 16px;
+            margin-right: 5px;
             padding: 10px;
-            margin: 5px 0;
+            flex: 1;
+        }
+        .entityDetail {
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            margin-bottom: 5px;
+            padding-left: 10px;
+            cursor: pointer;
+        }
+        .added h3 {
+            color: #005f3c;
+        }
+        .added h4 {
+            font-family: 'Courier New', Courier, monospace;
         }
         .updated {
-            background-color: #FFF3CD;
-            border: 1px solid #FFEEBA;
+            border: 1px solid #5b4ff5;
+            border-radius: 16px;
             padding: 10px;
-            margin: 5px 0;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .updated h3 {
+            color: #5b4ff5;
+        }
+        .updated h4 {
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
         }
         .deleted {
-            background-color: #F8D7DA;
-            border: 1px solid #F5C6CB;
+            border: 1px solid #ff005c;
+            border-radius: 16px;
+            margin-left: 5px;
             padding: 10px;
-            margin: 5px 0;
+            flex: 1;
+        }
+        .deleted h3 {
+            color: #ff005c;
+        }
+        .deleted h4 {
+            font-family: 'Courier New', Courier, monospace;
         }
         pre {
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
             padding: 10px;
-            overflow-x: auto;
+            overflow-x: clip;
+        }
+        .title {
+            display: flex;
+            align-items: center;
+            font-size: 2em;
+            margin-bottom: 1em;
+        }
+        .title img {
+            height: 3em;
+            margin-right: 0.5em;
+        }
+        .title .logo {
+            display: flex;
+            align-items: center;
+        }
+        .timestamp {
+            font-size: medium;
+        }
+        .content {
+            padding-top: 2em;
+            padding-left: 8em;
+            padding-right: 8em;
+        }
+        .diffContainer {
+            margin-top: 2em;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px 0;
+            border-radius: 6px;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -60px;
+            
+            /* Position the tooltip text - see examples below! */
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* Show the tooltip text when you mouse over the tooltip container */
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
         }
     </style>
 </head>
 <body>
-    <div id="content-diff" style="padding: 2em;">
-        <div><img style="padding-bottom: 1em; width: 25%; border-bottom: #007BFF;" alt="Kontent.ai" title="Kontent.ai" src="https://private-user-images.githubusercontent.com/52500882/325139890-1b1a6675-eee1-458d-a5f5-7d9d7096f9ab.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTY4MTE0NTMsIm5iZiI6MTcxNjgxMTE1MywicGF0aCI6Ii81MjUwMDg4Mi8zMjUxMzk4OTAtMWIxYTY2NzUtZWVlMS00NThkLWE1ZjUtN2Q5ZDcwOTZmOWFiLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA1MjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNTI3VDExNTkxM1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWJlNGI5YTFiMmFjYTdhMDQ2NDc2NjdkMDY1NDM1NjVhOGY2ODIxODYzZGYzMDA3OGZmMTU1MmYxYjMyYjZjY2ImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.uiYtK0LSVMBUJ61n0KriGB2_lhBR9bQsYE7T7q-83mU"></div>
+    <div id="content-diff" class="content">
+        <div class="title">
+            <div class="logo">
+                <img src="https://avatars.githubusercontent.com/u/150392983" alt="Kontent.ai" title="Kontent.ai">
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <div>DataOps | diff</div>
+            </div>
+        </div>
+        <h2>Compared environments</h2>
         <div class="environment-info">
-            <p><strong>Source Environment ID:</strong> <a href="https://app.kontent.ai/{{source_env_id}}">{{source_env_id}}  |  open in Kontent.ai</a></p>
-            <p><strong>Target Environment ID:</strong> <a href="https://app.kontent.ai/{{target_env_id}}">{{target_env_id}}  |  open in Kontent.ai</a></p>
+           <div class="env-type">SOURCE</div><div>{{source_env_id}}</div><a href="https://app.kontent.ai/{{source_env_id}}">OPEN ENVIRONMENT</a>
         </div>
-        <div class="total-changes">
-            <p><strong>Total Changes:</strong> {{total_changes}}</p>
+        <div class="environment-info">
+            <div class="env-type">TARGET</div><div>{{target_env_id}}</div><a href="https://app.kontent.ai/{{target_env_id}}">OPEN ENVIRONMENT</a>
         </div>
+        <div class="diffContainer">
+            <h2>Modified entities</h2>
+            <div>state from <strong>{{datetime_generated}}</strong></div>
+            <div class="dropdown">
+                <div class="dropdown-header" onclick="toggleVisibility('content-types')">
+                    <div class="entity">Content Types</div>
+                    <div class="num_modified">✎ {{num_types_to_mod}}</div>
+                    <div class="num_added">+ {{num_types_to_add}}</div>
+                    <div class="num_removed">− {{num_types_to_remove}}</div>
+                </div>
+                <div id="content-types" class="dropdown-content">
+                    <div class="updated">
+                        <h3>Modified</h3>
+                        {{modified_content_types}}
+                    </div>
+                    <div class="addedAndDeleted">
+                        <div class="added">
+                            <h3>Added</h3>
+                            {{added_content_types}}
+                        </div>
+                        <div class="deleted">
+                            <h3>Removed</h3>
+                            {{removed_content_types}}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="dropdown">
-            <div class="dropdown-header" onclick="toggleVisibility('content-types')">
-                <h2>Content Types (Add: {{num_types_to_add}}, Remove: {{num_types_to_remove}}, Modify: {{num_types_to_mod}})</h2>
+            <div class="dropdown">
+                <div class="dropdown-header" onclick="toggleVisibility('snippets')">
+                    <div class="entity">Snippets</div>
+                    <div class="num_modified tooltip">✎ {{num_snippets_to_mod}}<span class="tooltiptext">modified</span></div>
+                    <div class="num_added tooltip">+ {{num_snippets_to_add}}<span class="tooltiptext">added</span></div>
+                    <div class="num_removed tooltip">− {{num_snippets_to_remove}}<span class="tooltiptext">removed</span></div>
+                </div>
+                <div id="snippets" class="dropdown-content">
+                    <div class="updated">
+                        <h3>Modified</h3>
+                        {{modified_content_type_snippets}}
+                    </div>
+                    <div class="addedAndDeleted">
+                        <div class="added">
+                            <h3>Added</h3>
+                            {{added_content_type_snippets}}
+                        </div>
+                        <div class="deleted">
+                            <h3>Removed</h3>
+                            {{removed_content_type_snippets}}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="content-types" class="dropdown-content">
-                <div class="added">
-                    <h3>Added</h3>
-                    {{added_content_types}}
-                </div>
-                <div class="deleted">
-                    <h3>Removed</h3>
-                    {{removed_content_types}}
-                </div>
-                <div class="updated">
-                    <h3>Modified</h3>
-                    {{modified_content_types}}
-                </div>
-            </div>
-        </div>
 
-        <div class="dropdown">
-            <div class="dropdown-header" onclick="toggleVisibility('snippets')">
-                <h2>Snippets (Add: {{num_snippets_to_add}}, Remove: {{num_snippets_to_remove}}, Modify: {{num_snippets_to_mod}})</h2>
-            </div>
-            <div id="snippets" class="dropdown-content">
-                <div class="added">
-                    <h3>Added</h3>
-                    {{added_content_type_snippets}}
+            <div class="dropdown">
+                <div class="dropdown-header" onclick="toggleVisibility('taxonomy-groups')">
+                    <div class="entity">Taxonomy groups</div>
+                    <div class="num_modified">✎ {{num_taxonomy_to_mod}}</div>
+                    <div class="num_added">+ {{num_taxonomy_to_add}}</div>
+                    <div class="num_removed">− {{num_taxonomy_to_remove}}</div>
                 </div>
-                <div class="deleted">
-                    <h3>Removed</h3>
-                    {{removed_content_type_snippets}}
-                </div>
-                <div class="updated">
-                    <h3>Modified</h3>
-                    {{modified_content_type_snippets}}
-                </div>
-            </div>
-        </div>
-
-        <div class="dropdown">
-            <div class="dropdown-header" onclick="toggleVisibility('taxonomy-groups')">
-                <h2>Taxonomy Groups (Add: {{num_taxonomy_to_add}}, Remove: {{num_taxonomy_to_remove}}, Modify: {{num_taxonomy_to_mod}})</h2>
-            </div>
-            <div id="taxonomy-groups" class="dropdown-content">
-                <div class="added">
-                    <h3>Added</h3>
-                    {{added_taxonomy_groups}}
-                </div>
-                <div class="deleted">
-                    <h3>Removed</h3>
-                    {{removed_taxonomy_groups}}
-                </div>
-                <div class="updated">
-                    <h3>Modified</h3>
-                    {{modified_taxonomy_groups}}
+                <div id="taxonomy-groups" class="dropdown-content">
+                    <div class="updated">
+                        <h3>Modified</h3>
+                        {{modified_taxonomy_groups}}
+                    </div>
+                    <div class="addedAndDeleted">
+                        <div class="added">
+                            <h3>Added</h3>
+                            {{added_taxonomy_groups}}
+                        </div>
+                        <div class="deleted">
+                            <h3>Removed</h3>
+                            {{removed_taxonomy_groups}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+
     <script>
         const toggleVisibility = (id) => {
-            var dropDown = document.getElementById(id);
-            dropDown.style.display = dropDown.style.display === "none" ? "block" : "none";
-        }
+            const dropDown = document.getElementById(id);
+            dropDown.style.display =
+                dropDown.style.display === "none" || !dropDown.style.display
+                ? "block"
+                : "none";
+        };
     </script>
 </body>
 </html>
