@@ -50,7 +50,7 @@ export const writeDiffToFile = (diffData: DiffData) => {
 const processPatchOp = (patchOp: PatchOperation) => {
   switch (patchOp.op) {
     case "remove":
-      return `Path ${patchOp.path} object to be removed.`;
+      return `${getEntityDetailFromPath(patchOp.path)} will be removed.`;
     case "move":
       return `Path ${patchOp.path} object to be moved ${
         "before" in patchOp
@@ -58,7 +58,7 @@ const processPatchOp = (patchOp: PatchOperation) => {
           : `after ${patchOp.after.codename}`
       }`;
     case "addInto":
-      return `Path ${patchOp.path} with ${
+      return `${getEntityDetailFromPath(patchOp.path)} ${
         getValueOrIdentifier(
           patchOp.value,
         )
@@ -66,38 +66,112 @@ const processPatchOp = (patchOp: PatchOperation) => {
         patchOp.after ? `after ${patchOp.after.codename}` : ""
       }`;
     case "replace":
-      return `Path ${patchOp.path} value replaced.\n - From: "${
+      return `${getEntityDetailFromPath(patchOp.path)} replaced.\n From: ${
         getValueOrIdentifier(
           patchOp.oldValue,
         )
-      }" \n - To: ${getValueOrIdentifier(patchOp.value)}`;
+      } \n To: ${getValueOrIdentifier(patchOp.value)}`;
   }
+};
+
+const getEntityDetailFromPath = (path: string) => {
+  const patterns = [
+    {
+      regex: /^\/name$/,
+      entity: () => `Content type name`,
+    },
+    { 
+      regex: /^\/elements$/,
+      entity: () => `Element`,
+    },
+    { 
+      regex: /^\/content_groups$/,
+      entity: () => `Content group`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)$/,
+      entity: (match: string[]) => `Element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/allowed_content_types\/codename:([^/]+)$/,
+      entity: (match: string[]) =>
+        `Allowed content type <strong>${match[2]}</strong> from element <strong>${match[1]}</strong>"`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/allowed_element\/codename:([^/]+)$/,
+      entity: (match: string[]) => `Allowed element <strong>${match[2]}</strong> from custom element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex:
+        /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)$/,
+      entity: (match: string[]) =>
+        `Option <strong>${match[2]}</strong> from multiple choice element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex:
+        /^\/content_groups\/codename:([^/]+)$/,
+      entity: (match: string[]) =>
+        `Content group <strong>${match[1]}</strong>`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/allowed_blocks\/([^/]+)$/,
+      entity: (match: string[]) =>
+        `Allowed block <strong>${match[2]}</strong> from rich text element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/allowed_blocks$/,
+      entity: (match: string[]) =>
+        `Allowed for rich text element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/allowed_content_types$/,
+      entity: (match: string[]) =>
+        `Allowed content types for element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/content_group$/,
+      entity: (match: string[]) =>
+        `Content group for element <strong>${match[1]}</strong>`,
+    },
+    {
+      regex: /^\/elements\/codename:([^/]+)\/guidelines$/,
+      entity: (match: string[]) =>
+        `Guidelines for element <strong>${match[1]}</strong>`,
+    },
+  ];
+
+  const pattern = patterns.find((p) => p.regex.test(path));
+  return pattern
+    ? pattern.entity(path.match(pattern.regex) as string[])
+    : `Object at path ${path}`;
 };
 
 const processAddedEntities = (entity: unknown): string => {
   if (isTaxonomyRequestModel(entity)) {
-    return `<pre><h2>${entity.name}</h2><h4>${
+    return `<div class="entityDetail" onClick="toggleVisibility('${entity.codename}')"><h4>${entity.codename}</h4><pre style="display: none" id=${entity.codename}>${
       entity.terms
-        .map((e) => e.name)
-        .join(", ")
-    }</h4></pre>`;
+        .map((e) => `<div>${e.name}</div>`)
+        .join("\n")
+    }</pre></div>`;
   }
 
   if (isContentTypeData(entity)) {
-    return `<pre><h2>${entity.name}</h2><h4>${
+    return `<div class="entityDetail" onClick="toggleVisibility('${entity.codename}')"><h4>${entity.codename}</h4><pre style="display: none" id=${entity.codename}>${
       entity.elements
-        .flatMap((e) => `${e.codename}: ${e.type}`)
-        .join(", ")
-    }</h4></pre>`;
+        .flatMap((e) => `<div>${e.codename}: ${e.type}</div>`)
+        .join("\n")
+    }</pre></div>`;
   }
+
   if (isContentTypeSnippetData(entity)) {
-    return `<pre><h2>${entity.name}</h2><h4>${
+    return `<div class="entityDetail" onClick="toggleVisibility('${entity.codename}')"><h4>${entity.codename}</h4><pre style="display: none" id=${entity.codename}>${
       entity.elements
-        .flatMap((e) => `${e.codename}: ${e.type}`)
-        .join(", ")
-    }</h4></pre>`;
+        .flatMap((e) => `<div>${e.codename}: ${e.type}</div>`)
+        .join("\n")
+    }</pre></div>`;
   }
-  return `Unknown type`;
+
+  return `<pre>Unknown entity</pre>`;
 };
 
 const getValueOrIdentifier = (value: unknown): string | string[] =>
@@ -107,67 +181,67 @@ const getValueOrIdentifier = (value: unknown): string | string[] =>
         && value
         && (("codename" in value && typeof value.codename === "string")
           || ("id" in value && typeof value.id === "string"))
-    ? `"${"codename" in value ? value.codename : value.id}"`
-    : `${value}`;
+    ? `<strong>${"codename" in value ? value.codename : value.id}</strong>`
+    : `<strong>${value}</strong>`;
 
-const createEntitiesToAdd = <T extends { codename: string }>(
+const createAddedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "added">,
 ) => diff.added.map(processAddedEntities).join("\n");
 
-const createEntitiesToDelete = <T extends { codename: string }>(
+const createDeletedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "deleted">,
-) => `<pre><h2>${[...diff.deleted].map((d) => d).join(", ")}</h2></pre>`;
+) => `${[...diff.deleted].map((d) => `<div class="entityDetail"><h4>${d}</h4></div>`).join("\n")}`;
 
-const createEntitiesToUpdate = <T extends { codename: string }>(
+const createUpdatedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "updated">,
 ) =>
   [...diff.updated]
     .flatMap(
       ([entity, patchOps]) =>
-        `<pre><h2>${entity}</h2><pre>${
+        `<div class="entityDetail" onClick="toggleVisibility('${entity}')"><h4>${entity}</h4><pre style="display: none" id="${entity}">${
           patchOps
             .flatMap(processPatchOp)
             .join("\n")
-        }</pre></pre>`,
+        }</pre></div>`,
     )
     .join("\n");
 
 const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
   [
     "{{added_content_types}}",
-    ({ contentTypes }: DiffData) => createEntitiesToAdd(contentTypes),
+    ({ contentTypes }: DiffData) => createAddedEntitiesSection(contentTypes),
   ],
   [
     "{{removed_content_types}}",
-    ({ contentTypes }: DiffData) => createEntitiesToDelete(contentTypes),
+    ({ contentTypes }: DiffData) => createDeletedEntitiesSection(contentTypes),
   ],
   [
     "{{modified_content_types}}",
-    ({ contentTypes }: DiffData) => createEntitiesToUpdate(contentTypes),
+    ({ contentTypes }: DiffData) => createUpdatedEntitiesSection(contentTypes),
   ],
   [
     "{{added_content_type_snippets}}",
-    ({ contentTypeSnippets }: DiffData) => createEntitiesToAdd(contentTypeSnippets),
+    ({ contentTypeSnippets }: DiffData) => createAddedEntitiesSection(contentTypeSnippets),
   ],
   [
     "{{removed_content_type_snippets}}",
-    ({ contentTypeSnippets }: DiffData) => createEntitiesToDelete(contentTypeSnippets),
+    ({ contentTypeSnippets }: DiffData) => createDeletedEntitiesSection(contentTypeSnippets),
   ],
   [
     "{{modified_content_type_snippets}}",
-    ({ contentTypeSnippets }: DiffData) => createEntitiesToUpdate(contentTypeSnippets),
+    ({ contentTypeSnippets }: DiffData) => createUpdatedEntitiesSection(contentTypeSnippets),
   ],
   [
     "{{added_taxonomy_groups}}",
-    ({ taxonomyGroups }: DiffData) => createEntitiesToAdd(taxonomyGroups),
+    ({ taxonomyGroups }: DiffData) => createAddedEntitiesSection(taxonomyGroups),
   ],
   [
     "{{removed_taxonomy_groups}}",
-    ({ taxonomyGroups }: DiffData) => createEntitiesToDelete(taxonomyGroups),
+    ({ taxonomyGroups }: DiffData) => createDeletedEntitiesSection(taxonomyGroups),
   ],
   [
     "{{modified_taxonomy_groups}}",
-    ({ taxonomyGroups }: DiffData) => createEntitiesToUpdate(taxonomyGroups),
+    ({ taxonomyGroups }: DiffData) => createUpdatedEntitiesSection(taxonomyGroups),
   ],
   [
     "{{num_types_to_add}}",
@@ -220,4 +294,5 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
     ({ sourceEnvironmentId }: DiffData) => sourceEnvironmentId ?? "N/A (Sourced from a folder)",
   ],
   ["{{target_env_id}}", ({ environmentId }: DiffData) => environmentId],
+  ["{{datetime_generated}}", () => new Date().toUTCString()]
 ]);
