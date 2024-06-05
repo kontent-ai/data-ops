@@ -1,4 +1,4 @@
-import { PatchOperation } from "../types/diffModel.js";
+import { PatchOperation } from "../types/patchOperation.js";
 import { ContentTypeSnippetsSyncModel, isSyncCustomElement, SyncGuidelinesElement } from "../types/syncModel.js";
 import {
   baseHandler,

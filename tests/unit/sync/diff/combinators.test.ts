@@ -1,9 +1,10 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it, jest } from "@jest/globals";
 
 import {
   baseHandler,
   constantHandler,
   Handler,
+  makeAdjustEntityHandler,
   makeAdjustOperationHandler,
   makeArrayHandler,
   makeBaseArrayHandler,
@@ -11,10 +12,11 @@ import {
   makeObjectHandler,
   makeOrderingHandler,
   makePrefixHandler,
+  makeProvideHandler,
   makeUnionHandler,
   optionalHandler,
 } from "../../../../src/modules/sync/diff/combinators";
-import { PatchOperation } from "../../../../src/modules/sync/types/diffModel";
+import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation";
 
 describe("makeObjectHandler", () => {
   it("concatenates results of all property handlers and prepends property names to paths", () => {
@@ -263,7 +265,7 @@ describe("makeBaseArrayHandler", () => {
 });
 
 describe("makeAdjustOperationHandler", () => {
-  it("Adjust operation is called on the result of ther provided handler", () => {
+  it("Adjust operation is called on the result of the provided handler", () => {
     const source = "testSource";
     const target = "testTarget";
 
@@ -279,6 +281,30 @@ describe("makeAdjustOperationHandler", () => {
     expect(result).toStrictEqual([
       { op: "replace", path: "/newTest", oldValue: target, value: source },
     ]);
+  });
+});
+
+describe("makeAdjustEntityHandler", () => {
+  it("Adjusts entities and pass them to the handler", () => {
+    const adjustEntity = (entity: number) => entity.toString() + " adjusted";
+    const handler: Handler<string> = (s, t) => [{ op: "replace", path: "", value: s, oldValue: t }];
+
+    const result = makeAdjustEntityHandler<number, string>(adjustEntity, handler)(42, 69);
+
+    expect(result).toStrictEqual([{ op: "replace", path: "", value: "42 adjusted", oldValue: "69 adjusted" }]);
+  });
+});
+
+describe("makeProvideHandler", () => {
+  it("Provides the same source and target to makeHandler param and the returned handler", () => {
+    const handler: Handler<number> = (s, t) => [{ op: "replace", path: "", value: s, oldValue: t }];
+    const handlerMaker = jest.fn(() => handler);
+
+    const result = makeProvideHandler<number>(handlerMaker)(42, 69);
+
+    expect(handlerMaker).toHaveBeenCalledTimes(1);
+    expect(handlerMaker).toHaveBeenCalledWith(42, 69);
+    expect(result).toStrictEqual([{ op: "replace", path: "", value: 42, oldValue: 69 }]);
   });
 });
 

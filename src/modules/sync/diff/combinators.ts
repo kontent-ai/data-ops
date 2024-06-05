@@ -1,5 +1,5 @@
 import { zip } from "../../../utils/array.js";
-import { PatchOperation } from "../types/diffModel.js";
+import { PatchOperation } from "../types/patchOperation.js";
 
 export type Handler<Entity> = (sourceValue: Entity, targetValue: Entity) => ReadonlyArray<PatchOperation>;
 export type ContextfulHandler<Context, Entity> = Readonly<
@@ -249,6 +249,25 @@ export const makeAdjustOperationHandler = <Entity>(
   handler: Handler<Entity>,
 ): Handler<Entity> =>
 (source, target) => adjustArray(handler(source, target));
+
+/**
+ * Calls the provided callback on source and target entities allowing adjustments before running the provided handler.
+ *
+ * @param adjustEntity - callback to be called
+ * @param handler - handler returning patch operations
+ */
+export const makeAdjustEntityHandler = <InputEntity, OutputEntity>(
+  adjustEntity: (entity: InputEntity) => OutputEntity,
+  handler: Handler<OutputEntity>,
+): Handler<InputEntity> =>
+(source, target) => handler(adjustEntity(source), adjustEntity(target));
+
+/**
+ * Provides the source and target to handler creator.
+ */
+export const makeProvideHandler =
+  <Entity>(makeHandler: (source: Entity, target: Entity) => Handler<Entity>): Handler<Entity> => (source, target) =>
+    makeHandler(source, target)(source, target);
 
 /**
  * Creates a handler for a union of different types discriminated by a single property

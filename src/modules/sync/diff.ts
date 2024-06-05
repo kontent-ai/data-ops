@@ -1,14 +1,15 @@
 import { Handler } from "./diff/combinators.js";
 import { makeContentTypeHandler, wholeContentTypesHandler } from "./diff/contentType.js";
 import { makeContentTypeSnippetHandler, wholeContentTypeSnippetsHandler } from "./diff/contentTypeSnippet.js";
-import { makeTaxonomyGroupHandler, wholeTaxonomyGroupsHandler } from "./diff/taxonomy.js";
+import { taxonomyGroupHandler, wholeTaxonomyGroupsHandler } from "./diff/taxonomy.js";
 import {
   transformSnippetToAddModel,
   transformTaxonomyToAddModel,
   transformTypeToAddModel,
 } from "./diff/transformToAddModel.js";
-import { DiffModel, PatchOperation } from "./types/diffModel.js";
+import { DiffModel } from "./types/diffModel.js";
 import { FileContentModel } from "./types/fileContentModel.js";
+import { PatchOperation } from "./types/patchOperation.js";
 
 type TargetReference = { id: string; codename: string };
 
@@ -48,7 +49,7 @@ export const diff = (params: DiffParams): DiffModel => {
 
   const taxonomyDiffModel = createDiffModel(
     wholeTaxonomyGroupsHandler(params.sourceEnvModel.taxonomyGroups, params.targetEnvModel.taxonomyGroups),
-    makeTaxonomyGroupHandler(),
+    taxonomyGroupHandler,
   );
 
   return {

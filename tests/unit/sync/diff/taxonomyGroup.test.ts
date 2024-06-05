@@ -1,7 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { makeTaxonomyGroupHandler } from "../../../../src/modules/sync/diff/taxonomy";
+import { taxonomyGroupHandler } from "../../../../src/modules/sync/diff/taxonomy";
 import { TaxonomySyncModel } from "../../../../src/modules/sync/types/syncModel";
+
+const makeTerm = (name: string): TaxonomySyncModel => ({
+  name,
+  codename: name.replaceAll(" ", ""),
+  terms: [],
+});
 
 describe("makeTaxonomyGroupHandler", () => {
   it("correctly create patch operations for taxonomy groups with nested terms", () => {
@@ -15,15 +21,8 @@ describe("makeTaxonomyGroupHandler", () => {
           terms: [],
         },
         {
-          name: "Term2",
-          codename: "term2",
-          terms: [
-            {
-              name: "New term",
-              codename: "newTerm",
-              terms: [],
-            },
-          ],
+          ...makeTerm("term2"),
+          terms: [makeTerm("New Term")],
         },
       ],
     };
@@ -32,15 +31,8 @@ describe("makeTaxonomyGroupHandler", () => {
       codename: "taxonomy_group",
       terms: [
         {
-          name: "Term2",
-          codename: "term2",
-          terms: [
-            {
-              name: "Term to delete",
-              codename: "termToDelete",
-              terms: [],
-            },
-          ],
+          ...makeTerm("term2"),
+          terms: [makeTerm("Term To Delete")],
         },
         {
           name: "Old term name",
@@ -50,7 +42,7 @@ describe("makeTaxonomyGroupHandler", () => {
       ],
     };
 
-    const result = makeTaxonomyGroupHandler()(source, target);
+    const result = taxonomyGroupHandler(source, target);
 
     expect(result).toStrictEqual([
       {
@@ -69,17 +61,17 @@ describe("makeTaxonomyGroupHandler", () => {
         op: "addInto",
         path: "/terms/codename:term2/terms",
         value: {
-          name: "New term",
-          codename: "newTerm",
+          name: "New Term",
+          codename: "NewTerm",
           terms: [],
         },
       },
       {
         op: "remove",
-        path: "/terms/codename:term2/terms/codename:termToDelete",
+        path: "/terms/codename:term2/terms/codename:TermToDelete",
         oldValue: {
-          name: "Term to delete",
-          codename: "termToDelete",
+          name: "Term To Delete",
+          codename: "TermToDelete",
           terms: [],
         },
       },
@@ -88,6 +80,139 @@ describe("makeTaxonomyGroupHandler", () => {
         path: "/terms/codename:term2",
         after: { codename: "term1" },
       },
+    ]);
+  });
+
+  it("Creates move operation for a term moved under a different parent term", () => {
+    const source: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        {
+          ...makeTerm("term1"),
+          terms: [makeTerm("termA")],
+        },
+        makeTerm("term2"),
+      ],
+    };
+    const target: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        makeTerm("term1"),
+        {
+          ...makeTerm("term2"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+
+    const result = taxonomyGroupHandler(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "move", path: "/terms/codename:term2/terms/codename:termA", under: { codename: "term1" } },
+    ]);
+  });
+
+  it("Creates move operation for a term moved under the taxonomy group", () => {
+    const source: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [makeTerm("termA")],
+    };
+    const target: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        {
+          ...makeTerm("term1"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+
+    const result = taxonomyGroupHandler(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "move", path: "/terms/codename:term1/terms/codename:termA", before: { codename: "term1" } },
+      { op: "remove", path: "/terms/codename:term1", oldValue: { name: "term1", codename: "term1", terms: [] } },
+    ]);
+  });
+
+  it("Creates move operation for a term moved under an added term", () => {
+    const source: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        {
+          ...makeTerm("term1"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+    const target: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [makeTerm("termA")],
+    };
+
+    const result = taxonomyGroupHandler(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "addInto", path: "/terms", value: { name: "term1", codename: "term1", terms: [] } },
+      { op: "move", path: "/terms/codename:termA", under: { codename: "term1" } },
+    ]);
+  });
+
+  it("Creates move operation for a term moved from a deleted parent", () => {
+    const source: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        {
+          ...makeTerm("term1"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+    const target: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        makeTerm("term1"),
+        {
+          ...makeTerm("term2"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+
+    const result = taxonomyGroupHandler(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "move", path: "/terms/codename:term2/terms/codename:termA", under: { codename: "term1" } },
+      { op: "remove", path: "/terms/codename:term2", oldValue: { name: "term2", codename: "term2", terms: [] } },
+    ]);
+  });
+
+  it("Creates sort operations for a term moved under a different parent", () => {
+    const source: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        {
+          ...makeTerm("term1"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+    const target: TaxonomySyncModel = {
+      ...makeTerm("group"),
+      terms: [
+        makeTerm("term1"),
+        {
+          ...makeTerm("term2"),
+          terms: [makeTerm("termA")],
+        },
+      ],
+    };
+
+    const result = taxonomyGroupHandler(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "move", path: "/terms/codename:term2/terms/codename:termA", under: { codename: "term1" } },
+      { op: "remove", path: "/terms/codename:term2", oldValue: { name: "term2", codename: "term2", terms: [] } },
     ]);
   });
 });
