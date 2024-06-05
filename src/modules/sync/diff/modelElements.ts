@@ -3,7 +3,7 @@ import { ContentTypeElements } from "@kontent-ai/management-sdk";
 import { zip } from "../../../utils/array.js";
 import { apply, not } from "../../../utils/function.js";
 import { CodenameReference } from "../../../utils/types.js";
-import { PatchOperation } from "../types/diffModel.js";
+import { PatchOperation } from "../types/patchOperation.js";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,

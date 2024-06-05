@@ -49,9 +49,6 @@ To see all supported parameters, run `npx @kontent-ai/data-ops sync --help`.
 Using Management API introduces some limitations. Synchrozining content model won't let you:
 - Change the state of Web Spotlight (coming soon)
 - Snippet element can't be referenced in the same request its created in. Because of this, the tool can't move it to the correct place in the content type.
-- At the moment, the command does not utilize the `under` property in the `move` operation to move a taxonomy term in the structure under a different term (coming soon).
-  Currently, it will remove the term in the original place and add it in the new place. 
-  This leads to the added term having different id and therefore it is a different term with the same codename.
 
 ## Contributing
 
@@ -62,4 +59,10 @@ When syncing the content model, add, patch, and delete operations must come in a
 To successfully patch a content type, its operations for content groups and elements must also be in a specific order:
 ![Content type operations order](./images/content_type_operations_order.png)
 
+### Taxonomy diff handler
 
+Taxonomies are handled as a flat array of terms with each term having additional property "position" that encodes its position in the tree.
+The "position" property is an array of term codenames starting from the terms parent up to the root term (a taxonomy group child).
+
+Since the terms are flattened in pre-order (parent is before its children), moving a term into an added term is not a problem, because the moved term's parent will be handled before the moved term itself (added before it).
+Remove operations in the array handler are added at the end so moving a term from a removed term is not a problem either.

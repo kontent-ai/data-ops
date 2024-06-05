@@ -14,7 +14,8 @@ import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { RequiredCodename } from "../../utils/types.js";
 import { elementTypes } from "./constants/elements.js";
 import { ElementsTypes } from "./types/contractModels.js";
-import { DiffModel, PatchOperation } from "./types/diffModel.js";
+import { DiffModel } from "./types/diffModel.js";
+import { getTargetCodename, PatchOperation } from "./types/patchOperation.js";
 
 const referencingElements: ReadonlyArray<ElementsTypes> = ["rich_text", "modular_content", "subpages"];
 const referenceProps = ["allowed_content_types", "allowed_item_link_types"] as const;
@@ -284,10 +285,7 @@ const transformTaxonomyOperations = (
 ): TaxonomyModels.IModifyTaxonomyData => {
   const pathParts = operation.path.split("/");
   const propertyName = pathParts[pathParts.length - 1];
-  const termReference = operation.op === "replace" || operation.op === "addInto"
-    ? pathParts[pathParts.length - 2]
-    : pathParts[pathParts.length - 1];
-  const codename = termReference?.split(":")[1];
+  const codename = getTargetCodename(operation);
 
   return {
     ...operation,

@@ -8,7 +8,8 @@ import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { elementTypes } from "./constants/elements.js";
 import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "./constants/filename.js";
 import { ElementsTypes } from "./types/contractModels.js";
-import { DiffModel, PatchOperation } from "./types/diffModel.js";
+import { DiffModel } from "./types/diffModel.js";
+import { PatchOperation } from "./types/patchOperation.js";
 
 export const validateContentFolder = async (folderPath: string) => {
   const stats = await fs.stat(folderPath);

@@ -5,7 +5,7 @@ import {
   makeGuidelinesElementHandler,
   makeRichTextElementHandler,
 } from "../../../../src/modules/sync/diff/modelElements";
-import { PatchOperation } from "../../../../src/modules/sync/types/diffModel";
+import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
