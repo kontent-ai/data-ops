@@ -58,6 +58,9 @@ The instructions for every command are presented in the README.md files in the c
 - [sync](./src/commands/sync/README.md)
 - [diff](./src/commands/diff/README.md)
 - [generate-sync-model](./src/commands/generateSyncModel/README.md)
+- sync-content
+  - [run](./src/commands/syncContent/run/README.md)
+  - [export](./src/commands/syncContent/export/README.md)
 
 # Contributing
 
