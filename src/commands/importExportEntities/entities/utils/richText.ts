@@ -10,6 +10,7 @@ import {
   itemOrComponentRegex,
 } from "../../../../constants/richText.js";
 import { LogOptions, logWarning } from "../../../../log.js";
+import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
 import { ImportContext } from "../../entityDefinition.js";
 
 type ReferenceReplacer = <T extends string>(
@@ -52,7 +53,7 @@ export const replaceImportRichTextReferences = (
       const newAssetId = context.assetIdsByOldIds.get(oldAssetId);
       if (!newAssetId) {
         logWarning(logOptions, "standard", `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`);
-        return asExternalId(oldAssetId);
+        return asExternalId(createAssetExternalId(context.oldAssetCodenamesByIds.get(oldAssetId) ?? oldAssetId));
       }
 
       return asInternalId(newAssetId);
@@ -66,7 +67,7 @@ export const replaceImportRichTextReferences = (
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
         logWarning(logOptions, "standard", `Found item id "${oldItemId}" of a non-existent item in the rich text.`);
-        return asExternalId(oldItemId);
+        return asExternalId(createItemExternalId(context.oldContentItemCodenamesByIds.get(oldItemId) ?? oldItemId));
       }
 
       return asInternalId(newItemId.selfId);
@@ -75,7 +76,7 @@ export const replaceImportRichTextReferences = (
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
         logWarning(logOptions, "standard", `Found a link to a non-existent item id "${oldItemId}" in the rich text.`);
-        return asExternalId(oldItemId);
+        return asExternalId(context.oldContentItemCodenamesByIds.get(oldItemId) ?? oldItemId);
       }
 
       return asInternalId(newItemId.selfId);

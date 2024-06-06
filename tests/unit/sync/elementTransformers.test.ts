@@ -333,7 +333,7 @@ describe("elementTransfomers test", () => {
           value: [
             {
               codename: items[0].codename,
-              external_id: items[0].id,
+              external_id: `item_${items[0].codename}`,
             },
           ],
         },
@@ -387,8 +387,8 @@ describe("elementTransfomers test", () => {
       ...element,
       id: undefined,
       external_id: undefined,
-      guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="${
-        items[0].id
+      guidelines: `<p>Item links: <a data-item-codename="${items[0].codename}" data-item-external-id="item_${
+        items[0].codename
       }">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-codename="${assets[0].codename}" data-asset-external-id="${
         assets[0].external_id
       }">Asset Link 1</a></p>\n<figure data-asset-codename="${assets[0].codename}" data-asset-external-id="${

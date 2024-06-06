@@ -49,6 +49,7 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
     return {
       ...context,
       assetIdsByOldIds: new Map(assetIdEntries),
+      oldAssetCodenamesByIds: new Map(fileAssets.map(a => [a.id, a.codename])),
     };
   },
   cleanEntities: async (client, assets) => {

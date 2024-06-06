@@ -7,6 +7,7 @@ import {
 } from "@kontent-ai/management-sdk";
 
 import { LogOptions } from "../../../../log.js";
+import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
 import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
 import { getRequired } from "../../../import/utils.js";
@@ -48,13 +49,14 @@ export const createTransformTypeElement =
           default: typedElement.default
             ? {
               global: {
-                value: typedElement.default.global.value.map(ref =>
-                  createReference({
-                    newId: params.context.assetIdsByOldIds.get(ref.id),
-                    oldId: ref.id,
-                    entityName: "asset",
-                  })
-                ),
+                value: typedElement.default.global.value.map(ref => {
+                  const sourceAssetCodename = params.context.oldAssetCodenamesByIds.get(ref.id);
+                  const targetAssetId = params.context.assetIdsByOldIds.get(ref.id);
+
+                  return targetAssetId
+                    ? { id: targetAssetId }
+                    : { external_id: createAssetExternalId(sourceAssetCodename ?? ref.id) };
+                }),
               },
             }
             : undefined,
@@ -335,13 +337,14 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             value: {
               global: {
                 value: typedElement.default.global.value
-                  .map(ref =>
-                    createReference({
-                      newId: context.contentItemContextByOldIds.get(ref.id)?.selfId,
-                      oldId: ref.id,
-                      entityName: "item",
-                    })
-                  ),
+                  .map(ref => {
+                    const sourceItemCodename = context.oldContentItemCodenamesByIds.get(ref.id);
+                    const targetItemId = context.contentItemContextByOldIds.get(ref.id)?.selfId;
+
+                    return targetItemId
+                      ? { id: targetItemId }
+                      : { external_id: createItemExternalId(sourceItemCodename ?? ref.id) };
+                  }),
               },
             },
           },
@@ -401,13 +404,14 @@ export const createPatchItemAndTypeReferencesInTypeElement =
             value: {
               global: {
                 value: typedElement.default.global.value
-                  .map(ref =>
-                    createReference({
-                      newId: context.contentItemContextByOldIds.get(ref.id)?.selfId,
-                      oldId: ref.id,
-                      entityName: "item",
-                    })
-                  ),
+                  .map(ref => {
+                    const sourceItemCodename = context.oldContentItemCodenamesByIds.get(ref.id);
+                    const targetItemId = context.contentItemContextByOldIds.get(ref.id)?.selfId;
+
+                    return targetItemId
+                      ? { id: targetItemId }
+                      : { external_id: createItemExternalId(sourceItemCodename ?? ref.id) };
+                  }),
               },
             },
           },
