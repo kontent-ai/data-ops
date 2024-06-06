@@ -59,6 +59,9 @@ The instructions for individual commands are provided in the README.md files loc
 - [sync](./src/commands/sync/README.md)
 - [diff](./src/commands/diff/README.md)
 - [generate-sync-model](./src/commands/generateSyncModel/README.md)
+- sync-content
+  - [run](./src/commands/syncContent/run/README.md)
+  - [export](./src/commands/syncContent/export/README.md)
 
 # Contributing
 
