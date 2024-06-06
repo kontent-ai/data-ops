@@ -15,6 +15,7 @@ import {
 } from "../../../constants/richText.js";
 import { LogOptions, logWarning } from "../../../log.js";
 import { throwError } from "../../../utils/error.js";
+import { createAssetExternalId, createItemExternalId } from "../../../utils/externalIds.js";
 import { omit } from "../../../utils/object.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
 import { CodenameReference, Replace } from "../../../utils/types.js";
@@ -73,7 +74,7 @@ const replaceRichTextReferences = (
       }
 
       return `${customAssetCodenameAttributeName}="${asset.codename}" ${assetExternalIdAttributeName}="${
-        (asset.external_id as string | undefined) ?? asset.id
+        (asset.external_id as string | undefined) ?? createAssetExternalId(asset.codename)
       }"`;
     })
     .replaceAll(itemLinkRegex, (_, oldItemId /* from the regex capture group*/) => {
@@ -84,7 +85,7 @@ const replaceRichTextReferences = (
       }
 
       return `${customItemLinkCodenameAttributeName}="${item.codename}" ${itemExternalIdLinkAttributeName}="${
-        item.external_id ?? item.id
+        item.external_id ?? createItemExternalId(item.codename)
       }"`;
     });
 
@@ -157,7 +158,7 @@ export const transformAssetElement = (
     return {
       codename: asset.codename,
       // external id should be optional in sdks.
-      external_id: (asset.external_id as string | undefined) ?? asset.id,
+      external_id: (asset.external_id as string | undefined) ?? createAssetExternalId(asset.codename),
     };
   }).filter(notNullOrUndefined);
 
@@ -270,7 +271,7 @@ export const transformLinkedItemsElement = (
 
     return {
       codename: item.codename,
-      external_id: item.external_id ?? item.id,
+      external_id: item.external_id ?? createItemExternalId(item.codename),
     };
   }).filter(notNullOrUndefined);
 

@@ -49,6 +49,7 @@ export type ImportContext = Readonly<{
   taxonomyTermIdsByOldIds: IdsMap;
   assetFolderIdsByOldIds: IdsMap;
   assetIdsByOldIds: IdsMap;
+  oldAssetCodenamesByIds: CodenamesMap;
   contentTypeSnippetContextByOldIds: ReadonlyMap<
     string,
     Readonly<{
@@ -77,6 +78,7 @@ export type ImportContext = Readonly<{
     }>
   >;
   contentItemContextByOldIds: ReadonlyMap<string, Readonly<{ selfId: string; oldTypeId: string }>>;
+  oldContentItemCodenamesByIds: CodenamesMap;
   workflowIdsByOldIds: ReadonlyMap<
     string,
     Readonly<{
@@ -95,4 +97,5 @@ export type ImportContext = Readonly<{
   spaceIdsByOldIds: IdsMap;
 }>;
 
+type CodenamesMap = ReadonlyMap<string, string>;
 type IdsMap = ReadonlyMap<string, string>;

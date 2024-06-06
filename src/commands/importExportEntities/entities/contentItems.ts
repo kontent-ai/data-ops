@@ -26,6 +26,7 @@ export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
         zip(fileItems, projectItems)
           .map(([fItem, pItem]) => [fItem.id, { selfId: pItem.id, oldTypeId: fItem.type.id }]),
       ),
+      oldContentItemCodenamesByIds: new Map(fileItems.map(i => [i.id, i.codename])),
     };
   },
   cleanEntities: async (client, items) => {

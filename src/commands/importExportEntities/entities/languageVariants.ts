@@ -7,6 +7,7 @@ import {
 } from "@kontent-ai/management-sdk";
 
 import { logInfo, LogOptions } from "../../../log.js";
+import { createAssetExternalId, createItemExternalId } from "../../../utils/externalIds.js";
 import { serially } from "../../../utils/requests.js";
 import { notNull } from "../../../utils/typeguards.js";
 import { ReplaceReferences } from "../../../utils/types.js";
@@ -171,13 +172,14 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.assetElement({
         element: { id: projectElementId },
         value: typedElement.value
-          ?.map(ref =>
-            createReference({
-              newId: params.context.assetIdsByOldIds.get(ref.id),
-              oldId: ref.id,
-              entityName: "asset",
-            })
-          ) ?? null,
+          ?.map(ref => {
+            const sourceAssetCodename = params.context.oldAssetCodenamesByIds.get(ref.id);
+            const targetAssetId = params.context.assetIdsByOldIds.get(ref.id);
+
+            return targetAssetId
+              ? { id: targetAssetId }
+              : { external_id: createAssetExternalId(sourceAssetCodename ?? ref.id) };
+          }) ?? null,
       });
     }
     case "custom": {
@@ -203,13 +205,14 @@ const createTransformElement = (params: TransformElementParams) =>
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
         value: typedElement.value
-          ?.map(ref =>
-            createReference({
-              newId: params.context.contentItemContextByOldIds.get(ref.id)?.selfId,
-              oldId: ref.id,
-              entityName: "item",
-            })
-          ) ?? null,
+          ?.map(ref => {
+            const sourceItemCodename = params.context.oldContentItemCodenamesByIds.get(ref.id);
+            const targetItemId = params.context.contentItemContextByOldIds.get(ref.id)?.selfId;
+
+            return targetItemId
+              ? { id: targetItemId }
+              : { external_id: createItemExternalId(sourceItemCodename ?? ref.id) };
+          }) ?? null,
       });
     }
     case "multiple_choice": {
@@ -267,13 +270,14 @@ const createTransformElement = (params: TransformElementParams) =>
       const typedElement = fileElement as ReplaceReferences<LanguageVariantElements.ILinkedItemsInVariantElement>;
       return params.builder.linkedItemsElement({
         element: { id: projectElementId },
-        value: typedElement.value?.map(ref =>
-          createReference({
-            newId: params.context.contentItemContextByOldIds.get(ref.id)?.selfId,
-            oldId: ref.id,
-            entityName: "item",
-          })
-        ) ?? null,
+        value: typedElement.value?.map(ref => {
+          const sourceItemCodename = params.context.oldContentItemCodenamesByIds.get(ref.id);
+          const targetItemId = params.context.contentItemContextByOldIds.get(ref.id)?.selfId;
+
+          return targetItemId
+            ? { id: targetItemId }
+            : { external_id: createItemExternalId(sourceItemCodename ?? ref.id) };
+        }) ?? null,
       });
     }
     case "taxonomy": {
