@@ -18,7 +18,7 @@ import {
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
 
-import { replaceRichTextReferences } from "../../../../src/commands/importExportEntities/entities/utils/richText";
+import { replaceRichTextReferences } from "../../../../src/modules/importExport/importExportEntities/entities/utils/richText";
 import { AllEnvData, loadAllEnvData } from "./envData";
 
 dotenvConfig();
