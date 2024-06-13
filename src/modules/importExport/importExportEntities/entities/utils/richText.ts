@@ -8,9 +8,9 @@ import {
   itemLinkRegex,
   itemOrComponentAttributeName,
   itemOrComponentRegex,
-} from "../../../../constants/richText.js";
-import { LogOptions, logWarning } from "../../../../log.js";
-import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
+} from "../../../../../constants/richText.js";
+import { LogOptions, logWarning } from "../../../../../log.js";
+import { createAssetExternalId, createItemExternalId } from "../../../../../utils/externalIds.js";
 import { ImportContext } from "../../entityDefinition.js";
 
 type ReferenceReplacer = <T extends string>(

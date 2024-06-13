@@ -1,6 +1,6 @@
 import { PreviewContracts } from "@kontent-ai/management-sdk";
 
-import { notNull } from "../../../utils/typeguards.js";
+import { notNull } from "../../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfigurationContract> = {

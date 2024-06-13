@@ -1,11 +1,11 @@
 import { ManagementClient, WorkflowContracts, WorkflowModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { defaultCodename, defaultName, emptyId } from "../../../constants/ids.js";
-import { logInfo, LogOptions } from "../../../log.js";
-import { zip } from "../../../utils/array.js";
-import { serially } from "../../../utils/requests.js";
-import { MapValues, ReplaceReferences } from "../../../utils/types.js";
+import { defaultCodename, defaultName, emptyId } from "../../../../constants/ids.js";
+import { logInfo, LogOptions } from "../../../../log.js";
+import { zip } from "../../../../utils/array.js";
+import { serially } from "../../../../utils/requests.js";
+import { MapValues, ReplaceReferences } from "../../../../utils/types.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const defaultWorkflowId = emptyId;

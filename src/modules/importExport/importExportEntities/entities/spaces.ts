@@ -1,8 +1,8 @@
 import { SpaceContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logInfo } from "../../../log.js";
-import { serially } from "../../../utils/requests.js";
+import { logInfo } from "../../../../log.js";
+import { serially } from "../../../../utils/requests.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceContract>> = {

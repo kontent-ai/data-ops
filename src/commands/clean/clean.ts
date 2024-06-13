@@ -4,22 +4,22 @@ import { ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
+import { assetFoldersEntity } from "../../modules/importExport/importExportEntities/entities/assetFolders.js";
+import { assetsEntity } from "../../modules/importExport/importExportEntities/entities/assets.js";
+import { collectionsEntity } from "../../modules/importExport/importExportEntities/entities/collections.js";
+import { contentItemsEntity } from "../../modules/importExport/importExportEntities/entities/contentItems.js";
+import { contentTypesEntity } from "../../modules/importExport/importExportEntities/entities/contentTypes.js";
+import { contentTypesSnippetsEntity } from "../../modules/importExport/importExportEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "../../modules/importExport/importExportEntities/entities/languages.js";
+import { previewUrlsEntity } from "../../modules/importExport/importExportEntities/entities/previewUrls.js";
+import { spacesEntity } from "../../modules/importExport/importExportEntities/entities/spaces.js";
+import { taxonomiesEntity } from "../../modules/importExport/importExportEntities/entities/taxonomies.js";
+import { webhooksEntity } from "../../modules/importExport/importExportEntities/entities/webhooks.js";
+import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
+import { EntityDefinition } from "../../modules/importExport/importExportEntities/entityDefinition.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { serially } from "../../utils/requests.js";
 import { isSpotlightInUseError } from "../../utils/typeguards.js";
-import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "../importExportEntities/entities/assets.js";
-import { collectionsEntity } from "../importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "../importExportEntities/entities/contentItems.js";
-import { contentTypesEntity } from "../importExportEntities/entities/contentTypes.js";
-import { contentTypesSnippetsEntity } from "../importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "../importExportEntities/entities/languages.js";
-import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
-import { spacesEntity } from "../importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
-import { webhooksEntity } from "../importExportEntities/entities/webhooks.js";
-import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
-import { EntityDefinition } from "../importExportEntities/entityDefinition.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.
