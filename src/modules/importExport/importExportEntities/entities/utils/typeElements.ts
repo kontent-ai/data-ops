@@ -6,10 +6,10 @@ import {
   ElementContracts,
 } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../../../log.js";
-import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
-import { notNullOrUndefined } from "../../../../utils/typeguards.js";
-import { Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
+import { LogOptions } from "../../../../../log.js";
+import { createAssetExternalId, createItemExternalId } from "../../../../../utils/externalIds.js";
+import { notNullOrUndefined } from "../../../../../utils/typeguards.js";
+import { Replace, ReplaceReferences, RequiredId } from "../../../../../utils/types.js";
 import { getRequired } from "../../../import/utils.js";
 import { ImportContext } from "../../entityDefinition.js";
 import { createReference } from "./reference.js";

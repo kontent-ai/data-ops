@@ -1,11 +1,11 @@
 import { ContentTypeSnippetContracts, ElementContracts, ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../../../log.js";
-import { zip } from "../../../utils/array.js";
-import { serially } from "../../../utils/requests.js";
-import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../utils/types.js";
-import { getRequired } from "../../import/utils.js";
+import { logInfo, LogOptions } from "../../../../log.js";
+import { getRequired } from "../../../../modules/importExport/import/utils.js";
+import { zip } from "../../../../utils/array.js";
+import { serially } from "../../../../utils/requests.js";
+import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import {
   createPatchItemAndTypeReferencesInTypeElement,

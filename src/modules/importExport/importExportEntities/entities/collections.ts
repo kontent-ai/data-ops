@@ -1,7 +1,7 @@
 import { CollectionContracts, CollectionModels } from "@kontent-ai/management-sdk";
 
-import { defaultName, emptyId } from "../../../constants/ids.js";
-import { notNull } from "../../../utils/typeguards.js";
+import { defaultName, emptyId } from "../../../../constants/ids.js";
+import { notNull } from "../../../../utils/typeguards.js";
 import { compareExternalIds } from "../../import/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
 

@@ -4,9 +4,9 @@ import chalk from "chalk";
 import { StreamZipAsync } from "node-stream-zip";
 import stream from "stream";
 
-import { logInfo, LogOptions } from "../../../log.js";
-import { serially } from "../../../utils/requests.js";
-import { ReplaceReferences } from "../../../utils/types.js";
+import { logInfo, LogOptions } from "../../../../log.js";
+import { serially } from "../../../../utils/requests.js";
+import { ReplaceReferences } from "../../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 

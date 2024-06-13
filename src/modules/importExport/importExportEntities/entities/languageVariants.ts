@@ -6,11 +6,11 @@ import {
   ManagementClient,
 } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../../log.js";
-import { createAssetExternalId, createItemExternalId } from "../../../utils/externalIds.js";
-import { serially } from "../../../utils/requests.js";
-import { notNull } from "../../../utils/typeguards.js";
-import { ReplaceReferences } from "../../../utils/types.js";
+import { logInfo, LogOptions } from "../../../../log.js";
+import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
+import { serially } from "../../../../utils/requests.js";
+import { notNull } from "../../../../utils/typeguards.js";
+import { ReplaceReferences } from "../../../../utils/types.js";
 import { getRequired } from "../../import/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { createReference } from "./utils/reference.js";

@@ -1,9 +1,9 @@
 import { WebhookContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logInfo } from "../../../log.js";
-import { serially } from "../../../utils/requests.js";
-import { ReplaceReferences } from "../../../utils/types.js";
+import { logInfo } from "../../../../log.js";
+import { serially } from "../../../../utils/requests.js";
+import { ReplaceReferences } from "../../../../utils/types.js";
 import { EntityDefinition } from "../entityDefinition.js";
 import { simplifyContext, transformReferences } from "./utils/reference.js";
 

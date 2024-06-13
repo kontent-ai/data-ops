@@ -2,30 +2,33 @@ import chalk from "chalk";
 import StreamZip from "node-stream-zip";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
+import { assetFoldersEntity } from "../../modules/importExport/importExportEntities/entities/assetFolders.js";
+import { assetsEntity } from "../../modules/importExport/importExportEntities/entities/assets.js";
+import { collectionsEntity } from "../../modules/importExport/importExportEntities/entities/collections.js";
+import { contentItemsEntity } from "../../modules/importExport/importExportEntities/entities/contentItems.js";
+import {
+  contentTypesEntity,
+  updateItemAndTypeReferencesInTypesImportEntity,
+} from "../../modules/importExport/importExportEntities/entities/contentTypes.js";
+import {
+  contentTypesSnippetsEntity,
+  updateItemAndTypeReferencesInSnippetsImportEntity,
+} from "../../modules/importExport/importExportEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "../../modules/importExport/importExportEntities/entities/languages.js";
+import { languageVariantsEntity } from "../../modules/importExport/importExportEntities/entities/languageVariants.js";
+import { previewUrlsEntity } from "../../modules/importExport/importExportEntities/entities/previewUrls.js";
+import { spacesEntity } from "../../modules/importExport/importExportEntities/entities/spaces.js";
+import { taxonomiesEntity } from "../../modules/importExport/importExportEntities/entities/taxonomies.js";
+import { webhooksEntity } from "../../modules/importExport/importExportEntities/entities/webhooks.js";
+import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
+import {
+  EntityImportDefinition,
+  ImportContext,
+} from "../../modules/importExport/importExportEntities/entityDefinition.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { simplifyErrors } from "../../utils/error.js";
 import { serially } from "../../utils/requests.js";
-import { assetFoldersEntity } from "../importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "../importExportEntities/entities/assets.js";
-import { collectionsEntity } from "../importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "../importExportEntities/entities/contentItems.js";
-import {
-  contentTypesEntity,
-  updateItemAndTypeReferencesInTypesImportEntity,
-} from "../importExportEntities/entities/contentTypes.js";
-import {
-  contentTypesSnippetsEntity,
-  updateItemAndTypeReferencesInSnippetsImportEntity,
-} from "../importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "../importExportEntities/entities/languages.js";
-import { languageVariantsEntity } from "../importExportEntities/entities/languageVariants.js";
-import { previewUrlsEntity } from "../importExportEntities/entities/previewUrls.js";
-import { spacesEntity } from "../importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "../importExportEntities/entities/taxonomies.js";
-import { webhooksEntity } from "../importExportEntities/entities/webhooks.js";
-import { workflowsEntity } from "../importExportEntities/entities/workflows.js";
-import { EntityImportDefinition, ImportContext } from "../importExportEntities/entityDefinition.js";
 
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.

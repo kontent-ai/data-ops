@@ -3,8 +3,8 @@ import { describe, expect, it } from "@jest/globals";
 import {
   simplifyContext,
   transformReferences,
-} from "../../../src/commands/importExportEntities/entities/utils/reference";
-import { ImportContext } from "../../../src/commands/importExportEntities/entityDefinition";
+} from "../../../src/modules/importExport/importExportEntities/entities/utils/reference";
+import { ImportContext } from "../../../src/modules/importExport/importExportEntities/entityDefinition";
 
 const emptyMap = new Map();
 const contextTemplate: Pick<ImportContext, "collectionIdsByOldIds" | "contentTypeSnippetContextByOldIds"> = {

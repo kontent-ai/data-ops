@@ -2,7 +2,7 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import archiver from "archiver";
 import { StreamZipAsync } from "node-stream-zip";
 
-import { LogOptions } from "../../log.js";
+import { LogOptions } from "../../../log.js";
 
 export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T> & EntityCleanDefinition<T>;
 
