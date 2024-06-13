@@ -1,33 +1,33 @@
 import chalk from "chalk";
 
-import { logError, logInfo, LogOptions } from "../../log.js";
-import { diff } from "../../modules/sync/diff.js";
-import { fetchModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
-import { printDiff } from "../../modules/sync/printDiff.js";
-import { sync } from "../../modules/sync/sync.js";
-import { requestConfirmation } from "../../modules/sync/utils/consoleHelpers.js";
+import { logError, logInfo, LogOptions } from "../../../log.js";
+import { diff } from "../../../modules/sync/diff.js";
+import { fetchModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
+import { printDiff } from "../../../modules/sync/printDiff.js";
+import { sync } from "../../../modules/sync/sync.js";
+import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,
   readContentModelFromFolder,
-} from "../../modules/sync/utils/getContentModel.js";
-import { validateContentFolder, validateDiffedModel } from "../../modules/sync/validation.js";
-import { RegisterCommand } from "../../types/yargs.js";
-import { createClient } from "../../utils/client.js";
-import { simplifyErrors, throwError } from "../../utils/error.js";
+} from "../../../modules/sync/utils/getContentModel.js";
+import { validateContentFolder, validateDiffedModel } from "../../../modules/sync/validation.js";
+import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
+import { simplifyErrors, throwError } from "../../../utils/error.js";
 
-const commandName = "sync";
+const commandName = "run";
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
     command: commandName,
-    describe: "Synchronize content model between two Kontent.ai environments",
+    describe: "Synchronize content model between two Kontent.ai environments.",
     builder: yargs =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
           describe: "Id of the target Kontent.ai environment.",
-          demandOption: "You need to provide the environmentId for target Kontent.ai environment",
+          demandOption: "You need to provide the environmentId for target Kontent.ai environment.",
           alias: "t",
         })
         .option("targetApiKey", {
@@ -54,7 +54,7 @@ export const register: RegisterCommand = yargs =>
         .option("sourceApiKey", {
           type: "string",
           describe:
-            "Management API key of Kontent.ai environment containing source content model. Must be used --sourceEnvironmentId. Can't be used at the same time with option --folderName",
+            "Management API key of Kontent.ai environment containing source content model. Must be used with --sourceEnvironmentId. Can't be used at the same time with option --folderName",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
           alias: "sk",

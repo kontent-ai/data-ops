@@ -1,12 +1,12 @@
-# Sync
+# sync-model run
 > [!CAUTION] 
 > Synchronizing content model might lead to irreversible changes to the environment such as:
 > - Deletion of content by deleting elements from a content type
 > - Deletion of used taxonomies
 
-`Sync` command synchronizes the **source content model** into the **target environment** via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). The source content can be obtained from an existing Kontent.ai environment (considering you have access to the required credentials) or a folder structure in a pre-defined format (see [generate-sync-model](../generateSyncModel/README.md) command for more information). 
+The `sync-model run` command synchronizes the **source content model** into the **target environment** via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). The source content can be obtained from an existing Kontent.ai environment (considering you have access to the required credentials) or a folder structure in a required format (see [sync-model export](../export/README.md) command for more information).
 
-In the context of this command, the content model is represented by the following entities: `Taxonomies`, `Content Types`, and `Content Type Snippets`. The command begins by comparing the provided content models and generates patch operations, which are then printed as the **environment diff**. 
+In the context of this command, the content model is represented by the following entities: `Taxonomies`, `Content Types`, and `Content Type Snippets`. The command begins by comparing the provided content models and generates patch operations, which are then printed as the **environment diff**.  
 
 **We strongly encourage you to examine the changes before you proceed with the model synchronization.** Following the diff, a validation is performed to ensure the sync operation can succeed. Should the validation find any inconsistencies, the operation may be terminated. Otherwise, you will be asked to confirmation in order to begin the synchronization.
 
@@ -16,7 +16,7 @@ In the context of this command, the content model is represented by the followin
 - If the model contains `guidelines` that reference content items or assets that are not present in the target environment, they will be referenced by their `external_id`(if externalId is non-existent `id` is used as `external_id`) after the synchronization. Remember to migrate any missing content to the target environment either beforehand (preferably) or afterwards to achieve the desired results.
 - If `Linked items` or `Rich text element` references non-existent content types, they will be referenced using the `external_id` after the synchronization (one or more entity `codenames` are used to form the `external_id`).
   
-## Sync conditions
+## Sync model conditions
 To successfully synchronize the content model, we introduced a couple of conditions your environment **must follow** before attempting the sync:
 - There mustn't be an operation that changes the content type or content type snippet's element type - checked by validation.
 - There mustn't be an operation deleting a used content type (there is at least one content item of that type) - checked by validation.
@@ -26,13 +26,13 @@ To successfully synchronize the content model, we introduced a couple of conditi
 
 ## Usage
 ```bash
-npx @kontent-ai/data-ops@latest sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
+npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
 --sourceApiKey=<source-api-key>
 ```
 OR
 
 ```bash
-npx @kontent-ai/data-ops@latest sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
+npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
 ```
 
 > [!NOTE]  
@@ -47,7 +47,7 @@ npx @kontent-ai/data-ops@latest sync --targetEnvironmentId=<target-environment-i
 > }
 > ```
 
-To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync --help`.
+To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-model run --help`.
 
 ## Known limitations
 Using Management API introduces some limitations. Synchrozining content model won't let you:

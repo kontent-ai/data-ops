@@ -31,7 +31,7 @@ describe("Sync two environments with credentials", () => {
     "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
+        `sync-model run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -43,7 +43,7 @@ describe("Sync two environments with credentials", () => {
     "Sync target environment to source environment directly from target environment",
     withTestEnvironment(SYNC_SOURCE_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync -s=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
+        `sync-model run -s=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -56,7 +56,7 @@ describe("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
   it("generate sync model test", async () => {
-    const command = `generate-sync-model -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -k ${API_KEY} -f ${folderPath}`;
+    const command = `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises.stat(folderPath)
@@ -82,7 +82,8 @@ describe("Sync environment from folder", () => {
   it(
     "Sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `sync -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --verbose --skipConfirmation`;
+      const command =
+        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --verbose --skipConfirmation`;
 
       await runCommand(command);
 

@@ -1,26 +1,26 @@
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../../log.js";
-import { generateDiff } from "../../modules/sync/advancedDiff.js";
-import { diff } from "../../modules/sync/diff.js";
-import { fetchModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
-import { printDiff } from "../../modules/sync/printDiff.js";
+import { logInfo, LogOptions } from "../../../log.js";
+import { generateDiff } from "../../../modules/sync/advancedDiff.js";
+import { diff } from "../../../modules/sync/diff.js";
+import { fetchModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
+import { printDiff } from "../../../modules/sync/printDiff.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,
   readContentModelFromFolder,
-} from "../../modules/sync/utils/getContentModel.js";
-import { RegisterCommand } from "../../types/yargs.js";
-import { createClient } from "../../utils/client.js";
-import { simplifyErrors, throwError } from "../../utils/error.js";
+} from "../../../modules/sync/utils/getContentModel.js";
+import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
+import { simplifyErrors, throwError } from "../../../utils/error.js";
 
 const commandName = "diff";
 
-export const register: RegisterCommand = (yargs) =>
+export const register: RegisterCommand = yargs =>
   yargs.command({
     command: commandName,
     describe: "Compares content models from two Kontent.ai environments",
-    builder: (yargs) =>
+    builder: yargs =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
