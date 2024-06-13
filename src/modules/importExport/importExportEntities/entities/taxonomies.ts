@@ -1,9 +1,9 @@
 import { TaxonomyContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { logInfo } from "../../../log.js";
-import { zip } from "../../../utils/array.js";
-import { serially } from "../../../utils/requests.js";
+import { logInfo } from "../../../../log.js";
+import { zip } from "../../../../utils/array.js";
+import { serially } from "../../../../utils/requests.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.ITaxonomyContract>> = {

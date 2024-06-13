@@ -1,6 +1,6 @@
 import { AssetFolderContracts, AssetFolderModels } from "@kontent-ai/management-sdk";
 
-import { zip } from "../../../utils/array.js";
+import { zip } from "../../../../utils/array.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContracts.IAssetFolderContract>> = {

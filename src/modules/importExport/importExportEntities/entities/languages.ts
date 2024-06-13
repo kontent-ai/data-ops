@@ -1,8 +1,8 @@
 import { LanguageContracts, LanguageModels, LanguageResponses, ManagementClient } from "@kontent-ai/management-sdk";
 
-import { defaultCodename, defaultName, emptyId } from "../../../constants/ids.js";
-import { serially } from "../../../utils/requests.js";
-import { notNull } from "../../../utils/typeguards.js";
+import { defaultCodename, defaultName, emptyId } from "../../../../constants/ids.js";
+import { serially } from "../../../../utils/requests.js";
+import { notNull } from "../../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 const defaultLanguageId = emptyId;
