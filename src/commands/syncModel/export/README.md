@@ -1,5 +1,5 @@
-# Generate-sync-model
-The `generate-sync-model` command is a part of the flow in content model synchronization (see [sync](../sync/README.md) command) between two content models. Its purpose is to generate a folder containing the content model of the provided Kontent.ai environment representing Content types, Content type snippets, and Taxonomies. The resulting folder can be used as the source content model for the `sync` command. 
+# sync-model export
+The `sync-model export` command is a part of the flow in content model synchronization (see [sync-model run](../run/README.md) command) between two content models. Its purpose is to generate a folder containing the content model of the provided Kontent.ai environment representing Content types, Content type snippets, and Taxonomies. The resulting folder can be used as the source content model for the `sync` command. 
 
 The generated model follows [MAPI](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) format and is stripped of IDs and other unnecessary fields (`last_modified`). 
 References to other entities (for example, a snippet within a snippet element) are updated to use `codename` instead of `id`.
@@ -19,5 +19,5 @@ These properties are removed and transformed to the corresponding IDs or externa
 ### Usage
 
 ```bash
-npx @kontent-ai/data-ops@latest generate-sync-model --environmentId <environment-id> --apiKey <Management-API-key>
+npx @kontent-ai/data-ops sync-model export --environmentId <environment-id> --apiKey <Management-API-key>
 ```
