@@ -1,17 +1,17 @@
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../../log.js";
-import { diff } from "../../modules/sync/diff.js";
-import { fetchModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
-import { printDiff } from "../../modules/sync/printDiff.js";
+import { logInfo, LogOptions } from "../../../log.js";
+import { diff } from "../../../modules/sync/diff.js";
+import { fetchModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
+import { printDiff } from "../../../modules/sync/printDiff.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,
   readContentModelFromFolder,
-} from "../../modules/sync/utils/getContentModel.js";
-import { RegisterCommand } from "../../types/yargs.js";
-import { createClient } from "../../utils/client.js";
-import { simplifyErrors, throwError } from "../../utils/error.js";
+} from "../../../modules/sync/utils/getContentModel.js";
+import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
+import { simplifyErrors, throwError } from "../../../utils/error.js";
 
 const commandName = "diff";
 

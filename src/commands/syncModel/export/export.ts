@@ -1,29 +1,29 @@
 import chalk from "chalk";
 
-import { logError, logInfo, LogOptions } from "../../log.js";
-import { fetchModel, saveSyncModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
-import { RegisterCommand } from "../../types/yargs.js";
-import { createClient } from "../../utils/client.js";
-import { simplifyErrors } from "../../utils/error.js";
+import { logError, logInfo, LogOptions } from "../../../log.js";
+import { fetchModel, saveSyncModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
+import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
+import { simplifyErrors } from "../../../utils/error.js";
 
-const commandName = "generate-sync-model";
+const commandName = "export";
 
 export const register: RegisterCommand = yargs =>
   yargs.command(
     {
       command: commandName,
-      describe: "generates content model json file used for sync from Kontent.ai environment",
+      describe: "Generates content model json files used for sync from Kontent.ai environment.",
       builder: yargs =>
         yargs
           .option("environmentId", {
             type: "string",
-            describe: "Id of the target Kontent.ai environment that should be synced",
-            demandOption: "You need to provide the environmentId of the Kontent.ai to be synced",
+            describe: "Id of the target Kontent.ai environment that should be synced.",
+            demandOption: "You need to provide the environmentId of the Kontent.ai to be synced.",
             alias: "e",
           })
           .option("apiKey", {
             type: "string",
-            describe: "Management API key of target Kontent.ai project",
+            describe: "Management API key of target Kontent.ai project.",
             demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
             alias: "k",
           })

@@ -55,9 +55,10 @@ npx @kontent-ai/data-ops <command-name> <command-options>
 The instructions for every command are presented in the README.md files in the command's individual folders ([./src/commands](./src/commands)). Data-ops supports these commands:
 - [import & export](./src/commands/importExport/README.md)
 - [clean](./src/commands/clean/README.md)
-- [sync](./src/commands/sync/README.md)
-- [diff](./src/commands/diff/README.md)
-- [generate-sync-model](./src/commands/generateSyncModel/README.md)
+- sync-model
+  - [run](./src/commands/syncModel/run/README.md)
+  - [export](./src/commands/syncModel/export/README.md)
+  - [diff](./src/commands/syncModel/diff/README.md)
 - sync-content
   - [run](./src/commands/syncContent/run/README.md)
   - [export](./src/commands/syncContent/export/README.md)
