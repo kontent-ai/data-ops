@@ -10,6 +10,10 @@ import { RequiredCodename } from "../../utils/types.js";
 import { DiffModel, DiffObject, PatchOperation } from "./types/diffModel.js";
 
 type DiffData = DiffModel & SyncParams;
+type EntityPathHandler = {
+  regex: RegExp;
+  entity: (...args: any) => string;
+};
 
 export const writeDiffToFile = (diffData: DiffData) => {
   const template = readFileSync(resolve("./", "diffTemplate.html"), "utf-8");
@@ -50,7 +54,7 @@ export const writeDiffToFile = (diffData: DiffData) => {
 const processPatchOp = (patchOp: PatchOperation) => {
   switch (patchOp.op) {
     case "remove":
-      return `${getEntityDetailFromPath(patchOp.path)} will be removed.`;
+      return `${getRemoveEntityPathHandler(patchOp.path)} removed.`;
     case "move":
       return `Path ${patchOp.path} object to be moved ${
         "before" in patchOp
@@ -58,15 +62,19 @@ const processPatchOp = (patchOp: PatchOperation) => {
           : `after ${patchOp.after.codename}`
       }`;
     case "addInto":
-      return `${getEntityDetailFromPath(patchOp.path)} ${
+      return `${getAddEntityPathHandler(patchOp.path)} ${
         getValueOrIdentifier(
           patchOp.value,
         )
-      } to be added ${patchOp.before ? `before ${patchOp.before.codename}` : ""} ${
+      } added ${patchOp.before ? `before ${patchOp.before.codename}` : ""} ${
         patchOp.after ? `after ${patchOp.after.codename}` : ""
       }`;
     case "replace":
-      return `${getEntityDetailFromPath(patchOp.path)} replaced.\n From: ${
+      return `${
+        getReplaceEntityPathHandler(
+          patchOp.path,
+        )
+      } replaced.\n From: ${
         getValueOrIdentifier(
           patchOp.oldValue,
         )
@@ -74,77 +82,97 @@ const processPatchOp = (patchOp: PatchOperation) => {
   }
 };
 
-const getEntityDetailFromPath = (path: string) => {
-  const patterns = [
-    {
-      regex: /^\/name$/,
-      entity: () => `Content type name`,
-    },
-    { 
-      regex: /^\/elements$/,
-      entity: () => `Element`,
-    },
-    { 
-      regex: /^\/content_groups$/,
-      entity: () => `Content group`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)$/,
-      entity: (match: string[]) => `Element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/allowed_content_types\/codename:([^/]+)$/,
-      entity: (match: string[]) =>
-        `Allowed content type <strong>${match[2]}</strong> from element <strong>${match[1]}</strong>"`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/allowed_element\/codename:([^/]+)$/,
-      entity: (match: string[]) => `Allowed element <strong>${match[2]}</strong> from custom element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex:
-        /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)$/,
-      entity: (match: string[]) =>
-        `Option <strong>${match[2]}</strong> from multiple choice element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex:
-        /^\/content_groups\/codename:([^/]+)$/,
-      entity: (match: string[]) =>
-        `Content group <strong>${match[1]}</strong>`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/allowed_blocks\/([^/]+)$/,
-      entity: (match: string[]) =>
-        `Allowed block <strong>${match[2]}</strong> from rich text element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/allowed_blocks$/,
-      entity: (match: string[]) =>
-        `Allowed for rich text element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/allowed_content_types$/,
-      entity: (match: string[]) =>
-        `Allowed content types for element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/content_group$/,
-      entity: (match: string[]) =>
-        `Content group for element <strong>${match[1]}</strong>`,
-    },
-    {
-      regex: /^\/elements\/codename:([^/]+)\/guidelines$/,
-      entity: (match: string[]) =>
-        `Guidelines for element <strong>${match[1]}</strong>`,
-    },
-  ];
+const getEntityPathHandler = (handlers: EntityPathHandler[], path: string) => {
+  const pattern = handlers.find(h => h.regex.test(path));
 
-  const pattern = patterns.find((p) => p.regex.test(path));
   return pattern
     ? pattern.entity(path.match(pattern.regex) as string[])
     : `Object at path ${path}`;
 };
+
+const getAddEntityPathHandler = (path: string) => getEntityPathHandler(addEntityPathHandlers, path);
+const getRemoveEntityPathHandler = (path: string) => getEntityPathHandler(removeEntityPathHandlers, path);
+const getReplaceEntityPathHandler = (path: string) => getEntityPathHandler(replaceEntityPathHandlers, path);
+
+const replaceEntityPathHandlers: EntityPathHandler[] = [
+  {
+    regex: /^\/name$/,
+    entity: () => `Content type name`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/([^/]+)$/,
+    entity: (match: string[]) => `Property <strong>${match[2]}</strong> of element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/content_groups\/codename:([^/]+)\/name$/,
+    entity: (match: string[]) => `Content group <strong>${match[1]}</strong> name`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)\/([^/]+)$/,
+    entity: (match: string[]) =>
+      `Property <strong>${match[3]}</strong> of multiple choice option <strong>${
+        match[2]
+      }</strong> on element <strong>${match[1]}</strong>`,
+  },
+];
+
+const addEntityPathHandlers: EntityPathHandler[] = [
+  {
+    regex: /^\/elements$/,
+    entity: () => `Element`,
+  },
+  {
+    regex: /^\/content_groups$/,
+    entity: () => `Content group`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_content_types$/,
+    entity: (match: string[]) => `For element <strong>${match[1]}</strong>, allowed content type`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_elements$/,
+    entity: (match: string[]) => `For custom element <strong>${match[1]}</strong>, allowed element`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/options$/,
+    entity: (match: string[]) => `For multiple choice element <strong>${match[1]}</strong>, option`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_blocks$/,
+    entity: (match: string[]) => `For rich text element <strong>${match[1]}</strong>, allowed block`,
+  },
+];
+
+const removeEntityPathHandlers: EntityPathHandler[] = [
+  {
+    regex: /^\/elements\/codename:([^/]+)$/,
+    entity: (match: string[]) => `Element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/content_groups\/codename:([^/]+)$/,
+    entity: (match: string[]) => `Content group <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_content_types\/codename:([^/]+)$/,
+    entity: (match: string[]) =>
+      `Allowed content type <strong>${match[2]}</strong> for element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_element\/codename:([^/]+)$/,
+    entity: (match: string[]) =>
+      `Allowed element <strong>${match[2]}</strong> for custom element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)$/,
+    entity: (match: string[]) =>
+      `Option <strong>${match[2]}</strong> for multiple choice element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_blocks\/([^/]+)$/,
+    entity: (match: string[]) =>
+      `Allowed block <strong>${match[2]}</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+];
 
 const processAddedEntities = (entity: unknown): string => {
   if (isTaxonomyRequestModel(entity)) {
@@ -190,7 +218,12 @@ const createAddedEntitiesSection = <T extends { codename: string }>(
 
 const createDeletedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "deleted">,
-) => `${[...diff.deleted].map((d) => `<div class="entityDetail"><h4>${d}</h4></div>`).join("\n")}`;
+) =>
+  `${
+    [...diff.deleted]
+      .map((d) => `<div class="entityDetail"><h4>${d}</h4></div>`)
+      .join("\n")
+  }`;
 
 const createUpdatedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "updated">,
@@ -294,5 +327,5 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
     ({ sourceEnvironmentId }: DiffData) => sourceEnvironmentId ?? "N/A (Sourced from a folder)",
   ],
   ["{{target_env_id}}", ({ environmentId }: DiffData) => environmentId],
-  ["{{datetime_generated}}", () => new Date().toUTCString()]
+  ["{{datetime_generated}}", () => new Date().toUTCString()],
 ]);

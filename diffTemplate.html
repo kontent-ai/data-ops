@@ -37,7 +37,7 @@
             border: 1px solid rgb(223, 223, 223);
             align-content: center;
         }
-        .environment-info div.env-type {
+        .environment-info div.env-type, div.elementType {
             background: black;
             color: white;
             font-family: Arial, sans-serif;
@@ -46,7 +46,7 @@
             font-weight: bold;
             text-align: center;
         }
-        .environment-info a {
+        .environment-info a, div.elementDetail {
             background: #5b4ff5;
             color: white;
             font-family: Arial, sans-serif;
@@ -118,6 +118,7 @@
             border-radius: 16px;
             margin-bottom: 5px;
             padding-left: 10px;
+            padding-right: 10px;
             cursor: pointer;
         }
         .addedAndDeleted {
@@ -126,7 +127,7 @@
         .added {
             border: 1px solid #005f3c;
             border-radius: 16px;
-            margin-right: 5px;
+            margin-left: 5px;
             padding: 16px;
             flex: 1;
         }
@@ -153,7 +154,7 @@
         .deleted {
             border: 1px solid #ff005c;
             border-radius: 16px;
-            margin-left: 5px;
+            margin-right: 5px;
             padding: 16px;
             flex: 1;
         }
@@ -208,13 +209,9 @@
             bottom: 100%;
             left: 50%;
             margin-left: -60px;
-            
-            /* Position the tooltip text - see examples below! */
             position: absolute;
             z-index: 1;
         }
-
-        /* Show the tooltip text when you mouse over the tooltip container */
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
@@ -226,6 +223,68 @@
             background-color: white;
             align-items: baseline;
             z-index: 100;
+        }
+        .compared-elements {
+            display: flex;
+            justify-content: space-between;
+            background-color: white;
+            align-items: stretch;
+            font-size: large;
+            margin-bottom: 5px;
+        }
+        .compared-element {
+            flex: 1;
+            text-align: center;
+            padding: 5px;
+            border-radius: 16px;
+            border: 1px solid #ccc;
+            display: flex;
+            justify-content: stretch;
+        }
+        .compared-element div {
+            border-radius: 16px;
+            border: 1px solid #ccc;
+        }
+        .compared-elements.added-element {
+            flex-direction: row-reverse;
+        }
+        .comparator {
+            justify-content: center;
+            font-size: large;
+            border: none;
+        }
+        .addedEntity {
+            color: white;
+            padding-top: 3px;
+            flex: 0;
+            min-width: 3em;
+            font-size: x-large;
+            font-weight: bolder;
+            background-color: #005f3c;
+            text-align: center;
+            border-radius: 16px;
+        }
+        .modifiedEntity {
+            color: white;
+            padding-top: 3px;
+            flex: 0;
+            min-width: 3em;
+            font-size: x-large;
+            font-weight: bolder;
+            background-color: #5b4ff5;
+            text-align: center;
+            border-radius: 16px;
+        }
+        .removedEntity {
+            color: white;
+            padding-top: 3px;
+            flex: 0;
+            min-width: 3em;
+            font-size: x-large;
+            font-weight: bolder;
+            background-color:#ff005c;
+            text-align: center;
+            border-radius: 16px;
         }
     </style>
 </head>
@@ -265,13 +324,13 @@
                         {{modified_content_types}}
                     </div>
                     <div class="addedAndDeleted">
-                        <div class="added">
-                            <h3>Added</h3>
-                            {{added_content_types}}
-                        </div>
                         <div class="deleted">
                             <h3>Removed</h3>
                             {{removed_content_types}}
+                        </div>
+                        <div class="added">
+                            <h3>Added</h3>
+                            {{added_content_types}}
                         </div>
                     </div>
                 </div>
@@ -290,13 +349,13 @@
                         {{modified_content_type_snippets}}
                     </div>
                     <div class="addedAndDeleted">
-                        <div class="added">
-                            <h3>Added</h3>
-                            {{added_content_type_snippets}}
-                        </div>
                         <div class="deleted">
                             <h3>Removed</h3>
                             {{removed_content_type_snippets}}
+                        </div>
+                        <div class="added">
+                            <h3>Added</h3>
+                            {{added_content_type_snippets}}
                         </div>
                     </div>
                 </div>
@@ -315,13 +374,13 @@
                         {{modified_taxonomy_groups}}
                     </div>
                     <div class="addedAndDeleted">
-                        <div class="added">
-                            <h3>Added</h3>
-                            {{added_taxonomy_groups}}
-                        </div>
                         <div class="deleted">
                             <h3>Removed</h3>
                             {{removed_taxonomy_groups}}
+                        </div>
+                        <div class="added">
+                            <h3>Added</h3>
+                            {{added_taxonomy_groups}}
                         </div>
                     </div>
                 </div>
@@ -341,3 +400,8 @@
     </script>
 </body>
 </html>
+
+
+
+
+
