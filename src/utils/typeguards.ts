@@ -1,7 +1,6 @@
-import { SharedModels } from "@kontent-ai/management-sdk";
+import { ContentTypeModels, ContentTypeSnippetModels, SharedModels, TaxonomyModels } from "@kontent-ai/management-sdk";
 
 import { spotlightInUseErrorCode } from "../constants/responseCodes.js";
-import { ContentTypeModels, ContentTypeSnippetModels, TaxonomyModels } from "@kontent-ai/management-sdk";
 
 export const notNull = <T>(arg: T | null): arg is T => arg !== null;
 

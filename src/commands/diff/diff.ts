@@ -1,10 +1,10 @@
 import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../log.js";
+import { writeDiffToFile } from "../../modules/sync/advancedDiff.js";
 import { diff } from "../../modules/sync/diff.js";
 import { fetchModel, transformSyncModel } from "../../modules/sync/generateSyncModel.js";
 import { printDiff } from "../../modules/sync/printDiff.js";
-import { writeDiffToFile } from "../../modules/sync/advancedDiff.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,

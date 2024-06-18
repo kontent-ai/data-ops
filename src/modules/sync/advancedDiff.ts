@@ -3,16 +3,17 @@ import { readFileSync, writeFileSync } from "fs";
 import open from "open";
 import { resolve } from "path";
 
-import { SyncParams } from "../../commands/diff.js";
+import { SyncParams } from "../../commands/diff/diff.js";
 import { logError, logInfo } from "../../log.js";
 import { isContentTypeData, isContentTypeSnippetData, isTaxonomyRequestModel } from "../../utils/typeguards.js";
 import { RequiredCodename } from "../../utils/types.js";
-import { DiffModel, DiffObject, PatchOperation } from "./types/diffModel.js";
+import { DiffModel, DiffObject } from "./types/diffModel.js";
+import { PatchOperation } from "./types/patchOperation.js";
 
 type DiffData = DiffModel & SyncParams;
 type EntityPathHandler = {
   regex: RegExp;
-  entity: (...args: any) => string;
+  entity: (() => string) | ((match: string[]) => string);
 };
 
 export const writeDiffToFile = (diffData: DiffData) => {
@@ -56,11 +57,8 @@ const processPatchOp = (patchOp: PatchOperation) => {
     case "remove":
       return `${getRemoveEntityDetail(patchOp.path)} removed`;
     case "move":
-      return `Path ${patchOp.path} object to be moved ${
-        "before" in patchOp
-          ? `before ${patchOp.before.codename}`
-          : `after ${patchOp.after.codename}`
-      }`;
+      return `Path ${patchOp.path} object to be moved ${"before" in patchOp && `before ${patchOp.before.codename}`}
+        ${"after" in patchOp && `after ${patchOp.after.codename}`}`;
     case "addInto":
       return `${getAddEntityDetail(patchOp.path)} ${
         getValueOrIdentifier(
@@ -338,7 +336,7 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
     "{{source_env_id}}",
     ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName!,
   ],
-  ["{{target_env_id}}", ({ environmentId }: DiffData) => environmentId],
+  ["{{target_env_id}}", ({ targetEnvironmentId }: DiffData) => targetEnvironmentId],
   ["{{datetime_generated}}", () => new Date().toUTCString()],
   ["{{env_link_disabler}}", ({ folderName }: DiffData) => folderName ? "disabled" : ""],
 ]);
