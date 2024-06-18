@@ -13,6 +13,7 @@ const commandsToRegister: ReadonlyArray<RegisterCommand> = [
   (await import("./commands/clean/clean.js")).register,
   (await import("./commands/syncModel/syncModel.js")).register,
   (await import("./commands/syncContent/syncContent.js")).register,
+  (await import("./commands/migrations/migrations.js")).register,
 ];
 
 const emptyYargs = yargs(hideBin(process.argv)); // hides the first two arguments - path to script and path to node.js
@@ -39,3 +40,6 @@ const withLogLevel = addLogLevelOptions(initialYargs);
 commandsToRegister
   .reduce((currentYargs, registerCommand) => registerCommand(currentYargs), withLogLevel)
   .parse();
+
+// Public export
+export * from "./modules/index.js";
