@@ -286,6 +286,11 @@
             text-align: center;
             border-radius: 16px;
         }
+        .environment-info a.disabled {
+            pointer-events: none;
+            cursor: default;
+            background: grey;
+        }
     </style>
 </head>
 <body>
@@ -301,7 +306,7 @@
         <h2>Compared environments</h2>
         <div class="compared-environments">
             <div class="environment-info">
-                <div class="env-type">SOURCE</div><div>{{source_env_id}}</div><a href="https://app.kontent.ai/{{source_env_id}}">OPEN ENVIRONMENT</a>
+                <div class="env-type">SOURCE</div><div>{{source_env_id}}</div><a class="{{env_link_disabler}}" href="https://app.kontent.ai/{{source_env_id}}">OPEN ENVIRONMENT</a>
             </div>
             <div class="environment-info">⇉</div>
             <div class="environment-info">

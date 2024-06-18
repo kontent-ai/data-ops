@@ -54,7 +54,7 @@ export const writeDiffToFile = (diffData: DiffData) => {
 const processPatchOp = (patchOp: PatchOperation) => {
   switch (patchOp.op) {
     case "remove":
-      return `${getRemoveEntityPathHandler(patchOp.path)} removed.`;
+      return `${getRemoveEntityDetail(patchOp.path)} removed`;
     case "move":
       return `Path ${patchOp.path} object to be moved ${
         "before" in patchOp
@@ -62,7 +62,7 @@ const processPatchOp = (patchOp: PatchOperation) => {
           : `after ${patchOp.after.codename}`
       }`;
     case "addInto":
-      return `${getAddEntityPathHandler(patchOp.path)} ${
+      return `${getAddEntityDetail(patchOp.path)} ${
         getValueOrIdentifier(
           patchOp.value,
         )
@@ -71,7 +71,7 @@ const processPatchOp = (patchOp: PatchOperation) => {
       }`;
     case "replace":
       return `${
-        getReplaceEntityPathHandler(
+        getReplaceEntityDetail(
           patchOp.path,
         )
       } replaced.\n From: ${
@@ -90,9 +90,9 @@ const getEntityPathHandler = (handlers: EntityPathHandler[], path: string) => {
     : `Object at path ${path}`;
 };
 
-const getAddEntityPathHandler = (path: string) => getEntityPathHandler(addEntityPathHandlers, path);
-const getRemoveEntityPathHandler = (path: string) => getEntityPathHandler(removeEntityPathHandlers, path);
-const getReplaceEntityPathHandler = (path: string) => getEntityPathHandler(replaceEntityPathHandlers, path);
+const getAddEntityDetail = (path: string) => getEntityPathHandler(addEntityPathHandlers, path);
+const getRemoveEntityDetail = (path: string) => getEntityPathHandler(removeEntityPathHandlers, path);
+const getReplaceEntityDetail = (path: string) => getEntityPathHandler(replaceEntityPathHandlers, path);
 
 const replaceEntityPathHandlers: EntityPathHandler[] = [
   {
@@ -113,6 +113,10 @@ const replaceEntityPathHandlers: EntityPathHandler[] = [
       `Property <strong>${match[3]}</strong> of multiple choice option <strong>${
         match[2]
       }</strong> on element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /\/terms\/codename:([^/]+)/g,
+    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + " term",
   },
 ];
 
@@ -140,6 +144,10 @@ const addEntityPathHandlers: EntityPathHandler[] = [
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_blocks$/,
     entity: (match: string[]) => `For rich text element <strong>${match[1]}</strong>, allowed block`,
+  },
+  {
+    regex: /\/terms\/codename:([^/]+)/g,
+    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + " term",
   },
 ];
 
@@ -171,6 +179,10 @@ const removeEntityPathHandlers: EntityPathHandler[] = [
     regex: /^\/elements\/codename:([^/]+)\/allowed_blocks\/([^/]+)$/,
     entity: (match: string[]) =>
       `Allowed block <strong>${match[2]}</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /\/terms\/codename:([^/]+)/g,
+    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + " term",
   },
 ];
 
@@ -324,8 +336,9 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
   ],
   [
     "{{source_env_id}}",
-    ({ sourceEnvironmentId }: DiffData) => sourceEnvironmentId ?? "N/A (Sourced from a folder)",
+    ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName!,
   ],
   ["{{target_env_id}}", ({ environmentId }: DiffData) => environmentId],
   ["{{datetime_generated}}", () => new Date().toUTCString()],
+  ["{{env_link_disabler}}", ({ folderName }: DiffData) => folderName ? "disabled" : ""],
 ]);
