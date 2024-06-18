@@ -40,3 +40,7 @@ export type SuperiorPick<T, K extends keyof T> = T extends any ? {
  * Original Omit type extended to work on Union type objects
  */
 export type SuperiorOmit<T, K extends keyof any> = T extends any ? SuperiorPick<T, Exclude<keyof T, K>> : never;
+
+export type MakeObjectPropsUnionType<Object extends object> = keyof Object extends infer Keys
+  ? Keys extends infer Key extends keyof Object ? { [K in Key]: Exclude<Object[K], undefined> } : never
+  : never;
