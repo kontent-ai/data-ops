@@ -9,6 +9,22 @@ export const serially = async <Fetchers extends ReadonlyArray<() => Promise<unkn
   return Promise.resolve(results) as FetchersReturn<Fetchers>;
 };
 
+export const seriallyReduce = async <ReturnType>(
+  fetchers: ReadonlyArray<(prevValue: ReturnType) => Promise<ReturnType>>,
+  initialValue: ReturnType,
+): Promise<ReturnType> => {
+  if (!fetchers.length) {
+    return initialValue;
+  }
+
+  let result = initialValue;
+  for (const fetcher of fetchers) {
+    result = await fetcher(result);
+  }
+
+  return Promise.resolve(result);
+};
+
 type PromiseValue<T extends Promise<unknown>> = T extends Promise<infer Res> ? Res : never;
 
 type FetchersReturn<Fetchers extends ReadonlyArray<() => Promise<unknown>>> = Readonly<
