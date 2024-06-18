@@ -5,3 +5,8 @@ export type MigrationModule = {
   run(apiClient: ManagementClient): Promise<void>;
   rollback?(apiClient: ManagementClient): Promise<void>;
 };
+
+export type Migration = {
+  name: string;
+  module: MigrationModule;
+};
