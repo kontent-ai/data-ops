@@ -41,3 +41,6 @@ const withLogLevel = addLogLevelOptions(initialYargs);
 commandsToRegister
   .reduce((currentYargs, registerCommand) => registerCommand(currentYargs), withLogLevel)
   .parse();
+
+// Public export
+export * from "./modules/index.js";
