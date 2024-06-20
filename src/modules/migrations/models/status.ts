@@ -1,14 +1,21 @@
+import { z } from "zod";
+
 export type Operation = "run" | "rollback";
 
-export type MigrationStatus = Readonly<{
-  name: string;
-  success: boolean;
-  order: number | Date;
-  time: Date;
-  lastOperation?: Operation;
-}>;
+export const migrationStatusSchema = z.object({
+  name: z.string(),
+  success: z.boolean(),
+  order: z.union([z.number(), z.coerce.date()]),
+  time: z.coerce.date(),
+  lastOperation: z.union([z.literal("run"), z.literal("rollback")]).optional(),
+}).readonly();
 
-export type Status = Record<string, MigrationStatus[]>;
+export const statusSchema = z.record(z.string(), migrationStatusSchema.array()).readonly();
+
+export type MigrationStatus = z.infer<typeof migrationStatusSchema>;
+export type Status = z.infer<typeof statusSchema>;
+
+export type MigrationOrder = number | Date;
 
 export type SaveStatusType = (data: Status) => Promise<void>;
 export type ReadStatusType = () => Promise<Status>;
@@ -18,29 +25,7 @@ export type StatusPlugin = {
   readStatus: ReadStatusType;
 };
 
-export const isMigrationStatus = (obj: unknown): obj is MigrationStatus =>
-  typeof obj === "object"
-  && obj !== null
-  && "name" in obj
-  && typeof obj.name === "string"
-  && "success" in obj
-  && typeof obj.success === "boolean"
-  && "order" in obj
-  && (typeof obj.order === "number" || obj.order instanceof Date)
-  && "time" in obj
-  && obj.time instanceof Date
-  && (!("lastOperation" in obj) || (obj.lastOperation === "run" || obj.lastOperation === "rollback")); // implication
-
-export const isStatus = (obj: unknown): obj is Status =>
-  typeof obj === "object" && obj !== null
-  && Object.entries(obj).every(([, value]) => Array.isArray(value) && value.every(isMigrationStatus));
-
-export const isStatusPlugin = (obj: unknown): obj is StatusPlugin =>
-  typeof obj === "object"
-  && obj !== null
-  && "saveStatus" in obj
-  && typeof obj.saveStatus === "function"
-  && obj.saveStatus.length === 0
-  && "readStatus" in obj
-  && typeof obj.readStatus === "function"
-  && obj.readStatus.length === 1;
+export const statusPluginSchema = z.object({
+  saveStatus: z.function().args(statusSchema).returns(z.promise(z.void())),
+  readStatus: z.function().returns(z.promise(statusSchema)),
+});
