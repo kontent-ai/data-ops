@@ -5,10 +5,23 @@ import { resolve } from "path";
 
 import { SyncParams } from "../../commands/diff/diff.js";
 import { logError, logInfo } from "../../log.js";
-import { isContentTypeData, isContentTypeSnippetData, isTaxonomyRequestModel } from "../../utils/typeguards.js";
+import {
+  isContentTypeData,
+  isContentTypeSnippetData,
+  isCountLimitation,
+  isDefaultValue,
+  isDependsOn,
+  isExternalIdReference,
+  isExternalIdReferenceArray,
+  isMaximumTextLength,
+  isObjectReference,
+  isObjectReferenceArray,
+  isTaxonomyRequestModel,
+  isValidationRegex,
+} from "../../utils/typeguards.js";
 import { RequiredCodename } from "../../utils/types.js";
 import { DiffModel, DiffObject } from "./types/diffModel.js";
-import { PatchOperation } from "./types/patchOperation.js";
+import { PatchOperation, ReplacePatchOperationValue } from "./types/patchOperation.js";
 
 type DiffData = DiffModel & SyncParams;
 type EntityPathHandler = {
@@ -56,27 +69,33 @@ const processPatchOp = (patchOp: PatchOperation) => {
   switch (patchOp.op) {
     case "remove":
       return `${getRemoveEntityDetail(patchOp.path)} removed`;
-    case "move":
-      return `Path ${patchOp.path} object to be moved ${"before" in patchOp && `before ${patchOp.before.codename}`}
-        ${"after" in patchOp && `after ${patchOp.after.codename}`}`;
+    case "move": {
+      const beforeText =
+        "before" in patchOp
+          ? `before <strong>${patchOp.before.codename}</strong>`
+          : "";
+      const afterText =
+        "after" in patchOp
+          ? `after <strong>${patchOp.after.codename}</strong>`
+          : "";
+      return `${getMoveEntityDetail(
+        patchOp.path
+      )} moved ${beforeText}${afterText}`;
+    }
     case "addInto":
-      return `${getAddEntityDetail(patchOp.path)} ${
-        getValueOrIdentifier(
-          patchOp.value,
-        )
-      } added ${patchOp.before ? `before ${patchOp.before.codename}` : ""} ${
+      return `${getAddEntityDetail(patchOp.path)} ${getValueOrIdentifier(
+        patchOp.value
+      )} added ${patchOp.before ? `before ${patchOp.before.codename}` : ""}${
         patchOp.after ? `after ${patchOp.after.codename}` : ""
       }`;
     case "replace":
-      return `${
-        getReplaceEntityDetail(
-          patchOp.path,
-        )
-      } replaced.\n From: ${
-        getValueOrIdentifier(
-          patchOp.oldValue,
-        )
-      } \n To: ${getValueOrIdentifier(patchOp.value)}`;
+      return `${getReplaceEntityDetail(
+        patchOp.path
+      )} replaced <div class="compared-elements"><div class="compared-element">${getReplaceOpValue(
+        patchOp.oldValue
+      )}</div><div class="comparator">→</div><div class="compared-element"> ${getReplaceOpValue(
+        patchOp.value
+      )}</div></div>`;
   }
 };
 
@@ -91,98 +110,195 @@ const getEntityPathHandler = (handlers: EntityPathHandler[], path: string) => {
 const getAddEntityDetail = (path: string) => getEntityPathHandler(addEntityPathHandlers, path);
 const getRemoveEntityDetail = (path: string) => getEntityPathHandler(removeEntityPathHandlers, path);
 const getReplaceEntityDetail = (path: string) => getEntityPathHandler(replaceEntityPathHandlers, path);
+const getMoveEntityDetail = (path: string) => getEntityPathHandler(moveEntityPathHandlers, path);
 
 const replaceEntityPathHandlers: EntityPathHandler[] = [
   {
     regex: /^\/name$/,
-    entity: () => `Content type name`,
+    entity: () => `<span class="num_modified modifier-icon">✎</span> Content type name`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/([^/]+)$/,
-    entity: (match: string[]) => `Property <strong>${match[2]}</strong> of element <strong>${match[1]}</strong>`,
+    entity: (match: string[]) =>
+      `<span class="num_modified modifier-icon">✎</span> Property <strong>${match[2]}</strong> of element <strong>${
+        match[1]
+      }</strong>`,
   },
   {
     regex: /^\/content_groups\/codename:([^/]+)\/name$/,
-    entity: (match: string[]) => `Content group <strong>${match[1]}</strong> name`,
+    entity: (match: string[]) =>
+      `<span class="num_modified modifier-icon">✎</span> Content group <strong>${match[1]}</strong> name`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)\/([^/]+)$/,
     entity: (match: string[]) =>
-      `Property <strong>${match[3]}</strong> of multiple choice option <strong>${
-        match[2]
-      }</strong> on element <strong>${match[1]}</strong>`,
+      `<span class="num_modified modifier-icon">✎</span> Property <strong>${
+        match[3]
+      }</strong> of multiple choice option <strong>${match[2]}</strong> on element <strong>${match[1]}</strong>`,
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + " term",
+    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + "term",
   },
 ];
 
 const addEntityPathHandlers: EntityPathHandler[] = [
   {
     regex: /^\/elements$/,
-    entity: () => `Element`,
+    entity: () => `<span class="num_added modifier-icon">+</span> Element`,
   },
   {
     regex: /^\/content_groups$/,
-    entity: () => `Content group`,
+    entity: () => `<span class="num_added modifier-icon">+</span> Content group`,
+  },
+  {
+    regex: /^\/terms$/,
+    entity: () => `<span class="num_added modifier-icon">+</span> Term`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_content_types$/,
-    entity: (match: string[]) => `For element <strong>${match[1]}</strong>, allowed content type`,
+    entity: (match: string[]) =>
+      `<span class="num_added modifier-icon">+</span> For element <strong>${match[1]}</strong>, allowed content type`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_elements$/,
-    entity: (match: string[]) => `For custom element <strong>${match[1]}</strong>, allowed element`,
+    entity: (match: string[]) =>
+      `<span class="num_added modifier-icon">+</span> For custom element <strong>${match[1]}</strong>, allowed element`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/options$/,
-    entity: (match: string[]) => `For multiple choice element <strong>${match[1]}</strong>, option`,
+    entity: (match: string[]) =>
+      `<span class="num_added modifier-icon">+</span> For multiple choice element <strong>${match[1]}</strong>, option`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_blocks$/,
-    entity: (match: string[]) => `For rich text element <strong>${match[1]}</strong>, allowed block`,
+    entity: (match: string[]) =>
+      `<span class="num_added modifier-icon">+</span> For rich text element <strong>${
+        match[1]
+      }</strong>, allowed block`,
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + " term",
+    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + "term",
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_formatting$/,
+    entity: (match: string[]) =>
+      `<span class="num_added modifier-icon">+</span> For rich text element <strong>${
+        match[1]
+      }</strong>, allowed formatting`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_text_blocks$/,
+    entity: (match: string[]) =>
+      `<span class="num_added modifier-icon">+</span> For rich text element <strong>${
+        match[1]
+      }</strong>, allowed text block`,
   },
 ];
 
 const removeEntityPathHandlers: EntityPathHandler[] = [
   {
     regex: /^\/elements\/codename:([^/]+)$/,
-    entity: (match: string[]) => `Element <strong>${match[1]}</strong>`,
+    entity: (match: string[]) =>
+      `<span class="num_removed modifier-icon">−</span> Element <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/content_groups\/codename:([^/]+)$/,
-    entity: (match: string[]) => `Content group <strong>${match[1]}</strong>`,
+    entity: (match: string[]) =>
+      `<span class="num_removed modifier-icon">−</span> Content group <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_content_types\/codename:([^/]+)$/,
     entity: (match: string[]) =>
-      `Allowed content type <strong>${match[2]}</strong> for element <strong>${match[1]}</strong>`,
+      `<span class="num_removed modifier-icon">−</span> Allowed content type <strong>${
+        match[2]
+      }</strong> for element <strong>${match[1]}</strong>`,
   },
   {
-    regex: /^\/elements\/codename:([^/]+)\/allowed_element\/codename:([^/]+)$/,
+    regex: /^\/elements\/codename:([^/]+)\/allowed_elements\/codename:([^/]+)$/,
     entity: (match: string[]) =>
-      `Allowed element <strong>${match[2]}</strong> for custom element <strong>${match[1]}</strong>`,
+      `<span class="num_removed modifier-icon">−</span> Allowed element <strong>${
+        match[2]
+      }</strong> for custom element <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)$/,
     entity: (match: string[]) =>
-      `Option <strong>${match[2]}</strong> for multiple choice element <strong>${match[1]}</strong>`,
+      `<span class="num_removed modifier-icon">−</span> Option <strong>${
+        match[2]
+      }</strong> for multiple choice element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_table_formatting\/([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_removed modifier-icon">−</span> Allowed table formatting <strong>${
+        match[2]
+      }</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_formatting\/([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_removed modifier-icon">−</span> Allowed formatting <strong>${
+        match[2]
+      }</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_text_blocks\/([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_removed modifier-icon">−</span> Allowed formatting <strong>${
+        match[2]
+      }</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/allowed_table_text_blocks\/([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_removed modifier-icon">−</span> Allowed table text block <strong>${
+        match[2]
+      }</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /\/terms\/codename:([^/]+)/g,
+    entity: (matches: string[]) => matches.map((m) => `− ${m.split(":")[1]} ›`).join(" ").slice(0, -1) + "term",
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_blocks\/([^/]+)$/,
     entity: (match: string[]) =>
-      `Allowed block <strong>${match[2]}</strong> for rich text element <strong>${match[1]}</strong>`,
+      `<span class="num_removed modifier-icon">−</span> Allowed block <strong>${
+        match[2]
+      }</strong> for rich text element <strong>${match[1]}</strong>`,
+  },
+];
+
+const moveEntityPathHandlers: EntityPathHandler[] = [
+  {
+    regex: /^\/elements\/codename:([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_modified modifier-icon">➦</span> Element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_modified modifier-icon">➦</span> Option <strong>${
+        match[2]
+      }</strong> for multiple choice element <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/content_groups\/codename:([^/]+)$/,
+    entity: (match: string[]) =>
+      `<span class="num_modified modifier-icon">➦</span> Content group <strong>${match[1]}</strong>`,
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    entity: (matches: string[]) => matches.map((m) => `${m.split(":")[1]} ›`).join(" ").slice(0, -1) + " term",
+    entity: (matches: string[]) => processTaxonomyPath(matches),
   },
 ];
+
+const processTaxonomyPath = (pathSegments: string[]) => {
+  const changedSegment = `<strong>${pathSegments.pop()}</strong>`;
+  pathSegments.push(changedSegment);
+  return pathSegments.map((m) => `➦ ${m.split(":")[1]} ›`).join(" ").slice(0, -1) + "term";
+};
 
 const processAddedEntities = (entity: unknown): string => {
   if (isTaxonomyRequestModel(entity)) {
@@ -212,15 +328,67 @@ const processAddedEntities = (entity: unknown): string => {
   return `<pre>Unknown entity</pre>`;
 };
 
-const getValueOrIdentifier = (value: unknown): string | string[] =>
-  Array.isArray(value)
-    ? value.flatMap(getValueOrIdentifier)
-    : typeof value === "object"
-        && value
-        && (("codename" in value && typeof value.codename === "string")
-          || ("id" in value && typeof value.id === "string"))
-    ? `<strong>${"codename" in value ? value.codename : value.id}</strong>`
-    : `<strong>${value}</strong>`;
+const getValueOrIdentifier = (value: unknown): string | string[] => {
+  if (Array.isArray(value)) {
+    return value.flatMap(getValueOrIdentifier);
+  } else if (typeof value === "object" && value !== null) {
+    if (
+      ("codename" in value && typeof value.codename === "string")
+      || ("id" in value && typeof value.id === "string")
+    ) {
+      return `<strong>${"codename" in value ? value.codename : value.id}</strong>`;
+    } else if ("value" in value && typeof value.value === "number") {
+      return `<strong>${value.value}</strong>`;
+    }
+  }
+  return `<strong>${value}</strong>`;
+};
+
+const getReplaceOpValue = (
+  value: unknown,
+): ReplacePatchOperationValue | null => {
+  switch (typeof value) {
+    case "string":
+    case "boolean":
+    case "number":
+      return value;
+    case "object":
+      if (isCountLimitation(value)) {
+        return `${value.condition}: ${value.value}`;
+      }
+      if (isObjectReference(value)) {
+        return value.codename;
+      }
+      if (isObjectReferenceArray(value)) {
+        return value.map(r => r.codename).join(", ");
+      }
+      if (isExternalIdReference(value)) {
+        return value.external_id;
+      }
+      if (isExternalIdReferenceArray(value)) {
+        return value.map(r => r.external_id).join(", ");
+      }
+      if (isDependsOn(value)) {
+        return `${value.element.codename} ${value.snippet?.codename ? "of snippet " + value.snippet.codename : ""}`;
+      }
+      if (isDefaultValue(value)) {
+        return getReplaceOpValue(value.global.value);
+      }
+      if (isMaximumTextLength(value)) {
+        return `${value.value} ${value.applies_to}`;
+      }
+      if (isValidationRegex(value)) {
+        return `<p><strong>Regex:</strong> ${value.regex}<strong></p><p>Flags:</strong> ${
+          value.flags ?? "—"
+        }</p><p><strong>IsActive:</strong> ${value.is_active ?? "—"}</p><p><strong>Validation message:</strong> ${
+          value.validation_message ?? "—"
+        }</p>`;
+      }
+      return value as any;
+    default:
+      return value as any;
+  }
+};
 
 const createAddedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "added">,
@@ -239,13 +407,14 @@ const createUpdatedEntitiesSection = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "updated">,
 ) =>
   [...diff.updated]
+    .filter(([, p]) => p.length > 0)
     .flatMap(
       ([entity, patchOps]) =>
-        `<div class="entityDetail" onClick="toggleVisibility('${entity}')"><h4>${entity}</h4><pre style="display: none" id="${entity}">${
+        `<div class="entityDetail"><div class="entity-name" onClick="toggleVisibility('${entity}')">${entity}</div><div class="entity-operations" style="display: none" id="${entity}">${
           patchOps
-            .flatMap(processPatchOp)
+            .flatMap(op => `<div class="op">${processPatchOp(op)}</div>`)
             .join("\n")
-        }</pre></div>`,
+        }</div></div>`,
     )
     .join("\n");
 
