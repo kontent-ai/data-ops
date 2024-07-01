@@ -4,11 +4,11 @@ The `diff` command compares `content models` between two environments and prints
 ## Usage
 
 ```bash
-npx @kontent-ai/data-ops diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <-Management-API-key>
+npx @kontent-ai/data-ops@latest diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <-Management-API-key>
 ```
 
 Or
 
 ```bash
-npx @kontent-ai/data-ops diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder>
+npx @kontent-ai/data-ops@latest diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder>
 ```

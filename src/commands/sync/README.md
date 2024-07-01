@@ -22,13 +22,13 @@ To successfully synchronize the content model, we introduced a couple of conditi
 
 ## Usage
 ```bash
-npx @kontent-ai/data-ops sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
+npx @kontent-ai/data-ops@latest sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
 --sourceApiKey=<source-api-key>
 ```
 OR
 
 ```bash
-npx @kontent-ai/data-ops sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
+npx @kontent-ai/data-ops@latest sync --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder>
 ```
 
 > [!NOTE]  
@@ -43,7 +43,7 @@ npx @kontent-ai/data-ops sync --targetEnvironmentId=<target-environment-id> --ta
 > }
 > ```
 
-To see all supported parameters, run `npx @kontent-ai/data-ops sync --help`.
+To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync --help`.
 
 ## Known limitations
 Using Management API introduces some limitations. Synchrozining content model won't let you:

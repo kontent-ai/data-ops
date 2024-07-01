@@ -20,15 +20,16 @@ It runs in Node.js with ESM support (lts).
 
 # Getting Started
 
-We recommend running data-ops with `npx`.
-Use `-h` or `--help` anytime to get information about available commands and their options.
+We recommend running data-ops with `npx`. Beware that `npx` calls the cached version of the tool. Use `@latest` to ensure you're using the latest version.
 ```bash
-npx @kontent-ai/data-ops --help
+Use `-h` or `--help` anytime to get information about available commands and their options.
+
+npx @kontent-ai/data-ops@latest --help
 # or
 yarn dlx @kontent-ai/data-ops --help
 
 # help for a specific command
-npx @kontent-ai/data-ops <command> --help
+npx @kontent-ai/data-ops@latest <command> --help
 
 # you can also install the package globally, or locally
 npm i @kontent-ai/data-ops -g
@@ -49,7 +50,7 @@ All options (including options for commands) can be provided in three different 
 The tool usage is based on commands provided in the following format:
 
 ```bash
-npx @kontent-ai/data-ops <command-name> <command-options>
+npx @kontent-ai/data-ops@latest <command-name> <command-options>
 ```
 
 The instructions for every command are presented in the README.md files in the command's individual folders ([./src/commands](./src/commands)). Data-ops supports these commands:
