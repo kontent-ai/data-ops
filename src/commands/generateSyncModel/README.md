@@ -19,5 +19,5 @@ These properties are removed and transformed to the corresponding IDs or externa
 ### Usage
 
 ```bash
-npx @kontent-ai/data-ops generate-sync-model --environmentId <environment-id> --apiKey <Management-API-key>
+npx @kontent-ai/data-ops@latest generate-sync-model --environmentId <environment-id> --apiKey <Management-API-key>
 ```

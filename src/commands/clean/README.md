@@ -16,6 +16,6 @@ The `clean` command allows you to delete data in your Kontent.ai environment usi
 ### Usage
 
 ```bash
-npx @kontent-ai/data-ops clean --environmentId <target-environment-id> --apiKey <Management-API-key>
+npx @kontent-ai/data-ops@latest clean --environmentId <target-environment-id> --apiKey <Management-API-key>
 ```
-To see all supported parameters, run `npx @kontent-ai/data-ops clean --help`.
+To see all supported parameters, run `npx @kontent-ai/data-ops@latest clean --help`.

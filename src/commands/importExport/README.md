@@ -8,9 +8,9 @@ The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi
 ### Usage
 
 ```bash
-npx @kontent-ai/data-ops export --environmentId=<environment-id-to-export> --apiKey=<Management-API-key>
+npx @kontent-ai/data-ops@latest export --environmentId=<environment-id-to-export> --apiKey=<Management-API-key>
 ```
-To see all supported parameters, run `npx @kontent-ai/data-ops export --help`.
+To see all supported parameters, run `npx @kontent-ai/data-ops@latest export --help`.
 
 ### Structure of the Exported Data
 
@@ -41,9 +41,9 @@ You can check out exported data of an example project in [the data for integrati
 > Exporting roles requires the [Enterprise plan](https://kontent.ai/pricing).
 >
 > If you don't want to export roles, you can specify them in the `--exclude` parameter or select only the other entities in the `--include` parameter
-> (e.g. `npx @kontent-ai/data-ops export ... --exclude roles`).
+> (e.g. `npx @kontent-ai/data-ops@latest export ... --exclude roles`).
 >
-> To get more information about the parameters or what other parameters are available, run `npx @kontent-ai/data-ops export --help`.
+> To get more information about the parameters or what other parameters are available, run `npx @kontent-ai/data-ops@latest export --help`.
 
 
 ## Import
@@ -62,9 +62,9 @@ The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi
 ### Usage
 
 ```bash
-npx @kontent-ai/data-ops import --fileName <file-to-import> --environmentId <target-environment-id> --apiKey <Management-API-key>
+npx @kontent-ai/data-ops@latest import --fileName <file-to-import> --environmentId <target-environment-id> --apiKey <Management-API-key>
 ```
-To see all supported parameters, run `npx @kontent-ai/data-ops import --help`.
+To see all supported parameters, run `npx @kontent-ai/data-ops@latest import --help`.
 
 ## Known Limitations
 ### Entity limitations
