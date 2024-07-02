@@ -1,3 +1,4 @@
+import { ContentTypeElements } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import { readFileSync, writeFileSync } from "fs";
 import open from "open";
@@ -70,32 +71,40 @@ const processPatchOp = (patchOp: PatchOperation) => {
     case "remove":
       return `${getRemoveEntityDetail(patchOp.path)} removed`;
     case "move": {
-      const beforeText =
-        "before" in patchOp
-          ? `before <strong>${patchOp.before.codename}</strong>`
-          : "";
-      const afterText =
-        "after" in patchOp
-          ? `after <strong>${patchOp.after.codename}</strong>`
-          : "";
-      return `${getMoveEntityDetail(
-        patchOp.path
-      )} moved ${beforeText}${afterText}`;
+      const beforeText = "before" in patchOp
+        ? `before <strong>${patchOp.before.codename}</strong>`
+        : "";
+      const afterText = "after" in patchOp
+        ? `after <strong>${patchOp.after.codename}</strong>`
+        : "";
+      return `${
+        getMoveEntityDetail(
+          patchOp.path,
+        )
+      } moved ${beforeText}${afterText}`;
     }
     case "addInto":
-      return `${getAddEntityDetail(patchOp.path)} ${getValueOrIdentifier(
-        patchOp.value
-      )} added ${patchOp.before ? `before ${patchOp.before.codename}` : ""}${
+      return `${getAddEntityDetail(patchOp.path)} ${
+        getValueOrIdentifier(
+          patchOp.value,
+        )
+      } added ${patchOp.before ? `before ${patchOp.before.codename}` : ""}${
         patchOp.after ? `after ${patchOp.after.codename}` : ""
       }`;
     case "replace":
-      return `${getReplaceEntityDetail(
-        patchOp.path
-      )} replaced <div class="compared-elements"><div class="compared-element">${getReplaceOpValue(
-        patchOp.oldValue
-      )}</div><div class="comparator">→</div><div class="compared-element"> ${getReplaceOpValue(
-        patchOp.value
-      )}</div></div>`;
+      return `${
+        getReplaceEntityDetail(
+          patchOp.path,
+        )
+      } changed <div class="compared-elements"><div class="compared-element">${
+        getReplaceOpValue(
+          patchOp.oldValue,
+        )
+      }</div><div class="comparator">→</div><div class="compared-element"> ${
+        getReplaceOpValue(
+          patchOp.value,
+        )
+      }</div></div>`;
   }
 };
 
@@ -115,24 +124,24 @@ const getMoveEntityDetail = (path: string) => getEntityPathHandler(moveEntityPat
 const replaceEntityPathHandlers: EntityPathHandler[] = [
   {
     regex: /^\/name$/,
-    entity: () => `<span class="num_modified modifier-icon">✎</span> Content type name`,
+    entity: () => `<span class="num_modified modifier-icon">⇄</span> Content type name`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/([^/]+)$/,
     entity: (match: string[]) =>
-      `<span class="num_modified modifier-icon">✎</span> Property <strong>${match[2]}</strong> of element <strong>${
+      `<span class="num_modified modifier-icon">⇄</span> Property <strong>${match[2]}</strong> of element <strong>${
         match[1]
       }</strong>`,
   },
   {
     regex: /^\/content_groups\/codename:([^/]+)\/name$/,
     entity: (match: string[]) =>
-      `<span class="num_modified modifier-icon">✎</span> Content group <strong>${match[1]}</strong> name`,
+      `<span class="num_modified modifier-icon">⇄</span> Content group <strong>${match[1]}</strong> name`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)\/([^/]+)$/,
     entity: (match: string[]) =>
-      `<span class="num_modified modifier-icon">✎</span> Property <strong>${
+      `<span class="num_modified modifier-icon">⇄</span> Property <strong>${
         match[3]
       }</strong> of multiple choice option <strong>${match[2]}</strong> on element <strong>${match[1]}</strong>`,
   },
@@ -274,19 +283,19 @@ const moveEntityPathHandlers: EntityPathHandler[] = [
   {
     regex: /^\/elements\/codename:([^/]+)$/,
     entity: (match: string[]) =>
-      `<span class="num_modified modifier-icon">➦</span> Element <strong>${match[1]}</strong>`,
+      `<span class="num_modified modifier-icon">⤷</span> Element <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/options\/codename:([^/]+)$/,
     entity: (match: string[]) =>
-      `<span class="num_modified modifier-icon">➦</span> Option <strong>${
+      `<span class="num_modified modifier-icon">⤷</span> Option <strong>${
         match[2]
       }</strong> for multiple choice element <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/content_groups\/codename:([^/]+)$/,
     entity: (match: string[]) =>
-      `<span class="num_modified modifier-icon">➦</span> Content group <strong>${match[1]}</strong>`,
+      `<span class="num_modified modifier-icon">⤷</span> Content group <strong>${match[1]}</strong>`,
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
@@ -300,29 +309,30 @@ const processTaxonomyPath = (pathSegments: string[]) => {
   return pathSegments.map((m) => `➦ ${m.split(":")[1]} ›`).join(" ").slice(0, -1) + "term";
 };
 
+const createAddedElementEntry = (element: ContentTypeElements.Element) =>
+  `<div class="added-elements"><div class="compared-element">${element.codename}</div><div class="element-type">${
+    element.type.toUpperCase().replace("_", " ")
+  }</div></div>`;
+
 const processAddedEntities = (entity: unknown): string => {
   if (isTaxonomyRequestModel(entity)) {
-    return `<div class="entityDetail" onClick="toggleVisibility('${entity.codename}')"><h4>${entity.codename}</h4><pre style="display: none" id=${entity.codename}>${
+    return `<div class="entityDetail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div style="display: none" id=${entity.codename}>${
       entity.terms
         .map((e) => `<div>${e.name}</div>`)
         .join("\n")
-    }</pre></div>`;
+    }</div></div>`;
   }
 
   if (isContentTypeData(entity)) {
-    return `<div class="entityDetail" onClick="toggleVisibility('${entity.codename}')"><h4>${entity.codename}</h4><pre style="display: none" id=${entity.codename}>${
-      entity.elements
-        .flatMap((e) => `<div>${e.codename}: ${e.type}</div>`)
-        .join("\n")
-    }</pre></div>`;
+    return `<div class="entityDetail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div style="display: none" id=${entity.codename}>${
+      entity.elements.map(createAddedElementEntry).join("\n")
+    }</div></div>`;
   }
 
   if (isContentTypeSnippetData(entity)) {
-    return `<div class="entityDetail" onClick="toggleVisibility('${entity.codename}')"><h4>${entity.codename}</h4><pre style="display: none" id=${entity.codename}>${
-      entity.elements
-        .flatMap((e) => `<div>${e.codename}: ${e.type}</div>`)
-        .join("\n")
-    }</pre></div>`;
+    return `<div class="entityDetail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div style="display: none" id=${entity.codename}>${
+      entity.elements.map(createAddedElementEntry).join("\n")
+    }</div></div>`;
   }
 
   return `<pre>Unknown entity</pre>`;
@@ -399,7 +409,9 @@ const createDeletedEntitiesSection = <T extends { codename: string }>(
 ) =>
   `${
     [...diff.deleted]
-      .map((d) => `<div class="entityDetail"><h4>${d}</h4></div>`)
+      .map((d) =>
+        `<div class="entityDetail"><div class="entity-name removed" onClick="toggleVisibility('${d}')">${d}</div></div>`
+      )
       .join("\n")
   }`;
 
@@ -456,40 +468,41 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
     ({ taxonomyGroups }: DiffData) => createUpdatedEntitiesSection(taxonomyGroups),
   ],
   [
-    "{{num_types_to_add}}",
+    "{{num_types_added}}",
     ({ contentTypes }: DiffData) => contentTypes.added.length.toString(),
   ],
   [
-    "{{num_types_to_remove}}",
+    "{{num_types_removed}}",
     ({ contentTypes }: DiffData) => contentTypes.deleted.size.toString(),
   ],
   [
-    "{{num_types_to_mod}}",
-    ({ contentTypes }: DiffData) => contentTypes.updated.size.toString(),
+    "{{num_types_updated}}",
+    ({ contentTypes }: DiffData) => [...contentTypes.updated].filter(([, v]) => v.length > 0).length.toString(),
   ],
   [
-    "{{num_snippets_to_add}}",
+    "{{num_snippets_added}}",
     ({ contentTypeSnippets }: DiffData) => contentTypeSnippets.added.length.toString(),
   ],
   [
-    "{{num_snippets_to_remove}}",
+    "{{num_snippets_removed}}",
     ({ contentTypeSnippets }: DiffData) => contentTypeSnippets.deleted.size.toString(),
   ],
   [
-    "{{num_snippets_to_mod}}",
-    ({ contentTypeSnippets }: DiffData) => contentTypeSnippets.updated.size.toString(),
+    "{{num_snippets_updated}}",
+    ({ contentTypeSnippets }: DiffData) =>
+      [...contentTypeSnippets.updated].filter(([, v]) => v.length > 0).length.toString(),
   ],
   [
-    "{{num_taxonomy_to_add}}",
+    "{{num_taxonomy_added}}",
     ({ taxonomyGroups }: DiffData) => taxonomyGroups.added.length.toString(),
   ],
   [
-    "{{num_taxonomy_to_remove}}",
+    "{{num_taxonomy_removed}}",
     ({ taxonomyGroups }: DiffData) => taxonomyGroups.deleted.size.toString(),
   ],
   [
-    "{{num_taxonomy_to_mod}}",
-    ({ taxonomyGroups }: DiffData) => taxonomyGroups.updated.size.toString(),
+    "{{num_taxonomy_updated}}",
+    ({ taxonomyGroups }: DiffData) => [...taxonomyGroups.updated].filter(([, v]) => v.length > 0).length.toString(),
   ],
   [
     "{{total_changes}}",
@@ -508,4 +521,9 @@ const templateHandlerMap: Map<string, (diff: DiffData) => string> = new Map([
   ["{{target_env_id}}", ({ targetEnvironmentId }: DiffData) => targetEnvironmentId],
   ["{{datetime_generated}}", () => new Date().toUTCString()],
   ["{{env_link_disabler}}", ({ folderName }: DiffData) => folderName ? "disabled" : ""],
+  [
+    "{{hide_empty_updated_snippets}}",
+    ({ contentTypeSnippets }: DiffData) =>
+      [...contentTypeSnippets.updated].filter(([, v]) => v.length > 0).length === 0 ? "hidden" : "",
+  ],
 ]);
