@@ -352,130 +352,9 @@
         .compared-elements .compared-element {
             transition: all 0.5s ease;
         }
-        .sync-area {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            font-weight: bold;
-            font-size: small;
-            border-radius: 40px;
-            margin-top: 85vh;
-            margin-left: 2vw;
-            transition: all 1s ease;
-            align-content: center;
-        }
-
-        .expanded {
-            width: fit-content;
-            height: 80px;
-            border-radius: 40px;
-            justify-content: space-between;
-            padding: 0 10px;
-            pointer-events: none;
-        }
-
-        .expanded input {
-            pointer-events: all;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .api-input {
-            flex: 1;
-            margin: 0 5px;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .sync-form {
-            display: none;
-            pointer-events: none;
-            height: 80px;
-            color: white;
-            border-radius: 40px;
-            align-items: baseline;
-            transition: all 1s ease;
-            z-index: 998;
-        }
-
-        .sync-form input {
-            pointer-events: all;
-            border-radius: 20px;
-        }
-
-        .sync-button {
-            height: 80px;
-            min-width: 80px;
-            border-radius: 40px;
-            cursor: pointer;
-            align-content: center;
-            text-align: center;
-            color: white;
-            background-color: black;
-            height: 80px;
-            min-width: 80px;
-            transition: background-color 0.5s ease;
-            z-index: 999;
-        }
-
-        .sync-button:hover {
-            background-color: #ff5733;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .copy-button {
-            height: 80px;
-            min-width: 80px;
-            border-radius: 40px;
-            cursor: pointer;
-            align-content: center;
-            text-align: center;
-            color: white;
-            background-color: #5b4ff5;
-            margin-left: 5px;
-            display: none;
-            transition: all 1s ease;
-        }
-
-        .close-button {
-            font-size: xx-large;
-        }
-
-        .copy-button:hover {
-            background-color: #218838;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        @keyframes fadeOutIn {
-            0% {
-                opacity: 0;
-                transform: translate(-10vw);
-            }
-            100% {
-                transform: translate(1vw);
-                opacity: 1;
-            }
-        }
-
-        .animate {
-            animation: fadeOutIn 0.5s forwards;
-            pointer-events: all;
-        }
     </style>
 </head>
 <body>
-    <div class="sync-area" id="syncArea">
-        <div id="syncButton" class="sync-button">SYNC</div>
-        <div id="syncForm" class="sync-form">
-            <input type="text" class="api-input" id="apiKey1" placeholder="Source API key">
-            <input type="text" class="api-input" id="apiKey2" placeholder="Target API key">
-            <div class="copy-button" id="copyButton">COPY</div>
-        </div>
-    </div>
     <div id="content-diff" class="content">
         <div class="title">
             <div class="logo">
@@ -574,9 +453,6 @@
         </div>
     </div>
     <script>
-        const syncButton = document.getElementById('syncButton');
-        const syncForm = document.getElementById('syncForm');
-
         const toggleVisibility = (targetId, defaultDisplayValue = 'block') => {
             let target = document.getElementById(targetId);
             if (!target) return;
@@ -585,26 +461,6 @@
 
             target.style.display = currentDisplayValue === 'none' ? defaultDisplayValue : 'none';
         };
-
-        const toggleSync = () => {
-            syncButton.classList.toggle("close-button");
-            syncButton.textContent = syncButton.textContent === '×' ? 'SYNC' : '×';
-            syncForm.classList.toggle('animate');
-            toggleVisibility('syncForm', 'flex');
-            toggleVisibility('copyButton');
-            toggleVisibility('closeButton');
-        };
-
-        copyButton.addEventListener('click', () => {
-            const apiKey1 = apiKey1Input.value;
-            const apiKey2 = apiKey2Input.value;
-            const syncCommand = `sync-command --apiKey1=${apiKey1} --apiKey2=${apiKey2}`;
-            navigator.clipboard.writeText(syncCommand)
-                .then(() => alert('Command copied to clipboard'))
-                .catch(err => console.error('Failed to copy command:', err));
-        });
-
-        syncButton.addEventListener('click', toggleSync);
     </script>
 </body>
 </html>
