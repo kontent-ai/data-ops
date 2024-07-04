@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { serially } from "../../../src/utils/requests";
+import { serially, seriallyReduce } from "../../../src/utils/requests";
 
 describe("request utils", () => {
   describe("serially", () => {
@@ -21,6 +21,27 @@ describe("request utils", () => {
 
     it("Works even for an empty array of fetchers", async () => {
       const results = await serially([]);
+
+      expect(results).toStrictEqual([]);
+    });
+  });
+
+  describe.only("seriallyReduce", () => {
+    it("Runs all fetchers serially in the order they were provided", async () => {
+      const fetchers: ReadonlyArray<(prev: ReadonlyArray<number>) => Promise<ReadonlyArray<number>>> = [
+        (prev) => delay(100).then(() => [...prev, 1]),
+        (prev) => delay(20).then(() => [...prev, 2]),
+        (prev) => delay(0).then(() => [...prev, 3]),
+        (prev) => delay(0).then(() => [...prev, 4]),
+      ];
+
+      const result = await seriallyReduce(fetchers, []);
+
+      expect(result).toStrictEqual([1, 2, 3, 4]);
+    });
+
+    it("Works even for an empty array of fetchers", async () => {
+      const results = await seriallyReduce([], []);
 
       expect(results).toStrictEqual([]);
     });
