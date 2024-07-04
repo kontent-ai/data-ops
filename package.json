@@ -34,6 +34,9 @@
     "url": "https://github.com/kontent-ai/data-ops/issues"
   },
   "homepage": "https://github.com/kontent-ai/data-ops#readme",
+  "exports": {
+    ".": "./build/src/public.js"
+  },
   "dependencies": {
     "@kontent-ai/core-sdk": "^10.5.0",
     "@kontent-ai/delivery-sdk": "^14.9.0",
