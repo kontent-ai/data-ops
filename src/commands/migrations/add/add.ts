@@ -58,7 +58,12 @@ export type AddMigrationParams =
   }>
   & LogOptions;
 
-const addMigration = async (params: AddMigrationParams) => {
+export const addMigration = async (params: AddMigrationParams) => {
+  if (params.type !== "js" && params.type !== "ts") {
+    logError(params, "'type' parameter must be 'js' or 'ts");
+    process.exit(1);
+  }
+
   const folderPath = params.folder ?? process.cwd();
 
   if (!existsSync(folderPath)) {

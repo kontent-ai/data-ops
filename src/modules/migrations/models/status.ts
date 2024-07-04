@@ -15,6 +15,8 @@ export const statusSchema = z.record(z.string(), migrationStatusSchema.array()).
 export type MigrationStatus = z.infer<typeof migrationStatusSchema>;
 export type Status = z.infer<typeof statusSchema>;
 
+export type MigrationOrder = number | Date;
+
 export type SaveStatus = (data: Status) => Promise<void>;
 export type ReadStatus = () => Promise<Status>;
 
