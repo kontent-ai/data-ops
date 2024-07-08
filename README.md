@@ -63,6 +63,9 @@ The instructions for individual commands are provided in the README.md files loc
 - sync-content
   - [run](./src/commands/syncContent/run/README.md)
   - [export](./src/commands/syncContent/export/README.md)
+- [migrations](./src/commands/migrations/README.md)
+  - [add](./src/commands/migrations/add/README.md)
+  - [run](./src/commands/migrations/run/README.md)
 
 # Contributing
 
