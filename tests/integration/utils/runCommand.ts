@@ -2,7 +2,9 @@ import * as childProcess from "child_process";
 
 export const runCommand = (command: string): Promise<CommandResult> => {
   return new Promise((resolve, reject: (err: CommandError) => void) => {
-    childProcess.exec(`node ./build/src/index.js ${command}`, (error, stdout, stderr) => {
+    childProcess.exec(`node ./build/src/index.js ${command}`, {
+      env: { ...process.env, MOCKED_DATE: process.env.MOCKED_DATE },
+    }, (error, stdout, stderr) => {
       if (error) {
         reject({ error, stdout, stderr });
       }
