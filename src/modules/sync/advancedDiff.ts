@@ -33,7 +33,7 @@ import {
   ReplacePatchOperationValue,
 } from "./types/patchOperation.js";
 
-type DiffData = DiffModel & DiffParams;
+type DiffData = DiffModel & Omit<DiffParams, "targetApiKey" | "sourceApiKey">;
 type EntityPathRenderer = {
   regex: RegExp;
   render: (() => string) | ((match: string[]) => string);
@@ -44,6 +44,10 @@ type ElementOrTerm = ContentTypeElements.Element | TaxonomyModels.IAddTaxonomyRe
 type RenderFunction<T extends PatchOperation> = (patchOp: T) => string;
 type EntityType = "taxonomies" | "types" | "snippets";
 type EntityActionType = "added" | "updated" | "deleted";
+
+// for testing purposes, mocked date passed to spawned process in runCommand()
+const myDate = process.env.MOCKED_DATE ? new Date(process.env.MOCKED_DATE) : new Date();
+const dateGenerated = myDate.toUTCString();
 
 export const generateDiff = (diffData: DiffData) => {
   const logOptions: LogOptions = diffData;
@@ -56,7 +60,10 @@ export const generateDiff = (diffData: DiffData) => {
   }
 
   createOutputFile(resolvedPath, resolvedTemplate, logOptions);
-  !diffData.noOpen && openOutputFile(resolvedPath, logOptions);
+
+  if (!diffData.noOpen) {
+    openOutputFile(resolvedPath, logOptions);
+  }
 };
 
 const resolveHtmlTemplate = (
@@ -523,7 +530,7 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     "{{target_env_id}}",
     ({ targetEnvironmentId }: DiffData) => targetEnvironmentId,
   ],
-  ["{{datetime_generated}}", () => new Date().toUTCString()],
+  ["{{datetime_generated}}", () => dateGenerated],
   [
     "{{env_link_disabler}}",
     ({ folderName }: DiffData) => (folderName ? "disabled" : ""),
