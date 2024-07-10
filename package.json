@@ -10,6 +10,7 @@
     "fmt:check": "dprint check",
     "start": "npm run build && node ./build/src/index.js",
     "test:integration": "npm run build && jest --config=jestIntegrationTests.config.ts",
+    "test:advancedDiff": "npm run build && jest --config=jestIntegrationTests.config.ts tests/integration/diff/advancedDiff.test.ts",
     "test:unit": "jest --config=jestUnitTests.config.ts"
   },
   "files": [
@@ -57,6 +58,7 @@
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zod": "^3.23.8"
   }
 }

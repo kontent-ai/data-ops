@@ -1,4 +1,5 @@
 import { ContentTypeModels, ContentTypeSnippetModels, SharedModels, TaxonomyModels } from "@kontent-ai/management-sdk";
+import { z } from "zod";
 
 import { spotlightInUseErrorCode } from "../constants/responseCodes.js";
 import {
@@ -15,98 +16,121 @@ export const notNull = <T>(arg: T | null): arg is T => arg !== null;
 
 export const notNullOrUndefined = <T>(arg: T | undefined | null): arg is T => arg !== undefined && arg !== null;
 
-export const isSpotlightInUseError = (
-  err: unknown,
-): err is SharedModels.ContentManagementBaseKontentError =>
-  err !== null
-  && typeof err === "object"
-  && "errorCode" in err
-  && typeof err.errorCode === "number"
-  && err.errorCode === spotlightInUseErrorCode;
+export const isSpotlightInUseError = (err: unknown): err is SharedModels.ContentManagementBaseKontentError =>
+  z.object({
+    errorCode: z.literal(spotlightInUseErrorCode),
+  }).safeParse(err).success;
 
-export const isTaxonomyData = (
-  obj: unknown,
-): obj is TaxonomyModels.IAddTaxonomyRequestModel =>
-  obj !== null
-  && typeof obj === "object"
-  && "terms" in obj
-  && Array.isArray(obj.terms);
+const elementTypesEnum = z.enum([
+  "text",
+  "rich_text",
+  "number",
+  "multiple_choice",
+  "date_time",
+  "asset",
+  "modular_content",
+  "taxonomy",
+  "url_slug",
+  "guidelines",
+  "snippet",
+  "custom",
+  "subpages",
+]);
 
-export const isContentTypeData = (
-  obj: unknown,
-): obj is ContentTypeModels.IAddContentTypeData =>
-  obj !== null
-  && typeof obj === "object"
-  && "content_groups" in obj
-  && Array.isArray(obj.content_groups);
+const elementSchema: z.ZodType = z.object({
+  type: elementTypesEnum,
+});
 
-export const isContentTypeSnippetData = (
-  obj: unknown,
-): obj is ContentTypeSnippetModels.IAddContentTypeSnippetData =>
-  obj !== null
-  && typeof obj === "object"
-  && "codename" in obj
-  && typeof obj.codename === "string"
-  && !isTaxonomyData(obj)
-  && !isContentTypeData(obj);
+const taxonomySchema: z.ZodType<TaxonomyModels.IAddTaxonomyRequestModel> = z.object({
+  name: z.string(),
+  terms: z.lazy(() => taxonomySchema.array()),
+  codename: z.string().optional(),
+  external_id: z.string().optional(),
+});
+
+const baseTypeSchema = z.object({
+  name: z.string(),
+  elements: elementSchema.array(),
+  external_id: z.string().optional(),
+  codename: z.string().optional(),
+});
+
+const snippetSchema: z.ZodType<ContentTypeSnippetModels.IAddContentTypeSnippetData> = baseTypeSchema;
+
+const contentTypeSchema: z.ZodType<ContentTypeModels.IAddContentTypeData> = baseTypeSchema.extend({
+  content_groups: z.object({
+    name: z.string(),
+    codename: z.string().optional(),
+    external_id: z.string().optional(),
+  }).array(),
+});
+
+const objectReferenceSchema: z.ZodType<ObjectReference> = z.object({
+  codename: z.string(),
+  id: z.string().optional(),
+  external_id: z.string().optional(),
+});
+
+const externalIdReferenceSchema: z.ZodType<ExternalIdReference> = z.object({
+  external_id: z.string(),
+});
+
+export const isTaxonomyData = (obj: unknown): obj is TaxonomyModels.IAddTaxonomyRequestModel =>
+  taxonomySchema.safeParse(obj).success;
+
+export const isContentTypeData = (obj: unknown): obj is ContentTypeModels.IAddContentTypeData =>
+  contentTypeSchema.safeParse(obj).success;
+
+export const isContentTypeSnippetData = (obj: unknown): obj is ContentTypeSnippetModels.IAddContentTypeSnippetData =>
+  snippetSchema.safeParse(obj).success;
 
 export const isCountLimitation = (obj: unknown): obj is CountLimitation =>
-  obj !== null
-  && typeof obj === "object"
-  && "value" in obj
-  && typeof obj.value === "number"
-  && "condition" in obj
-  && typeof obj.condition === "string"
-  && Object.keys(obj).length === 2;
+  z.object({
+    value: z.number(),
+    condition: z.enum(["at_most", "exactly", "at_least"]),
+  }).safeParse(obj).success;
 
-export const isObjectReference = (obj: unknown): obj is ObjectReference =>
-  obj !== null
-  && typeof obj === "object"
-  && "codename" in obj
-  && typeof obj.codename === "string";
+export const isObjectReference = (obj: unknown): obj is ObjectReference => objectReferenceSchema.safeParse(obj).success;
 
-export const isObjectReferenceArray = (
-  obj: unknown,
-): obj is ObjectReference[] => Array.isArray(obj) && obj.every(isObjectReference);
+export const isObjectReferenceArray = (obj: unknown): obj is ObjectReference[] =>
+  objectReferenceSchema.array().safeParse(obj).success;
+
+export const isExternalIdReference = (obj: unknown): obj is ExternalIdReference =>
+  externalIdReferenceSchema.safeParse(obj).success;
+
+export const isExternalIdReferenceArray = (obj: unknown): obj is ExternalIdReference[] =>
+  externalIdReferenceSchema.array().safeParse(obj).success;
 
 export const isDependsOn = (obj: unknown): obj is DependsOn =>
-  obj !== null
-  && typeof obj === "object"
-  && "element" in obj
-  && "snippet" in obj
-  && isObjectReference(obj.element)
-  && (obj.snippet === undefined || isObjectReference(obj.snippet));
+  z.object({
+    element: objectReferenceSchema,
+    snippet: objectReferenceSchema.optional(),
+  }).safeParse(obj).success;
 
 export const isDefaultValue = (obj: unknown): obj is DefaultElementValue =>
-  obj !== null
-  && typeof obj === "object"
-  && "global" in obj
-  && obj.global !== null
-  && typeof obj.global === "object"
-  && "value" in obj.global;
+  z.object({
+    global: z.object({
+      value: z.union([
+        z.string(),
+        z.number(),
+        objectReferenceSchema,
+        objectReferenceSchema.array(),
+        externalIdReferenceSchema,
+        externalIdReferenceSchema.array(),
+      ]),
+    }),
+  }).safeParse(obj).success;
 
 export const isMaximumTextLength = (obj: unknown): obj is MaximumTextLength =>
-  obj !== null
-  && typeof obj === "object"
-  && "value" in obj
-  && "applies_to" in obj
-  && typeof obj.value === "number"
-  && (obj.applies_to === "words" || obj.applies_to === "characters");
+  z.object({
+    value: z.number(),
+    applies_to: z.enum(["words", "characters"]),
+  }).safeParse(obj).success;
 
 export const isValidationRegex = (obj: unknown): obj is ValidationRegex =>
-  obj !== null
-  && typeof obj === "object"
-  && "regex" in obj
-  && typeof obj.regex === "string";
-
-export const isExternalIdReference = (
-  obj: unknown,
-): obj is ExternalIdReference =>
-  obj !== null
-  && typeof obj === "object"
-  && "external_id" in obj
-  && typeof obj.external_id === "string";
-
-export const isExternalIdReferenceArray = (
-  obj: unknown,
-): obj is ExternalIdReference[] => Array.isArray(obj) && obj.every(isExternalIdReference);
+  z.object({
+    is_active: z.boolean(),
+    regex: z.string(),
+    flags: z.string().optional().nullable(),
+    validation_message: z.string().optional(),
+  }).safeParse(obj).success;
