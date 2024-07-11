@@ -292,6 +292,20 @@
         .compared-elements .element {
             transition: all 0.5s ease;
         }
+        .warning, .term {
+            font-size: small;
+        }
+        ul > li::marker {
+            content: none;
+        }
+        ul ul li::marker {
+            color:#005f3c;
+            content: '➥ ';
+            font-weight: bold;
+        }
+        li {
+            padding-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -316,7 +330,7 @@
         </div>
         <div class="diffContainer">
             <h2>Modified entities</h2>
-            <div>state from <strong>Thu, 11 Jul 2024 10:31:06 GMT</strong></div>
+            <div>state from <strong>Thu, 11 Jul 2024 13:13:47 GMT</strong></div>
             
         <div class="entity-section">
           <div class="entity-section-header" onclick="toggleVisibility('types')">
@@ -723,8 +737,24 @@
                   
     <div class="added">
       <h3>added</h3>
-      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('add_taxonomy')">add_taxonomy</div><div style="display: none" id=add_taxonomy><div class="element">Add Term 1</div>
-<div class="element">Add Term 2</div></div></div>
+      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('add_taxonomy')">add_taxonomy</div><div style="display: none" id=add_taxonomy><ul class="term">
+        <li>Add Term 1
+        <ul class="term">
+        <li>Add Term 1.1
+        <ul class="term">
+        <li>Add Term 1.1.1
+        </li>
+      </ul></li>
+      </ul>
+<ul class="term">
+        <li>Add Term 1.2
+        </li>
+      </ul></li>
+      </ul>
+<ul class="term">
+        <li>Add Term 2
+        </li>
+      </ul></div></div><div class="warning">⚠️ Only the first three depth levels shown.</div>
     </div>
   
               </div>

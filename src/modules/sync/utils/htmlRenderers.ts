@@ -50,6 +50,15 @@ type AdvancedDiffParams =
 
 export type DiffData = DiffModel & AdvancedDiffParams;
 
+/**
+ * Replaces placeholders recursively. Some rendered sections have placeholders of their own,
+ * for example entity sections. Multiple runs ensure that only non-empty entities and changes
+ * are rendered, hence the recursion.
+ *
+ * @param templateString loaded HTML template for resolution
+ * @param diffData diff data to process for placeholder resolution
+ * @returns resolved HTML string
+ */
 export const resolveHtmlTemplate = (
   templateString: string,
   diffData: DiffData,
@@ -222,7 +231,16 @@ const renderAddedElementProperty = ([property, value]: Readonly<[string, unknown
 
 const renderAddedTaxonomyTerm = (
   taxonomy: TaxonomyModels.IAddTaxonomyRequestModel,
-) => `<div class="element">${taxonomy.name}</div>`;
+  depth = 0,
+): string =>
+  `<ul class="term">
+        <li>${taxonomy.name}
+        ${
+    (depth < 3 && taxonomy.terms.length)
+      ? taxonomy.terms.map(term => renderAddedTaxonomyTerm(term, depth++)).join("\n") + "</li>"
+      : "</li>"
+  }
+      </ul>`;
 
 const renderAddedTaxonomyData = createRenderAddedEntityData(renderAddedTaxonomyTerm);
 
@@ -283,7 +301,9 @@ const renderAddedTypesOrSnippetsSectionData = <T extends RequiredCodename<TypeOr
 
 const renderAddedTaxonomiesSectionData = <T extends TaxonomyModels.IAddTaxonomyRequestModel>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "added">,
-) => diff.added.map(a => renderAddedTaxonomyData(a, a.terms)).join("\n");
+) =>
+  diff.added.map(a => renderAddedTaxonomyData(a, a.terms)).join("\n")
+  + "<div class=\"warning\">⚠️ Only the first three depth levels shown.</div>";
 
 const renderDeletedEntitiesSectionData = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "deleted">,
