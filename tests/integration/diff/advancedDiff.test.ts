@@ -1,6 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
+import { afterAll, describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
-import { existsSync, readFileSync, unlinkSync } from "fs";
+import * as fs from "fs";
 import * as path from "path";
 
 import { runCommand } from "../utils/runCommand";
@@ -23,26 +23,23 @@ describe("Advanced diff", () => {
   const outputFilePath = path.join(__dirname, "diffTest.html");
   const baseFilePath = path.join(__dirname, "diffBase.html");
 
-  beforeAll(() => {
-    process.env.MOCKED_DATE = new Date(Date.UTC(2024, 1, 1)).toISOString();
-  });
-
-  it("should match the generated file with the baseline", async () => {
+  it("matches the generated file with the baseline", async () => {
     const command =
       `diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" -a -n`;
     await runCommand(command);
 
-    const generatedFileContent = readFileSync(outputFilePath, "utf-8");
-    const baseFileContent = readFileSync(baseFilePath, "utf-8");
+    const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8").replace(
+      /state from <strong>.*<\/strong>/,
+      "state from <strong>Thu, 11 Jul 2024 10:31:06 GMT</strong>",
+    );
+    const baseFileContent = fs.readFileSync(baseFilePath, "utf-8");
 
     expect(generatedFileContent).toStrictEqual(baseFileContent);
   });
 
   afterAll(() => {
-    delete process.env.MOCKED_DATE;
-
-    if (existsSync(outputFilePath)) {
-      unlinkSync(outputFilePath);
+    if (fs.existsSync(outputFilePath)) {
+      fs.unlinkSync(outputFilePath);
     }
   });
 });

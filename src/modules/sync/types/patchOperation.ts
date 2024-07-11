@@ -1,4 +1,6 @@
-import { SharedModels } from "@kontent-ai/management-sdk";
+import { ContentTypeElements, SharedModels } from "@kontent-ai/management-sdk";
+
+import { Replace } from "../../../utils/types.js";
 
 export type AddIntoPatchOperation = Readonly<{
   op: "addInto";
@@ -50,9 +52,7 @@ export const getTargetCodename = (op: PatchOperation): string | null => {
   }
 };
 
-export type ObjectReference = {
-  codename: string;
-} & SharedModels.IReferenceObject;
+export type ObjectReference = Replace<SharedModels.IReferenceObject, { codename: string }>;
 
 export type ExternalIdReference = { external_id: string };
 
@@ -62,27 +62,13 @@ export type DefaultElementValue = {
   };
 };
 
-export type CountLimitation = {
-  value: number;
-  condition: string;
-};
+export type CountLimitation = ContentTypeElements.ILinkedItemsElement["item_count_limit"];
 
-export type DependsOn = {
-  element: ObjectReference;
-  snippet?: ObjectReference;
-};
+export type DependsOn = ContentTypeElements.IUrlSlugElementData["depends_on"];
 
-export type MaximumTextLength = {
-  value: number;
-  applies_to: "words" | "characters";
-};
+export type MaximumTextLength = ContentTypeElements.ITextElementData["maximum_text_length"];
 
-export type ValidationRegex = {
-  regex: string;
-  flags?: "i";
-  validation_message?: string;
-  is_active?: boolean;
-};
+export type ValidationRegex = ContentTypeElements.ITextElementData["validation_regex"];
 
 export type ReplacePatchOperationValue =
   | DefaultElementValue
