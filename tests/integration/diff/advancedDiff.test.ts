@@ -22,17 +22,22 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
 describe("Advanced diff", () => {
   const outputFilePath = path.join(__dirname, "diffTest.html");
   const baseFilePath = path.join(__dirname, "diffBase.html");
+  const dateGeneratedRegex = /<div>state from <strong>.*<\/strong><\/div>/;
 
   it("matches the generated file with the baseline", async () => {
     const command =
       `diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" -a -n`;
     await runCommand(command);
 
-    const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8").replace(
-      /state from <strong>.*<\/strong>/,
-      "state from <strong>Thu, 11 Jul 2024 10:31:06 GMT</strong>",
-    );
     const baseFileContent = fs.readFileSync(baseFilePath, "utf-8");
+    const baseFileDateGenerated = baseFileContent.match(dateGeneratedRegex)?.[0];
+
+    expect(baseFileDateGenerated).toBeDefined();
+
+    const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8").replace(
+      dateGeneratedRegex,
+      baseFileDateGenerated ?? "generated date not found in the base file",
+    );
 
     expect(generatedFileContent).toStrictEqual(baseFileContent);
   });

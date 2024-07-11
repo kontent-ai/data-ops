@@ -292,6 +292,20 @@
         .compared-elements .element {
             transition: all 0.5s ease;
         }
+        .warning, .term {
+            font-size: small;
+        }
+        ul > li::marker {
+            content: none;
+        }
+        ul ul li::marker {
+            color:#005f3c;
+            content: '➥ ';
+            font-weight: bold;
+        }
+        li {
+            padding-top: 5px;
+        }
     </style>
 </head>
 <body>
