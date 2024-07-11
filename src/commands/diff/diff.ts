@@ -62,7 +62,7 @@ export const register: RegisterCommand = (yargs) =>
         })
         .option("outPath", {
           type: "string",
-          describe: "Absolute path to the directory or file the diff will be generated into.",
+          describe: "Path to the directory or file the diff will be generated into.",
           alias: "o",
           implies: ["advanced"],
         })

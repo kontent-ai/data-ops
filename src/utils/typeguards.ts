@@ -75,13 +75,13 @@ const externalIdReferenceSchema: z.ZodType<ExternalIdReference> = z.object({
   external_id: z.string(),
 });
 
-export const isTaxonomyData = (obj: unknown): obj is TaxonomyModels.IAddTaxonomyRequestModel =>
+export const isAddTaxonomyData = (obj: unknown): obj is TaxonomyModels.IAddTaxonomyRequestModel =>
   taxonomySchema.safeParse(obj).success;
 
-export const isContentTypeData = (obj: unknown): obj is ContentTypeModels.IAddContentTypeData =>
+export const isAddContentTypeData = (obj: unknown): obj is ContentTypeModels.IAddContentTypeData =>
   contentTypeSchema.safeParse(obj).success;
 
-export const isContentTypeSnippetData = (obj: unknown): obj is ContentTypeSnippetModels.IAddContentTypeSnippetData =>
+export const isAddContentTypeSnippetData = (obj: unknown): obj is ContentTypeSnippetModels.IAddContentTypeSnippetData =>
   snippetSchema.safeParse(obj).success;
 
 export const isCountLimitation = (obj: unknown): obj is CountLimitation =>
@@ -107,7 +107,7 @@ export const isDependsOn = (obj: unknown): obj is DependsOn =>
     snippet: objectReferenceSchema.optional(),
   }).safeParse(obj).success;
 
-export const isDefaultValue = (obj: unknown): obj is DefaultElementValue =>
+export const isDefaultElementValue = (obj: unknown): obj is DefaultElementValue =>
   z.object({
     global: z.object({
       value: z.union([

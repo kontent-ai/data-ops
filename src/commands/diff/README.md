@@ -1,14 +1,33 @@
 # Diff
-The `diff` command compares `content models` between two environments and prints the difference in the format of [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) operations. You can compare two environments by providing parameters for source and target environments (environment ID and MAPI key), or compare the target environment with a folder model created by [generate-sync-model](#generate-sync-model) command.
+The `diff` command compares **content models** of two environments and outputs the difference either to a command line interface or to a standalone HTML file for improved visual representation and sharing purposes. Two environments can be compared to each other directly by providing parameters for both source and target (environment ID and MAPI key). Alternatively, you can also compare the target environment with a folder model created by [generate-sync-model](#generate-sync-model) command.
+
+## Default output
+
+By default, `diff` command outputs to CLI, in a slightly altered format of [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) operations for each modified entity. This can be suitable for smaller diffs or if you want to inspect individual operations.
+
+## Advanced output
+
+By specifying the `-a, --advanced` flag in the `diff` command, you can opt for visual diff instead. This will generate an HTML file at a path specified by `-o, --outPath` parameter (mandatory if `-a` is used). The generated diff file should open automatically if the process succeeds. You can suppress automatic file opening by using `-n, --noOpen` flag.
+
+Advanced output comes in the form of a stylized, interactive overview of all the differences between two content models, such as total number and type of changes to individual entity types, as well as detailed information on each modified entity and its respective changeset. It provides a human readable alternative to the default diff and improves shareability by exporting to a standalone file.
+
+> [!TIP]
+> You can specify both directory and file paths with `-o` parameter. If you provide a file path (with `.html` suffix), the generated diff will have the name of your choice. For directory paths, a default naming convention will be used (`diff_<current UTC dateTime>.html`). 
+>
+> In both cases, directories are created automatically if they don't exist yet.
+
+### Showcase
+
+![visual-diff-showcase](https://github.com/kontent-ai/data-ops/assets/52500882/4c85b987-3343-4bad-bd34-1888c506397d)
 
 ## Usage
 
 ```bash
-npx @kontent-ai/data-ops@latest diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <-Management-API-key>
+npx @kontent-ai/data-ops diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <Management-API-key> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
 ```
 
 Or
 
 ```bash
-npx @kontent-ai/data-ops@latest diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder>
+npx @kontent-ai/data-ops diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
 ```
