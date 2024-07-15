@@ -23,11 +23,11 @@ Advanced output comes in the form of a stylized, interactive overview of all the
 ## Usage
 
 ```bash
-npx @kontent-ai/data-ops diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <Management-API-key> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
+npx @kontent-ai/data-ops diff@latest --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <Management-API-key> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
 ```
 
 Or
 
 ```bash
-npx @kontent-ai/data-ops diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
+npx @kontent-ai/data-ops diff@latest --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
 ```
