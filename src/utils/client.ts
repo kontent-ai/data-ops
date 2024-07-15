@@ -13,6 +13,7 @@ type Params = Readonly<{
 const sourceTrackingHeaderName = "X-KC-SOURCE";
 
 export const createClient = ({ environmentId, apiKey, commandName }: Params): ManagementClient =>
+  // eslint-disable-next-line no-restricted-syntax
   new ManagementClient({
     environmentId,
     apiKey,

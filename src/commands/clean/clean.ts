@@ -1,6 +1,6 @@
 import readline from "node:readline";
 
-import { ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
+import { SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
@@ -18,6 +18,7 @@ import { webhooksEntity } from "../../modules/importExport/importExportEntities/
 import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "../../modules/importExport/importExportEntities/entityDefinition.js";
 import { RegisterCommand } from "../../types/yargs.js";
+import { createClient } from "../../utils/client.js";
 import { serially } from "../../utils/requests.js";
 import { isSpotlightInUseError } from "../../utils/typeguards.js";
 
@@ -39,11 +40,13 @@ const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
   webhooksEntity,
 ];
 
+const commandName = "clean";
+
 const entityChoices = entityDefinitions.map(e => e.name);
 
 export const register: RegisterCommand = (yargs) =>
   yargs.command({
-    command: "clean",
+    command: commandName,
     describe: "Removes all content, assets and configuration from a Kontent.ai environment.",
     builder: (yargs) =>
       yargs
@@ -94,10 +97,7 @@ type CleanEnvironmentParams =
 const cleanEnvironment = async (
   params: CleanEnvironmentParams,
 ): Promise<void> => {
-  const client = new ManagementClient({
-    environmentId: params.environmentId,
-    apiKey: params.apiKey,
-  });
+  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
 
   const entitiesToClean = entityDefinitions
     .filter(e => (!params.include || params.include.includes(e.name)) && !params.exclude?.includes(e.name));

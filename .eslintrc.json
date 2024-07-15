@@ -13,6 +13,14 @@
           {
             "selector": "MemberExpression[object.name='console'][property.name=/^(log|warn|error|info|trace)$/]",
             "message": "Don't log into the console directly. Use one of the functions from the log.ts file (logInfo, logWarning, logError) to ensure provided --logLevel is respected."
+          }, 
+          {
+            "selector": "CallExpression[callee.name='createManagementClient']",
+            "message": "Use the createClient function from src/utils/client.ts instead."
+          },
+          {
+            "selector": "NewExpression[callee.name='ManagementClient']",
+            "message": "Use the createClient function from src/utils/client.ts instead."
           }
         ]
       }

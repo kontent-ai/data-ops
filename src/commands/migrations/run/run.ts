@@ -23,9 +23,9 @@ import {
 } from "../../../modules/migrations/utils/statusUtils.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { RunMigrationsParams } from "./runParams.js";
-import { createManagementClient } from "@kontent-ai/management-sdk";
 
 const commandName = "run";
 const migrationSelectionOptions = ["name", "range", "all", "next"] as const;
@@ -206,10 +206,7 @@ export const runMigrations = async (params: RunMigrationsParams) => {
     process.exit(0);
   }
 
-  const client = createManagementClient({
-    environmentId: params.environmentId,
-    apiKey: params.apiKey,
-  });
+  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
 
   const migrationsStatus = await executeMigrations(migrationsToRun, client, {
     operation,
