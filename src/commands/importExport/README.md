@@ -40,10 +40,10 @@ You can check out exported data of an example project in [the data for integrati
 > [!CAUTION]
 > Exporting roles requires the [Enterprise plan](https://kontent.ai/pricing).
 >
-> If you don't want to export roles, you can specify them in the `--exclude` parameter or select only the other entities in the `--include` parameter
+> To avoid exporting roles, you can either list them in the `--exclude` parameter or specify only the desired entities in the `--include` parameter.
 > (e.g. `npx @kontent-ai/data-ops@latest export ... --exclude roles`).
 >
-> To get more information about the parameters or what other parameters are available, run `npx @kontent-ai/data-ops@latest export --help`.
+> To get more information about available parameters, run `npx @kontent-ai/data-ops@latest export --help`.
 
 
 ## Import
@@ -55,9 +55,9 @@ The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi
 > **The target environment needs to be empty**, otherwise the command might fail (e.g. when there are entities with the same codename already present).
 
 > [!TIP]
-> The command expects the data for import in a `.zip` file in the same [structure](#structure-of-the-exported-data) that is produced by the [export command](#export).
+> The command requires the import data in a `.zip` file with the same [structure](#structure-of-the-exported-data) as that produced by the [export command](#export).
 >
-> If you want to import data from a different structure, you can use any available tool to convert it into the supported format.
+> To import data from a different structure, you can transform it to the supported format using a tool of your choice.
 
 ### Usage
 

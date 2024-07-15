@@ -1,6 +1,6 @@
 # Kontent.ai Data Ops
 
-Data-ops is a CLI tool for working with data in your Kontent.ai projects.
+Data-ops is a CLI tool for managing data in your Kontent.ai projects.
 It runs in Node.js with ESM support (lts).
 
 [![Contributors][contributors-shield]][contributors-url]
@@ -20,7 +20,7 @@ It runs in Node.js with ESM support (lts).
 
 # Getting Started
 
-We recommend running data-ops with `npx`. Beware that `npx` calls the cached version of the tool. Use `@latest` to ensure you're using the latest version.
+We recommend running data-ops with `npx`. Be aware that `npx` calls the cached version of the tool. Use `@latest` to ensure you're using the latest version.
 ```bash
 Use `-h` or `--help` anytime to get information about available commands and their options.
 
@@ -53,7 +53,7 @@ The tool usage is based on commands provided in the following format:
 npx @kontent-ai/data-ops@latest <command-name> <command-options>
 ```
 
-The instructions for every command are presented in the README.md files in the command's individual folders ([./src/commands](./src/commands)). Data-ops supports these commands:
+The instructions for individual commands are provided in the README.md files located in each command's respective folder (./src/commands). Data-ops supports the following commands:
 - [import & export](./src/commands/importExport/README.md)
 - [clean](./src/commands/clean/README.md)
 - [sync](./src/commands/sync/README.md)
@@ -75,6 +75,7 @@ TypeScript in tests is handled by [ts-jest](https://www.npmjs.com/package/ts-jes
 
 * `npm run test:unit` to run unit tests
 * `npm run test:integration` to run integration tests (these create temporary Kontent.ai environments and delete them afterwards, interrupting the tests while they're running may lead to orphaned environments in your project)
+* `npm run test:advancedDiff` compares generated advanced diff with a test baseline. Part of integration tests.
 
 ### Configuration
 
@@ -85,14 +86,14 @@ The configuration is only necessary to run the integration tests.
 
 ## Structure
 
-The main part of the tool is in the `src` folder.
-The project is structured around commands, with each command defined on the [yargs](https://yargs.js.org/) object in its own folder (with the same name) in the `src/commands` folder.
+The main part of the tool is located in the `src` folder.
+The project is structured around commands, with each command defined on the [yargs](https://yargs.js.org/) object in a folder of the same name within the `src/commands` folder.
 The exported `register` function (of type `RegisterCommand`) must be included in `src/index.ts` in the `commandsToRegister` array.
 
-You can find tests in the `tests/integration` and `tests/unit` folders.
-Integration tests require Kontent.ai environments and a valid MAPI key to run.
+Tests can be found in `tests/integration` and `tests/unit` folders.
+Integration tests require Kontent.ai environments and a valid MAPI key for successful execution.
 You can use the `withTestEnvironment` function to provide the tests with a new empty environment.
-Try to limit the number of tests that require the environment as it takes some time to create and remove it.
+Please note that creation and removal of new environments takes some time, therefore try to keep the number of environment-dependent tests to a minimum.
 
 [contributors-shield]: https://img.shields.io/github/contributors/kontent-ai/data-ops.svg?style=for-the-badge
 [contributors-url]: https://github.com/kontent-ai/data-ops/graphs/contributors

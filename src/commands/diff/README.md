@@ -9,12 +9,12 @@ By default, `diff` command outputs to CLI, in a slightly altered format of [Kont
 
 By specifying the `-a, --advanced` flag in the `diff` command, you can opt for visual diff instead. This will generate an HTML file at a path specified by `-o, --outPath` parameter (mandatory if `-a` is used). The generated diff file should open automatically if the process succeeds. You can suppress automatic file opening by using `-n, --noOpen` flag.
 
-Advanced output comes in the form of a stylized, interactive overview of all the differences between two content models, such as total number and type of changes to individual entity types, as well as detailed information on each modified entity and its respective changeset. It provides a human readable alternative to the default diff and improves shareability by exporting to a standalone file.
+Advanced output comes in the form of a stylized, interactive overview of all the differences between two content models. It includes the total number and types of changes to individual entity types, along with detailed information on each modified entity and its changeset, with emphasis on human-readability.
 
 > [!TIP]
 > You can specify both directory and file paths with `-o` parameter. If you provide a file path (with `.html` suffix), the generated diff will have the name of your choice. For directory paths, a default naming convention will be used (`diff_<current UTC dateTime>.html`). 
 >
-> In both cases, directories are created automatically if they don't exist yet.
+> In both cases, directories along the path are created automatically if they don't exist yet.
 
 ### Showcase
 
