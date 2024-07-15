@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { dirname } from "path";
+import { dirname, resolve } from "path";
 
 import { logError, LogOptions } from "../../log.js";
 import {
@@ -14,7 +14,7 @@ import { DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 export const generateDiff = (diffData: DiffData) => {
   const logOptions: LogOptions = diffData;
   const resolvedPath = diffData.outPath ? resolveOutputPath(diffData.outPath) : false;
-  const templateString = readHtmlFile("./diffTemplate.html", logOptions);
+  const templateString = readHtmlFile(resolve(import.meta.dirname, "./utils/diffTemplate.html"), logOptions);
   const resolvedTemplate = resolveHtmlTemplate(templateString, diffData);
 
   if (!resolvedPath) {
