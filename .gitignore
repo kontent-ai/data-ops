@@ -3,6 +3,7 @@ build/
 
 # Tests tmp data
 tests/integration/importExport/data/exportedData.zip
+tests/integration/sync/content/data/sourceContent.zip
 tests/integration/sync/data/sourceContentModel/*
 
 # MacOS

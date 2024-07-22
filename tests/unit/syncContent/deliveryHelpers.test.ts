@@ -6,16 +6,15 @@ import {
   getDeliveryUrlParams,
   MigrateOptionsParams,
 } from "../../../src/modules/syncContent/syncContent";
-import { DeliveryParamsOptions } from "../../../src/modules/syncContent/utils/deliveryHelpers";
 import * as deliveryHelpers from "../../../src/modules/syncContent/utils/deliveryHelpers";
 import { Replace } from "../../../src/utils/types";
 
-describe("makeDeliveryUrl", () => {
+describe("createDeliveryUrlParameters", () => {
   it("should return correct parameters for language and last parameter", () => {
     const params = {
       language: "default",
       limit: 10,
-    } as const satisfies DeliveryParamsOptions;
+    } as const;
 
     const parameters = deliveryHelpers.createDeliveryUrlParameters(params);
 
@@ -32,7 +31,7 @@ describe("makeDeliveryUrl", () => {
       language: "default",
       order: ["system.codename", "asc"],
       inFilter: ["codename", ["item1", "item2"]],
-    } as const satisfies DeliveryParamsOptions;
+    } as const;
 
     const parameters = deliveryHelpers.createDeliveryUrlParameters(params);
 
