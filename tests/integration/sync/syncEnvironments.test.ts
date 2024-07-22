@@ -8,7 +8,8 @@ import {
   contentTypeSnippetsFileName,
   taxonomiesFileName,
 } from "../../../src/modules/sync/constants/filename";
-import { expectSameSyncEnvironments } from "../importExport/utils/compare";
+import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare";
+import { loadAllEnvData } from "../importExport/utils/envData";
 import { runCommand } from "../utils/runCommand";
 import { withTestEnvironment } from "../utils/setup";
 
@@ -25,6 +26,18 @@ if (!SYNC_SOURCE_TEST_ENVIRONMENT_ID) {
 if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
   throw new Error("SYNC_TARGET_TEST_ENVIRONMENT_ID env variable was not provided.");
 }
+
+const expectSameSyncEnvironments = async (
+  environmentId1: string,
+  environmentId2: string,
+): Promise<void> => {
+  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies"] })
+    .then(prepareReferences);
+  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies"] })
+    .then(prepareReferences);
+
+  expectSameAllEnvData(data1, data2, { include: ["types", "snippets", "taxonomies"] });
+};
 
 describe("Sync two environments with credentials", () => {
   it.concurrent(

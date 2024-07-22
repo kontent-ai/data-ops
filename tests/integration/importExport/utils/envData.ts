@@ -46,6 +46,28 @@ export type AllEnvData = Readonly<{
   webhooks: ReadonlyArray<WebhookContracts.IWebhookContract>;
 }>;
 
+export const loadVariantsByItemCodename = async (
+  envId: string,
+  itemCodenames: ReadonlyArray<string>,
+): Promise<AllEnvData> => {
+  const client = new ManagementClient({
+    apiKey: API_KEY,
+    environmentId: envId,
+  });
+
+  const variants = (await Promise.all(
+    itemCodenames.map(async (codename) =>
+      client
+        .listLanguageVariantsOfItem()
+        .byItemCodename(codename)
+        .toPromise()
+        .then(r => r.data.items.map(i => i._raw))
+    ),
+  )).flat();
+
+  return { ...emptyAllEnvData, variants };
+};
+
 export const loadAllEnvData = (envId: string, filterParam: FilterParam = { exclude: [] }) => {
   const client = new ManagementClient({
     apiKey: API_KEY,
@@ -183,3 +205,20 @@ const loadFile = (zip: StreamZipAsync, fileName: string) =>
     .then(b => b.toString("utf8"))
     .then(JSON.parse)
     .catch(() => undefined);
+
+export const emptyAllEnvData: AllEnvData = {
+  collections: [],
+  spaces: [],
+  languages: [],
+  previewUrls: { space_domains: [], preview_url_patterns: [] },
+  taxonomies: [],
+  assetFolders: [],
+  assets: [],
+  roles: [],
+  workflows: [],
+  snippets: [],
+  types: [],
+  items: [],
+  variants: [],
+  webhooks: [],
+};
