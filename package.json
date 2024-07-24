@@ -22,7 +22,7 @@
     "data-ops": "./build/src/index.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.10"
   },
   "repository": {
     "type": "git",
