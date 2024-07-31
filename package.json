@@ -41,7 +41,7 @@
     "@kontent-ai/core-sdk": "^10.5.0",
     "@kontent-ai/delivery-sdk": "^14.9.0",
     "@kontent-ai/management-sdk": "^6.2.1",
-    "@kontent-ai/migration-toolkit": "^1.3.0",
+    "@kontent-ai/migration-toolkit": "^1.4.0",
     "@kontent-ai/rich-text-resolver": "^1.1.0-beta",
     "archiver": "^6.0.2",
     "axios": "^1.7.2",
