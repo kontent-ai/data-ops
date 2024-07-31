@@ -494,18 +494,9 @@ const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantCo
             ?? "non-existing-step",
       },
     },
-    workflow_step: {
-      id: data.workflows.map(wf => wf.scheduled_step.id).includes(variant.workflow_step.id ?? "") // TODO: remove once we schedule variants when importing (currently it is not possible and scheduled variants are put to draft)
-        ? data.workflows
-          .find(wf => wf.id === variant.workflow.workflow_identifier.id)
-          ?.steps[0]?.codename
-          ?? "non-existing-step"
-        : data.workflows
-          .flatMap(getAllSteps)
-          .find(step => step.id === variant.workflow_step.id)?.codename
-          ?? "non-existing-step",
-    },
     elements: variant.elements.map(createPrepareVariantElementReferences(data)),
+    due_date: variant.due_date,
+    schedule: variant.schedule,
   });
 
 const createPrepareVariantElementReferences: PrepareReferencesCreator<ElementContracts.IContentItemElementContract> =
