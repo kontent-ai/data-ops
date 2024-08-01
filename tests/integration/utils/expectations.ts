@@ -1,6 +1,6 @@
 import { expect } from "@jest/globals";
 
-import { runCommand } from "./runCommand";
+import { runCommand } from "./runCommand.ts";
 
 export const expectHelpText = async (output: string, forCommand = "") => {
   const helpText = await runCommand(`${forCommand} -h`).then(res => res.stdout);

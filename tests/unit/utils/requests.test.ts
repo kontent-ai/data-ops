@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { serially, seriallyReduce } from "../../../src/utils/requests";
+import { serially, seriallyReduce } from "../../../src/utils/requests.ts";
 
 describe("request utils", () => {
   describe("serially", () => {

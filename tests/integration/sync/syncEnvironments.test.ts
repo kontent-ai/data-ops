@@ -7,11 +7,11 @@ import {
   contentTypesFileName,
   contentTypeSnippetsFileName,
   taxonomiesFileName,
-} from "../../../src/modules/sync/constants/filename";
-import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare";
-import { loadAllEnvData } from "../importExport/utils/envData";
-import { runCommand } from "../utils/runCommand";
-import { withTestEnvironment } from "../utils/setup";
+} from "../../../src/modules/sync/constants/filename.ts";
+import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
+import { loadAllEnvData } from "../importExport/utils/envData.ts";
+import { runCommand } from "../utils/runCommand.ts";
+import { withTestEnvironment } from "../utils/setup.ts";
 
 dotenvConfig();
 

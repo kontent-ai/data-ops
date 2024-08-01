@@ -1,8 +1,8 @@
 import { describe, it } from "@jest/globals";
 
-import { runCommand } from "../utils/runCommand";
-import { withTestEnvironment } from "../utils/setup";
-import { expectSameEnvironments } from "./utils/compare";
+import { runCommand } from "../utils/runCommand.ts";
+import { withTestEnvironment } from "../utils/setup.ts";
+import { expectSameEnvironments } from "./utils/compare.ts";
 
 const { API_KEY, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, EMPTY_TEST_ENVIRONMENT_ID } = process.env;
 

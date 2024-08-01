@@ -18,8 +18,8 @@ import {
 import { config as dotenvConfig } from "dotenv";
 import StreamZip, { StreamZipAsync } from "node-stream-zip";
 
-import { serially } from "../../../../src/utils/requests";
-import { FilterParam } from "./compare";
+import { serially } from "../../../../src/utils/requests.ts";
+import { FilterParam } from "./compare.ts";
 
 dotenvConfig();
 

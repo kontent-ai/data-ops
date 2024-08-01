@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { taxonomyGroupHandler } from "../../../../src/modules/sync/diff/taxonomy";
-import { TaxonomySyncModel } from "../../../../src/modules/sync/types/syncModel";
+import { taxonomyGroupHandler } from "../../../../src/modules/sync/diff/taxonomy.ts";
+import { TaxonomySyncModel } from "../../../../src/modules/sync/types/syncModel.ts";
 
 const makeTerm = (name: string): TaxonomySyncModel => ({
   name,

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 import { ContentTypeContracts } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../../src/log";
-import { transformContentTypeModel } from "../../../src/modules/sync/modelTransfomers/contentTypes";
-import { ContentTypeWithUnionElements } from "../../../src/modules/sync/types/contractModels";
+import { LogOptions } from "../../../src/log.ts";
+import { transformContentTypeModel } from "../../../src/modules/sync/modelTransfomers/contentTypes.ts";
+import { ContentTypeWithUnionElements } from "../../../src/modules/sync/types/contractModels.ts";
 
 const logOptions: LogOptions = {
   logLevel: "none",

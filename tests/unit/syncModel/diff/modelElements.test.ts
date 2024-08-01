@@ -4,16 +4,16 @@ import {
   makeAssetElementHandler,
   makeGuidelinesElementHandler,
   makeRichTextElementHandler,
-} from "../../../../src/modules/sync/diff/modelElements";
-import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation";
+} from "../../../../src/modules/sync/diff/modelElements.ts";
+import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
 import {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   SyncAssetElement,
   SyncGuidelinesElement,
   SyncRichTextElement,
-} from "../../../../src/modules/sync/types/syncModel";
-import { removeSpaces } from "./utils";
+} from "../../../../src/modules/sync/types/syncModel.ts";
+import { removeSpaces } from "./utils.ts";
 
 const basicType: ContentTypeSnippetsSyncModel = {
   name: "type",

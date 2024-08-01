@@ -1,8 +1,8 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import * as fs from "fs";
 
-import { MigrationStatus } from "../../../src/modules/migrations/models/status";
-import { createDefaultReadStatus, updateEnvironmentStatus } from "../../../src/modules/migrations/utils/statusUtils";
+import { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
+import { createDefaultReadStatus, updateEnvironmentStatus } from "../../../src/modules/migrations/utils/statusUtils.ts";
 
 const createMigrationStatus = (
   name: string,

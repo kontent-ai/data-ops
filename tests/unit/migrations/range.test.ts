@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { parseRange, validateRange } from "../../../src/modules/migrations/utils/rangeUtils";
+import { parseRange, validateRange } from "../../../src/modules/migrations/utils/rangeUtils.ts";
 
 describe("parseRange", () => {
   [

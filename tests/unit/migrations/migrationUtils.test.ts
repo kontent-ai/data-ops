@@ -1,14 +1,14 @@
 import { describe, expect, it, jest } from "@jest/globals";
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { Migration } from "../../../src/modules/migrations/models/migration";
-import { MigrationStatus } from "../../../src/modules/migrations/models/status";
+import { Migration } from "../../../src/modules/migrations/models/migration.ts";
+import { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
 import {
   executeMigrations,
   filterMigrations,
   getMigrationsToSkip,
   getMigrationsWithDuplicateOrders,
-} from "../../../src/modules/migrations/utils/migrationUtils";
+} from "../../../src/modules/migrations/utils/migrationUtils.ts";
 
 const migrations = [
   { name: "Migration1", module: { order: 1, run: async () => {} } },

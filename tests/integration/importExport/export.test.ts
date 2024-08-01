@@ -2,10 +2,10 @@ import { describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 
-import { expectHelpText } from "../utils/expectations";
-import { CommandError, runCommand } from "../utils/runCommand";
-import { expectSameAllEnvData } from "./utils/compare";
-import { loadAllEnvData, loadAllEnvDataFromZip } from "./utils/envData";
+import { expectHelpText } from "../utils/expectations.ts";
+import { CommandError, runCommand } from "../utils/runCommand.ts";
+import { expectSameAllEnvData } from "./utils/compare.ts";
+import { loadAllEnvData, loadAllEnvDataFromZip } from "./utils/envData.ts";
 
 dotenvConfig();
 
