@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { makeContentTypeHandler } from "../../../../src/modules/sync/diff/contentType";
-import { ContentTypeSyncModel } from "../../../../src/modules/sync/types/syncModel";
-import { removeSpaces } from "./utils";
+import { makeContentTypeHandler } from "../../../../src/modules/sync/diff/contentType.ts";
+import { ContentTypeSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";
+import { removeSpaces } from "./utils.ts";
 
 describe("makeContentTypeHandler", () => {
   it("creates operations for all changed properties", () => {

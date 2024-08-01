@@ -7,7 +7,7 @@ import {
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../../src/log";
+import { LogOptions } from "../../../src/log.ts";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -20,8 +20,11 @@ import {
   transformSubpagesElement,
   transformTaxonomyElement,
   transformUrlSlugElement,
-} from "../../../src/modules/sync/modelTransfomers/elementTransformers";
-import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../../../src/modules/sync/types/contractModels";
+} from "../../../src/modules/sync/modelTransfomers/elementTransformers.ts";
+import {
+  ContentTypeSnippetsWithUnionElements,
+  SnippetElement,
+} from "../../../src/modules/sync/types/contractModels.ts";
 
 const logOptions: LogOptions = {
   logLevel: "none",

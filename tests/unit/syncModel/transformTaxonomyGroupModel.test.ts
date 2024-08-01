@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { TaxonomyContracts } from "@kontent-ai/management-sdk";
 
-import { transformTaxonomyGroupsModel } from "../../../src/modules/sync/modelTransfomers/taxonomyGroups";
+import { transformTaxonomyGroupsModel } from "../../../src/modules/sync/modelTransfomers/taxonomyGroups.ts";
 
 const input = [
   {

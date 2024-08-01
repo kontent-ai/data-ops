@@ -5,9 +5,9 @@ import {
   extractItemsCodenamesFromResponse,
   getDeliveryUrlParams,
   MigrateOptionsParams,
-} from "../../../src/modules/syncContent/syncContent";
-import * as deliveryHelpers from "../../../src/modules/syncContent/utils/deliveryHelpers";
-import { Replace } from "../../../src/utils/types";
+} from "../../../src/modules/syncContent/syncContent.ts";
+import * as deliveryHelpers from "../../../src/modules/syncContent/utils/deliveryHelpers.ts";
+import { Replace } from "../../../src/utils/types.ts";
 
 describe("createDeliveryUrlParameters", () => {
   it("should return correct parameters for language and last parameter", () => {

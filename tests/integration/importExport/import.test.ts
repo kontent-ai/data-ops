@@ -1,10 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
 
-import { expectHelpText } from "../utils/expectations";
-import { CommandError, runCommand } from "../utils/runCommand";
-import { withTestEnvironment } from "../utils/setup";
-import { expectSameEnvironments } from "./utils/compare";
+import { expectHelpText } from "../utils/expectations.ts";
+import { CommandError, runCommand } from "../utils/runCommand.ts";
+import { withTestEnvironment } from "../utils/setup.ts";
+import { expectSameEnvironments } from "./utils/compare.ts";
 import {
   expectNoAssetFolders,
   expectNoAssets,
@@ -15,7 +15,7 @@ import {
   expectNoTypes,
   expectNoWebhooks,
   expectNoWorkflows,
-} from "./utils/isEmpty";
+} from "./utils/isEmpty.ts";
 
 dotenvConfig();
 

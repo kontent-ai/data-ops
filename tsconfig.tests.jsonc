@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "es2022",
+    "target": "es2023",
     "lib": [
       "esnext"
     ],
@@ -11,10 +11,8 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
-
     // needs to be added chalk to be processed
-    "allowJs":true,
-
+    "allowJs": true,
     /* Emit */
     "noEmit": true,
     /* Type Checking */

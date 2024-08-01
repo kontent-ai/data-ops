@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { ContentTypeElements } from "@kontent-ai/management-sdk";
 
-import { getRequiredIds } from "../../../src/modules/sync/utils/contentTypeHelpers";
+import { getRequiredIds } from "../../../src/modules/sync/utils/contentTypeHelpers.ts";
 
 const assetElements: ContentTypeElements.IAssetElement[] = [
   {

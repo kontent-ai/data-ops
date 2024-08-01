@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 
-import { replaceRichTextReferences } from "../../../src/modules/importExport/importExportEntities/entities/utils/richText";
+import { replaceRichTextReferences } from "../../../src/modules/importExport/importExportEntities/entities/utils/richText.ts";
 
 describe("replaceRichTextReferences", () => {
   it("replaces asset references as internal id", () => {

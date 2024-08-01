@@ -1,9 +1,9 @@
 import { describe, expect, it } from "@jest/globals";
 import { ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../../src/log";
-import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel";
-import { transformContentTypeSnippetsModel } from "../../../src/modules/sync/modelTransfomers/contentTypeSnippets";
+import { LogOptions } from "../../../src/log.ts";
+import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
+import { transformContentTypeSnippetsModel } from "../../../src/modules/sync/modelTransfomers/contentTypeSnippets.ts";
 
 const logOptions: LogOptions = {
   logLevel: "none",

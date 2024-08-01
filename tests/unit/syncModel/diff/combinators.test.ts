@@ -15,8 +15,8 @@ import {
   makeProvideHandler,
   makeUnionHandler,
   optionalHandler,
-} from "../../../../src/modules/sync/diff/combinators";
-import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation";
+} from "../../../../src/modules/sync/diff/combinators.ts";
+import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
 
 describe("makeObjectHandler", () => {
   it("concatenates results of all property handlers and prepends property names to paths", () => {
