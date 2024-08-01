@@ -57,7 +57,7 @@ export const makeLeafObjectHandler = <Entity extends object>(
     zip(Object.values(sourceValue), Object.values(targetValue)),
   )
     .some(([key, [source, target]]) =>
-      customComparers[key] ? !customComparers[key]?.(source, target) : source !== target
+      customComparers[key] ? !customComparers[key](source, target) : source !== target
     );
 
   return shouldReplace

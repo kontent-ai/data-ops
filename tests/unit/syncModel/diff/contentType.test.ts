@@ -190,7 +190,7 @@ describe("makeContentTypeHandler", () => {
         ...op,
         value: op.op === "addInto" && typeof op.value === "object" && op.value !== null && "guidelines" in op.value
             && typeof op.value.guidelines === "string"
-          ? { ...op.value ?? {}, guidelines: removeSpaces(op.value.guidelines) }
+          ? { ...op.value, guidelines: removeSpaces(op.value.guidelines) }
           : {},
       }));
 
