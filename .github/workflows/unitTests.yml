@@ -15,4 +15,5 @@ jobs:
         with:
           node-version-file: ".nvmrc"
       - run: npm ci
+      - run: npm run checkTests
       - run: npm run test:unit
