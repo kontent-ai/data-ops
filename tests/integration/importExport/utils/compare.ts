@@ -496,7 +496,12 @@ const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantCo
     },
     elements: variant.elements.map(createPrepareVariantElementReferences(data)),
     due_date: variant.due_date,
-    schedule: variant.schedule,
+    schedule: { // TODO: use variant.schedule once we schedule variants when importing
+      publish_time: null,
+      unpublish_time: null,
+      publish_display_timezone: null,
+      unpublish_display_timezone: null,
+    },
   });
 
 const createPrepareVariantElementReferences: PrepareReferencesCreator<ElementContracts.IContentItemElementContract> =
