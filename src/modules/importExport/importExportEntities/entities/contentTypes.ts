@@ -7,7 +7,6 @@ import {
 } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
-import { spotlightInUseErrorCode } from "../../../../constants/responseCodes.js";
 import { logInfo, LogOptions } from "../../../../log.js";
 import { getRequired } from "../../../../modules/importExport/import/utils.js";
 import { zip } from "../../../../utils/array.js";
@@ -59,19 +58,7 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
           client
             .deleteContentType()
             .byTypeId(type.id)
-            .toPromise()
-            .catch(async (err) => {
-              if (
-                err instanceof SharedModels.ContentManagementBaseKontentError
-                && err.errorCode === spotlightInUseErrorCode
-              ) {
-                // subpages element must be present on WS root
-                await cleanElementsFromType(client, type, ["subpages"]);
-                return err;
-              } else {
-                throw err;
-              }
-            }),
+            .toPromise(),
       ),
     ).then((res) =>
       res
@@ -235,21 +222,4 @@ const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (typ
     .byTypeCodename(type.codename)
     .withData(patchOps)
     .toPromise();
-};
-
-const cleanElementsFromType = (client: ManagementClient, type: Type, excludeElementTypes?: string[]) => {
-  const patchOps = type.elements
-    .filter(el => !excludeElementTypes?.includes(el.type))
-    .map(el => ({
-      op: "remove" as const,
-      path: `/elements/id:${el.id}`,
-    }));
-
-  return !patchOps.length
-    ? Promise.resolve()
-    : client
-      .modifyContentType()
-      .byTypeId(type.id)
-      .withData(patchOps)
-      .toPromise();
 };

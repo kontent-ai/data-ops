@@ -12,7 +12,6 @@ export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceC
   serializeEntities: spaces => JSON.stringify(spaces),
   deserializeEntities: JSON.parse,
   importEntities: async (client, entities, context, logOptions) => {
-    // does not add web_spotlight_root as it is not possible to activate Web Spotlight with MAPI
     const newSpaces = await serially(entities.map(importSpace => () => {
       logInfo(logOptions, "verbose", `Importing: space ${importSpace.id} (${chalk.yellow(importSpace.name)})`);
 
