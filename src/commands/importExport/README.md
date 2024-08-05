@@ -34,6 +34,7 @@ Format of all the entities is compatible with the output of the [Management API]
 |- previewUrls.json # https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/Preview-URLs
 |- roles.json # https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/Roles
 |- workflows.json # https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/Workflows
+|- webSpotlight.json # https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/Web-spotlight
 ```
 You can check out exported data of an example project in [the data for integration tests](https://github.com/kontent-ai/data-ops/blob/main/tests/integration/importExport/data/exportSnapshot.zip).
 
@@ -78,9 +79,6 @@ Published language variants that don't exist in any other workflow step are expo
 
 ### Content Scheduled For Publishing
 As the current API format doesn't support inclusion of the publishing time for variants scheduled to be published, the tool instead puts the scheduled variants into the draft step (the first step in the workflow).
-
-### Web Spotlight
-[Web Spotlight](https://kontent.ai/learn/develop/hello-web-spotlight) currently can't be enabled through the tool. As a result, it is not possible to set root item for spaces as this can only be done on environments with Web Spotlight enabled.
 
 ### Asset Size
 The management API accepts only assets smaller than 100MB.

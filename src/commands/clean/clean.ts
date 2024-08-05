@@ -1,6 +1,3 @@
-import readline from "node:readline";
-
-import { SharedModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
@@ -15,17 +12,19 @@ import { previewUrlsEntity } from "../../modules/importExport/importExportEntiti
 import { spacesEntity } from "../../modules/importExport/importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "../../modules/importExport/importExportEntities/entities/taxonomies.js";
 import { webhooksEntity } from "../../modules/importExport/importExportEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "../../modules/importExport/importExportEntities/entities/webSpotlight.js";
 import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
 import { EntityDefinition } from "../../modules/importExport/importExportEntities/entityDefinition.js";
+import { requestConfirmation } from "../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { serially } from "../../utils/requests.js";
-import { isSpotlightInUseError } from "../../utils/typeguards.js";
 
 /**
  * order of this array corresponds with order of individual clean operations.
  */
 const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
+  webSpotlightEntity,
   spacesEntity,
   contentItemsEntity,
   taxonomiesEntity,
@@ -124,62 +123,30 @@ const cleanEnvironment = async (
       logInfo(params, "standard", `Removing ${chalk.yellow(def.displayName)}`);
 
       const entities = await def.fetchEntities(client);
-      return def.cleanEntities(client, entities, params).catch(err => handleError(params, err, def));
+
+      return def.cleanEntities(client, entities, params)
+        .catch(err => handleError(params, err, def));
     }),
-  ).then(res => {
-    const spotlightWarning = res.filter(
-        e => e instanceof SharedModels.ContentManagementBaseKontentError,
-      ).length
-      ? chalk.cyan(
-        "\n⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment. Please disable Web Spotlight and run the clean operation again or remove the types manually.",
-      )
-      : "";
+  );
 
-    logInfo(
-      params,
-      "standard",
-      chalk.green(`Environment clean finished successfully.${spotlightWarning}`),
-    );
-  });
+  logInfo(
+    params,
+    "standard",
+    chalk.green("Environment clean finished successfully."),
+  );
 };
-
-const getErrorMessages = (
-  err: any,
-) =>
-  [
-    ...err instanceof SharedModels.ContentManagementBaseKontentError
-      ? [err.message, ...err.validationErrors.map(e => e.message)]
-      : [err.message ?? JSON.stringify(err, Object.getOwnPropertyNames(err))],
-  ].join("\n");
 
 const handleError = <T extends LogOptions>(
   params: T,
-  err: any,
+  err: unknown,
   entity: EntityDefinition<T>,
 ) => {
-  if (isSpotlightInUseError(err)) {
-    return err;
-  } else {
-    logError(
-      params,
-      `Failed to clean entity ${chalk.red(entity.displayName)}.`,
-      `Message: ${getErrorMessages(err)}`,
-      "\nStopping clean operation...",
-    );
-    process.exit(1);
-  }
-};
+  logError(
+    params,
+    `Failed to clean entity ${chalk.red(entity.displayName)}.`,
+    JSON.stringify(err, Object.getOwnPropertyNames(err)),
+    "\nStopping clean operation...",
+  );
 
-const requestConfirmation = async (message: string) => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise<boolean>(resolve => {
-    rl.question(message, answer => {
-      rl.close();
-      resolve(answer.trim().toLowerCase() === "y");
-    });
-  });
+  process.exit(1);
 };
