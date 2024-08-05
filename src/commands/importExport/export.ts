@@ -19,6 +19,7 @@ import { rolesExportEntity } from "../../modules/importExport/importExportEntiti
 import { spacesEntity } from "../../modules/importExport/importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "../../modules/importExport/importExportEntities/entities/taxonomies.js";
 import { webhooksEntity } from "../../modules/importExport/importExportEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "../../modules/importExport/importExportEntities/entities/webSpotlight.js";
 import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
 import { EntityExportDefinition } from "../../modules/importExport/importExportEntities/entityDefinition.js";
 import { RegisterCommand } from "../../types/yargs.js";
@@ -46,6 +47,7 @@ const entityDefinitions: ReadonlyArray<EntityExportDefinition<any>> = [
   assetFoldersEntity,
   assetsEntity,
   webhooksEntity,
+  webSpotlightEntity,
 ];
 
 const entityChoices = entityDefinitions.map(e => e.name);

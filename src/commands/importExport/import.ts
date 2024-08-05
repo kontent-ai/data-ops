@@ -20,6 +20,7 @@ import { previewUrlsEntity } from "../../modules/importExport/importExportEntiti
 import { spacesEntity } from "../../modules/importExport/importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "../../modules/importExport/importExportEntities/entities/taxonomies.js";
 import { webhooksEntity } from "../../modules/importExport/importExportEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "../../modules/importExport/importExportEntities/entities/webSpotlight.js";
 import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
 import {
   EntityImportDefinition,
@@ -40,6 +41,7 @@ const entityDefinitions: ReadonlyArray<EntityImportDefinition<any>> = [
   assetsEntity,
   contentTypesSnippetsEntity,
   contentTypesEntity,
+  webSpotlightEntity,
   contentItemsEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
   updateItemAndTypeReferencesInTypesImportEntity,

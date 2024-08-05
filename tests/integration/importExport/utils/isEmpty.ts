@@ -78,17 +78,13 @@ export const expectNoSnippets = async (envId: string) => {
   expect(assets).toStrictEqual([]);
 };
 
-export const expectNoTypes = async (envId: string, excludeSpotlightRoot = false) => {
+export const expectNoTypes = async (envId: string) => {
   const client = makeClientFor(envId);
 
-  const unfilteredTypes = await client
+  const types = await client
     .listContentTypes()
     .toAllPromise()
     .then(res => res.data.items);
-
-  const types = excludeSpotlightRoot
-    ? unfilteredTypes.filter((t) => t.codename !== "web_spotlight_root")
-    : unfilteredTypes;
 
   expect(types).toStrictEqual([]);
 };
