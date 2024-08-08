@@ -12,6 +12,29 @@ export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
 
   logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPES:"));
   printDiffEntity(diffModel.contentTypes, "content types", logOptions);
+
+  if (diffModel.webSpotlight.change !== "none") {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nWEB SPOTLIGHT:"));
+    switch (diffModel.webSpotlight.change) {
+      case "activate":
+        logInfo(
+          logOptions,
+          "standard",
+          `Web Spotlight is to be activated with root type: ${chalk.green(diffModel.webSpotlight.rootTypeCodename)}`,
+        );
+        break;
+      case "changeRootType":
+        logInfo(
+          logOptions,
+          "standard",
+          `Web Spotlight root type is changed to: ${chalk.green(diffModel.webSpotlight.rootTypeCodename)}`,
+        );
+        break;
+      case "deactivate":
+        logInfo(logOptions, "standard", "Web Spotlight is to be deactivated");
+        break;
+    }
+  }
 };
 
 const printDiffEntity = (
@@ -20,7 +43,7 @@ const printDiffEntity = (
   logOptions: LogOptions,
 ) => {
   if (diffObject.added.length) {
-    logInfo(logOptions, "standard", `Added ${chalk.blue(entityName)}:`);
+    logInfo(logOptions, "standard", `${chalk.blue(entityName)} to Add:`);
     diffObject.added.forEach(a => {
       logInfo(logOptions, "standard", `${chalk.green(JSON.stringify(a, null, 2))}\n`);
     });
@@ -29,7 +52,7 @@ const printDiffEntity = (
   }
 
   if (Array.from(diffObject.updated.values()).some(o => o.length)) {
-    logInfo(logOptions, "standard", `Updated ${chalk.blue(entityName)}:`);
+    logInfo(logOptions, "standard", `${chalk.blue(entityName)} to update:`);
     Array.from(diffObject.updated.entries()).sort().forEach(([codename, value]) => {
       if (value.length) {
         logInfo(logOptions, "standard", `Entity codename: ${chalk.blue(codename)}`);
@@ -44,7 +67,7 @@ const printDiffEntity = (
     logInfo(
       logOptions,
       "standard",
-      `Deleted ${chalk.blue(entityName)} with codenames: ${chalk.red(Array.from(diffObject.deleted).join(","))}\n`,
+      `${chalk.blue(entityName)} to delete with codenames: ${chalk.red(Array.from(diffObject.deleted).join(","))}\n`,
     );
   } else {
     logInfo(logOptions, "standard", `No ${chalk.blue(entityName)} to delete.`);

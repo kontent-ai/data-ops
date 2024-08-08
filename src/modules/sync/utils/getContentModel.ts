@@ -2,10 +2,20 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import * as fs from "fs/promises";
 
 import { LogOptions } from "../../../log.js";
-import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "../constants/filename.js";
+import {
+  contentTypesFileName,
+  contentTypeSnippetsFileName,
+  taxonomiesFileName,
+  webSpotlightFileName,
+} from "../constants/filename.js";
 import { fetchModel, transformSyncModel } from "../generateSyncModel.js";
 import { FileContentModel } from "../types/fileContentModel.js";
-import { ContentTypeSnippetsSyncModel, ContentTypeSyncModel, TaxonomySyncModel } from "../types/syncModel.js";
+import {
+  ContentTypeSnippetsSyncModel,
+  ContentTypeSyncModel,
+  TaxonomySyncModel,
+  WebSpotlightSyncModel,
+} from "../types/syncModel.js";
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "./fetchers.js";
 
@@ -17,19 +27,20 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
 
   const snippets = JSON.parse(
     await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8"),
-  ) as unknown as ReadonlyArray<
-    ContentTypeSnippetsSyncModel
-  >;
+  ) as ReadonlyArray<ContentTypeSnippetsSyncModel>;
   const taxonomyGroups = JSON.parse(
     await fs.readFile(`${folderName}/${taxonomiesFileName}`, "utf8"),
-  ) as unknown as ReadonlyArray<
-    TaxonomySyncModel
-  >;
+  ) as ReadonlyArray<TaxonomySyncModel>;
+
+  const webSpotlight = JSON.parse(
+    await fs.readFile(`${folderName}/${webSpotlightFileName}`, "utf8"),
+  ) as WebSpotlightSyncModel;
 
   return {
     contentTypes,
     contentTypeSnippets: snippets,
     taxonomyGroups: taxonomyGroups,
+    webSpotlight,
   };
 };
 

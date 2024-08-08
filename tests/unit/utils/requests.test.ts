@@ -26,7 +26,7 @@ describe("request utils", () => {
     });
   });
 
-  describe.only("seriallyReduce", () => {
+  describe("seriallyReduce", () => {
     it("Runs all fetchers serially in the order they were provided", async () => {
       const fetchers: ReadonlyArray<(prev: ReadonlyArray<number>) => Promise<ReadonlyArray<number>>> = [
         (prev) => delay(100).then(() => [...prev, 1]),

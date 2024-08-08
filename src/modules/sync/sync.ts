@@ -14,7 +14,7 @@ import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { RequiredCodename } from "../../utils/types.js";
 import { elementTypes } from "./constants/elements.js";
 import { ElementsTypes } from "./types/contractModels.js";
-import { DiffModel } from "./types/diffModel.js";
+import { DiffModel, WebSpotlightDiffModel } from "./types/diffModel.js";
 import { getTargetCodename, PatchOperation } from "./types/patchOperation.js";
 
 const referencingElements: ReadonlyArray<ElementsTypes> = ["rich_text", "modular_content", "subpages"];
@@ -43,14 +43,17 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
   logInfo(logOptions, "standard", "Updating content types and adding their references");
   await updateContentTypesAndAddReferences(client, diff.contentTypes);
 
+  logInfo(logOptions, "standard", "Updating web spotlight");
+  await updateWebSpotlight(client, diff.webSpotlight);
+
   logInfo(logOptions, "standard", "Removing content types");
   await serially(Array.from(diff.contentTypes.deleted).map(c => () => deleteContentType(client, c)));
 
-  logInfo(logOptions, "standard", "Deleting content type snippets");
+  logInfo(logOptions, "standard", "Removing content type snippets");
   await serially(Array.from(diff.contentTypeSnippets.deleted).map(c => () => deleteSnippet(client, c)));
 
   // replace, remove, move operations
-  logInfo(logOptions, "standard", "Deleting content type snippets");
+  logInfo(logOptions, "standard", "Updating content type snippets");
   await updateSnippets(client, diff.contentTypeSnippets.updated);
 };
 
@@ -298,6 +301,21 @@ const transformTaxonomyOperations = (
     property_name: operation.op === "replace" ? propertyName : undefined,
     oldValue: undefined,
   } as unknown as TaxonomyModels.IModifyTaxonomyData;
+};
+
+const updateWebSpotlight = (client: ManagementClient, diffModel: WebSpotlightDiffModel): Promise<unknown> => {
+  switch (diffModel.change) {
+    case "none":
+      return Promise.resolve();
+    case "activate":
+    case "changeRootType":
+      return client
+        .activateWebSpotlight()
+        .withData({ root_type: { codename: diffModel.rootTypeCodename } })
+        .toPromise();
+    case "deactivate":
+      return client.deactivateWebSpotlight().toPromise();
+  }
 };
 
 const createUpdateReferenceOps = (

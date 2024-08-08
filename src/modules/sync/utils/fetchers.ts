@@ -85,3 +85,9 @@ export const fetchTaxonomies = (client: ManagementClient) =>
     .listTaxonomies()
     .toAllPromise()
     .then(res => res.data.items.map(t => t._raw));
+
+export const fetchWebSpotlight = (client: ManagementClient) =>
+  client
+    .checkWebSpotlightStatus()
+    .toPromise()
+    .then(res => res.rawData);
