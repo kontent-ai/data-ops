@@ -84,6 +84,15 @@ TypeScript in tests is handled by [ts-jest](https://www.npmjs.com/package/ts-jes
 * `npm run test:integration` to run integration tests (these create temporary Kontent.ai environments and delete them afterwards, interrupting the tests while they're running may lead to orphaned environments in your project)
 * `npm run test:advancedDiff` compares generated advanced diff with a test baseline. Part of integration tests.
 
+### Prepare your testing project
+
+To sucesfully execute integration tests, you need to prepare a Kontent.ai project with corresponding environments. You can use the [import]((./src/commands/importExport/README.md)) command to import prepared zip files located at `tests/integration/<testName>/data/<zipName>.zip`. 
+
+### Exporting tests environments
+
+All Kontent.ai test enviroments are exported in `tests/integration/<testName>/data/<zipName>.zip`. When you update any of these environments, you should also update the corresponding exported zip files. To streamline this process, we've provided a script called `exportTestEnvironments.js`. You can run it with the command `npm run export:testEnv`. If you need to export specific environments, you can use the following command parameters: `-i` for Import/Export test environment, `-s` for Sync Source Template environment, and `-t` for Sync Target Template environment. For instance, to export only the Sync Source and Sync Target environments, you would run `npm run export:testEnv -- -s -t`.
+
+
 ### Configuration
 
 The configuration is only necessary to run the integration tests.
