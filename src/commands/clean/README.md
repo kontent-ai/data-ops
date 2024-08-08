@@ -19,3 +19,18 @@ The `clean` command allows you to delete data in your Kontent.ai environment usi
 npx @kontent-ai/data-ops@latest clean --environmentId <target-environment-id> --apiKey <Management-API-key>
 ```
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest clean --help`.
+
+### Clean environments programmatically
+
+To clean data in environment in your scripts, use `cleanEnvironment` function:
+
+```ts
+import { cleanEnvironment, CleanEnvironmentParams } from "@kontent-ai/data-ops";
+
+const params: CleanEnvironmentParams = {
+  environmentId: "<env-id>",
+  apiKey: "<mapi-key>",
+};
+
+await cleanEnvironment(params);
+```

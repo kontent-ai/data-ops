@@ -8,10 +8,10 @@ import {
 import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../../../log.js";
-import { getRequired } from "../../../../modules/importExport/import/utils.js";
 import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import {
   createPatchItemAndTypeReferencesInTypeElement,
@@ -29,7 +29,7 @@ type Type = Replace<
 type TypeElement = RequiredId<ReplaceReferences<ElementContracts.IContentTypeElementContract>>;
 type ElementGroup = RequiredId<ContentTypeContracts.IContentTypeGroup>;
 
-export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
+export const contentTypesEntity = {
   name: "contentTypes",
   displayName: "contentTypes",
   fetchEntities: client =>
@@ -66,9 +66,9 @@ export const contentTypesEntity: EntityDefinition<ReadonlyArray<Type>> = {
         .map((e) => Promise.reject(e))[0]
     );
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<Type>>;
 
-export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinition<ReadonlyArray<Type>> = {
+export const updateItemAndTypeReferencesInTypesImportEntity = {
   name: "contentTypes",
   displayName: "references in contentTypes",
   isDependentOn: contentTypesEntity.name,
@@ -76,7 +76,7 @@ export const updateItemAndTypeReferencesInTypesImportEntity: EntityImportDefinit
   importEntities: async (client, fileTypes, context, logOptions) => {
     await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context, logOptions })));
   },
-};
+} as const satisfies EntityImportDefinition<ReadonlyArray<Type>>;
 
 type InsertTypeParams = Readonly<{
   client: ManagementClient;

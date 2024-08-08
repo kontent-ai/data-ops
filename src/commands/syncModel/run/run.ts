@@ -1,20 +1,14 @@
 import chalk from "chalk";
+import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
-import { diff } from "../../../modules/sync/diff.js";
-import { fetchModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
 import { printDiff } from "../../../modules/sync/printDiff.js";
 import { sync } from "../../../modules/sync/sync.js";
+import { getDiffModel, SyncModelRunParams, validateTargetEnvironment } from "../../../modules/sync/syncModelRun.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
-import {
-  getSourceItemAndAssetCodenames,
-  getTargetContentModel,
-  readContentModelFromFolder,
-} from "../../../modules/sync/utils/getContentModel.js";
-import { validateContentFolder, validateDiffedModel } from "../../../modules/sync/validation.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
-import { simplifyErrors, throwError } from "../../../utils/error.js";
+import { simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "run";
 
@@ -63,10 +57,10 @@ export const register: RegisterCommand = yargs =>
           type: "boolean",
           describe: "Skip confirmation message.",
         }),
-    handler: args => syncContentModel(args).catch(simplifyErrors),
+    handler: args => syncModelRunCli(args).catch(simplifyErrors),
   });
 
-export type SyncParams =
+type SyncModelRunCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -77,53 +71,27 @@ export type SyncParams =
   }>
   & LogOptions;
 
-export const syncContentModel = async (params: SyncParams) => {
-  if (params.folderName) {
-    const folderErrors = await validateContentFolder(params.folderName);
-    checkValidation(folderErrors, params);
-  }
+const syncModelRunCli = async (params: SyncModelRunCliParams) => {
+  const resolvedParams = resolveParams(params);
 
-  const sourceModel = params.folderName
-    ? await readContentModelFromFolder(params.folderName)
-    : transformSyncModel(
-      await fetchModel(
-        createClient({
-          environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
-          apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
-          commandName,
-        }),
-      ),
-      params,
-    );
-
-  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
-
-  const targetEnvironmentClient = createClient({
+  const targetClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
     commandName,
   });
 
-  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
-    targetEnvironmentClient,
-    allCodenames,
-    params,
-  );
-
-  const diffModel = diff({
-    targetAssetsReferencedFromSourceByCodenames: assetsReferences,
-    targetItemsReferencedFromSourceByCodenames: itemReferences,
-    targetEnvModel: transformedTargetModel,
-    sourceEnvModel: sourceModel,
-  });
-
-  printDiff(diffModel, params);
+  const diffModel = await getDiffModel(resolvedParams, targetClient, commandName);
 
   logInfo(params, "standard", "Validating patch operations...\n");
 
-  const diffErrors = await validateDiffedModel(targetEnvironmentClient, diffModel);
+  try {
+    await validateTargetEnvironment(diffModel, targetClient);
+  } catch (e) {
+    logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
+    process.exit(1);
+  }
 
-  checkValidation(diffErrors, params);
+  printDiff(diffModel, params);
 
   const warningMessage = chalk.yellow(
     `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentoined changes might include:
@@ -139,16 +107,23 @@ OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   }
 
   await sync(
-    targetEnvironmentClient,
+    targetClient,
     diffModel,
     params,
   );
 };
 
-const checkValidation = (errors: ReadonlyArray<string>, logOptions: LogOptions) => {
-  if (errors.length) {
-    errors.forEach(e => logError(logOptions, "standard", e));
-    logInfo(logOptions, "standard", chalk.red("Operation aborted"));
-    process.exit(1);
-  }
-};
+const resolveParams = (params: SyncModelRunCliParams): SyncModelRunParams =>
+  match(params)
+    .with(
+      { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
+      ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
+    )
+    .with({ folderName: P.nonNullable }, ({ folderName }) => ({ ...params, folderName }))
+    .otherwise(() => {
+      logError(
+        params,
+        "You need to provide either 'folderName' or 'sourceEnvironmentId' with 'sourceApiKey' parameters",
+      );
+      process.exit(1);
+    });

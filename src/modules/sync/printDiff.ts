@@ -1,8 +1,18 @@
 import chalk from "chalk";
+import { existsSync } from "fs";
+import { dirname, resolve } from "path";
 import { match } from "ts-pattern";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { DiffModel, DiffObject } from "./types/diffModel.js";
+import {
+  createOutputDirectory,
+  createOutputFile,
+  openOutputFile,
+  readHtmlFile,
+  resolveOutputPath,
+} from "./utils/fileUtils.js";
+import { DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
 export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
   logInfo(logOptions, "standard", chalk.blue.bold("TAXONOMY GROUPS:"));
@@ -67,5 +77,28 @@ const printDiffEntity = (
     );
   } else {
     logInfo(logOptions, "standard", `No ${chalk.blue(entityName)} to delete.`);
+  }
+};
+
+export const createAdvancedDiffFile = (diffData: DiffData) => {
+  const logOptions: LogOptions = diffData;
+  const resolvedPath = diffData.outPath ? resolveOutputPath(diffData.outPath) : false;
+  const templateString = readHtmlFile(resolve(import.meta.dirname, "./utils/diffTemplate.html"));
+  const resolvedTemplate = resolveHtmlTemplate(templateString, diffData);
+
+  if (!resolvedPath) {
+    throw new Error(`Output path not specified.`);
+  }
+
+  const outputDir = dirname(resolvedPath);
+
+  if (!existsSync(outputDir)) {
+    createOutputDirectory(outputDir, logOptions);
+  }
+
+  createOutputFile(resolvedPath, resolvedTemplate, logOptions);
+
+  if (!diffData.noOpen) {
+    openOutputFile(resolvedPath, logOptions);
   }
 };

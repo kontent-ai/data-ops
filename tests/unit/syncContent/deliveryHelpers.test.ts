@@ -4,8 +4,8 @@ import { Filters, IContentItem, IContentItemElements, Parameters, Responses } fr
 import {
   extractItemsCodenamesFromResponse,
   getDeliveryUrlParams,
-  MigrateOptionsParams,
 } from "../../../src/modules/syncContent/syncContent.ts";
+import { SyncContentFilterParams } from "../../../src/modules/syncContent/syncContentRun.ts";
 import * as deliveryHelpers from "../../../src/modules/syncContent/utils/deliveryHelpers.ts";
 import { Replace } from "../../../src/utils/types.ts";
 
@@ -48,7 +48,7 @@ describe("createDeliveryUrlParameters", () => {
 describe("getDeliveryUrlParams", () => {
   it("should return correct deliver url parameters for last cli param", () => {
     const last = 10;
-    const params: Replace<MigrateOptionsParams, { limit: number }> = { language: "default", last, limit: last };
+    const params: Replace<SyncContentFilterParams, { limit: number }> = { language: "default", last, limit: last };
 
     const parameters = getDeliveryUrlParams(params);
 
@@ -62,7 +62,7 @@ describe("getDeliveryUrlParams", () => {
 
   it("should return correct deliver url parameters for byTypeCodenames cli param", () => {
     const byTypesCodenames = ["type1", "type2"];
-    const params: Replace<MigrateOptionsParams, { limit: number }> = {
+    const params: Replace<SyncContentFilterParams, { limit: number }> = {
       language: "default",
       limit: 100,
       byTypesCodenames,
@@ -80,7 +80,7 @@ describe("getDeliveryUrlParams", () => {
 
   it("should return correct deliver url parameters for items cli param", () => {
     const items = ["item1", "item2"];
-    const params: Replace<MigrateOptionsParams, { limit: number }> = {
+    const params: Replace<SyncContentFilterParams, { limit: number }> = {
       language: "default",
       limit: 100,
       items,

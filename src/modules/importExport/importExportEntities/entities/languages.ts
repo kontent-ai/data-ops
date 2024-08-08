@@ -9,7 +9,7 @@ const defaultLanguageId = emptyId;
 const defaultLanguageName = defaultName;
 const defaultLanguageCodename = defaultCodename;
 
-export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.ILanguageModelContract>> = {
+export const languagesEntity = {
   name: "languages",
   displayName: "languages",
   fetchEntities: client => client.listLanguages().toAllPromise().then(res => res.data.items.map(l => l._raw)),
@@ -68,7 +68,7 @@ export const languagesEntity: EntityDefinition<ReadonlyArray<LanguageContracts.I
         ),
     );
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<LanguageContracts.ILanguageModelContract>>;
 
 const createReplaceCodenameOperation = (codename: string): LanguageModels.IModifyLanguageData => ({
   op: "replace",

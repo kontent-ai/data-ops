@@ -1,4 +1,5 @@
 # sync-model run
+
 > [!CAUTION] 
 > Synchronizing content model might lead to irreversible changes to the environment such as:
 > - Deletion of content by deleting elements from a content type
@@ -38,16 +39,32 @@ npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-env
 > [!NOTE]  
 > As the command might get long, we recommend passing parameters in a JSON configuration file (e.g. --configFile params.json)
 > ```JSON
-> // params.json example
 > {
->   "targetApiKey": "<target-mapi-key>",
->   "targetEnvironmentId": "<target-env-id>",
 >   "sourceEnvironmentId": "<source-env-id>",
->   "sourceApiKey": "<source-mapi-key>"
+>   "sourceApiKey": "<source-mapi-key>",
+>   "targetEnvironmentId": "<target-env-id>",
+>   "targetApiKey": "<target-mapi-key>"
 > }
 > ```
 
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-model run --help`.
+
+### Sync model programmatically
+
+To sync model in environments in your scripts, use `syncModelRun` function:
+
+```ts
+import { syncModelRun, SyncModelRunParams } from "@kontent-ai/data-ops";
+
+const params: SyncModelRunParams = {
+  sourceEnvironmentId: "<source-env-id>",
+  sourceApiKey: "<source-mapi-key>",
+  targetEnvironmentId: "<target-env-id>",
+  targetApiKey: "<target-mapi-key>"
+};
+
+await syncModelRun(params);
+```
 
 ## Known limitations
 Using Management API introduces some limitations:

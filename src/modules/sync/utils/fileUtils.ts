@@ -8,15 +8,13 @@ import { logError, logInfo, LogOptions } from "../../../log.js";
 const { resolve } = path;
 const { mkdirSync, readFileSync, writeFileSync } = fs;
 
-export const readHtmlFile = (templatePath: string, logOptions: LogOptions): string => {
+export const readHtmlFile = (templatePath: string): string => {
   try {
     return readFileSync(resolve(templatePath), "utf-8");
   } catch (err) {
-    logError(
-      logOptions,
-      `Failed reading a file at '${templatePath}': ${err instanceof Error ? err.message : JSON.stringify(err)}`,
+    throw new Error(
+      `Failed reading a file at '${templatePath}': ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
     );
-    process.exit(1);
   }
 };
 
@@ -40,8 +38,7 @@ export const createOutputFile = (path: string, content: string, logOptions: LogO
     );
     writeFileSync(path, content);
   } catch (err) {
-    logError(logOptions, `Failed writing a diff file: ${err instanceof Error ? err.message : JSON.stringify(err)}`);
-    process.exit(1);
+    throw new Error(`Failed writing a diff file: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`);
   }
 };
 
@@ -54,7 +51,7 @@ export const openOutputFile = (path: string, logOptions: LogOptions) => {
   open(path).catch((err) =>
     logError(
       logOptions,
-      `Failed to open the file: ${path}\nMessage: ${err instanceof Error ? err.message : JSON.stringify(err)}`,
+      `Failed to open the file: ${path}\nMessage: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
     )
   );
 };
@@ -68,10 +65,8 @@ export const createOutputDirectory = (path: string, logOptions: LogOptions) => {
     );
     mkdirSync(path, { recursive: true });
   } catch (err) {
-    logError(
-      logOptions,
-      `Failed to create directory '${path}': ${err instanceof Error ? err.message : JSON.stringify(err)}`,
+    throw new Error(
+      `Failed to create directory '${path}': ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
     );
-    process.exit(1);
   }
 };

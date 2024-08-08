@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export type Operation = "run" | "rollback";
+export type MigrationOperation = "run" | "rollback";
 
 export const migrationStatusSchema = z.object({
   name: z.string(),

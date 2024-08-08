@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 
 import {
+  MigrationOperation,
   MigrationStatus,
-  Operation,
   Status,
   StatusPlugin,
   statusPluginSchema,
@@ -52,7 +52,7 @@ export const createMigrationStatus = (
   name: string,
   success: boolean,
   order: number | Date,
-  lastOperation: Operation,
+  lastOperation: MigrationOperation,
 ): MigrationStatus => ({ name, time: new Date(), success, order, lastOperation });
 
 export const updateEnvironmentStatus = (

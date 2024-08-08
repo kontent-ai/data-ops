@@ -3,10 +3,10 @@ import chalk from "chalk";
 
 import { logInfo } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
-import { getRequired } from "../../import/utils.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceContract>> = {
+export const spacesEntity = {
   name: "spaces",
   displayName: "spaces",
   fetchEntities: client => client.listSpaces().toPromise().then(res => res.rawData),
@@ -63,4 +63,4 @@ export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceC
         .toPromise()
     ));
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceContract>>;

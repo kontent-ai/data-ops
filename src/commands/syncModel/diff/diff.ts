@@ -1,18 +1,9 @@
-import chalk from "chalk";
+import { match, P } from "ts-pattern";
 
-import { logInfo, LogOptions } from "../../../log.js";
-import { generateDiff } from "../../../modules/sync/advancedDiff.js";
-import { diff } from "../../../modules/sync/diff.js";
-import { fetchModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
-import { printDiff } from "../../../modules/sync/printDiff.js";
-import {
-  getSourceItemAndAssetCodenames,
-  getTargetContentModel,
-  readContentModelFromFolder,
-} from "../../../modules/sync/utils/getContentModel.js";
+import { logError, LogOptions } from "../../../log.js";
+import { diffEnvironmentsInternal, DiffEnvironmentsParams } from "../../../modules/sync/diffEnvironments.js";
 import { RegisterCommand } from "../../../types/yargs.js";
-import { createClient } from "../../../utils/client.js";
-import { simplifyErrors, throwError } from "../../../utils/error.js";
+import { simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "diff";
 
@@ -72,10 +63,10 @@ export const register: RegisterCommand = yargs =>
           alias: "n",
           implies: ["advanced"],
         }),
-    handler: args => diffAsync(args).catch(simplifyErrors),
+    handler: args => diffEnvironmentsCli(args).catch(simplifyErrors),
   });
 
-export type DiffParams =
+type DiffEnvironmentsCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -88,50 +79,23 @@ export type DiffParams =
   }>
   & LogOptions;
 
-export const diffAsync = async (params: DiffParams) => {
-  logInfo(
-    params,
-    "standard",
-    `Diff content model between source environment ${
-      chalk.blue(params.folderName ? `in ${params.folderName}` : params.sourceEnvironmentId)
-    } and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
-  );
+const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
+  const resolvedParams = resolveParams(params);
 
-  const sourceModel = params.folderName
-    ? await readContentModelFromFolder(params.folderName)
-    : transformSyncModel(
-      await fetchModel(
-        createClient({
-          environmentId: params.sourceEnvironmentId ?? throwError("sourceEnvironmentId should not be undefined"),
-          apiKey: params.sourceApiKey ?? throwError("sourceApiKey should not be undefined"),
-          commandName,
-        }),
-      ),
-      params,
-    );
-
-  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
-
-  const targetEnvironmentClient = createClient({
-    apiKey: params.targetApiKey,
-    environmentId: params.targetEnvironmentId,
-    commandName,
-  });
-
-  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
-    targetEnvironmentClient,
-    allCodenames,
-    params,
-  );
-
-  const diffModel = diff({
-    targetAssetsReferencedFromSourceByCodenames: assetsReferences,
-    targetItemsReferencedFromSourceByCodenames: itemReferences,
-    targetEnvModel: transformedTargetModel,
-    sourceEnvModel: sourceModel,
-  });
-
-  return params.advanced
-    ? generateDiff({ ...diffModel, ...params })
-    : printDiff(diffModel, params);
+  await diffEnvironmentsInternal(resolvedParams, commandName);
 };
+
+const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams =>
+  match(params)
+    .with(
+      { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
+      ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
+    )
+    .with({ folderName: P.nonNullable }, ({ folderName }) => ({ ...params, folderName }))
+    .otherwise(() => {
+      logError(
+        params,
+        "You need to provide either 'folderName' or 'sourceEnvironmentId' with 'sourceApiKey' parameters",
+      );
+      process.exit(1);
+    });

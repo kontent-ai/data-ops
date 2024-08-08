@@ -31,3 +31,20 @@ Or
 ```bash
 npx @kontent-ai/data-ops@latest sync-model diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
 ```
+
+### Diff environments programmatically
+
+To diff your environments in your scripts, use `diffEnvironments` function:
+
+```ts
+import { diffEnvironments, DiffEnvironmentsParams } from "@kontent-ai/data-ops";
+
+const params: DiffEnvironmentsParams = {
+  sourceEnvironmentId: "<source-env-id>",
+  sourceApiKey: "<source-mapi-key>",
+  targetEnvironmentId: "<target-env-id>",
+  targetApiKey: "<target-mapi-key>",
+};
+
+await diffEnvironments(params);
+```

@@ -2,10 +2,10 @@ import { ContentTypeSnippetContracts, ElementContracts, ManagementClient } from 
 import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../../../log.js";
-import { getRequired } from "../../../../modules/importExport/import/utils.js";
 import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 import {
   createPatchItemAndTypeReferencesInTypeElement,
@@ -19,7 +19,7 @@ type Snippet = Replace<
 >;
 type SnippetElement = RequiredId<ReplaceReferences<ElementContracts.IContentTypeElementContract>>;
 
-export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>> = {
+export const contentTypesSnippetsEntity = {
   name: "contentTypeSnippets",
   displayName: "contentTypeSnippets",
   fetchEntities: client =>
@@ -57,9 +57,9 @@ export const contentTypesSnippetsEntity: EntityDefinition<ReadonlyArray<Snippet>
       ),
     );
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<Snippet>>;
 
-export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefinition<ReadonlyArray<Snippet>> = {
+export const updateItemAndTypeReferencesInSnippetsImportEntity = {
   name: "contentTypeSnippets",
   displayName: "references in contentTypeSnippets",
   isDependentOn: contentTypesSnippetsEntity.name,
@@ -67,7 +67,7 @@ export const updateItemAndTypeReferencesInSnippetsImportEntity: EntityImportDefi
   importEntities: async (client, fileSnippets, context, logOptions) => {
     await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context, logOptions })));
   },
-};
+} as const satisfies EntityImportDefinition<ReadonlyArray<Snippet>>;
 
 const makeSnippetContextByOldIdEntry = (
   [fileSnippet, projectSnippet]: readonly [Snippet, Snippet],

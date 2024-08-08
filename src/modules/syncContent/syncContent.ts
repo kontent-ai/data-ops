@@ -1,26 +1,22 @@
 import { DeliveryClient, IContentItem, IContentItemElements, Responses } from "@kontent-ai/delivery-sdk";
+import { match, P } from "ts-pattern";
 
-import { MigrationToolkitParams } from "../../commands/syncContent/run/run.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { Replace } from "../../utils/types.js";
+import { SyncContentFilterParams } from "./syncContentRun.js";
 import { createDeliveryUrlParameters } from "./utils/deliveryHelpers.js";
-
-export type MigrateOptionsParams = Pick<
-  MigrationToolkitParams,
-  "byTypesCodenames" | "items" | "filter" | "last" | "depth" | "language" | "limit"
->;
 
 const deliveryApiItemsLimit = 2000;
 
 export const getItemsCodenames = async (
   client: DeliveryClient,
-  params: MigrateOptionsParams,
+  params: SyncContentFilterParams,
 ) => {
-  if (params.items && !params.depth) {
+  if ("items" in params && !("depth" in params)) {
     return params.items;
   }
 
-  if (params.filter) {
+  if ("filter" in params) {
     return client
       .items()
       .withCustomUrl(params.filter)
@@ -29,7 +25,7 @@ export const getItemsCodenames = async (
   }
 
   const pageSize = getPageSize(params);
-  const numberOfPages = params.last ? Math.ceil(params.last / pageSize) : deliveryApiItemsLimit;
+  const numberOfPages = "last" in params ? Math.ceil(params.last / pageSize) : deliveryApiItemsLimit;
 
   const parameters = getDeliveryUrlParams({ ...params, limit: pageSize });
 
@@ -42,21 +38,24 @@ export const getItemsCodenames = async (
     .then(res => res.data.responses.flatMap(r => [...extractItemsCodenamesFromResponse(r.data)]));
 };
 
-export const getDeliveryUrlParams = (params: Replace<MigrateOptionsParams, { limit: number }>) => {
+export const getDeliveryUrlParams = (params: Replace<SyncContentFilterParams, { limit: number }>) => {
   const defaultParams = { ...params, depth: params.depth ?? 0 };
-  if (params.last) {
-    return createDeliveryUrlParameters({ ...defaultParams, order: ["system.last_modified", "desc"] });
-  }
 
-  if (params.items) {
-    return createDeliveryUrlParameters({ ...defaultParams, inFilter: ["system.codename", params.items] });
-  }
-
-  if (params.byTypesCodenames) {
-    return createDeliveryUrlParameters({ ...defaultParams, inFilter: ["system.type", params.byTypesCodenames] });
-  }
-
-  return createDeliveryUrlParameters(defaultParams);
+  return match(params)
+    .with(
+      { last: P.nonNullable },
+      () => createDeliveryUrlParameters({ ...defaultParams, order: ["system.last_modified", "desc"] }),
+    )
+    .with(
+      { items: P.nonNullable },
+      ({ items }) => createDeliveryUrlParameters({ ...defaultParams, inFilter: ["system.codename", items] }),
+    )
+    .with(
+      { byTypesCodenames: P.nonNullable },
+      ({ byTypesCodenames }) =>
+        createDeliveryUrlParameters({ ...defaultParams, inFilter: ["system.type", byTypesCodenames] }),
+    )
+    .otherwise(() => createDeliveryUrlParameters(defaultParams));
 };
 
 export const extractItemsCodenamesFromResponse = (
@@ -69,12 +68,12 @@ export const extractItemsCodenamesFromResponse = (
     ...data.items.map(i => i.system.codename),
   ]);
 
-const getPageSize = (params: MigrateOptionsParams) => {
-  if (params.last && params.last > deliveryApiItemsLimit) {
+const getPageSize = (params: SyncContentFilterParams) => {
+  if ("last" in params && params.last > deliveryApiItemsLimit) {
     return 100;
   }
 
-  if (params.last) {
+  if ("last" in params) {
     return params.last;
   }
 

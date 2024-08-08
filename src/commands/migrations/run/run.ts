@@ -1,31 +1,15 @@
 import chalk from "chalk";
-import * as path from "path";
+import { match, P } from "ts-pattern";
 
-import { logError, logInfo } from "../../../log.js";
-import { Migration } from "../../../modules/migrations/models/migration.js";
-import { handleErr } from "../../../modules/migrations/utils/errUtils.js";
-import {
-  executeMigrations,
-  filterMigrations,
-  getMigrationFilterParams,
-  getMigrationsToSkip,
-  getMigrationsWithDuplicateOrders,
-  loadMigrationFiles,
-} from "../../../modules/migrations/utils/migrationUtils.js";
-import { createOrderComparator } from "../../../modules/migrations/utils/orderUtils.js";
-import {
-  createDefaultReadStatus,
-  createDefaultWriteStatus,
-  loadStatus,
-  loadStatusPlugin,
-  updateEnvironmentStatus,
-  writeStatus,
-} from "../../../modules/migrations/utils/statusUtils.js";
+import { logError, logInfo, LogOptions } from "../../../log.js";
+import { RunMigrationsParams, withMigrationsToRun } from "../../../modules/migrations/run.js";
+import { WithErr } from "../../../modules/migrations/utils/errUtils.js";
+import { executeMigrations } from "../../../modules/migrations/utils/migrationUtils.js";
+import { parseRange } from "../../../modules/migrations/utils/rangeUtils.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
-import { RunMigrationsParams } from "./runParams.js";
 
 const commandName = "run";
 const migrationSelectionOptions = ["name", "range", "all", "next"] as const;
@@ -126,110 +110,77 @@ export const register: RegisterCommand = yargs =>
         )
         .example(`${exampleMessagePrefix} --range :5`, "Run migrations with order up to 5 included.")
         .example(`${exampleMessagePrefix} --range 2:`, "Run all migrations with order from 2 (included)."),
-    handler: (args) => runMigrations(args).catch(simplifyErrors),
+    handler: (args) => runMigrationsCli(args).catch(simplifyErrors),
   });
 
-export const runMigrations = async (params: RunMigrationsParams) => {
-  const operation = params.rollback ? "rollback" : "run";
-  const environmentId = params.environmentId;
-  const plugins = params.statusPlugins ? handleErr(await loadStatusPlugin(params.statusPlugins), params) : undefined;
-  const absoluteDirectoryPath = path.resolve(params.migrationsFolder);
+type RunMigrationsCliParams =
+  & Readonly<{
+    environmentId: string;
+    apiKey: string;
+    migrationsFolder: string;
+    name?: string;
+    range?: string;
+    all?: boolean;
+    next?: number;
+    rollback?: boolean;
+    statusPlugins?: string;
+    continueOnError?: boolean;
+    force?: boolean;
+    skipConfirmation?: boolean;
+  }>
+  & LogOptions;
 
-  const { readStatus, saveStatus } = plugins
-    ?? {
-      readStatus: createDefaultReadStatus(absoluteDirectoryPath),
-      saveStatus: createDefaultWriteStatus(absoluteDirectoryPath),
-    };
-
-  const status = handleErr(await loadStatus(readStatus), params);
-  const environmentStatus = status[environmentId] ?? [];
-
-  const filterParams = handleErr(getMigrationFilterParams(params), params);
-
-  const migrations = handleErr(await loadMigrationFiles(absoluteDirectoryPath), params);
-  const filteredMigrations = filterMigrations(migrations, filterParams);
-  const skippedMigrations = params.force ? [] : getMigrationsToSkip(environmentStatus, filteredMigrations, operation);
-
-  if (skippedMigrations.length) {
-    logInfo(
-      params,
-      "standard",
-      `Skipping ${skippedMigrations.length} migrations:\n${
-        skippedMigrations.map(m => chalk.blue(m.name)).join("\n")
-      }\n`,
-    );
-  }
-
-  const migrationComparator = createOrderComparator<Migration>(
-    operation === "run" ? "asc" : "desc",
-    e => e.module.order,
-  );
-
-  const migrationsWithoutSkipped = filteredMigrations.filter(m => !skippedMigrations.includes(m)).toSorted(
-    migrationComparator,
-  );
-  const migrationsToRun = params.next ? migrationsWithoutSkipped.slice(0, params.next) : migrationsWithoutSkipped;
-
-  const migrationsDuplicates = getMigrationsWithDuplicateOrders(migrationsToRun);
-
-  if (migrationsDuplicates.size) {
-    logError(
-      params,
-      `Found multiple migrations having the same order: \n${
-        [...migrationsDuplicates.entries()]
-          .map(([order, migrations]) => `Order ${order}: ${migrations.map(m => m.name).join(", ")}`)
-      }`,
-    );
-    process.exit(1);
-  }
-
-  if (migrationsToRun.length === 0) {
-    logInfo(params, "standard", "No migrations to run.");
-    process.exit(0);
-  }
-
-  logInfo(
-    params,
-    "standard",
-    `${operation === "run" ? "Running" : "Rollbacking"} ${migrationsToRun.length} migrations:\n${
-      migrationsToRun.map(m => chalk.blue(m.name)).join("\n")
-    }\n`,
-  );
-
-  const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in irreversible changes to your environment ${params.environmentId}.\nOK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
-  );
-
-  const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
-
-  if (!confirmed) {
-    process.exit(0);
-  }
-
+const runMigrationsCli = async (params: RunMigrationsCliParams) => {
   const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
 
-  const migrationsStatus = await executeMigrations(migrationsToRun, client, {
-    operation,
-    continueOnError: params.continueOnError ?? false,
-  }, params);
+  const resolvedParams = resolveParams(params);
 
-  if (!migrationsStatus.error) {
-    logInfo(params, "standard", "Sucessfully migrated.\n");
-  }
-
-  const newStatus = { ...status, [environmentId]: updateEnvironmentStatus(environmentStatus, migrationsStatus.status) };
-
-  logInfo(params, "standard", "Storing status...");
-  handleErr(await writeStatus(saveStatus, newStatus), params, `Could not store status.`);
-  logInfo(
-    params,
-    "standard",
-    `Status sucessfully stored${
-      !params.statusPlugins ? ` in ${chalk.green(path.resolve(params.migrationsFolder, "status.json"))}` : ""
-    }.`,
-  );
-
-  if (migrationsStatus.error) {
+  if ("err" in resolvedParams) {
+    logError(params, JSON.stringify(resolvedParams.err));
     process.exit(1);
   }
+
+  await withMigrationsToRun(resolvedParams.value, async migrations => {
+    const operation = resolvedParams.value.rollback ? "rollback" : "run";
+
+    const warningMessage = chalk.yellow(
+      `⚠ Running this operation may result in irreversible changes to your environment ${params.environmentId}.\nOK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
+    );
+
+    const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
+
+    if (!confirmed) {
+      process.exit(0);
+    }
+
+    const migrationsStatus = await executeMigrations(migrations, client, {
+      operation,
+      continueOnError: params.continueOnError ?? false,
+    }, params);
+
+    if (migrationsStatus.error) {
+      return Promise.reject(migrationsStatus.status);
+    }
+
+    logInfo(params, "standard", "Sucessfully migrated.\n");
+
+    return migrationsStatus.status;
+  });
 };
+
+const resolveParams = (
+  params: RunMigrationsCliParams,
+): WithErr<RunMigrationsParams> =>
+  match(params)
+    .returnType<WithErr<RunMigrationsParams>>()
+    .with({ next: P.nonNullable }, ({ next }) => ({ value: { ...params, next } }))
+    .with({ range: P.nonNullable }, ({ range }) => {
+      const parsedRange = parseRange(range as string);
+      if ("err" in parsedRange) {
+        return parsedRange;
+      }
+      return { value: { ...params, range: parsedRange.value } };
+    })
+    .with({ name: P.nonNullable }, ({ name }) => ({ value: { ...params, name } }))
+    .with({ all: P.nonNullable }, ({ all }) => ({ value: { ...params, all } }))
+    .otherwise(() => ({ err: "Invalid parameters" }));

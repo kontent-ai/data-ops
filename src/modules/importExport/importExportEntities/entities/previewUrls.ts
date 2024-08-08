@@ -3,7 +3,7 @@ import { PreviewContracts } from "@kontent-ai/management-sdk";
 import { notNull } from "../../../../utils/typeguards.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfigurationContract> = {
+export const previewUrlsEntity = {
   name: "previewUrls",
   displayName: "previewUrls",
   fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
@@ -56,4 +56,4 @@ export const previewUrlsEntity: EntityDefinition<PreviewContracts.IPreviewConfig
       })
       .toPromise();
   },
-};
+} as const satisfies EntityDefinition<PreviewContracts.IPreviewConfigurationContract>;

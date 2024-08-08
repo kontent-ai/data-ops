@@ -61,6 +61,7 @@ describe("Sync model of two environments with credentials", () => {
       await runCommand(command);
 
       await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID);
+      await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID);
     }),
   );
 });

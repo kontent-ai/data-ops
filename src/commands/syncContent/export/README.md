@@ -44,6 +44,22 @@ npx @kontent-ai/data-ops@latest sync-content export --items item1 item2 item3 --
 
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-content export --help`.
 
+### Export sync-content data programatically
+
+To export sync-content data from your environment in your scripts, use `syncContentExport` function:
+
+```ts
+import { syncContentExport, SyncContentExportParams } from "@kontent-ai/data-ops";
+
+const params: SyncContentExportParams = {
+  sourceEnvironmentId: "<source-env-id>",
+  sourceApiKey: "<source-mapi-key>",
+  language: '<language-codename>'
+};
+
+await syncContentExport(params);
+```
+
 ## Export from external system
 
 If you want to export content from external systems and make it importable by data-ops you can follow the instructions in [Kontent.ai migration toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit/blob/main/samples/migrate-from-external-system.ts). This repository also provides you with [a sample script](https://github.com/kontent-ai/kontent-ai-migration-toolkit/blob/main/samples/migrate-from-external-system.ts).

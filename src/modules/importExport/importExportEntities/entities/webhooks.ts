@@ -9,7 +9,7 @@ import { simplifyContext, transformReferences } from "./utils/reference.js";
 
 type Webhook = ReplaceReferences<WebhookContracts.IWebhookContract>;
 
-export const webhooksEntity: EntityDefinition<ReadonlyArray<Webhook>> = {
+export const webhooksEntity = {
   name: "webhooks",
   displayName: "webhooks",
   fetchEntities: client => client.listWebhooks().toPromise().then(res => res.rawData as ReadonlyArray<Webhook>),
@@ -61,4 +61,4 @@ export const webhooksEntity: EntityDefinition<ReadonlyArray<Webhook>> = {
       webhooks.map(webhook => () => client.deleteWebhook().byId(webhook.id).toPromise()),
     );
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<Webhook>>;

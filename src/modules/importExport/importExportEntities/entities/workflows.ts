@@ -12,7 +12,7 @@ const defaultWorkflowId = emptyId;
 
 type Workflow = ReplaceReferences<WorkflowContracts.IWorkflowContract>;
 
-export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
+export const workflowsEntity = {
   name: "workflows",
   displayName: "workflows",
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
@@ -68,7 +68,7 @@ export const workflowsEntity: EntityDefinition<ReadonlyArray<Workflow>> = {
       }),
     );
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<Workflow>>;
 
 const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) => ({
   ...importWorkflow,
