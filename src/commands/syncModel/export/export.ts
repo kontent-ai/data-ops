@@ -32,11 +32,11 @@ export const register: RegisterCommand = yargs =>
             describe: "Name of the folder to generate content model into.",
             alias: "f",
           }),
-      handler: args => generateModel(args).catch(simplifyErrors),
+      handler: args => syncExport(args).catch(simplifyErrors),
     },
   );
 
-export type SyncParams =
+export type SyncExportParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
@@ -44,7 +44,7 @@ export type SyncParams =
   }>
   & LogOptions;
 
-export const generateModel = async (params: SyncParams) => {
+export const syncExport = async (params: SyncExportParams) => {
   logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
   const environmentModel = await logOnError(
     params,

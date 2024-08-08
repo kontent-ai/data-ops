@@ -97,7 +97,7 @@ export const register: RegisterCommand = yargs =>
     handler: args => importEntities(args).catch(simplifyErrors),
   });
 
-type ImportEntitiesParams =
+export type ImportEntitiesParams =
   & Readonly<{
     environmentId: string;
     fileName: string;
@@ -107,7 +107,7 @@ type ImportEntitiesParams =
   }>
   & LogOptions;
 
-const importEntities = async (params: ImportEntitiesParams) => {
+export const importEntities = async (params: ImportEntitiesParams) => {
   const root = new StreamZip.async({ file: params.fileName });
   const client = createClient({
     environmentId: params.environmentId,

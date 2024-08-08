@@ -92,7 +92,7 @@ export const register: RegisterCommand = yargs =>
     handler: args => exportEntities(args).catch(simplifyErrors),
   });
 
-type ExportEntitiesParams =
+export type ExportEntitiesParams =
   & Readonly<{
     environmentId: string;
     fileName: string | undefined;
@@ -102,7 +102,7 @@ type ExportEntitiesParams =
   }>
   & LogOptions;
 
-const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
+export const exportEntities = async (params: ExportEntitiesParams): Promise<void> => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,

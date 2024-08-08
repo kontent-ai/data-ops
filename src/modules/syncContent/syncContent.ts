@@ -1,12 +1,12 @@
 import { DeliveryClient, IContentItem, IContentItemElements, Responses } from "@kontent-ai/delivery-sdk";
 
-import { MigrationToolkitParams } from "../../commands/syncContent/run/run.js";
+import { SyncContentRunParams } from "../../commands/syncContent/run/run.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { Replace } from "../../utils/types.js";
 import { createDeliveryUrlParameters } from "./utils/deliveryHelpers.js";
 
 export type MigrateOptionsParams = Pick<
-  MigrationToolkitParams,
+  SyncContentRunParams,
   "byTypesCodenames" | "items" | "filter" | "last" | "depth" | "language" | "limit"
 >;
 

@@ -111,10 +111,10 @@ export const register: RegisterCommand = yargs =>
           }
           return true;
         }),
-    handler: args => migrateContent(args).catch(simplifyErrors),
+    handler: args => syncContentRun(args).catch(simplifyErrors),
   });
 
-export type MigrationToolkitParams =
+export type SyncContentRunParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -134,7 +134,7 @@ export type MigrationToolkitParams =
   }>
   & LogOptions;
 
-const migrateContent = async (params: MigrationToolkitParams) => {
+export const syncContentRun = async (params: SyncContentRunParams) => {
   if (params.filename) {
     const data = await extractAsync({ filename: params.filename });
 

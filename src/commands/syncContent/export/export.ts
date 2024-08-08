@@ -84,11 +84,11 @@ export const register: RegisterCommand = yargs =>
             type: "boolean",
             describe: "Skip confirmation message.",
           }),
-      handler: args => generateSyncContent(args).catch(simplifyErrors),
+      handler: args => syncContentExport(args).catch(simplifyErrors),
     },
   );
 
-type ExportSyncContentParams =
+export type SyncContentExportParams =
   & Readonly<{
     sourceEnvironmentId: string;
     sourceApiKey: string;
@@ -105,7 +105,7 @@ type ExportSyncContentParams =
   }>
   & LogOptions;
 
-export const generateSyncContent = async (params: ExportSyncContentParams) => {
+export const syncContentExport = async (params: SyncContentExportParams) => {
   const deliveryClient = createDeliveryClient({
     environmentId: params.sourceEnvironmentId,
     previewApiKey: params.sourceDeliveryPreviewKey,

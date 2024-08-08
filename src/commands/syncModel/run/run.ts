@@ -63,10 +63,10 @@ export const register: RegisterCommand = yargs =>
           type: "boolean",
           describe: "Skip confirmation message.",
         }),
-    handler: args => syncContentModel(args).catch(simplifyErrors),
+    handler: args => syncModelRun(args).catch(simplifyErrors),
   });
 
-export type SyncParams =
+export type SyncModelRunParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -77,7 +77,7 @@ export type SyncParams =
   }>
   & LogOptions;
 
-export const syncContentModel = async (params: SyncParams) => {
+export const syncModelRun = async (params: SyncModelRunParams) => {
   if (params.folderName) {
     const folderErrors = await validateContentFolder(params.folderName);
     checkValidation(folderErrors, params);
