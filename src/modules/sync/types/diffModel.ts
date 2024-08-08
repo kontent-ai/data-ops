@@ -11,8 +11,16 @@ export type DiffObject<AddModel> = Readonly<{
   deleted: ReadonlySet<Codename>;
 }>;
 
+export type WebSpotlightDiffModel = Readonly<
+  | { change: "none" }
+  | { change: "activate"; rootTypeCodename: Codename }
+  | { change: "changeRootType"; rootTypeCodename: Codename }
+  | { change: "deactivate" }
+>;
+
 export type DiffModel = Readonly<{
   taxonomyGroups: DiffObject<RequiredCodename<TaxonomyModels.IAddTaxonomyRequestModel>>;
   contentTypeSnippets: DiffObject<RequiredCodename<ContentTypeSnippetModels.IAddContentTypeSnippetData>>;
   contentTypes: DiffObject<RequiredCodename<ContentTypeModels.IAddContentTypeData>>;
+  webSpotlight: WebSpotlightDiffModel;
 }>;

@@ -6,6 +6,7 @@ import {
   SharedContracts,
   TaxonomyModels,
 } from "@kontent-ai/management-sdk";
+import { match, P } from "ts-pattern";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { omit } from "../../utils/object.js";
@@ -14,7 +15,7 @@ import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { RequiredCodename } from "../../utils/types.js";
 import { elementTypes } from "./constants/elements.js";
 import { ElementsTypes } from "./types/contractModels.js";
-import { DiffModel } from "./types/diffModel.js";
+import { DiffModel, WebSpotlightDiffModel } from "./types/diffModel.js";
 import { getTargetCodename, PatchOperation } from "./types/patchOperation.js";
 
 const referencingElements: ReadonlyArray<ElementsTypes> = ["rich_text", "modular_content", "subpages"];
@@ -43,14 +44,18 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
   logInfo(logOptions, "standard", "Updating content types and adding their references");
   await updateContentTypesAndAddReferences(client, diff.contentTypes);
 
+  // uses a created/updated type when enabling and disables before deleting the root type
+  logInfo(logOptions, "standard", "Updating web spotlight");
+  await updateWebSpotlight(client, diff.webSpotlight);
+
   logInfo(logOptions, "standard", "Removing content types");
   await serially(Array.from(diff.contentTypes.deleted).map(c => () => deleteContentType(client, c)));
 
-  logInfo(logOptions, "standard", "Deleting content type snippets");
+  logInfo(logOptions, "standard", "Removing content type snippets");
   await serially(Array.from(diff.contentTypeSnippets.deleted).map(c => () => deleteSnippet(client, c)));
 
   // replace, remove, move operations
-  logInfo(logOptions, "standard", "Deleting content type snippets");
+  logInfo(logOptions, "standard", "Updating content type snippets");
   await updateSnippets(client, diff.contentTypeSnippets.updated);
 };
 
@@ -299,6 +304,15 @@ const transformTaxonomyOperations = (
     oldValue: undefined,
   } as unknown as TaxonomyModels.IModifyTaxonomyData;
 };
+const updateWebSpotlight = (client: ManagementClient, diffModel: WebSpotlightDiffModel): Promise<unknown> =>
+  match(diffModel)
+    .with({ change: "none" }, () => Promise.resolve())
+    .with({ change: "deactivate" }, () => client.deactivateWebSpotlight().toPromise())
+    .with(
+      { change: P.union("activate", "changeRootType") },
+      ws => client.activateWebSpotlight().withData({ root_type: { codename: ws.rootTypeCodename } }).toPromise(),
+    )
+    .exhaustive();
 
 const createUpdateReferenceOps = (
   element: ReferencingElement,

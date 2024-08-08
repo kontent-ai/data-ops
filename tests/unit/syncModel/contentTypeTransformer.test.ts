@@ -37,6 +37,10 @@ const createEnvironmentModel = (contentTypes: ReadonlyArray<ContentTypeWithUnion
   contentTypes: contentTypes,
   contentTypeSnippets: [],
   taxonomyGroups: [],
+  webSpotlight: {
+    enabled: false,
+    root_type: null,
+  },
   assets: [],
   items: [],
 });
