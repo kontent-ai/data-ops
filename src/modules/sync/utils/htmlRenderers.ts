@@ -4,6 +4,7 @@ import {
   ContentTypeSnippetModels,
   TaxonomyModels,
 } from "@kontent-ai/management-sdk";
+import { match } from "ts-pattern";
 
 import { LogOptions } from "../../../log.js";
 import {
@@ -326,37 +327,70 @@ const renderUpdatedEntity = (
 
 const renderEntitySection = (
   entityType: EntityType,
-  changes: DiffObject<unknown>,
+  { added, updated, deleted }: DiffObject<unknown>,
 ) => {
-  const { added, updated, deleted } = changes;
   const entityTypeNameMap: ReadonlyMap<typeof entityType, string> = new Map([
     ["snippets", "Snippets"],
     ["taxonomies", "Taxonomy groups"],
     ["types", "Content types"],
   ]);
 
-  return `
-        <div class="entity-section">
-          <div class="entity-section-header" onclick="toggleVisibility('${entityType}')">
-              <div>${entityTypeNameMap.get(entityType)}</div>
-              <div class="num-modified push">✎ {{num_${entityType}_updated}}</div>
-              <div class="num-added">+ {{num_${entityType}_added}}</div>
-              <div class="num-removed">− {{num_${entityType}_removed}}</div>
-          </div>
-          <div id="${entityType}" class="entity-section-content">
-              ${
-    [...updated.values()].filter(v => v.length).length
-      ? renderUpdatedEntitySection(entityType)
-      : ""
-  }
-              <div class="added-and-deleted">
-                  ${deleted.size ? renderRemovedEntitySection(entityType) : ""}
-                  ${added.length ? renderAddedEntitySection(entityType) : ""}
-              </div>
-          </div>
-        </div>
-      `;
+  return renderSection({
+    id: entityType,
+    header: `
+    <div>${entityTypeNameMap.get(entityType)}</div>
+    <div class="num-modified push">✎ ${[...updated.values()].filter(ops => ops.length).length}</div>
+    <div class="num-added">+ ${added.length}</div>
+    <div class="num-removed">− ${deleted.size}</div>
+    `,
+    content: `
+    ${
+      [...updated.values()].filter(v => v.length).length
+        ? renderUpdatedEntitySection(entityType)
+        : ""
+    }
+    <div class="added-and-deleted">
+        ${deleted.size ? renderRemovedEntitySection(entityType) : ""}
+        ${added.length ? renderAddedEntitySection(entityType) : ""}
+    </div>
+    `,
+  });
 };
+
+const renderWebSpotlightSection = (webSpotlight: DiffData["webSpotlight"]) => {
+  const section = (content: string) =>
+    renderSection({ id: "web-spotlight", header: "<div>Web Spotlight</div>", content: content });
+
+  return match(webSpotlight)
+    .with({ change: "none" }, () => "<h3>No changes to web spotlight.</h3>")
+    .with(
+      { change: "activate" },
+      ws => section(`<div class="added"><h3>Activate web spotlight with root type: ${ws.rootTypeCodename}</h3></div>`),
+    )
+    .with(
+      { change: "changeRootType" },
+      ws => section(`<div class="updated"><h3>Change web spotlight root type to: ${ws.rootTypeCodename}</h3></div>`),
+    )
+    .with({ change: "deactivate" }, () => section("<div class=\"deleted\"><h3>Deactivate web spotlight.</h3></div>"))
+    .exhaustive();
+};
+
+type RenderSectionParams = Readonly<{
+  id: string;
+  header: string;
+  content: string;
+}>;
+
+const renderSection = (params: RenderSectionParams) => `
+    <div class="entity-section">
+      <div class="entity-section-header" onclick="toggleVisibility('${params.id}')">
+        ${params.header}
+      </div>
+      <div id="${params.id}" class="entity-section-content">
+        ${params.content}
+      </div>
+    </div>
+`;
 
 const getCombinedOpLength = (ops: DiffObject<unknown>) =>
   ops.added.length + ops.deleted.size + [...ops.updated.values()].filter(v => v.length).length;
@@ -399,51 +433,6 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     ({ taxonomyGroups }: DiffData) => renderUpdatedEntitiesSectionData(taxonomyGroups),
   ],
   [
-    "{{num_types_added}}",
-    ({ contentTypes }: DiffData) => contentTypes.added.length.toString(),
-  ],
-  [
-    "{{num_types_removed}}",
-    ({ contentTypes }: DiffData) => contentTypes.deleted.size.toString(),
-  ],
-  [
-    "{{num_types_updated}}",
-    ({ contentTypes }: DiffData) =>
-      [...contentTypes.updated]
-        .filter(([, v]) => v.length > 0)
-        .length.toString(),
-  ],
-  [
-    "{{num_snippets_added}}",
-    ({ contentTypeSnippets }: DiffData) => contentTypeSnippets.added.length.toString(),
-  ],
-  [
-    "{{num_snippets_removed}}",
-    ({ contentTypeSnippets }: DiffData) => contentTypeSnippets.deleted.size.toString(),
-  ],
-  [
-    "{{num_snippets_updated}}",
-    ({ contentTypeSnippets }: DiffData) =>
-      [...contentTypeSnippets.updated]
-        .filter(([, v]) => v.length > 0)
-        .length.toString(),
-  ],
-  [
-    "{{num_taxonomies_added}}",
-    ({ taxonomyGroups }: DiffData) => taxonomyGroups.added.length.toString(),
-  ],
-  [
-    "{{num_taxonomies_removed}}",
-    ({ taxonomyGroups }: DiffData) => taxonomyGroups.deleted.size.toString(),
-  ],
-  [
-    "{{num_taxonomies_updated}}",
-    ({ taxonomyGroups }: DiffData) =>
-      [...taxonomyGroups.updated]
-        .filter(([, v]) => v.length > 0)
-        .length.toString(),
-  ],
-  [
     "{{source_env_id}}",
     ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName!,
   ],
@@ -476,6 +465,10 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
       getCombinedOpLength(taxonomyGroups)
         ? renderEntitySection("taxonomies", taxonomyGroups)
         : "<h3>No changes to taxonomy groups.</h3>",
+  ],
+  [
+    "{{web_spotlight_section}}",
+    ({ webSpotlight }: DiffData) => renderWebSpotlightSection(webSpotlight),
   ],
 ]);
 
