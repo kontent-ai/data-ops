@@ -31,20 +31,16 @@ if (!API_KEY) {
 
 describe("clean command", () => {
   it.concurrent(
-    "Cleans all entities in the target environment, prints info on manual WSL removal.",
+    "Cleans all entities in the target environment.",
     withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} -s`;
 
-      const result = await runCommand(command);
-
-      expect(result.stdout).toContain(
-        "⚠ Some types couldn't be deleted because Web Spotlight is enabled on the environment.",
-      );
+      await runCommand(command);
 
       await expectNoAssetFolders(environmentId);
       await expectNoAssets(environmentId);
       await expectNoSnippets(environmentId);
-      await expectNoTypes(environmentId, true);
+      await expectNoTypes(environmentId);
       await expectNoItems(environmentId);
       await expectNoWorkflows(environmentId);
       await expectNoPreviewUrls(environmentId);
@@ -57,7 +53,7 @@ describe("clean command", () => {
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls contentTypes contentTypeSnippets webhooks -s`;
+        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
 
       await runCommand(command);
 
@@ -68,7 +64,7 @@ describe("clean command", () => {
       await expectNoItems(environmentId);
       await expectNoPreviewUrls(environmentId);
       await expectNoSnippets(environmentId);
-      await expectNoTypes(environmentId, true);
+      await expectNoTypes(environmentId);
     }),
   );
 
@@ -89,7 +85,7 @@ describe("clean command", () => {
       await expectNoAssets(environmentId);
       await expectNoAssetFolders(environmentId);
       await expectNoSnippets(environmentId);
-      await expectNoTypes(environmentId, true);
+      await expectNoTypes(environmentId);
       await expectNoWebhooks(environmentId);
     }),
   );

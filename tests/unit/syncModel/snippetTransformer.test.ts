@@ -39,6 +39,10 @@ describe("content type snippet transfomers", () => {
       contentTypes: [],
       contentTypeSnippets: snippets,
       taxonomyGroups: [],
+      webSpotlight: {
+        enabled: false,
+        root_type: null,
+      },
       assets: [],
       items: [],
     };

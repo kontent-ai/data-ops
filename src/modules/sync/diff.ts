@@ -7,6 +7,7 @@ import {
   transformTaxonomyToAddModel,
   transformTypeToAddModel,
 } from "./diff/transformToAddModel.js";
+import { webSpotlightHandler } from "./diff/webSpotlight.js";
 import { DiffModel } from "./types/diffModel.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { PatchOperation } from "./types/patchOperation.js";
@@ -52,11 +53,17 @@ export const diff = (params: DiffParams): DiffModel => {
     taxonomyGroupHandler,
   );
 
+  const webSpotlightDiffModel = webSpotlightHandler(
+    params.sourceEnvModel.webSpotlight,
+    params.targetEnvModel.webSpotlight,
+  );
+
   return {
     // All the arrays are mutable in the SDK (even though they shouldn't) and readonly in our models. Unfortunately, TS doesn't allow casting it without casting to unknown first.
     taxonomyGroups: mapAdded(taxonomyDiffModel, transformTaxonomyToAddModel),
     contentTypeSnippets: mapAdded(snippetsDiffModel, transformSnippetToAddModel(params)),
     contentTypes: mapAdded(typesDiffModel, transformTypeToAddModel(params)),
+    webSpotlight: webSpotlightDiffModel,
   };
 };
 

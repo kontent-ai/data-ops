@@ -3,6 +3,7 @@ import {
   ContentTypeElements,
   ContentTypeSnippetContracts,
   TaxonomyContracts,
+  WebSpotlightContracts,
 } from "@kontent-ai/management-sdk";
 
 import { CodenameReference, Replace } from "../../../utils/types.js";
@@ -115,6 +116,11 @@ export type ContentTypeSyncModel = Replace<
     elements: ReadonlyArray<Replace<SyncTypeElement, { codename: string }>>;
     content_groups?: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, { codename: string }>>;
   }>
+>;
+
+export type WebSpotlightSyncModel = Replace<
+  WebSpotlightContracts.IWebSpotlightStatus,
+  { root_type: Readonly<{ codename: string }> | null }
 >;
 
 export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>

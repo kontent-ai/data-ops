@@ -1,7 +1,6 @@
-import { ContentTypeModels, ContentTypeSnippetModels, SharedModels, TaxonomyModels } from "@kontent-ai/management-sdk";
+import { ContentTypeModels, ContentTypeSnippetModels, TaxonomyModels } from "@kontent-ai/management-sdk";
 import { z } from "zod";
 
-import { spotlightInUseErrorCode } from "../constants/responseCodes.js";
 import {
   CountLimitation,
   DefaultElementValue,
@@ -15,11 +14,6 @@ import {
 export const notNull = <T>(arg: T | null): arg is T => arg !== null;
 
 export const notNullOrUndefined = <T>(arg: T | undefined | null): arg is T => arg !== undefined && arg !== null;
-
-export const isSpotlightInUseError = (err: unknown): err is SharedModels.ContentManagementBaseKontentError =>
-  z.object({
-    errorCode: z.literal(spotlightInUseErrorCode),
-  }).safeParse(err).success;
 
 const elementTypesEnum = z.enum([
   "text",

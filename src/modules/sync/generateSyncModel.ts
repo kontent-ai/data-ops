@@ -1,4 +1,10 @@
-import { AssetContracts, ContentItemContracts, ManagementClient, TaxonomyContracts } from "@kontent-ai/management-sdk";
+import {
+  AssetContracts,
+  ContentItemContracts,
+  ManagementClient,
+  TaxonomyContracts,
+  WebSpotlightContracts,
+} from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import * as fsPromises from "fs/promises";
 import * as path from "path";
@@ -6,10 +12,16 @@ import * as path from "path";
 import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { serializeDateForFileName } from "../../utils/files.js";
-import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "./constants/filename.js";
+import {
+  contentTypesFileName,
+  contentTypeSnippetsFileName,
+  taxonomiesFileName,
+  webSpotlightFileName,
+} from "./constants/filename.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
+import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
 import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "./types/contractModels.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
@@ -19,12 +31,14 @@ import {
   fetchRequiredAssets,
   fetchRequiredContentItems,
   fetchTaxonomies,
+  fetchWebSpotlight,
 } from "./utils/fetchers.js";
 
 export type EnvironmentModel = {
   taxonomyGroups: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>;
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>;
+  webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
@@ -35,6 +49,8 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
     client,
   ) as unknown as ContentTypeSnippetsWithUnionElements[];
   const taxonomies = await fetchTaxonomies(client);
+
+  const webSpotlight = await fetchWebSpotlight(client);
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
     (previous, type) => {
@@ -55,6 +71,7 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
     contentTypes,
     contentTypeSnippets,
     taxonomyGroups: taxonomies,
+    webSpotlight,
     assets,
     items,
   };
@@ -64,11 +81,13 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
   const contentTypeModel = transformContentTypeModel(environmentModel, logOptions);
   const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel, logOptions);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
+  const webSpotlightModel = transformWebSpotlightModel(environmentModel);
 
   return {
     contentTypes: contentTypeModel,
     contentTypeSnippets: contentTypeSnippetModel,
     taxonomyGroups: taxonomyGroupsModel,
+    webSpotlight: webSpotlightModel,
   };
 };
 
@@ -107,6 +126,10 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   await fsPromises.writeFile(
     path.resolve(folderName, taxonomiesFileName),
     JSON.stringify(finalModel.taxonomyGroups, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, webSpotlightFileName),
+    JSON.stringify(finalModel.webSpotlight, null, 2),
   );
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
 
