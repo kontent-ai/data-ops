@@ -281,7 +281,7 @@ const renderReplaceOpValue = (
         return `${value.value} ${value.applies_to}`;
       }
       if (isValidationRegex(value)) {
-        return `<p><strong>Regex:</strong> ${value.regex}<strong></p><p>Flags:</strong> ${
+        return `<p><strong>Regex:</strong> ${value.regex}</p><p><strong>Flags:</strong> ${
           value.flags ?? "—"
         }</p><p><strong>IsActive:</strong> ${value.is_active || "—"}</p><p><strong>Validation message:</strong> ${
           value.validation_message ?? "—"
