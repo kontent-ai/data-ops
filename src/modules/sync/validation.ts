@@ -11,7 +11,7 @@ import { ElementsTypes } from "./types/contractModels.js";
 import { DiffModel } from "./types/diffModel.js";
 import { PatchOperation } from "./types/patchOperation.js";
 
-export const validateContentFolder = async (folderPath: string) => {
+export const validateSyncModelFolder = async (folderPath: string) => {
   const stats = await fs.stat(folderPath);
 
   if (!stats.isDirectory()) {

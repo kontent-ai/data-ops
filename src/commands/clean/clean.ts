@@ -1,47 +1,12 @@
 import chalk from "chalk";
 
-import { logError, logInfo, LogOptions } from "../../log.js";
-import { assetFoldersEntity } from "../../modules/importExport/importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "../../modules/importExport/importExportEntities/entities/assets.js";
-import { collectionsEntity } from "../../modules/importExport/importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "../../modules/importExport/importExportEntities/entities/contentItems.js";
-import { contentTypesEntity } from "../../modules/importExport/importExportEntities/entities/contentTypes.js";
-import { contentTypesSnippetsEntity } from "../../modules/importExport/importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "../../modules/importExport/importExportEntities/entities/languages.js";
-import { previewUrlsEntity } from "../../modules/importExport/importExportEntities/entities/previewUrls.js";
-import { spacesEntity } from "../../modules/importExport/importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "../../modules/importExport/importExportEntities/entities/taxonomies.js";
-import { webhooksEntity } from "../../modules/importExport/importExportEntities/entities/webhooks.js";
-import { webSpotlightEntity } from "../../modules/importExport/importExportEntities/entities/webSpotlight.js";
-import { workflowsEntity } from "../../modules/importExport/importExportEntities/entities/workflows.js";
-import { EntityDefinition } from "../../modules/importExport/importExportEntities/entityDefinition.js";
+import { logError, LogOptions } from "../../log.js";
+import { CleanEntityChoices, cleanEntityChoices, cleanEnvironmentInternal } from "../../modules/importExport/clean.js";
 import { requestConfirmation } from "../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
-import { serially } from "../../utils/requests.js";
 
-/**
- * order of this array corresponds with order of individual clean operations.
- */
-const entityDefinitions: ReadonlyArray<EntityDefinition<any>> = [
-  webSpotlightEntity,
-  spacesEntity,
-  contentItemsEntity,
-  taxonomiesEntity,
-  assetsEntity,
-  assetFoldersEntity,
-  contentTypesEntity,
-  contentTypesSnippetsEntity,
-  previewUrlsEntity,
-  workflowsEntity,
-  collectionsEntity,
-  languagesEntity,
-  webhooksEntity,
-];
-
-const commandName = "clean";
-
-const entityChoices = entityDefinitions.map(e => e.name);
+export const commandName = "clean";
 
 export const register: RegisterCommand = (yargs) =>
   yargs.command({
@@ -65,14 +30,14 @@ export const register: RegisterCommand = (yargs) =>
           type: "array",
           describe: "Only remove specified entities.",
           alias: "i",
-          choices: entityChoices,
+          choices: cleanEntityChoices,
           conflicts: "exclude",
         })
         .option("exclude", {
           type: "array",
           describe: "Exclude specified entities from removal.",
           alias: "x",
-          choices: entityChoices,
+          choices: cleanEntityChoices,
           conflicts: "include",
         })
         .option("skipWarning", {
@@ -80,27 +45,22 @@ export const register: RegisterCommand = (yargs) =>
           describe: "Skip warning message.",
           alias: "s",
         }),
-    handler: (args) => cleanEnvironment(args),
+    handler: (args) => cleanEnvironmentCli(args),
   });
 
-type CleanEnvironmentParams =
+type CleanEnvironmentCliParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
-    include?: ReadonlyArray<string>;
-    exclude?: ReadonlyArray<string>;
+    include?: ReadonlyArray<CleanEntityChoices>;
+    exclude?: ReadonlyArray<CleanEntityChoices>;
     skipWarning?: boolean;
   }>
   & LogOptions;
 
-const cleanEnvironment = async (
-  params: CleanEnvironmentParams,
+const cleanEnvironmentCli = async (
+  params: CleanEnvironmentCliParams,
 ): Promise<void> => {
-  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
-
-  const entitiesToClean = entityDefinitions
-    .filter(e => (!params.include || params.include.includes(e.name)) && !params.exclude?.includes(e.name));
-
   const warningMessage = chalk.yellow(
     `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
   );
@@ -112,40 +72,22 @@ const cleanEnvironment = async (
     process.exit(1);
   }
 
-  logInfo(
-    params,
-    "standard",
-    `Cleaning entities from ${chalk.blue(params.environmentId)}.`,
-  );
+  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
 
-  await serially(
-    entitiesToClean.map(def => async () => {
-      logInfo(params, "standard", `Removing ${chalk.yellow(def.displayName)}`);
-
-      const entities = await def.fetchEntities(client);
-
-      return def.cleanEntities(client, entities, params)
-        .catch(err => handleError(params, err, def));
-    }),
-  );
-
-  logInfo(
-    params,
-    "standard",
-    chalk.green("Environment clean finished successfully."),
-  );
+  try {
+    await cleanEnvironmentInternal(params, client);
+  } catch (e) {
+    handleError(params, e);
+  }
 };
 
-const handleError = <T extends LogOptions>(
-  params: T,
+const handleError = (
+  logOptions: LogOptions,
   err: unknown,
-  entity: EntityDefinition<T>,
 ) => {
   logError(
-    params,
-    `Failed to clean entity ${chalk.red(entity.displayName)}.`,
-    JSON.stringify(err, Object.getOwnPropertyNames(err)),
-    "\nStopping clean operation...",
+    logOptions,
+    `${err}\nStopping clean operation...`,
   );
 
   process.exit(1);

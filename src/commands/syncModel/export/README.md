@@ -21,3 +21,18 @@ These properties are removed and transformed to the corresponding IDs or externa
 ```bash
 npx @kontent-ai/data-ops sync-model export --environmentId <environment-id> --apiKey <Management-API-key>
 ```
+
+### Export sync-model data programmatically
+
+To export sync-model data from environments in your scripts, use `syncModelExport` function:
+
+```ts
+import { syncModelExport, SyncModelExportParams } from "@kontent-ai/data-ops";
+
+const params: SyncModelExportParams = {
+  environmentId: "<env-id>",
+  apiKey: "<mapi-key>",
+};
+
+await syncModelExport(params);
+```

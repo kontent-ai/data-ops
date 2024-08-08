@@ -11,7 +11,7 @@ export const handleErr = <T>(entity: WithErr<T>, logOptions: LogOptions, message
       `${message ?? ""}${entity.err instanceof Error ? entity.err.message : JSON.stringify(entity.err)}`,
     );
 
-    process.exit(1);
+    throw new Error(`${message ?? ""}${JSON.stringify(entity.err, Object.getOwnPropertyNames(entity.err))}`);
   }
 
   return entity.value;

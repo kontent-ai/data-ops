@@ -10,7 +10,23 @@ The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi
 ```bash
 npx @kontent-ai/data-ops@latest export --environmentId=<environment-id-to-export> --apiKey=<Management-API-key>
 ```
+
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest export --help`.
+
+### Export programmatically
+
+To export data from environment in your scripts, use `exportEnvironment` function:
+
+```ts
+import { exportEnvironment, ExportEnvironmentParams } from "@kontent-ai/data-ops";
+
+const params: ExportEnvironmentParams = {
+  environmentId: "<env-id>",
+  apiKey: "<mapi-key>",
+};
+
+await exportEnvironment(params);
+```
 
 ### Structure of the Exported Data
 
@@ -66,6 +82,22 @@ The command uses [the Management API](https://kontent.ai/learn/docs/apis/openapi
 npx @kontent-ai/data-ops@latest import --fileName <file-to-import> --environmentId <target-environment-id> --apiKey <Management-API-key>
 ```
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest import --help`.
+
+### Import Programmatically
+
+To import data to environment in your scripts, use `importEnvironment` function:
+
+```ts
+import { importEnvironment, ImportEnvironmentParams } from "@kontent-ai/data-ops";
+
+const params: ImportEnvironmentParams = {
+  environmentId: "<env-id>",
+  apiKey: "<mapi-key>",
+  fileName: "<filename>",
+};
+
+await importEnvironment(params);
+```
 
 ## Known Limitations
 ### Entity limitations

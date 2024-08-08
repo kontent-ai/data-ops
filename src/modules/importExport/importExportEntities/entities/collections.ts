@@ -2,13 +2,13 @@ import { CollectionContracts, CollectionModels } from "@kontent-ai/management-sd
 
 import { defaultName, emptyId } from "../../../../constants/ids.js";
 import { notNull } from "../../../../utils/typeguards.js";
-import { compareExternalIds } from "../../import/utils.js";
+import { compareExternalIds } from "../../utils/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 const defaultCollectionId = emptyId;
 const defaultCollectionName = defaultName;
 
-export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContracts.ICollectionContract>> = {
+export const collectionsEntity = {
   name: "collections",
   displayName: "collections",
   fetchEntities: client => client.listCollections().toPromise().then(res => res.rawData.collections),
@@ -70,7 +70,7 @@ export const collectionsEntity: EntityDefinition<ReadonlyArray<CollectionContrac
       .toPromise()
       .then(res => res.rawData.collections);
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<CollectionContracts.ICollectionContract>>;
 
 const findCollectionMatches = (
   fileCollections: ReadonlyArray<Collection>,

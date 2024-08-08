@@ -1,12 +1,15 @@
 import { createDeliveryClient } from "@kontent-ai/delivery-sdk";
 import { extractAsync, importAsync, migrateAsync } from "@kontent-ai/migration-toolkit";
 import chalk from "chalk";
+import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { getItemsCodenames } from "../../../modules/syncContent/syncContent.js";
+import { SyncContentRunParams } from "../../../modules/syncContent/syncContentRun.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
+import { omit } from "../../../utils/object.js";
 
 const commandName = "run";
 const itemsFilterParams = ["items", "filter", "last", "byTypesCodenames"] as const;
@@ -111,10 +114,10 @@ export const register: RegisterCommand = yargs =>
           }
           return true;
         }),
-    handler: args => migrateContent(args).catch(simplifyErrors),
+    handler: args => syncContentRunCli(args).catch(simplifyErrors),
   });
 
-export type MigrationToolkitParams =
+type SyncContentRunCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -134,8 +137,10 @@ export type MigrationToolkitParams =
   }>
   & LogOptions;
 
-const migrateContent = async (params: MigrationToolkitParams) => {
-  if (params.filename) {
+const syncContentRunCli = async (params: SyncContentRunCliParams) => {
+  const resolvedParams = resolveParams(params);
+
+  if ("filename" in resolvedParams) {
     const data = await extractAsync({ filename: params.filename });
 
     await importAsync({
@@ -147,27 +152,15 @@ const migrateContent = async (params: MigrationToolkitParams) => {
     process.exit(0);
   }
 
-  if (!params.sourceEnvironmentId) {
-    logError(params, "You need to provide sourceEnvironmentId");
-    process.exit(1);
-  }
-
-  if (!params.sourceApiKey) {
-    logError(params, "You need to provide sourceApiKey");
-    process.exit(1);
-  }
-
-  const language = params.language as string;
-
   const deliveryClient = createDeliveryClient({
-    environmentId: params.sourceEnvironmentId,
-    previewApiKey: params.sourceDeliveryPreviewKey,
+    environmentId: resolvedParams.sourceEnvironmentId,
+    previewApiKey: resolvedParams.sourceDeliveryPreviewKey,
     defaultQueryConfig: {
       usePreviewMode: true,
     },
   });
 
-  const itemsCodenames = await getItemsCodenames(deliveryClient, params);
+  const itemsCodenames = await getItemsCodenames(deliveryClient, resolvedParams);
 
   if (!itemsCodenames.length) {
     logInfo(params, "standard", `No items to migrate`);
@@ -177,7 +170,7 @@ const migrateContent = async (params: MigrationToolkitParams) => {
   logInfo(
     params,
     "standard",
-    `Syncing ${itemsCodenames.length} items from ${params.sourceEnvironmentId} to ${params.targetEnvironmentId} ${
+    `Syncing ${itemsCodenames.length} items from ${resolvedParams.sourceEnvironmentId} to ${resolvedParams.targetEnvironmentId} ${
       itemsCodenames.length < 100 ? `with codenames:\n${itemsCodenames.join("\n")}` : ""
     }`,
   );
@@ -196,11 +189,45 @@ const migrateContent = async (params: MigrationToolkitParams) => {
   await migrateAsync({
     targetEnvironment: { apiKey: params.targetApiKey, environmentId: params.targetEnvironmentId },
     sourceEnvironment: {
-      environmentId: params.sourceEnvironmentId,
-      apiKey: params.sourceApiKey,
-      items: itemsCodenames.map(i => ({ itemCodename: i, languageCodename: language })),
+      environmentId: resolvedParams.sourceEnvironmentId,
+      apiKey: resolvedParams.sourceApiKey,
+      items: itemsCodenames.map(i => ({ itemCodename: i, languageCodename: resolvedParams.language })),
     },
   });
 
   logInfo(params, "standard", `All items sucessfuly migrated`);
+};
+
+const resolveParams = (params: SyncContentRunCliParams): SyncContentRunParams => {
+  const ommited = omit(params, ["sourceEnvironmentId", "sourceApiKey", "items", "filter", "last", "byTypesCodenames"]);
+
+  if (params.filename) {
+    return { ...ommited, filename: params.filename };
+  }
+
+  const filterParams = match(params)
+    .with({ items: P.nonNullable }, ({ items }) => ({ ...ommited, items }))
+    .with({ byTypesCodenames: P.nonNullable }, ({ byTypesCodenames }) => ({ ...ommited, byTypesCodenames }))
+    .with({ filter: P.nonNullable }, ({ filter }) => ({ ...ommited, filter }))
+    .with({ last: P.nonNullable }, ({ last }) => ({ ...ommited, last }))
+    .otherwise(() => {
+      logError(params, "You need to provide exactly one from parameters: items, byTypesCodenames, filter or last");
+      process.exit(1);
+    });
+
+  if (params.sourceEnvironmentId && params.sourceApiKey && params.language) {
+    return {
+      ...ommited,
+      ...filterParams,
+      sourceEnvironmentId: params.sourceEnvironmentId,
+      sourceApiKey: params.sourceApiKey,
+      language: params.language,
+    };
+  }
+
+  logError(
+    params,
+    "You need to provide either 'filename' or 'sourceEnvironmentId' with 'sourceApiKey' and 'language' parameters",
+  );
+  process.exit(1);
 };

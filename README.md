@@ -67,6 +67,9 @@ The instructions for individual commands are provided in the README.md files loc
   - [add](./src/commands/migrations/add/README.md)
   - [run](./src/commands/migrations/run/README.md)
 
+> [!NOTE]
+> All command functions are publicly exposed, making it easy to include them in your scripts
+
 # Contributing
 
 ## Getting Started

@@ -2,16 +2,15 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import * as fs from "fs";
 import path from "path";
+import { match, P } from "ts-pattern";
 
-import { RunMigrationFilterParams, RunMigrationsParams } from "../../../commands/migrations/run/runParams.js";
 import { logError, logInfo, LogOptions } from "../../../log.js";
 import { seriallyReduce } from "../../../utils/requests.js";
-import { MakeObjectPropsUnionType } from "../../../utils/types.js";
-import { isMigrationModule, Migration, MigrationOrder, Range } from "../models/migration.js";
-import { MigrationStatus, Operation } from "../models/status.js";
+import { isMigrationModule, Migration, MigrationOrder } from "../models/migration.js";
+import { MigrationOperation, MigrationStatus } from "../models/status.js";
+import { RunMigrationFilterParams } from "../run.js";
 import { WithErr } from "./errUtils.js";
 import { orderComparator } from "./orderUtils.js";
-import { parseRange } from "./rangeUtils.js";
 import { createMigrationStatus } from "./statusUtils.js";
 
 export const formatDateForFileName = (date: Date) =>
@@ -46,53 +45,23 @@ export const generateJavascriptMigration = (orderDate?: Date | null): string =>
 module.exports = migration;
 `;
 
-type FilterParams = MakeObjectPropsUnionType<Pick<RunMigrationsParams, "name" | "all"> & { range?: Range }>;
-
-export const getMigrationFilterParams = (
-  params: RunMigrationFilterParams,
-): WithErr<FilterParams> => {
-  if (params.next) {
-    return { value: { all: true } }; // when next param is selected, filtering happens after the migrations skip.
-  }
-  if (params.range) {
-    const parsedRange = parseRange(params.range as string);
-    if ("err" in parsedRange) {
-      return parsedRange;
-    }
-
-    return { value: { range: parsedRange.value } };
-  }
-  if (params.name) {
-    return { value: { name: params.name } };
-  }
-  if (params.all) {
-    return { value: { all: params.all } };
-  }
-
-  return { err: "Exactly one parameter (all, name, next, range) must be set" };
-};
-
 export const filterMigrations = (
   migrations: ReadonlyArray<Migration>,
-  params: FilterParams,
-) => {
-  const param = params;
-
-  return [
-    ..."all" in param ? migrations : [],
-    ..."name" in param ? migrations.filter(m => m.name === param.name) : [],
-    ..."range" in param
-      ? migrations.filter(m =>
-        orderComparator(m.module.order, param.range.from) >= 0 && orderComparator(m.module.order, param.range.to) <= 0
-      )
-      : [],
-  ];
-};
+  params: RunMigrationFilterParams,
+) =>
+  match(params)
+    .with(P.union({ all: P.nonNullable }, { next: P.nonNullable }), () => migrations)
+    .with({ name: P.nonNullable }, ({ name }) => migrations.filter(m => m.name === name))
+    .with({ range: P.nonNullable }, ({ range }) =>
+      migrations.filter(m =>
+        orderComparator(m.module.order, range.from) >= 0 && orderComparator(m.module.order, range.to) <= 0
+      ))
+    .exhaustive();
 
 export const getMigrationsToSkip = (
   environmentStatus: ReadonlyArray<MigrationStatus>,
   migrations: ReadonlyArray<Migration>,
-  operation: Operation,
+  operation: MigrationOperation,
 ): ReadonlyArray<Migration> =>
   migrations.filter(m => {
     const migrationStatus = environmentStatus.find(s => s.name === m.name);
@@ -134,7 +103,7 @@ export const loadMigrationFiles = async (folderPath: string): Promise<WithErr<Mi
   ).then(res => ({ value: res })).catch((error) => ({ err: error }));
 
 export type ExecuteMigrationOptions = {
-  operation: Operation;
+  operation: MigrationOperation;
   continueOnError: boolean;
 };
 

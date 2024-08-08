@@ -3,7 +3,7 @@ import { AssetFolderContracts, AssetFolderModels } from "@kontent-ai/management-
 import { zip } from "../../../../utils/array.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContracts.IAssetFolderContract>> = {
+export const assetFoldersEntity = {
   name: "assetFolders",
   displayName: "assetFolders",
   fetchEntities: client => client.listAssetFolders().toPromise().then(res => res.rawData.folders),
@@ -35,7 +35,7 @@ export const assetFoldersEntity: EntityDefinition<ReadonlyArray<AssetFolderContr
       .withData(assetFolders.map(createPatchToRemoveFolder))
       .toPromise();
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<AssetFolderContracts.IAssetFolderContract>>;
 
 const createPatchToAddFolder = (
   folder: AssetFolderContracts.IAssetFolderContract,

@@ -30,10 +30,10 @@ npx @kontent-ai/data-ops sync-content run --targetEnvironmentId=<target-environm
 As the command might get long, we recommend passing parameters in a JSON configuration file.
 ```JSON
 {
-  "targetApiKey": "<target-mapi-key>",
-  "targetEnvironmentId": "<target-env-id>",
   "sourceEnvironmentId": "<source-env-id>",
   "sourceApiKey": "<source-mapi-key>",
+  "targetEnvironmentId": "<target-env-id>",
+  "targetApiKey": "<target-mapi-key>",
   "language": "<language-codename>",
 }
 ```
@@ -44,3 +44,21 @@ npx @kontent-ai/data-ops sync-content run --items item1 item2 item3 --configFile
 ```
 
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-content run --help`.
+
+### Sync content programmatically
+
+To sync content in environments in your scripts, use `syncContentRun` function:
+
+```ts
+import { syncContentRun, SyncContentRunParams } from "@kontent-ai/data-ops";
+
+const params: SyncContentRunParams = {
+  sourceEnvironmentId: "<source-env-id>",
+  sourceApiKey: "<source-mapi-key>",
+  targetEnvironmentId: "<target-env-id>",
+  targetApiKey: "<target-mapi-key>",
+  language: '<language-codename>'
+};
+
+await syncContentRun(params);
+```

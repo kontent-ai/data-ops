@@ -1,7 +1,5 @@
-import chalk from "chalk";
-
-import { logError, logInfo, LogOptions } from "../../../log.js";
-import { fetchModel, saveSyncModel, transformSyncModel } from "../../../modules/sync/generateSyncModel.js";
+import { logError, LogOptions } from "../../../log.js";
+import { syncModelExportInternal } from "../../../modules/sync/syncModelExport.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -32,11 +30,11 @@ export const register: RegisterCommand = yargs =>
             describe: "Name of the folder to generate content model into.",
             alias: "f",
           }),
-      handler: args => generateModel(args).catch(simplifyErrors),
+      handler: args => syncModelExportCli(args).catch(simplifyErrors),
     },
   );
 
-export type SyncParams =
+type SyncModelExportCliParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
@@ -44,31 +42,18 @@ export type SyncParams =
   }>
   & LogOptions;
 
-export const generateModel = async (params: SyncParams) => {
-  logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
-  const environmentModel = await logOnError(
-    params,
-    chalk.red("Failed to fetch the model."),
-    () => fetchModel(createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName })),
-  );
-
-  logInfo(params, "standard", "Transforming the model.");
-  const syncModel = transformSyncModel(environmentModel, params);
-
-  const folderName = await logOnError(
-    params,
-    chalk.red("Failed to save the model into the file."),
-    () => saveSyncModel({ syncModel, environmentId: params.environmentId, folderName: params.folderName }),
-  );
-
-  logInfo(params, "standard", `Model is successfully saved into a folder ${chalk.green(folderName)}.`);
-};
-
-const logOnError = async <T>(params: LogOptions, errorMessage: string, action: () => Promise<T>): Promise<T> => {
+const syncModelExportCli = async (params: SyncModelExportCliParams) => {
   try {
-    return action();
+    await syncModelExportInternal(
+      params,
+      createClient({
+        environmentId: params.environmentId,
+        apiKey: params.apiKey,
+        commandName: "sync-model-export-API",
+      }),
+    );
   } catch (e) {
-    logError(params, errorMessage, JSON.stringify(e));
-    throw e;
+    logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
+    process.exit(1);
   }
 };

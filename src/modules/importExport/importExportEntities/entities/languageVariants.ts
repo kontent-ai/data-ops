@@ -11,14 +11,14 @@ import { createAssetExternalId, createItemExternalId } from "../../../../utils/e
 import { serially } from "../../../../utils/requests.js";
 import { notNull } from "../../../../utils/typeguards.js";
 import { ReplaceReferences } from "../../../../utils/types.js";
-import { getRequired } from "../../import/utils.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 import { createReference } from "./utils/reference.js";
 import { replaceImportRichTextReferences } from "./utils/richText.js";
 
 type Variant = ReplaceReferences<LanguageVariantContracts.ILanguageVariantModelContract>;
 
-export const languageVariantsEntity: Omit<EntityDefinition<ReadonlyArray<Variant>>, "cleanEntities"> = {
+export const languageVariantsEntity = {
   name: "languageVariants",
   displayName: "languageVariants",
   fetchEntities: async client => {
@@ -41,7 +41,7 @@ export const languageVariantsEntity: Omit<EntityDefinition<ReadonlyArray<Variant
   importEntities: async (client, fileVariants, context, logOptions) => {
     await serially(fileVariants.map(createImportVariant(client, context, logOptions)));
   },
-};
+} as const satisfies Omit<EntityDefinition<ReadonlyArray<Variant>>, "cleanEntities">;
 
 const createImportVariant =
   (client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>

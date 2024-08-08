@@ -1,8 +1,7 @@
-import { createDeliveryClient } from "@kontent-ai/delivery-sdk";
-import { exportAsync, getDefaultLogger, storeAsync } from "@kontent-ai/migration-toolkit";
+import { match, P } from "ts-pattern";
 
-import { LogOptions } from "../../../log.js";
-import { getItemsCodenames } from "../../../modules/syncContent/syncContent.js";
+import { logError, LogOptions } from "../../../log.js";
+import { syncContentExport, SyncContentExportParams } from "../../../modules/syncContent/syncContentExport.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -84,11 +83,11 @@ export const register: RegisterCommand = yargs =>
             type: "boolean",
             describe: "Skip confirmation message.",
           }),
-      handler: args => generateSyncContent(args).catch(simplifyErrors),
+      handler: args => syncContentExportCli(args).catch(simplifyErrors),
     },
   );
 
-type ExportSyncContentParams =
+type SyncContentExportCliParams =
   & Readonly<{
     sourceEnvironmentId: string;
     sourceApiKey: string;
@@ -99,30 +98,29 @@ type ExportSyncContentParams =
     last?: number;
     depth?: number;
     limit?: number;
-    byTypeCodenames?: ReadonlyArray<string>;
+    byTypesCodenames?: ReadonlyArray<string>;
     filter?: string;
     skipConfirmation?: boolean;
   }>
   & LogOptions;
 
-export const generateSyncContent = async (params: ExportSyncContentParams) => {
-  const deliveryClient = createDeliveryClient({
-    environmentId: params.sourceEnvironmentId,
-    previewApiKey: params.sourceDeliveryPreviewKey,
-    defaultQueryConfig: { usePreviewMode: true },
-  });
+const syncContentExportCli = async (params: SyncContentExportCliParams) => {
+  const resolvedParams = resolveParams(params);
 
-  const itemsCodenames = await getItemsCodenames(deliveryClient, params);
-
-  const data = await exportAsync({
-    environmentId: params.sourceEnvironmentId,
-    apiKey: params.sourceApiKey,
-    exportItems: itemsCodenames.map(i => ({ itemCodename: i, languageCodename: params.language })),
-    logger: getDefaultLogger(),
-  });
-
-  await storeAsync({
-    data,
-    filename: params.filename,
-  });
+  await syncContentExport(resolvedParams);
 };
+
+const resolveParams = (params: SyncContentExportCliParams): SyncContentExportParams =>
+  match(params)
+    .returnType<SyncContentExportParams>()
+    .with({ items: P.nonNullable }, ({ items }) => ({ ...params, items }))
+    .with(
+      { byTypesCodenames: P.nonNullable },
+      ({ byTypesCodenames }) => ({ ...params, byTypesCodenames }),
+    )
+    .with({ filter: P.nonNullable }, ({ filter }) => ({ ...params, filter }))
+    .with({ last: P.nonNullable }, ({ last }) => ({ ...params, last }))
+    .otherwise(() => {
+      logError(params, "You need to provide exactly one from parameters: items, byTypesCodenames, filter or last");
+      process.exit(1);
+    });

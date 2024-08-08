@@ -1,9 +1,9 @@
 import { WebSpotlightContracts } from "@kontent-ai/management-sdk";
 
-import { getRequired } from "../../import/utils.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const webSpotlightEntity: EntityDefinition<WebSpotlightContracts.IWebSpotlightStatus> = {
+export const webSpotlightEntity = {
   name: "webSpotlight",
   displayName: "webSpotlight",
   fetchEntities: client => client.checkWebSpotlightStatus().toPromise().then(res => res.rawData),
@@ -27,4 +27,4 @@ export const webSpotlightEntity: EntityDefinition<WebSpotlightContracts.IWebSpot
   cleanEntities: async client => {
     await client.deactivateWebSpotlight().toPromise();
   },
-};
+} as const satisfies EntityDefinition<WebSpotlightContracts.IWebSpotlightStatus>;

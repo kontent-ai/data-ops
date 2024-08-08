@@ -5,12 +5,12 @@ import { logInfo, LogOptions } from "../../../../log.js";
 import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { ReplaceReferences } from "../../../../utils/types.js";
-import { getRequired } from "../../import/utils.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 type Item = ReplaceReferences<ContentItemContracts.IContentItemModelContract>;
 
-export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
+export const contentItemsEntity = {
   name: "contentItems",
   displayName: "contentItems",
   fetchEntities: client =>
@@ -40,7 +40,7 @@ export const contentItemsEntity: EntityDefinition<ReadonlyArray<Item>> = {
         .toPromise()
     ));
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<Item>>;
 
 const createImportItemFetcher =
   (client: ManagementClient, context: ImportContext, logOptions: LogOptions) => (fileItem: Item) => () => {

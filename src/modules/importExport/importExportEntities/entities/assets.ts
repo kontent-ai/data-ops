@@ -7,7 +7,7 @@ import stream from "stream";
 import { logInfo, LogOptions } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
 import { ReplaceReferences } from "../../../../utils/types.js";
-import { getRequired } from "../../import/utils.js";
+import { getRequired } from "../../utils/utils.js";
 import { EntityDefinition, ImportContext } from "../entityDefinition.js";
 
 const assetsBinariesFolderName = "assets";
@@ -18,7 +18,7 @@ type AssetWithElements = ReplaceReferences<AssetContracts.IAssetModelContract> &
   readonly elements: ReadonlyArray<unknown>;
 };
 
-export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = {
+export const assetsEntity = {
   name: "assets",
   displayName: "assets",
   fetchEntities: client =>
@@ -63,7 +63,7 @@ export const assetsEntity: EntityDefinition<ReadonlyArray<AssetWithElements>> = 
         .toPromise()
     ));
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<AssetWithElements>>;
 
 const saveAsset = async (
   archive: archiver.Archiver,

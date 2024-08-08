@@ -6,7 +6,7 @@ import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
-export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.ITaxonomyContract>> = {
+export const taxonomiesEntity = {
   name: "taxonomies",
   displayName: "taxonomies",
   fetchEntities: client => client.listTaxonomies().toAllPromise().then(res => res.data.items.map(t => t._raw)),
@@ -46,7 +46,7 @@ export const taxonomiesEntity: EntityDefinition<ReadonlyArray<TaxonomyContracts.
         .toPromise()
     ));
   },
-};
+} as const satisfies EntityDefinition<ReadonlyArray<TaxonomyContracts.ITaxonomyContract>>;
 
 const createAddExternalIds =
   (group: TaxonomyContracts.ITaxonomyContract) =>

@@ -1,16 +1,5 @@
-import chalk from "chalk";
-import { existsSync } from "fs";
-import * as path from "path";
-
-import { logError, logInfo, LogOptions } from "../../../log.js";
-import { handleErr } from "../../../modules/migrations/utils/errUtils.js";
-import { createFolder, saveFile } from "../../../modules/migrations/utils/fileUtils.js";
-import {
-  formatDateForFileName,
-  generateJavascriptMigration,
-  generateTypescriptMigration,
-  getMigrationName,
-} from "../../../modules/migrations/utils/migrationUtils.js";
+import { logError, LogOptions } from "../../../log.js";
+import { addMigration } from "../../../modules/migrations/add.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -46,10 +35,10 @@ export const register: RegisterCommand = yargs =>
           type: "boolean",
           default: false,
         }),
-    handler: args => addMigration(args).catch(simplifyErrors),
+    handler: args => addMigrationCli(args).catch(simplifyErrors),
   });
 
-export type AddMigrationParams =
+type AddMigrationCliParams =
   & Readonly<{
     name: string;
     folder?: string;
@@ -58,41 +47,11 @@ export type AddMigrationParams =
   }>
   & LogOptions;
 
-export const addMigration = async (params: AddMigrationParams) => {
-  if (params.type !== "js" && params.type !== "ts") {
-    logError(params, "'type' parameter must be 'js' or 'ts");
+const addMigrationCli = async (params: AddMigrationCliParams) => {
+  try {
+    await addMigration(params);
+  } catch (e) {
+    logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
     process.exit(1);
   }
-
-  const folderPath = params.folder ?? process.cwd();
-
-  if (!existsSync(folderPath)) {
-    logInfo(params, "standard", `Creating folder ${folderPath}.`);
-
-    const resultFolderPath = handleErr(createFolder(folderPath), params);
-
-    logInfo(params, "standard", `Folder ${chalk.blue(resultFolderPath)} has been created successfully.`);
-  }
-
-  const currentDate = new Date();
-
-  const migrationName = getMigrationName(
-    params.name,
-    params.type as "js" | "ts",
-    params.timestamp ? formatDateForFileName(currentDate) : undefined,
-  );
-  const migrationData = params.type === "ts"
-    ? generateTypescriptMigration(params.timestamp ? currentDate : undefined)
-    : generateJavascriptMigration(params.timestamp ? currentDate : undefined);
-
-  const migrationPath = path.join(folderPath, migrationName);
-
-  logInfo(params, "standard", `Creating migration ${chalk.blue(migrationName)}`);
-  const saveMigrationPath = handleErr(saveFile(migrationPath, migrationData), params);
-
-  logInfo(
-    params,
-    "standard",
-    `Migration ${chalk.blue(saveMigrationPath)} has been created sucessfully in ${chalk.blue(folderPath)}`,
-  );
 };
