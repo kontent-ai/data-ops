@@ -3,6 +3,7 @@ import chalk from "chalk";
 
 import { logInfo } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
+import { getRequired } from "../../import/utils.js";
 import { EntityDefinition } from "../entityDefinition.js";
 
 export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceContract>> = {
@@ -20,6 +21,18 @@ export const spacesEntity: EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceC
         .withData({
           name: importSpace.name,
           codename: importSpace.codename,
+          collections: importSpace.collections?.map(c => ({
+            id: getRequired(context.collectionIdsByOldIds, c.id ?? "missing-collection-id", "collection"),
+          })),
+          web_spotlight_root_item: importSpace.web_spotlight_root_item
+            ? {
+              id: getRequired(
+                context.contentItemContextByOldIds,
+                importSpace.web_spotlight_root_item.id ?? "missing-ws-root-id",
+                "item",
+              ).selfId,
+            }
+            : undefined,
         }).toPromise();
     }));
 

@@ -78,6 +78,17 @@ export const expectNoSnippets = async (envId: string) => {
   expect(assets).toStrictEqual([]);
 };
 
+export const expectNoSpaces = async (envId: string) => {
+  const client = makeClientFor(envId);
+
+  const spaces = await client
+    .listSpaces()
+    .toPromise()
+    .then(res => res.data);
+
+  expect(spaces).toStrictEqual([]);
+};
+
 export const expectNoTypes = async (envId: string) => {
   const client = makeClientFor(envId);
 
