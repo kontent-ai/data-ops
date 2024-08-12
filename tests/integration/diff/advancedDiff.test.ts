@@ -1,7 +1,9 @@
 import { afterAll, describe, expect, it } from "@jest/globals";
+import * as childProcess from "child_process";
 import { config as dotenvConfig } from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
+import { promisify } from "util";
 
 import { runCommand } from "../utils/runCommand.ts";
 
@@ -21,7 +23,6 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
 
 describe("Advanced diff", () => {
   const outputFilePath = path.join(__dirname, "diffTest.html");
-  const baseFilePath = path.join(__dirname, "diffBase.html");
   const dateGeneratedRegex = /<div>state from <strong>.*<\/strong><\/div>/;
 
   it("matches the generated file with the baseline", async () => {
@@ -29,17 +30,19 @@ describe("Advanced diff", () => {
       `sync-model diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" -a -n`;
     await runCommand(command);
 
-    const baseFileContent = fs.readFileSync(baseFilePath, "utf-8");
-    const baseFileDateGenerated = baseFileContent.match(dateGeneratedRegex)?.[0];
+    const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8")
+      .replace(
+        dateGeneratedRegex,
+        "test-date",
+      );
 
-    expect(baseFileDateGenerated).toBeDefined();
+    const fmtPromise = promisify(childProcess.exec)(`dprint fmt --stdin ${outputFilePath}`);
+    fmtPromise.child.stdin?.write(generatedFileContent);
+    fmtPromise.child.stdin?.end();
 
-    const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8").replace(
-      dateGeneratedRegex,
-      baseFileDateGenerated ?? "generated date not found in the base file",
-    );
+    const result = await fmtPromise;
 
-    expect(generatedFileContent).toStrictEqual(baseFileContent);
+    expect(result.stdout).toMatchSnapshot();
   });
 
   afterAll(() => {
