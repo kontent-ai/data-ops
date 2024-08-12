@@ -1,7 +1,13 @@
 {
   "extends": "https://raw.githubusercontent.com/kontent-ai/dprint-config/main/dprint.json",
+  "plugins": [
+    "https://plugins.dprint.dev/g-plane/markup_fmt-v0.11.0.wasm"
+  ],
   "includes": [
-    "src/**/*.{ts,tsx,js,jsx,json}",
-    "tests/**/*.{ts,tsx,js,jsx,json}"
+    "src/**/*.{ts,tsx,js,jsx,json,html}",
+    "tests/**/*.{ts,tsx,js,jsx,json,html}"
+  ],
+  "excludes": [
+    "tests/**/*.snap.html"
   ]
 }

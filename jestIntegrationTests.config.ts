@@ -7,6 +7,7 @@ const jestConfig: JestConfigWithTsJest = {
   testEnvironment: 'node',
   rootDir: "tests/integration",
   resolver: "../../jestModuleResolver.cjs",
+  snapshotResolver: "../../jestSnapshotsResolver.cjs",
   testTimeout: 5 * minute,
   transform: {
     ".*": ["ts-jest", {
