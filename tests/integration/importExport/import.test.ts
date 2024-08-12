@@ -11,6 +11,7 @@ import {
   expectNoItems,
   expectNoPreviewUrls,
   expectNoSnippets,
+  expectNoSpaces,
   expectNoTaxonomies,
   expectNoTypes,
   expectNoWebhooks,
@@ -48,16 +49,17 @@ describe("import command", () => {
     "Imports only entities specified in the include parameter",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --include collections languages spaces taxonomies`;
+        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --include collections languages taxonomies`;
 
       await runCommand(command);
 
       await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
-        include: ["collections", "languages", "spaces", "taxonomies"],
+        include: ["collections", "languages", "taxonomies"],
       });
 
       await expectNoAssetFolders(environmentId);
       await expectNoAssets(environmentId);
+      await expectNoSpaces(environmentId);
       await expectNoSnippets(environmentId);
       await expectNoTypes(environmentId);
       await expectNoItems(environmentId);
@@ -71,13 +73,14 @@ describe("import command", () => {
     "Imports all entities except those specified in the exclude parameter",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --exclude assets contentTypes contentTypeSnippets taxonomies contentItems languageVariants workflows previewUrls webhooks`;
+        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --exclude assets spaces webSpotlight contentTypes contentTypeSnippets taxonomies contentItems languageVariants workflows previewUrls webhooks`;
 
       await runCommand(command);
 
       await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
         exclude: [
           "assets",
+          "spaces",
           "roles",
           "types",
           "snippets",
@@ -93,6 +96,7 @@ describe("import command", () => {
       await expectNoAssets(environmentId);
       await expectNoTypes(environmentId);
       await expectNoSnippets(environmentId);
+      await expectNoSpaces(environmentId);
       await expectNoTaxonomies(environmentId);
       await expectNoItems(environmentId);
       await expectNoWorkflows(environmentId);
