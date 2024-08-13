@@ -90,6 +90,7 @@ describe("import command", () => {
           "workflows",
           "previewUrls",
           "webhooks",
+          "webSpotlight",
         ],
       });
 

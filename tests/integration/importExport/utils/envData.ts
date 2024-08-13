@@ -13,6 +13,7 @@ import {
   SpaceContracts,
   TaxonomyContracts,
   WebhookContracts,
+  WebSpotlightContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
@@ -44,6 +45,7 @@ export type AllEnvData = Readonly<{
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
   variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
   webhooks: ReadonlyArray<WebhookContracts.IWebhookContract>;
+  webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
 }>;
 
 export const loadVariantsByItemCodename = async (
@@ -176,6 +178,9 @@ const loadData = async (
         .toPromise()
         .then(res => res.data.webhooks.map(w => w._raw))
       : [],
+    webSpotlight: has("webSpotlight")
+      ? (await client.checkWebSpotlightStatus().toPromise()).rawData
+      : { enabled: false, root_type: null },
   };
 };
 
@@ -197,6 +202,7 @@ export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvDat
     assetFolders: await loadFile(zip, "assetFolders.json"),
     assets: await loadFile(zip, "assets.json"),
     webhooks: await loadFile(zip, "webhooks.json"),
+    webSpotlight: await loadFile(zip, "webSpotlight.json"),
   };
 };
 
@@ -221,4 +227,5 @@ export const emptyAllEnvData: AllEnvData = {
   items: [],
   variants: [],
   webhooks: [],
+  webSpotlight: { enabled: false, root_type: null },
 };

@@ -31,15 +31,15 @@ const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
 ): Promise<void> => {
-  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies"] })
+  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies", "webSpotlight"] })
     .then(prepareReferences);
-  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies"] })
+  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies", "webSpotlight"] })
     .then(prepareReferences);
 
   expectSameAllEnvData(data1, data2, { include: ["types", "snippets", "taxonomies"] });
 };
 
-describe("Sync two environments with credentials", () => {
+describe("Sync model of two environments with credentials", () => {
   it.concurrent(
     "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {

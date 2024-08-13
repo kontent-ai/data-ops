@@ -83,6 +83,7 @@ export const expectSameAllEnvData = (
   has("items") && expect(sortByCodename(data1.items)).toStrictEqual(sortByCodename(data2.items));
   has("variants") && expect(sortedVariants(data1)).toStrictEqual(sortedVariants(data2));
   has("webhooks") && expect(sortBy(data1.webhooks, w => w.name)).toStrictEqual(sortBy(data2.webhooks, w => w.name));
+  has("webSpotlight") && expect(data1.webSpotlight).toStrictEqual(data2.webSpotlight);
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
@@ -117,6 +118,12 @@ export const prepareReferences = (data: AllEnvData): AllEnvData => ({
   items: data.items.map(createPrepareItemReferences(data)),
   variants: data.variants.map(createPrepareVariantReferences(data)),
   webhooks: data.webhooks.map(createPrepareWebhookReferences(data)),
+  webSpotlight: {
+    enabled: data.webSpotlight.enabled,
+    root_type: data.webSpotlight.root_type
+      ? { id: data.types.find(t => t.id === data.webSpotlight.root_type?.id)?.codename ?? "non-existing-type" }
+      : null,
+  },
 });
 
 type PrepareReferencesCreator<T> = (data: AllEnvData) => PrepareReferencesFnc<T>;
