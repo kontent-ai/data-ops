@@ -11,6 +11,7 @@ import {
   expectNoItems,
   expectNoPreviewUrls,
   expectNoSnippets,
+  expectNoSpaces,
   expectNoTaxonomies,
   expectNoTypes,
   expectNoWebhooks,
@@ -58,13 +59,15 @@ describe("clean command", () => {
       await runCommand(command);
 
       await expectSameEnvironments(environmentId, CLEAN_TEST_DATA_ENVIRONMENT_ID, {
-        exclude: ["spaces", "items", "types", "snippets", "previewUrls", "variants", "webhooks"],
+        exclude: ["spaces", "items", "types", "snippets", "previewUrls", "variants", "webhooks", "webSpotlight"],
       });
 
       await expectNoItems(environmentId);
       await expectNoPreviewUrls(environmentId);
       await expectNoSnippets(environmentId);
       await expectNoTypes(environmentId);
+      await expectNoSpaces(environmentId);
+      await expectNoWebhooks(environmentId);
     }),
   );
 
@@ -87,6 +90,8 @@ describe("clean command", () => {
       await expectNoSnippets(environmentId);
       await expectNoTypes(environmentId);
       await expectNoWebhooks(environmentId);
+      await expectNoSpaces(environmentId);
+      await expectNoWorkflows(environmentId);
     }),
   );
 
