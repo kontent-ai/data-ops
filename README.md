@@ -1,6 +1,11 @@
-# Kontent.ai Data Ops
+# Kontent.ai Data Ops: Import, Export, Sync and more.
 
-Data-ops is a CLI tool for managing data in your Kontent.ai projects.
+Data-ops is a CLI tool for managing data in your Kontent.ai projects. It suppports complex operations such as:
+  - Import data
+  - Export data
+  - Sync data across environments
+  - Migrations execution
+
 It runs in Node.js with ESM support (lts).
 
 [![Contributors][contributors-shield]][contributors-url]
@@ -53,7 +58,7 @@ The tool usage is based on commands provided in the following format:
 npx @kontent-ai/data-ops@latest <command-name> <command-options>
 ```
 
-The instructions for individual commands are provided in the README.md files located in each command's respective folder (./src/commands). Data-ops supports the following commands:
+The documentation for individual commands are provided in the README.md files located in each command's respective folder (./src/commands). Data-ops supports the following commands:
 - [import & export](./src/commands/importExport/README.md)
 - [clean](./src/commands/clean/README.md)
 - sync-model
