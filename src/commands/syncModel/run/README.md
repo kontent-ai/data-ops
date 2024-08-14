@@ -50,9 +50,8 @@ npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-env
 To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-model run --help`.
 
 ## Known limitations
-Using Management API introduces some limitations. Synchrozining content model won't let you:
-- Change the state of Web Spotlight (coming soon)
-- Snippet element can't be referenced in the same request its created in. Because of this, the tool can't move it to the correct place in the content type.
+Using Management API introduces some limitations:
+- Snippet element can't be referenced in the same request it's created in. Because of this, the tool can't move it to the correct place in the content type.
 
 ## Contributing
 
