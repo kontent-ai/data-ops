@@ -92,6 +92,7 @@ const items = [
     name: "item 1",
     codename: "item_1",
     type: { id: contentTypes[0].id },
+    spaces: [],
     last_modified: new Date(),
     collection: { id: "" },
   },

@@ -477,9 +477,7 @@ const createPrepareItemReferences: PrepareReferencesCreator<ContentItemContracts
     last_modified: new Date(1316, 4, 14),
     type: { id: data.types.find(t => t.id === item.type.id)?.codename ?? "non-existing-type" },
     collection: { id: data.collections.find(c => c.id === item.collection.id)?.codename ?? "non-existing-collection" },
-    spaces: (item as any).spaces.map((s: any) => ({ // TODO: remove both any types once the SDK types are fixed
-      id: data.spaces.find(sp => sp.id === s.id)?.codename ?? "non-existing-space",
-    })),
+    spaces: item.spaces.map(s => ({ id: data.spaces.find(sp => sp.id === s.id)?.codename ?? "non-existing-space" })),
   });
 
 const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantContracts.ILanguageVariantModelContract> =
