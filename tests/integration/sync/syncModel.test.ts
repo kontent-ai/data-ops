@@ -8,6 +8,7 @@ import {
   contentTypeSnippetsFileName,
   taxonomiesFileName,
 } from "../../../src/modules/sync/constants/filename.ts";
+import { syncModelRun } from "../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
 import { loadAllEnvData } from "../importExport/utils/envData.ts";
 import { runCommand } from "../utils/runCommand.ts";
@@ -53,14 +54,16 @@ describe("Sync model of two environments with credentials", () => {
   );
 
   it.concurrent(
-    "Sync target environment to source environment directly from target environment",
+    "Sync target environment to source environment directly from target environment using API",
     withTestEnvironment(SYNC_SOURCE_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command =
-        `sync-model run -s=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
+      await syncModelRun({
+        sourceEnvironmentId: SYNC_TARGET_TEST_ENVIRONMENT_ID,
+        sourceApiKey: API_KEY,
+        targetEnvironmentId: environmentId,
+        targetApiKey: API_KEY,
+        verbose: true,
+      });
 
-      await runCommand(command);
-
-      await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID);
       await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID);
     }),
   );

@@ -2,6 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { syncContentRun } from "../../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../../importExport/utils/compare.ts";
 import { loadAllEnvData, loadVariantsByItemCodename } from "../../importExport/utils/envData.ts";
 import { runCommand } from "../../utils/runCommand.ts";
@@ -54,12 +55,19 @@ describe("Sync two environments with credentials", () => {
   );
 
   it.concurrent(
-    "Sync source environment to target environment directly from source environment with linked item",
+    "Sync source environment to target environment directly from source environment with linked item using API",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command =
-        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=default --sd=${DELIVERY_KEY} --items sync_item_1 --depth 2 --verbose --skipConfirmation`;
-
-      await runCommand(command);
+      await syncContentRun({
+        sourceEnvironmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID,
+        sourceApiKey: API_KEY,
+        targetEnvironmentId: environmentId,
+        targetApiKey: API_KEY,
+        language: "default",
+        sourceDeliveryPreviewKey: DELIVERY_KEY,
+        items: ["sync_item_1"],
+        depth: 2,
+        verbose: true,
+      });
 
       await expectSameSyncContentEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, [
         "sync_item_1",
@@ -89,7 +97,7 @@ describe("Sync two environments with credentials", () => {
   );
 });
 
-describe("Sync environment from folder", () => {
+describe("Sync content from zip", () => {
   const relativeFolderPath = "./tests/integration/sync/content/data";
   const relativeContentZipPath = `${relativeFolderPath}/sourceContent.zip`;
 
@@ -97,7 +105,7 @@ describe("Sync environment from folder", () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
     const command =
-      `sync-content export -s ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk ${API_KEY} -f ${relativeContentZipPath} --sd=${DELIVERY_KEY} -l default --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
+      `sync-content export -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=default --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
     await runCommand(command);
 
     const fileExists = await fsPromises.stat(relativeContentZipPath)
@@ -108,7 +116,7 @@ describe("Sync environment from folder", () => {
   });
 
   it(
-    "Sync content from folder",
+    "Run sync content from zip",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
         `sync-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l default --verbose --skipConfirmation`;
