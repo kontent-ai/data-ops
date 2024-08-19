@@ -211,8 +211,16 @@ const extractAllStepIds = (wf: WorkflowContracts.IWorkflowContract): ReadonlyArr
 const createDefaultWorkflowData = (wf: Workflow): WorkflowModels.IUpdateWorkflowData => ({
   name: defaultName,
   codename: defaultCodename,
-  scopes: wf.scopes,
-  steps: wf.steps,
+  scopes: [],
+  steps: [
+    {
+      name: "draft",
+      codename: "draft",
+      color: "red",
+      role_ids: [],
+      transitions_to: [{ step: { codename: "published" } }],
+    },
+  ],
   published_step: { ...wf.published_step, codename: "published", name: "Published" },
   archived_step: { ...wf.archived_step, codename: "archived", name: "Archived" },
 });
