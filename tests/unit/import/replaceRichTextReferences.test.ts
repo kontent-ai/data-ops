@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import { replaceRichTextReferences } from "../../../src/modules/importExport/importExportEntities/entities/utils/richText.ts";
 

@@ -1,5 +1,5 @@
-import { expect } from "@jest/globals";
 import { ManagementClient } from "@kontent-ai/management-sdk";
+import { expect } from "vitest";
 
 const { API_KEY } = process.env;
 

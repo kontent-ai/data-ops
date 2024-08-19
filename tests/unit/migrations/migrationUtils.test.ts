@@ -1,5 +1,5 @@
-import { describe, expect, it, jest } from "@jest/globals";
 import { ManagementClient } from "@kontent-ai/management-sdk";
+import { describe, expect, it, vitest } from "vitest";
 
 import { Migration } from "../../../src/modules/migrations/models/migration.ts";
 import { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
@@ -100,8 +100,8 @@ describe("executeMigrations", () => {
   it("Correctly executesMigration", async () => {
     const migrationsToRun = [migrations[0], migrations[1]];
 
-    const migration0Run = jest.spyOn(migrations[0].module, "run");
-    const migration1Run = jest.spyOn(migrations[1].module, "run");
+    const migration0Run = vitest.spyOn(migrations[0].module, "run");
+    const migration1Run = vitest.spyOn(migrations[1].module, "run");
 
     const client = new ManagementClient({ environmentId: "-", apiKey: "-" });
 

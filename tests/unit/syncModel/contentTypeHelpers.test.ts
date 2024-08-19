@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { ContentTypeElements } from "@kontent-ai/management-sdk";
+import { describe, expect, it } from "vitest";
 
 import { getRequiredIds } from "../../../src/modules/sync/utils/contentTypeHelpers.ts";
 
@@ -62,8 +62,8 @@ describe("getRequiredIds", () => {
 
     const ids = getRequiredIds(contentType.elements);
 
-    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));
-    expect(ids.itemIds).toEqual(new Set([]));
+    expect(ids.assetIds).toStrictEqual(new Set(["assetId1", "assetId2"]));
+    expect(ids.itemIds).toStrictEqual(new Set([]));
   });
 
   it("test obtain asset ids from assets in guidelines ", () => {
@@ -73,8 +73,8 @@ describe("getRequiredIds", () => {
 
     const ids = getRequiredIds(contentType.elements);
 
-    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));
-    expect(ids.itemIds).toEqual(new Set([]));
+    expect(ids.assetIds).toStrictEqual(new Set(["assetId1", "assetId2"]));
+    expect(ids.itemIds).toStrictEqual(new Set([]));
   });
 
   it("test obtain item ids from links in guidelines ", () => {
@@ -84,8 +84,8 @@ describe("getRequiredIds", () => {
 
     const ids = getRequiredIds(contentType.elements);
 
-    expect(ids.assetIds).toEqual(new Set([]));
-    expect(ids.itemIds).toEqual(new Set(["itemId1", "itemId2", "itemId3"]));
+    expect(ids.assetIds).toStrictEqual(new Set([]));
+    expect(ids.itemIds).toStrictEqual(new Set(["itemId1", "itemId2", "itemId3"]));
   });
 
   it("test obtain assets and item ids from guidelines ", () => {
@@ -95,8 +95,8 @@ describe("getRequiredIds", () => {
 
     const ids = getRequiredIds(contentType.elements);
 
-    expect(ids.assetIds).toEqual(new Set(["assetId1"]));
-    expect(ids.itemIds).toEqual(new Set(["itemId1"]));
+    expect(ids.assetIds).toStrictEqual(new Set(["assetId1"]));
+    expect(ids.itemIds).toStrictEqual(new Set(["itemId1"]));
   });
 
   it("obtain ids from asset and linked elements ", () => {
@@ -104,7 +104,7 @@ describe("getRequiredIds", () => {
 
     const ids = getRequiredIds(contentType.elements);
 
-    expect(ids.assetIds).toEqual(new Set(["assetId1", "assetId2"]));
-    expect(ids.itemIds).toEqual(new Set(["itemId1", "itemId2"]));
+    expect(ids.assetIds).toStrictEqual(new Set(["assetId1", "assetId2"]));
+    expect(ids.itemIds).toStrictEqual(new Set(["itemId1", "itemId2"]));
   });
 });

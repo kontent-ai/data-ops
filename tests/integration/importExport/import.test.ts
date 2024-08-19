@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
+import { describe, expect, it } from "vitest";
 
 import { expectHelpText } from "../utils/expectations.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";

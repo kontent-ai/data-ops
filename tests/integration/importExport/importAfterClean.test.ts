@@ -1,4 +1,4 @@
-import { describe, it } from "@jest/globals";
+import { describe, it } from "vitest";
 
 import { runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";

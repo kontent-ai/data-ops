@@ -1,4 +1,3 @@
-import { describe, expect, it } from "@jest/globals";
 import {
   AssetContracts,
   ContentItemContracts,
@@ -6,6 +5,7 @@ import {
   ContentTypeElements,
   TaxonomyContracts,
 } from "@kontent-ai/management-sdk";
+import { describe, expect, it } from "vitest";
 
 import { LogOptions } from "../../../src/log.ts";
 import {

@@ -10,9 +10,10 @@
     "fmt": "dprint fmt",
     "fmt:check": "dprint check",
     "start": "npm run build && node ./build/src/index.js",
-    "test:integration": "npm run build && jest --config=jestIntegrationTests.config.ts",
-    "test:advancedDiff": "npm run build && jest --config=jestIntegrationTests.config.ts tests/integration/diff/advancedDiff.test.ts",
-    "test:unit": "jest --config=jestUnitTests.config.ts",
+    "test:integration": "npm run build && vitest run --config=vitest.config.integration.js",
+    "test:advancedDiff": "npm run build && vitest run --config=vitest.config.integration.js tests/integration/diff/advancedDiff.test.ts",
+    "test:unit": "vitest run --config=vitest.config.unit.js",
+    "test:unit:watch": "vitest run --config=vitest.config.unit.js --watch",
     "export:testEnvs": "node exportTestEnvironments.js"
   },
   "files": [
@@ -44,7 +45,7 @@
     "@kontent-ai/delivery-sdk": "^14.11.0",
     "@kontent-ai/management-sdk": "^7.2.0",
     "@kontent-ai/migration-toolkit": "^1.5.0",
-    "@kontent-ai/rich-text-resolver": "^1.1.3",
+    "@kontent-ai/rich-text-resolver": "1.1.3",
     "archiver": "^7.0.1",
     "axios": "^1.7.4",
     "chalk": "^5.3.0",
@@ -55,7 +56,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@jest/globals": "^29.7.0",
     "@kontent-ai/eslint-config": "^1.0.0",
     "@types/archiver": "^6.0.2",
     "@types/node": "^20.10.8",
@@ -65,9 +65,8 @@
     "dprint": "^0.45.0",
     "eslint": "^8.56.0",
     "minimist": "^1.2.8",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vitest": "^2.0.5"
   }
 }

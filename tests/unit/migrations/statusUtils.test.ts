@@ -1,5 +1,5 @@
-import { describe, expect, it, jest } from "@jest/globals";
 import * as fs from "fs";
+import { describe, expect, it, MockedObject, vitest } from "vitest";
 
 import { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
 import { createDefaultReadStatus, updateEnvironmentStatus } from "../../../src/modules/migrations/utils/statusUtils.ts";
@@ -11,8 +11,8 @@ const createMigrationStatus = (
   lastOperation: "run" | "rollback",
 ): MigrationStatus => ({ name, order, time: new Date(), success, lastOperation });
 
-jest.mock("fs");
-const mockFS: jest.Mocked<typeof fs> = jest.mocked(fs);
+vitest.mock("fs");
+const mockFS: MockedObject<typeof fs> = vitest.mocked(fs);
 
 describe("updateEnvironmentStatus", () => {
   it("correctly updateEnvironmentStatus to contain data from new status", () => {

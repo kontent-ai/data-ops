@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { ContentTypeContracts } from "@kontent-ai/management-sdk";
+import { describe, expect, it } from "vitest";
 
 import { LogOptions } from "../../../src/log.ts";
 import { transformContentTypeModel } from "../../../src/modules/sync/modelTransfomers/contentTypes.ts";

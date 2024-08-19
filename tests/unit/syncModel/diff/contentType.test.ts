@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import { makeContentTypeHandler } from "../../../../src/modules/sync/diff/contentType.ts";
 import { ContentTypeSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { Filters, IContentItem, IContentItemElements, Parameters, Responses } from "@kontent-ai/delivery-sdk";
+import { describe, expect, it } from "vitest";
 
 import {
   extractItemsCodenamesFromResponse,

@@ -1,4 +1,3 @@
-import { expect } from "@jest/globals";
 import {
   AssetContracts,
   AssetFolderContracts,
@@ -17,6 +16,7 @@ import {
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
+import { expect } from "vitest";
 
 import { replaceRichTextReferences } from "../../../../src/modules/importExport/importExportEntities/entities/utils/richText.ts";
 import { AllEnvData, loadAllEnvData } from "./envData.ts";
