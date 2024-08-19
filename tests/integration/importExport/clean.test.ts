@@ -20,10 +20,10 @@ import {
 
 dotenvConfig();
 
-const { API_KEY, CLEAN_TEST_DATA_ENVIRONMENT_ID } = process.env;
+const { API_KEY, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID } = process.env;
 
-if (!CLEAN_TEST_DATA_ENVIRONMENT_ID) {
-  throw new Error("CLEAN_TEST_DATA_ENVIRONMENT_ID environment variable is not defined.");
+if (!EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID) {
+  throw new Error("EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID environment variable is not defined.");
 }
 
 if (!API_KEY) {
@@ -33,7 +33,7 @@ if (!API_KEY) {
 describe("clean command", () => {
   it.concurrent(
     "Cleans all entities in the target environment.",
-    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
+    withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} -s`;
 
       await runCommand(command);
@@ -52,14 +52,24 @@ describe("clean command", () => {
 
   it.concurrent(
     "Cleans only entities specified in the include parameter.",
-    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
+    withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command =
         `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, CLEAN_TEST_DATA_ENVIRONMENT_ID, {
-        exclude: ["spaces", "items", "types", "snippets", "previewUrls", "variants", "webhooks", "webSpotlight"],
+      await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
+        exclude: [
+          "spaces",
+          "items",
+          "types",
+          "snippets",
+          "previewUrls",
+          "variants",
+          "webhooks",
+          "webSpotlight",
+          "workflows", // workflows are dependent on types, so when types are deleted, invalid id references preserves to types in workflows.
+        ],
       });
 
       await expectNoItems(environmentId);
@@ -73,12 +83,12 @@ describe("clean command", () => {
 
   it.concurrent(
     "Cleans only entities not specified in the exclude parameter.",
-    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
+    withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections -s`;
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, CLEAN_TEST_DATA_ENVIRONMENT_ID, {
+      await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
         include: ["languages", "collections"],
       });
 
@@ -96,7 +106,7 @@ describe("clean command", () => {
   );
 
   it.concurrent("Errors when removing types with existing items, prints message.", async () => {
-    withTestEnvironment(CLEAN_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
+    withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
 
       const result = await runCommand(command).catch(err => err as CommandError);
