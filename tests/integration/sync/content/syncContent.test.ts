@@ -1,6 +1,6 @@
-import { describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
+import { describe, expect, it } from "vitest";
 
 import { expectSameAllEnvData, prepareReferences } from "../../importExport/utils/compare.ts";
 import { loadAllEnvData, loadVariantsByItemCodename } from "../../importExport/utils/envData.ts";

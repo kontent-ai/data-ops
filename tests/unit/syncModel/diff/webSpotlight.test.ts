@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import { webSpotlightHandler } from "../../../../src/modules/sync/diff/webSpotlight.ts";
 import { WebSpotlightSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";

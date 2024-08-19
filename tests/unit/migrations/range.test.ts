@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import { parseRange, validateRange } from "../../../src/modules/migrations/utils/rangeUtils.ts";
 

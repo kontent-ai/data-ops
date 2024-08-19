@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 
 import { taxonomyGroupHandler } from "../../../../src/modules/sync/diff/taxonomy.ts";
 import { TaxonomySyncModel } from "../../../../src/modules/sync/types/syncModel.ts";

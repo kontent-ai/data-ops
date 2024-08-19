@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vitest } from "vitest";
 
 import {
   baseHandler,
@@ -298,7 +298,7 @@ describe("makeAdjustEntityHandler", () => {
 describe("makeProvideHandler", () => {
   it("Provides the same source and target to makeHandler param and the returned handler", () => {
     const handler: Handler<number> = (s, t) => [{ op: "replace", path: "", value: s, oldValue: t }];
-    const handlerMaker = jest.fn(() => handler);
+    const handlerMaker = vitest.fn(() => handler);
 
     const result = makeProvideHandler<number>(handlerMaker)(42, 69);
 

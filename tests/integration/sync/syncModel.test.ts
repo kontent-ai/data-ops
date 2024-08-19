@@ -1,7 +1,7 @@
-import { describe, expect, it } from "@jest/globals";
 import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 import * as path from "path";
+import { describe, expect, it } from "vitest";
 
 import {
   contentTypesFileName,

@@ -1,9 +1,9 @@
-import { afterAll, describe, expect, it } from "@jest/globals";
 import * as childProcess from "child_process";
 import { config as dotenvConfig } from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
+import { afterAll, describe, expect, it } from "vitest";
 
 import { runCommand } from "../utils/runCommand.ts";
 
@@ -42,7 +42,7 @@ describe("Advanced diff", () => {
 
     const result = await fmtPromise;
 
-    expect(result.stdout).toMatchSnapshot();
+    expect(result.stdout).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
   });
 
   afterAll(() => {
