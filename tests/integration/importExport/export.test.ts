@@ -2,6 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 import { describe, expect, it } from "vitest";
 
+import { exportEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { expectSameAllEnvData } from "./utils/compare.ts";
@@ -62,6 +63,27 @@ describe("export command", () => {
       `export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --exclude collections spaces taxonomies contentTypes`;
 
     await runCommand(command);
+
+    const sourceEnvData = await loadAllEnvData(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID);
+    const exportedData = await loadAllEnvDataFromZip(filePath);
+
+    expectSameAllEnvData(exportedData, sourceEnvData, { exclude: ["collections", "spaces", "taxonomies", "types"] });
+    expect(exportedData.collections).toBeUndefined();
+    expect(exportedData.spaces).toBeUndefined();
+    expect(exportedData.taxonomies).toBeUndefined();
+    expect(exportedData.types).toBeUndefined();
+  });
+
+  it("Exports all entities except those specified in the exclude parameter using API", async () => {
+    const filePath = "./tests/integration/importExport/data/exportedData.zip";
+    await fsPromises.rm(filePath, { force: true });
+
+    await exportEnvironment({
+      environmentId: EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID,
+      apiKey: API_KEY,
+      fileName: filePath,
+      exclude: ["collections", "spaces", "taxonomies", "contentTypes"],
+    });
 
     const sourceEnvData = await loadAllEnvData(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID);
     const exportedData = await loadAllEnvDataFromZip(filePath);

@@ -1,6 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 import { describe, expect, it } from "vitest";
 
+import { cleanEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
@@ -84,9 +85,7 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans only entities not specified in the exclude parameter.",
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY} --exclude languages collections -s`;
-
-      await runCommand(command);
+      await cleanEnvironment({ environmentId, apiKey: API_KEY, exclude: ["languages", "collections"] });
 
       await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
         include: ["languages", "collections"],

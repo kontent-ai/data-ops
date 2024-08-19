@@ -1,6 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 import { describe, expect, it } from "vitest";
 
+import { importEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
@@ -70,12 +71,26 @@ describe("import command", () => {
   );
 
   it.concurrent(
-    "Imports all entities except those specified in the exclude parameter",
+    "Imports all entities except those specified in the exclude parameter using API",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
-      const command =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --exclude assets spaces webSpotlight contentTypes contentTypeSnippets taxonomies contentItems languageVariants workflows previewUrls webhooks`;
-
-      await runCommand(command);
+      await importEnvironment({
+        environmentId: environmentId,
+        fileName: "tests/integration/importExport/data/exportSnapshot.zip",
+        apiKey: API_KEY,
+        exclude: [
+          "assets",
+          "spaces",
+          "webSpotlight",
+          "contentTypes",
+          "contentTypeSnippets",
+          "taxonomies",
+          "contentItems",
+          "languageVariants",
+          "workflows",
+          "previewUrls",
+          "webhooks",
+        ],
+      });
 
       await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
         exclude: [
