@@ -41,7 +41,7 @@ export const register: RegisterCommand = yargs =>
 type AddMigrationCliParams =
   & Readonly<{
     name: string;
-    folder?: string;
+    migrationsFolder?: string;
     timestamp: boolean;
     type: string;
   }>

@@ -15,7 +15,7 @@ import {
 export type AddMigrationParams =
   & Readonly<{
     name: string;
-    folder?: string;
+    migrationsFolder?: string;
     timestamp: boolean;
     type: string;
   }>
@@ -26,7 +26,7 @@ export const addMigration = async (params: AddMigrationParams) => {
     return Promise.reject("'type' parameter must be 'js' or 'ts");
   }
 
-  const folderPath = params.folder ?? process.cwd();
+  const folderPath = params.migrationsFolder ?? process.cwd();
 
   if (!existsSync(folderPath)) {
     logInfo(params, "standard", `Creating folder ${folderPath}.`);
@@ -55,6 +55,6 @@ export const addMigration = async (params: AddMigrationParams) => {
   logInfo(
     params,
     "standard",
-    `Migration ${chalk.blue(saveMigrationPath)} has been created sucessfully in ${chalk.blue(folderPath)}`,
+    `Migration ${migrationName} has been created sucessfully in ${chalk.blue(saveMigrationPath)}`,
   );
 };
