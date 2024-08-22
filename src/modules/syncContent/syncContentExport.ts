@@ -5,15 +5,15 @@ import { createClientDelivery } from "../../utils/client.js";
 import { getItemsCodenames } from "./syncContent.js";
 import { SyncContentFilterParams } from "./syncContentRun.js";
 
-export type SyncContentExportParams =
-  & Readonly<{
+export type SyncContentExportParams = Readonly<
+  & {
     sourceEnvironmentId: string;
     sourceApiKey: string;
-    language: string;
     filename?: string;
-  }>
+  }
   & SyncContentFilterParams
-  & LogOptions;
+  & LogOptions
+>;
 
 export const syncContentExport = async (params: SyncContentExportParams) => {
   await syncContentExportInternal(params, "sync-content-export-API");

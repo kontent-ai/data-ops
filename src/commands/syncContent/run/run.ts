@@ -1,12 +1,7 @@
-import { createDeliveryClient } from "@kontent-ai/delivery-sdk";
-import { extractAsync, importAsync, migrateAsync } from "@kontent-ai/migration-toolkit";
-import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
-import { logError, logInfo, LogOptions } from "../../../log.js";
-import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
-import { getItemsCodenames } from "../../../modules/syncContent/syncContent.js";
-import { SyncContentRunParams } from "../../../modules/syncContent/syncContentRun.js";
+import { logError, LogOptions } from "../../../log.js";
+import { syncContentRunIntenal, SyncContentRunParams } from "../../../modules/syncContent/syncContentRun.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
@@ -140,62 +135,7 @@ type SyncContentRunCliParams =
 const syncContentRunCli = async (params: SyncContentRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  if ("filename" in resolvedParams) {
-    const data = await extractAsync({ filename: params.filename });
-
-    await importAsync({
-      data: data,
-      environmentId: params.targetEnvironmentId,
-      apiKey: params.targetApiKey,
-    });
-
-    process.exit(0);
-  }
-
-  const deliveryClient = createDeliveryClient({
-    environmentId: resolvedParams.sourceEnvironmentId,
-    previewApiKey: resolvedParams.sourceDeliveryPreviewKey,
-    defaultQueryConfig: {
-      usePreviewMode: true,
-    },
-  });
-
-  const itemsCodenames = await getItemsCodenames(deliveryClient, resolvedParams);
-
-  if (!itemsCodenames.length) {
-    logInfo(params, "standard", `No items to migrate`);
-    process.exit(0);
-  }
-
-  logInfo(
-    params,
-    "standard",
-    `Syncing ${itemsCodenames.length} items from ${resolvedParams.sourceEnvironmentId} to ${resolvedParams.targetEnvironmentId} ${
-      itemsCodenames.length < 100 ? `with codenames:\n${itemsCodenames.join("\n")}` : ""
-    }`,
-  );
-
-  const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in changes to the content in environment ${params.targetEnvironmentId}. OK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
-  );
-
-  const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
-
-  if (!confirmed) {
-    logInfo(params, "standard", chalk.red("Operation aborted."));
-    process.exit(1);
-  }
-
-  await migrateAsync({
-    targetEnvironment: { apiKey: params.targetApiKey, environmentId: params.targetEnvironmentId },
-    sourceEnvironment: {
-      environmentId: resolvedParams.sourceEnvironmentId,
-      apiKey: resolvedParams.sourceApiKey,
-      items: itemsCodenames.map(i => ({ itemCodename: i, languageCodename: resolvedParams.language })),
-    },
-  });
-
-  logInfo(params, "standard", `All items sucessfuly migrated`);
+  syncContentRunIntenal(resolvedParams, "sync-content-run");
 };
 
 const resolveParams = (params: SyncContentRunCliParams): SyncContentRunParams => {
@@ -206,12 +146,31 @@ const resolveParams = (params: SyncContentRunCliParams): SyncContentRunParams =>
   }
 
   const filterParams = match(params)
-    .with({ items: P.nonNullable }, ({ items }) => ({ ...ommited, items }))
-    .with({ byTypesCodenames: P.nonNullable }, ({ byTypesCodenames }) => ({ ...ommited, byTypesCodenames }))
-    .with({ filter: P.nonNullable }, ({ filter }) => ({ ...ommited, filter }))
-    .with({ last: P.nonNullable }, ({ last }) => ({ ...ommited, last }))
+    .with(
+      { items: P.nonNullable, depth: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...ommited, items, depth, sourceDeliveryPreviewKey }),
+    )
+    .with(
+      { items: P.nonNullable },
+      ({ items }) => ({ ...ommited, items }),
+    )
+    .with(
+      { byTypesCodenames: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ byTypesCodenames, sourceDeliveryPreviewKey }) => ({ ...ommited, byTypesCodenames, sourceDeliveryPreviewKey }),
+    )
+    .with(
+      { filter: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ filter, sourceDeliveryPreviewKey }) => ({ ...ommited, filter, sourceDeliveryPreviewKey }),
+    )
+    .with(
+      { last: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ last, sourceDeliveryPreviewKey }) => ({ ...ommited, last, sourceDeliveryPreviewKey }),
+    )
     .otherwise(() => {
-      logError(params, "You need to provide exactly one from parameters: items, byTypesCodenames, filter or last");
+      logError(
+        params,
+        "You need to provide exactly one from parameters: --items or --items with --depth, --filter, --byTypesCodenames, --last with --sourceDeliveryPeviewKey",
+      );
       process.exit(1);
     });
 

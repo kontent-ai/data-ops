@@ -13,16 +13,17 @@ import {
 } from "./utils/getContentModel.js";
 import { validateDiffedModel, validateSyncModelFolder } from "./validation.js";
 
-export type SyncModelRunParams =
-  & Readonly<{
+export type SyncModelRunParams = Readonly<
+  & {
     targetEnvironmentId: string;
     targetApiKey: string;
-  }>
+  }
   & (
-    | Readonly<{ folderName: string }>
-    | Readonly<{ sourceEnvironmentId: string; sourceApiKey: string }>
+    | { folderName: string }
+    | { sourceEnvironmentId: string; sourceApiKey: string }
   )
-  & LogOptions;
+  & LogOptions
+>;
 
 export const syncModelRun = async (params: SyncModelRunParams) => {
   const commandName = "sync-model-run-API";

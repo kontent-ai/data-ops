@@ -3,10 +3,13 @@ import {
   ImportEntityChoices,
   importEntityChoices,
   importEnvironmentInternal,
+  ImportEnvironmentParams,
 } from "../../modules/importExport/import.js";
+import { resolveIncludeExcludeCliParams } from "../../modules/importExport/utils/includeExclude.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
 import { simplifyErrors } from "../../utils/error.js";
+import { omit } from "../../utils/object.js";
 
 const commandName = "import";
 
@@ -71,9 +74,14 @@ const importEnvironmentCli = async (params: ImportEnvironmentCliParams) => {
   });
 
   try {
-    await importEnvironmentInternal(client, params);
+    await importEnvironmentInternal(client, resolveParams(params));
   } catch (e: unknown) {
     logError(params, `${JSON.stringify(e, Object.getOwnPropertyNames(e))}\nStopping import...`);
     process.exit(1);
   }
 };
+
+const resolveParams = (params: ImportEnvironmentCliParams): ImportEnvironmentParams => ({
+  ...omit(params, ["include", "exclude"]),
+  ...resolveIncludeExcludeCliParams(params),
+});

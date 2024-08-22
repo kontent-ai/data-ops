@@ -53,16 +53,15 @@ export const importEntityChoices = importEntityDefinitions.filter(e => !("isDepe
 
 export type ImportEntityChoices = typeof importEntityChoices[number];
 
-export type ImportEnvironmentParams =
-  & Readonly<{
+export type ImportEnvironmentParams = Readonly<
+  & {
     environmentId: string;
     fileName: string;
     apiKey: string;
-    include?: ReadonlyArray<string>;
-    exclude?: ReadonlyArray<string>;
-  }>
+  }
   & IncludeExclude<ImportEntityChoices>
-  & LogOptions;
+  & LogOptions
+>;
 
 export const importEnvironment = async (params: ImportEnvironmentParams) => {
   const client = createClient({

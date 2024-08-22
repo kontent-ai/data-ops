@@ -2,6 +2,7 @@ import { DeliveryClient, IContentItem, IContentItemElements, Responses } from "@
 import { match, P } from "ts-pattern";
 
 import { notNullOrUndefined } from "../../utils/typeguards.js";
+import { SuperiorOmit } from "../../utils/types.js";
 import { SyncContentFilterParams } from "./syncContentRun.js";
 import { createDeliveryUrlParameters } from "./utils/deliveryHelpers.js";
 
@@ -9,7 +10,9 @@ const deliveryApiItemsLimit = 2000;
 
 type SyncContentFilterDeliveryOnlyParams =
   | Exclude<SyncContentFilterParams, { items: ReadonlyArray<string> }>
-  | Readonly<{ items: ReadonlyArray<string>; depth: number; limit?: number }>;
+  | Readonly<
+    { items: ReadonlyArray<string>; depth: number; limit?: number; sourceDeliveryPreviewKey: string; language: string }
+  >;
 // { items: ReadonlyArray<string>; depth: number; limit?: number } is assignable to { items: ReadonlyArray<string> }
 // therefore it was also removed by Exclude
 
@@ -39,8 +42,10 @@ export const getItemsCodenames = async (
     .then(res => res.data.responses.flatMap(r => [...extractItemsCodenamesFromResponse(r.data)]));
 };
 
-export const getDeliveryUrlParams = (params: SyncContentFilterDeliveryOnlyParams) => {
-  const defaultParams = { ...params };
+export const getDeliveryUrlParams = (
+  params: SuperiorOmit<SyncContentFilterDeliveryOnlyParams, "sourceDeliveryPreviewKey">,
+) => {
+  const defaultParams = { ...params, depth: params.depth ?? 0 };
 
   return match(params)
     .with(

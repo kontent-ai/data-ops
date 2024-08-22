@@ -11,23 +11,24 @@ import {
   readContentModelFromFolder,
 } from "./utils/getContentModel.js";
 
-export type DiffEnvironmentsParams =
-  & Readonly<{
+export type DiffEnvironmentsParams = Readonly<
+  & {
     targetEnvironmentId: string;
     targetApiKey: string;
-  }>
+  }
   & (
-    | Readonly<{ folderName: string }>
-    | Readonly<{ sourceEnvironmentId: string; sourceApiKey: string }>
+    | { folderName: string }
+    | { folderName?: undefined; sourceEnvironmentId: string; sourceApiKey: string }
   )
   & (
-    Readonly<{
+    {
       advanced: true;
       outPath?: string;
       noOpen?: boolean;
-    }> | { advanced?: false }
+    } | { advanced?: false }
   )
-  & LogOptions;
+  & LogOptions
+>;
 
 export const diffEnvironments = async (params: DiffEnvironmentsParams) => {
   await diffEnvironmentsInternal(params, "diff-API");
@@ -42,7 +43,7 @@ export const diffEnvironmentsInternal = async (params: DiffEnvironmentsParams, c
     } and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
   );
 
-  const sourceModel = "folderName" in params
+  const sourceModel = "folderName" in params && params.folderName !== undefined
     ? await readContentModelFromFolder(params.folderName)
     : transformSyncModel(
       await fetchModel(

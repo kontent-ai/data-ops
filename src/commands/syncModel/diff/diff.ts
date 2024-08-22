@@ -85,8 +85,8 @@ const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
   await diffEnvironmentsInternal(resolvedParams, commandName);
 };
 
-const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams =>
-  match(params)
+const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams => {
+  const baseParams = match(params)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
       ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
@@ -99,3 +99,10 @@ const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParam
       );
       process.exit(1);
     });
+
+  if (!params.advanced) {
+    return { ...baseParams, advanced: false };
+  }
+
+  return { ...baseParams, advanced: true };
+};
