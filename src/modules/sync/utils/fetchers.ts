@@ -91,3 +91,9 @@ export const fetchWebSpotlight = (client: ManagementClient) =>
     .checkWebSpotlightStatus()
     .toPromise()
     .then(res => res.rawData);
+
+export const fetchAssetFolders = (client: ManagementClient) =>
+  client
+    .listAssetFolders()
+    .toPromise()
+    .then(res => res.rawData.folders);

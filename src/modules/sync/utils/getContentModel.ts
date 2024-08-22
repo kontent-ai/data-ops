@@ -3,6 +3,7 @@ import * as fs from "fs/promises";
 
 import { LogOptions } from "../../../log.js";
 import {
+  assetFoldersFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
   taxonomiesFileName,
@@ -11,6 +12,7 @@ import {
 import { fetchModel, transformSyncModel } from "../generateSyncModel.js";
 import { FileContentModel } from "../types/fileContentModel.js";
 import {
+  AssetFolderSyncModel,
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   TaxonomySyncModel,
@@ -36,11 +38,16 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     await fs.readFile(`${folderName}/${webSpotlightFileName}`, "utf8"),
   ) as WebSpotlightSyncModel;
 
+  const assetFolders = JSON.parse(
+    await fs.readFile(`${folderName}/${assetFoldersFileName}`, "utf8").catch(() => "[]"),
+  ) as ReadonlyArray<AssetFolderSyncModel>;
+
   return {
     contentTypes,
     contentTypeSnippets: snippets,
     taxonomyGroups: taxonomyGroups,
     webSpotlight,
+    assetFolders,
   };
 };
 

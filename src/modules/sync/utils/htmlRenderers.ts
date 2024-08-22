@@ -19,6 +19,7 @@ import {
   isValidationRegex,
 } from "../../../utils/typeguards.js";
 import { RequiredCodename } from "../../../utils/types.js";
+import { isOp } from "../sync/utils.js";
 import { DiffModel, DiffObject } from "../types/diffModel.js";
 import {
   AddIntoPatchOperation,
@@ -339,9 +340,9 @@ const renderEntitySection = (
     id: entityType,
     header: `
     <div>${entityTypeNameMap.get(entityType)}</div>
-    <div class="num-modified push">✎ ${[...updated.values()].filter(ops => ops.length).length}</div>
-    <div class="num-added">+ ${added.length}</div>
-    <div class="num-removed">− ${deleted.size}</div>
+    ${modifiedNum([...updated.values()].filter(ops => ops.length).length, true)}
+    ${addedNum(added.length)}
+    ${removedNum(deleted.size)}
     `,
     content: `
     ${
@@ -356,6 +357,14 @@ const renderEntitySection = (
     `,
   });
 };
+
+const addedNum = (num: number, push: boolean = false) => `<div class="num-added ${push ? "push" : ""}">+ ${num}</div>`;
+
+const removedNum = (num: number, push: boolean = false) =>
+  `<div class="num-removed ${push ? "push" : ""}">− ${num}</div>`;
+
+const modifiedNum = (num: number, push: boolean = false) =>
+  `<div class="num-modified ${push ? "push" : ""}">✎ ${num}</div>`;
 
 const renderWebSpotlightSection = (webSpotlight: DiffData["webSpotlight"]) => {
   const section = (content: string) =>
@@ -470,6 +479,16 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     "{{web_spotlight_section}}",
     ({ webSpotlight }: DiffData) => renderWebSpotlightSection(webSpotlight),
   ],
+  ["{{asset_folders_section}}", ({ assetFolders }: DiffData) =>
+    assetFolders.length
+      ? renderSection({
+        id: "assetFolders",
+        header: `<div>Asset folders</div>
+        ${addedNum(assetFolders.filter(isOp("addInto")).length, true)}
+        ${removedNum(assetFolders.filter(isOp("remove")).length)}`,
+        content: assetFolders.map(renderPatchOp).join("\n"),
+      })
+      : "<h3>No changes to asset folders.</h3>"],
 ]);
 
 const patchOpRendererMap: ReadonlyMap<

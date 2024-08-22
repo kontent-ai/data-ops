@@ -4,10 +4,10 @@ import {
   LanguageVariantElements,
   LanguageVariantElementsBuilder,
   ManagementClient,
-  SharedModels,
 } from "@kontent-ai/management-sdk";
 
 import { logInfo, LogOptions, logWarning } from "../../../../log.js";
+import { handleKontentErrors } from "../../../../utils/error.js";
 import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
 import { serially } from "../../../../utils/requests.js";
 import { notNull } from "../../../../utils/typeguards.js";
@@ -145,6 +145,8 @@ const publishVariant = (
     }: variant of item ${variant.item.id} of language ${variant.language.id}`,
   );
 
+  const incompleteElementsErrorCodes = [4040027, 4040028];
+
   return (scheduleTo
     ? sharedRequest
       .withData({
@@ -155,26 +157,18 @@ const publishVariant = (
       .withoutData()
       .toPromise())
     .then(() => true)
-    .catch(err => {
-      // remove this once we add element requirements after variants are imported
-      if (!(err instanceof SharedModels.ContentManagementBaseKontentError)) {
-        throw err;
-      }
-      const incompleteElementsErrorCodes = [4040027, 4040028];
+    // remove this once we add element requirements after variants are imported
+    .catch(handleKontentErrors(() => {
+      logWarning(
+        logOptions,
+        "standard",
+        `Skipping ${
+          scheduleTo ? "scheduling" : "publishing"
+        } of variant of item ${variant.item.id} of langauge ${variant.language.id}, because some of its elements are incomplete. Please check the variant's elements.`,
+      );
 
-      if (incompleteElementsErrorCodes.includes(err.errorCode)) {
-        logWarning(
-          logOptions,
-          "standard",
-          `Skipping ${
-            scheduleTo ? "scheduling" : "publishing"
-          } of variant of item ${variant.item.id} of langauge ${variant.language.id}, because some of its elements are incomplete. Please check the variant's elements.`,
-        );
-        return Promise.resolve(false);
-      }
-
-      throw err as unknown;
-    });
+      return Promise.resolve(false);
+    }, incompleteElementsErrorCodes));
 };
 
 type TransformElementParams = Readonly<{

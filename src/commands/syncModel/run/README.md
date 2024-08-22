@@ -7,7 +7,7 @@
 
 The `sync-model run` command synchronizes the **source content model** into the **target environment** via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). The source content can be obtained from an existing Kontent.ai environment (considering you have access to the required credentials) or a folder structure in a required format (see [sync-model export](../export/README.md) command for more information).
 
-In the context of this command, the content model is represented by the following entities: `Taxonomies`, `Content Types`, and `Content Type Snippets`. The command begins by comparing the provided content models and generates patch operations, which are then printed as the **environment diff**.  
+In the context of this command, the content model is represented by the following entities: `Taxonomies`, `Content Types`, `Content Type Snippets`, `Web Spotlight`, and `Asset Folders`. The command begins by comparing the provided content models and generates patch operations, which are then printed as the **environment diff**.  
 
 **We strongly encourage you to examine the changes before you proceed with the model synchronization.** Following the diff, a validation is performed to ensure the sync operation can succeed. Should the validation find any inconsistencies, the operation may be terminated. Otherwise, you will be asked to confirmation in order to begin the synchronization.
 
@@ -69,6 +69,8 @@ await syncModelRun(params);
 ## Known limitations
 Using Management API introduces some limitations:
 - Snippet element can't be referenced in the same request it's created in. Because of this, the tool can't move it to the correct place in the content type.
+- Asset folders cannot be moved so if they are in a different location in the source environment, they are removed and created in the new place.
+- Asset folders cannot be deleted (or moved, see the previous point) if they contain assets. The command is not able to check this without loading all the assets in the project so it doesn't check it. Please, make sure that all folders that will be deleted does not contain any assets. You can see what assets will be deleted in the generated diff `sync-model diff ...`.
 
 ## Contributing
 

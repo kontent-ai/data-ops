@@ -2,6 +2,7 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { serially } from "../../utils/requests.js";
+import { syncAssetFolders } from "./sync/assetFolders.js";
 import {
   addElementsIntoSnippetsWithoutReferences,
   addSnippetsReferences,
@@ -17,6 +18,8 @@ import { DiffModel } from "./types/diffModel.js";
 
 export const sync = async (client: ManagementClient, diff: DiffModel, logOptions: LogOptions) => {
   // there order of these operations is very important
+  await syncAssetFolders(client, diff.assetFolders, logOptions);
+
   await syncTaxonomies(client, diff.taxonomyGroups, logOptions);
 
   logInfo(logOptions, "standard", "Adding content type snippets");

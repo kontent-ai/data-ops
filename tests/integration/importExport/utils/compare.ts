@@ -120,7 +120,7 @@ export const prepareReferences = (data: AllEnvData): AllEnvData => ({
   webhooks: data.webhooks.map(createPrepareWebhookReferences(data)),
   webSpotlight: {
     enabled: data.webSpotlight.enabled,
-    root_type: data.webSpotlight.root_type
+    root_type: data.webSpotlight.root_type && data.webSpotlight.enabled
       ? { id: data.types.find(t => t.id === data.webSpotlight.root_type?.id)?.codename ?? "non-existing-type" }
       : null,
   },

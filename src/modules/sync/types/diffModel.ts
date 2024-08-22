@@ -23,4 +23,5 @@ export type DiffModel = Readonly<{
   contentTypeSnippets: DiffObject<RequiredCodename<ContentTypeSnippetModels.IAddContentTypeSnippetData>>;
   contentTypes: DiffObject<RequiredCodename<ContentTypeModels.IAddContentTypeData>>;
   webSpotlight: WebSpotlightDiffModel;
+  assetFolders: ReadonlyArray<PatchOperation>;
 }>;

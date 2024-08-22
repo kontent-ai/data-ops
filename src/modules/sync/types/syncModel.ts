@@ -1,4 +1,5 @@
 import {
+  AssetFolderContracts,
   ContentTypeContracts,
   ContentTypeElements,
   ContentTypeSnippetContracts,
@@ -121,6 +122,11 @@ export type ContentTypeSyncModel = Replace<
 export type WebSpotlightSyncModel = Replace<
   WebSpotlightContracts.IWebSpotlightStatus,
   { root_type: Readonly<{ codename: string }> | null }
+>;
+
+export type AssetFolderSyncModel = Replace<
+  Omit<AssetFolderContracts.IAssetFolderContract, "id" | "external_id">,
+  Readonly<{ folders: ReadonlyArray<AssetFolderSyncModel> }>
 >;
 
 export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>
