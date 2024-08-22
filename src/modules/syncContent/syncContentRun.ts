@@ -1,7 +1,7 @@
-import { createDeliveryClient } from "@kontent-ai/delivery-sdk";
 import { extractAsync, importAsync, migrateAsync } from "@kontent-ai/migration-toolkit";
 
 import { logInfo, LogOptions } from "../../log.js";
+import { createClientDelivery } from "../../utils/client.js";
 import { getItemsCodenames } from "./syncContent.js";
 
 export type SyncContentRunParams =
@@ -15,7 +15,7 @@ export type SyncContentRunParams =
       & {
         sourceEnvironmentId: string;
         sourceApiKey: string;
-        sourceDeliveryPreviewKey?: string;
+        language: string;
       }
       & SyncContentFilterParams
     >
@@ -24,15 +24,25 @@ export type SyncContentRunParams =
   & LogOptions;
 
 export type SyncContentFilterParams =
-  & { depth?: number; limit?: number; language: string }
-  & (
-    | Readonly<{ items: ReadonlyArray<string> }>
-    | Readonly<{ last: number }>
-    | Readonly<{ byTypesCodenames: ReadonlyArray<string> }>
-    | Readonly<{ filter: string }>
+  | Readonly<{ items: ReadonlyArray<string> }>
+  | (
+    & (
+      | Readonly<{ items: ReadonlyArray<string>; depth: number; limit?: number }>
+      | (
+        | Readonly<{ last: number }>
+        | Readonly<{ byTypesCodenames: ReadonlyArray<string> }>
+        | Readonly<{ filter: string }>
+      )
+        & Readonly<{ depth?: number; limit?: number }>
+    )
+    & { sourceDeliveryPreviewKey: string }
   );
 
 export const syncContentRun = async (params: SyncContentRunParams) => {
+  await syncContentRunIntenal(params, "sync-content-run-API");
+};
+
+export const syncContentRunIntenal = async (params: SyncContentRunParams, commandName: string) => {
   if ("filename" in params) {
     const data = await extractAsync({ filename: params.filename });
 
@@ -45,15 +55,17 @@ export const syncContentRun = async (params: SyncContentRunParams) => {
     return;
   }
 
-  const deliveryClient = createDeliveryClient({
-    environmentId: params.sourceEnvironmentId,
-    previewApiKey: params.sourceDeliveryPreviewKey,
-    defaultQueryConfig: {
-      usePreviewMode: true,
-    },
-  });
-
-  const itemsCodenames = await getItemsCodenames(deliveryClient, params);
+  const itemsCodenames = "items" in params && !("depth" in params)
+    ? params.items
+    : await getItemsCodenames(
+      createClientDelivery({
+        environmentId: params.sourceEnvironmentId,
+        previewApiKey: params.sourceDeliveryPreviewKey,
+        usePreviewMode: true,
+        commandName,
+      }),
+      params,
+    );
 
   if (!itemsCodenames.length) {
     logInfo(params, "standard", `No items to migrate`);
