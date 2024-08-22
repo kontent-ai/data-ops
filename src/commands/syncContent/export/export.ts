@@ -1,7 +1,7 @@
 import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
-import { syncContentExport, SyncContentExportParams } from "../../../modules/syncContent/syncContentExport.js";
+import { syncContentExportInternal, SyncContentExportParams } from "../../../modules/syncContent/syncContentExport.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -107,20 +107,33 @@ type SyncContentExportCliParams =
 const syncContentExportCli = async (params: SyncContentExportCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  await syncContentExport(resolvedParams);
+  await syncContentExportInternal(resolvedParams, "sync-content-export");
 };
 
 const resolveParams = (params: SyncContentExportCliParams): SyncContentExportParams =>
   match(params)
     .returnType<SyncContentExportParams>()
+    .with(
+      { items: P.nonNullable, depth: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...params, items, depth, sourceDeliveryPreviewKey }),
+    )
     .with({ items: P.nonNullable }, ({ items }) => ({ ...params, items }))
     .with(
-      { byTypesCodenames: P.nonNullable },
-      ({ byTypesCodenames }) => ({ ...params, byTypesCodenames }),
+      { byTypesCodenames: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ byTypesCodenames, sourceDeliveryPreviewKey }) => ({ ...params, byTypesCodenames, sourceDeliveryPreviewKey }),
     )
-    .with({ filter: P.nonNullable }, ({ filter }) => ({ ...params, filter }))
-    .with({ last: P.nonNullable }, ({ last }) => ({ ...params, last }))
+    .with(
+      { filter: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ filter, sourceDeliveryPreviewKey }) => ({ ...params, filter, sourceDeliveryPreviewKey }),
+    )
+    .with(
+      { last: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
+      ({ last, sourceDeliveryPreviewKey }) => ({ ...params, last, sourceDeliveryPreviewKey }),
+    )
     .otherwise(() => {
-      logError(params, "You need to provide exactly one from parameters: items, byTypesCodenames, filter or last");
+      logError(
+        params,
+        "You need to provide exactly one from parameters: --items or --items with --depth, --filter, --byTypesCodenames, --last with --sourceDeliveryPeviewKey",
+      );
       process.exit(1);
     });

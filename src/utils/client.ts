@@ -1,4 +1,5 @@
 import { HttpService, IHttpService, IRetryStrategyOptions, retryHelper } from "@kontent-ai/core-sdk";
+import { createDeliveryClient, DeliveryClient } from "@kontent-ai/delivery-sdk";
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import { CancelToken, isAxiosError } from "axios";
 
@@ -10,6 +11,13 @@ type Params = Readonly<{
   commandName: string;
 }>;
 
+type DeliveryParams = Readonly<{
+  environmentId: string;
+  previewApiKey?: string;
+  usePreviewMode?: boolean;
+  commandName: string;
+}>;
+
 const sourceTrackingHeaderName = "X-KC-SOURCE";
 
 export const createClient = ({ environmentId, apiKey, commandName }: Params): ManagementClient =>
@@ -17,6 +25,16 @@ export const createClient = ({ environmentId, apiKey, commandName }: Params): Ma
   new ManagementClient({
     environmentId,
     apiKey,
+    httpService: createHttpService(commandName),
+  });
+
+export const createClientDelivery = (
+  { environmentId, previewApiKey, usePreviewMode, commandName }: DeliveryParams,
+): DeliveryClient =>
+  createDeliveryClient({
+    environmentId: environmentId,
+    previewApiKey: previewApiKey,
+    defaultQueryConfig: { usePreviewMode: usePreviewMode ?? false },
     httpService: createHttpService(commandName),
   });
 
