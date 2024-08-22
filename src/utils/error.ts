@@ -6,21 +6,22 @@ export const throwError = (msg: string) => {
 };
 
 export const skipKontentErrors = (errorCodesToSkip: ReadonlyArray<number>) =>
-  handleKontentErrors(e => {
-    if (!errorCodesToSkip.includes(e.errorCode)) {
-      throw e as unknown;
-    }
-    return undefined;
-  });
+  handleKontentErrors(() => undefined, errorCodesToSkip);
 
-const handleKontentErrors =
-  <T>(handler: (error: SharedModels.ContentManagementBaseKontentError) => T) => (error: unknown) => {
-    if (error instanceof SharedModels.ContentManagementBaseKontentError) {
-      return handler({ ...error, originalError: simplifyAxiosErrors(error.originalError) });
-    }
+export const handleKontentErrors = <T>(
+  handler: (error: SharedModels.ContentManagementBaseKontentError) => T,
+  specificErrorCodes: ReadonlyArray<number> | null = null,
+) =>
+(error: unknown) => {
+  if (
+    error instanceof SharedModels.ContentManagementBaseKontentError
+    && (specificErrorCodes === null || specificErrorCodes.includes(error.errorCode))
+  ) {
+    return handler({ ...error, originalError: simplifyAxiosErrors(error.originalError) });
+  }
 
-    throw simplifyAxiosErrors(error);
-  };
+  throw simplifyAxiosErrors(error);
+};
 
 export const simplifyErrors = handleKontentErrors(err => {
   throw err as unknown;

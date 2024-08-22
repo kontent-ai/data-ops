@@ -1,5 +1,6 @@
 import {
   AssetContracts,
+  AssetFolderContracts,
   ContentItemContracts,
   ManagementClient,
   TaxonomyContracts,
@@ -13,11 +14,13 @@ import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import {
+  assetFoldersFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
   taxonomiesFileName,
   webSpotlightFileName,
 } from "./constants/filename.js";
+import { transformAssetFolderModel } from "./modelTransfomers/assetFolder.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
@@ -26,6 +29,7 @@ import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } fr
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
 import {
+  fetchAssetFolders,
   fetchContentTypes,
   fetchContentTypeSnippets,
   fetchRequiredAssets,
@@ -39,6 +43,7 @@ export type EnvironmentModel = {
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>;
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>;
   webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
+  assetFolders: ReadonlyArray<AssetFolderContracts.IAssetFolderContract>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
@@ -51,6 +56,8 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
   const taxonomies = await fetchTaxonomies(client);
 
   const webSpotlight = await fetchWebSpotlight(client);
+
+  const assetFolders = await fetchAssetFolders(client);
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
     (previous, type) => {
@@ -74,6 +81,7 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
     webSpotlight,
     assets,
     items,
+    assetFolders,
   };
 };
 
@@ -82,12 +90,14 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
   const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel, logOptions);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
   const webSpotlightModel = transformWebSpotlightModel(environmentModel);
+  const assetFoldersModel = environmentModel.assetFolders.map(transformAssetFolderModel);
 
   return {
     contentTypes: contentTypeModel,
     contentTypeSnippets: contentTypeSnippetModel,
     taxonomyGroups: taxonomyGroupsModel,
     webSpotlight: webSpotlightModel,
+    assetFolders: assetFoldersModel,
   };
 };
 
@@ -130,6 +140,10 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   await fsPromises.writeFile(
     path.resolve(folderName, webSpotlightFileName),
     JSON.stringify(finalModel.webSpotlight, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, assetFoldersFileName),
+    JSON.stringify(finalModel.assetFolders, null, 2),
   );
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
 

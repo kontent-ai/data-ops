@@ -2285,6 +2285,43 @@
         <div class="entity-section">
           <div
             class="entity-section-header"
+            onclick="toggleVisibility('assetFolders')"
+          >
+            <div>Asset folders</div>
+            <div class="num-added push">+ 3</div>
+            <div class="num-removed">− 3</div>
+          </div>
+          <div id="assetFolders" class="entity-section-content">
+            <div class="op">
+              <span class="num-added modifier-icon">+</span>Object at path
+              <strong>toadd</strong> added
+            </div>
+            <div class="op">
+              <span class="num-added modifier-icon">+</span>Object at path
+              /codename:nochange/folders <strong>tomoveinside</strong> added
+            </div>
+            <div class="op">
+              <span class="num-removed modifier-icon">−</span>Object at path
+              /codename:nochange/folders/codename:tomoveoutside removed
+            </div>
+            <div class="op">
+              <span class="num-added modifier-icon">+</span>Object at path
+              <strong>tomoveoutside</strong> added
+            </div>
+            <div class="op">
+              <span class="num-removed modifier-icon">−</span>Object at path
+              /codename:todelete removed
+            </div>
+            <div class="op">
+              <span class="num-removed modifier-icon">−</span>Object at path
+              /codename:tomoveinside removed
+            </div>
+          </div>
+        </div>
+
+        <div class="entity-section">
+          <div
+            class="entity-section-header"
             onclick="toggleVisibility('web-spotlight')"
           >
             <div>Web Spotlight</div>

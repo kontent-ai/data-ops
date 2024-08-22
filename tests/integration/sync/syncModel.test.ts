@@ -10,7 +10,7 @@ import {
 } from "../../../src/modules/sync/constants/filename.ts";
 import { syncModelRun } from "../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
-import { loadAllEnvData } from "../importExport/utils/envData.ts";
+import { AllEnvData, loadAllEnvData } from "../importExport/utils/envData.ts";
 import { runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 
@@ -32,13 +32,22 @@ const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
 ): Promise<void> => {
-  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "snippets", "taxonomies", "webSpotlight"] })
-    .then(prepareReferences);
-  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "snippets", "taxonomies", "webSpotlight"] })
-    .then(prepareReferences);
+  const syncEntitties = ["types", "snippets", "taxonomies", "webSpotlight", "assetFolders"] as const;
 
-  expectSameAllEnvData(data1, data2, { include: ["types", "snippets", "taxonomies"] });
+  const data1 = await loadAllEnvData(environmentId1, { include: syncEntitties })
+    .then(prepareReferences)
+    .then(sortAssetFolders);
+  const data2 = await loadAllEnvData(environmentId2, { include: syncEntitties })
+    .then(prepareReferences)
+    .then(sortAssetFolders);
+
+  expectSameAllEnvData(data1, data2, { include: syncEntitties });
 };
+
+const sortAssetFolders = (allData: AllEnvData): AllEnvData => ({
+  ...allData,
+  assetFolders: allData.assetFolders.toSorted((a, b) => a.codename.localeCompare(b.codename)),
+});
 
 describe("Sync model of two environments with credentials", () => {
   it.concurrent(

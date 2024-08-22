@@ -5,6 +5,7 @@ import { match } from "ts-pattern";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { DiffModel, DiffObject } from "./types/diffModel.js";
+import { PatchOperation } from "./types/patchOperation.js";
 import {
   createOutputDirectory,
   createOutputFile,
@@ -15,7 +16,14 @@ import {
 import { DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
 export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
-  logInfo(logOptions, "standard", chalk.blue.bold("TAXONOMY GROUPS:"));
+  logInfo(logOptions, "standard", chalk.blue.bold("ASSET FOLDERS:"));
+  if (diffModel.assetFolders.length) {
+    diffModel.assetFolders.forEach(op => printPatchOperation(op, logOptions));
+  } else {
+    logInfo(logOptions, "standard", "No asset folders to update.");
+  }
+
+  logInfo(logOptions, "standard", chalk.blue.bold("\nTAXONOMY GROUPS:"));
   printDiffEntity(diffModel.taxonomyGroups, "taxonomy groups", logOptions);
 
   logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPE SNIPPETS:"));
@@ -62,7 +70,7 @@ const printDiffEntity = (
     Array.from(diffObject.updated.entries()).sort().forEach(([codename, value]) => {
       if (value.length) {
         logInfo(logOptions, "standard", `Entity codename: ${chalk.blue(codename)}`);
-        value.forEach(v => logInfo(logOptions, "standard", `${chalk.yellow(JSON.stringify(v, null, 2))}\n`));
+        value.forEach(v => printPatchOperation(v, logOptions));
       }
     });
   } else {
@@ -102,3 +110,6 @@ export const createAdvancedDiffFile = (diffData: DiffData) => {
     openOutputFile(resolvedPath, logOptions);
   }
 };
+
+const printPatchOperation = (operation: PatchOperation, logOptions: LogOptions) =>
+  logInfo(logOptions, "standard", `${chalk.yellow(JSON.stringify(operation, null, 2))}\n`);

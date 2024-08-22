@@ -1,3 +1,4 @@
+import { assetFoldersHandler } from "./diff/assetFolder.js";
 import { Handler } from "./diff/combinators.js";
 import { makeContentTypeHandler, wholeContentTypesHandler } from "./diff/contentType.js";
 import { makeContentTypeSnippetHandler, wholeContentTypeSnippetsHandler } from "./diff/contentTypeSnippet.js";
@@ -58,12 +59,18 @@ export const diff = (params: DiffParams): DiffModel => {
     params.targetEnvModel.webSpotlight,
   );
 
+  const assetFoldersDiffModel = assetFoldersHandler(
+    params.sourceEnvModel.assetFolders,
+    params.targetEnvModel.assetFolders,
+  );
+
   return {
     // All the arrays are mutable in the SDK (even though they shouldn't) and readonly in our models. Unfortunately, TS doesn't allow casting it without casting to unknown first.
     taxonomyGroups: mapAdded(taxonomyDiffModel, transformTaxonomyToAddModel),
     contentTypeSnippets: mapAdded(snippetsDiffModel, transformSnippetToAddModel(params)),
     contentTypes: mapAdded(typesDiffModel, transformTypeToAddModel(params)),
     webSpotlight: webSpotlightDiffModel,
+    assetFolders: assetFoldersDiffModel,
   };
 };
 
