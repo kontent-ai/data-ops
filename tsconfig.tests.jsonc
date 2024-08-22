@@ -23,6 +23,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "allowUnreachableCode": false,
+    "noErrorTruncation": true,
     "skipLibCheck": true
   },
   "include": [
