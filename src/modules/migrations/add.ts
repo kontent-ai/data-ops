@@ -12,14 +12,15 @@ import {
   getMigrationName,
 } from "./utils/migrationUtils.js";
 
-export type AddMigrationParams =
-  & Readonly<{
+export type AddMigrationParams = Readonly<
+  & {
     name: string;
     migrationsFolder?: string;
     timestamp: boolean;
     type: string;
-  }>
-  & LogOptions;
+  }
+  & LogOptions
+>;
 
 export const addMigration = async (params: AddMigrationParams) => {
   if (params.type !== "js" && params.type !== "ts") {

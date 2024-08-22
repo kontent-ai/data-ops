@@ -170,17 +170,20 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
 
 const resolveParams = (
   params: RunMigrationsCliParams,
-): WithErr<RunMigrationsParams> =>
-  match(params)
+): WithErr<RunMigrationsParams> => {
+  const emptyParams = { next: undefined, name: undefined, range: undefined, all: undefined };
+
+  return match(params)
     .returnType<WithErr<RunMigrationsParams>>()
-    .with({ next: P.nonNullable }, ({ next }) => ({ value: { ...params, next } }))
+    .with({ next: P.nonNullable }, ({ next }) => ({ value: { ...params, ...emptyParams, next } }))
     .with({ range: P.nonNullable }, ({ range }) => {
       const parsedRange = parseRange(range as string);
       if ("err" in parsedRange) {
         return parsedRange;
       }
-      return { value: { ...params, range: parsedRange.value } };
+      return { value: { ...params, ...emptyParams, range: parsedRange.value } };
     })
-    .with({ name: P.nonNullable }, ({ name }) => ({ value: { ...params, name } }))
-    .with({ all: P.nonNullable }, ({ all }) => ({ value: { ...params, all } }))
+    .with({ name: P.nonNullable }, ({ name }) => ({ value: { ...params, ...emptyParams, name } }))
+    .with({ all: P.nonNullable }, ({ all }) => ({ value: { ...params, ...emptyParams, all } }))
     .otherwise(() => ({ err: "Invalid parameters" }));
+};

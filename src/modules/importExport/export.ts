@@ -54,14 +54,15 @@ export const exportEntityChoices = exportEntityDefinitions.map(e => e.name);
 
 export type ExportEntityChoices = typeof exportEntityChoices[number];
 
-export type ExportEnvironmentParams =
-  & Readonly<{
+export type ExportEnvironmentParams = Readonly<
+  & {
     environmentId: string;
     fileName?: string;
     apiKey: string;
-  }>
+  }
   & IncludeExclude<ExportEntityChoices>
-  & LogOptions;
+  & LogOptions
+>;
 
 export const exportEnvironment = async (params: ExportEnvironmentParams) => {
   const client = createClient({

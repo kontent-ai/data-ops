@@ -5,9 +5,7 @@ import {
   extractItemsCodenamesFromResponse,
   getDeliveryUrlParams,
 } from "../../../src/modules/syncContent/syncContent.ts";
-import { SyncContentFilterParams } from "../../../src/modules/syncContent/syncContentRun.ts";
 import * as deliveryHelpers from "../../../src/modules/syncContent/utils/deliveryHelpers.ts";
-import { Replace } from "../../../src/utils/types.ts";
 
 describe("createDeliveryUrlParameters", () => {
   it("should return correct parameters for language and last parameter", () => {
@@ -48,9 +46,8 @@ describe("createDeliveryUrlParameters", () => {
 describe("getDeliveryUrlParams", () => {
   it("should return correct deliver url parameters for last cli param", () => {
     const last = 10;
-    const params: Replace<SyncContentFilterParams, { limit: number }> = { language: "default", last, limit: last };
 
-    const parameters = getDeliveryUrlParams(params);
+    const parameters = getDeliveryUrlParams({ language: "default", last, limit: last });
 
     expect(parameters).toStrictEqual([
       new Parameters.DepthParameter(0),
@@ -62,13 +59,12 @@ describe("getDeliveryUrlParams", () => {
 
   it("should return correct deliver url parameters for byTypeCodenames cli param", () => {
     const byTypesCodenames = ["type1", "type2"];
-    const params: Replace<SyncContentFilterParams, { limit: number }> = {
+
+    const parameters = getDeliveryUrlParams({
       language: "default",
       limit: 100,
       byTypesCodenames,
-    };
-
-    const parameters = getDeliveryUrlParams(params);
+    });
 
     expect(parameters).toStrictEqual([
       new Parameters.DepthParameter(0),
@@ -80,13 +76,13 @@ describe("getDeliveryUrlParams", () => {
 
   it("should return correct deliver url parameters for items cli param", () => {
     const items = ["item1", "item2"];
-    const params: Replace<SyncContentFilterParams, { limit: number }> = {
+
+    const parameters = getDeliveryUrlParams({
       language: "default",
       limit: 100,
+      depth: 0,
       items,
-    };
-
-    const parameters = getDeliveryUrlParams(params);
+    });
 
     expect(parameters).toStrictEqual([
       new Parameters.DepthParameter(0),

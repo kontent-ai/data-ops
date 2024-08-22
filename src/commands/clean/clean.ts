@@ -1,10 +1,17 @@
 import chalk from "chalk";
 
 import { logError, LogOptions } from "../../log.js";
-import { CleanEntityChoices, cleanEntityChoices, cleanEnvironmentInternal } from "../../modules/importExport/clean.js";
+import {
+  CleanEntityChoices,
+  cleanEntityChoices,
+  cleanEnvironmentInternal,
+  CleanEnvironmentParams,
+} from "../../modules/importExport/clean.js";
+import { resolveIncludeExcludeCliParams } from "../../modules/importExport/utils/includeExclude.js";
 import { requestConfirmation } from "../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../types/yargs.js";
 import { createClient } from "../../utils/client.js";
+import { omit } from "../../utils/object.js";
 
 export const commandName = "clean";
 
@@ -75,7 +82,7 @@ const cleanEnvironmentCli = async (
   const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
 
   try {
-    await cleanEnvironmentInternal(params, client);
+    await cleanEnvironmentInternal(resolveParams(params), client);
   } catch (e) {
     handleError(params, e);
   }
@@ -92,3 +99,8 @@ const handleError = (
 
   process.exit(1);
 };
+
+const resolveParams = (params: CleanEnvironmentCliParams): CleanEnvironmentParams => ({
+  ...omit(params, ["include", "exclude"]),
+  ...resolveIncludeExcludeCliParams(params),
+});

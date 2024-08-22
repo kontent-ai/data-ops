@@ -3,6 +3,7 @@ import * as path from "path";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
+import { AnyOnePropertyOf } from "../../utils/types.js";
 import { Migration, MigrationOrder } from "./models/migration.js";
 import { MigrationOperation, MigrationStatus, SaveStatus, Status, StatusPlugin } from "./models/status.js";
 import { handleErr, WithErr } from "./utils/errUtils.js";
@@ -23,8 +24,8 @@ import {
   writeStatus,
 } from "./utils/statusUtils.js";
 
-export type RunMigrationsParams =
-  & Readonly<{
+export type RunMigrationsParams = Readonly<
+  & {
     environmentId: string;
     apiKey: string;
     migrationsFolder: string;
@@ -32,20 +33,14 @@ export type RunMigrationsParams =
     statusPlugins?: string;
     continueOnError?: boolean;
     force?: boolean;
-  }>
+  }
   & RunMigrationFilterParams
-  & LogOptions;
+  & LogOptions
+>;
 
-export type RunMigrationFilterParams =
-  | Readonly<{ name: string }>
-  | Readonly<{
-    range: {
-      from: MigrationOrder;
-      to: MigrationOrder;
-    };
-  }>
-  | Readonly<{ all: boolean }>
-  | Readonly<{ next: number }>;
+export type RunMigrationFilterParams = AnyOnePropertyOf<
+  { name: string; range: { from: MigrationOrder; to: MigrationOrder }; all: boolean; next: number }
+>;
 
 export const runMigrations = async (params: RunMigrationsParams) => {
   const client = createClient({

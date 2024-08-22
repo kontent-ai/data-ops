@@ -5,13 +5,14 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { fetchModel, saveSyncModel, transformSyncModel } from "./generateSyncModel.js";
 
-export type SyncModelExportParams =
-  & Readonly<{
+export type SyncModelExportParams = Readonly<
+  & {
     environmentId: string;
     apiKey: string;
     folderName?: string;
-  }>
-  & LogOptions;
+  }
+  & LogOptions
+>;
 
 export const syncModelExport = async (params: SyncModelExportParams) => {
   await syncModelExportInternal(

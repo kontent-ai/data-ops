@@ -44,13 +44,14 @@ export const cleanEntityChoices = cleanEntityDefinitions.map(e => e.name);
 
 export type CleanEntityChoices = typeof cleanEntityChoices[number];
 
-export type CleanEnvironmentParams =
-  & Readonly<{
+export type CleanEnvironmentParams = Readonly<
+  & {
     environmentId: string;
     apiKey: string;
-  }>
+  }
   & IncludeExclude<CleanEntityChoices>
-  & LogOptions;
+  & LogOptions
+>;
 
 export const cleanEnvironment = async (params: CleanEnvironmentParams) => {
   const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName: "clean-API" });

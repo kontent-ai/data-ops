@@ -4,39 +4,41 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClientDelivery } from "../../utils/client.js";
 import { getItemsCodenames } from "./syncContent.js";
 
-export type SyncContentRunParams =
-  & Readonly<{
+export type SyncContentRunParams = Readonly<
+  & {
     targetEnvironmentId: string;
     targetApiKey: string;
     skipFailedItems?: boolean;
-  }>
+  }
   & (
-    | Readonly<
-      & {
-        sourceEnvironmentId: string;
-        sourceApiKey: string;
-        language: string;
-      }
+    | {
+      sourceEnvironmentId: string;
+      sourceApiKey: string;
+    }
       & SyncContentFilterParams
-    >
-    | Readonly<{ filename: string }>
+    | { filename: string }
   )
-  & LogOptions;
+  & LogOptions
+>;
 
-export type SyncContentFilterParams =
-  | Readonly<{ items: ReadonlyArray<string> }>
-  | (
-    & (
-      | Readonly<{ items: ReadonlyArray<string>; depth: number; limit?: number }>
-      | (
-        | Readonly<{ last: number }>
-        | Readonly<{ byTypesCodenames: ReadonlyArray<string> }>
-        | Readonly<{ filter: string }>
+export type SyncContentFilterParams = Readonly<
+  & (
+    | { items: ReadonlyArray<string> }
+    | (
+      & (
+        | { items: ReadonlyArray<string>; depth: number; limit?: number }
+        | (
+          | { last: number }
+          | { byTypesCodenames: ReadonlyArray<string> }
+          | { filter: string }
+        )
+          & { depth?: number; limit?: number }
       )
-        & Readonly<{ depth?: number; limit?: number }>
+      & { sourceDeliveryPreviewKey: string }
     )
-    & { sourceDeliveryPreviewKey: string }
-  );
+  )
+  & { language: string }
+>;
 
 export const syncContentRun = async (params: SyncContentRunParams) => {
   await syncContentRunIntenal(params, "sync-content-run-API");
