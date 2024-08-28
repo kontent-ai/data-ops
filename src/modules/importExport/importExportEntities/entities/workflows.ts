@@ -151,12 +151,13 @@ const addWorkflows = async (
 
         const workflowContext: MapValues<ImportContext["workflowIdsByOldIds"]> = {
           selfId: response.id,
-          oldPublishedStepId: response.published_step.id,
-          oldArchivedStepId: response.archived_step.id,
-          oldScheduledStepId: response.scheduled_step.id,
+          oldPublishedStepId: importWorkflow.published_step.id,
+          oldArchivedStepId: importWorkflow.archived_step.id,
+          oldScheduledStepId: importWorkflow.scheduled_step.id,
           oldDraftStepId: draftStep.id,
           anyStepIdLeadingToPublishedStep:
-            response.steps.find(s => s.transitions_to.find(t => t.step.id === response.published_step.id))?.id ?? "",
+            importWorkflow.steps.find(s => s.transitions_to.find(t => t.step.id === response.published_step.id))?.id
+              ?? "",
         };
 
         return { workflow: [importWorkflow.id, workflowContext] as const, workflowSteps };
