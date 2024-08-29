@@ -2322,6 +2322,52 @@
         <div class="entity-section">
           <div
             class="entity-section-header"
+            onclick="toggleVisibility('collections-section')"
+          >
+            <div>Collections</div>
+            <div class="num-modified push">✎ 1</div>
+            <div class="num-added">+ 1</div>
+            <div class="num-removed">− 1</div>
+          </div>
+          <div id="collections-section" class="entity-section-content">
+            <div class="op">
+              <span class="num-modified modifier-icon">⇄</span>Object at path
+              /codename:collection_to_be_renamed/name changed <div
+                class="compared-elements"
+              >
+                <div class="element">Collection To Rename</div>
+                <div class="comparator">→</div>
+                <div class="element">Collection To Be Renamed</div>
+              </div>
+            </div>
+            <div class="op">
+              <span class="num-added modifier-icon">+</span>Object at path
+              <strong>collection_to_add</strong> added
+            </div>
+            <div class="op">
+              <span class="num-removed modifier-icon">−</span>Object at path
+              /codename:collection_to_delete removed
+            </div>
+            <div class="op">
+              <span class="num-modified modifier-icon">⤷</span>Object at path
+              /codename:collection_to_be_renamed moved after <strong
+              >collection_to_be_moved</strong>
+            </div>
+            <div class="op">
+              <span class="num-modified modifier-icon">⤷</span>Object at path
+              /codename:collection_to_add moved after <strong
+              >collection_to_be_renamed</strong>
+            </div>
+            <div class="op">
+              <span class="num-modified modifier-icon">⤷</span>Object at path
+              /codename:default moved after <strong>collection_to_add</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="entity-section">
+          <div
+            class="entity-section-header"
             onclick="toggleVisibility('web-spotlight')"
           >
             <div>Web Spotlight</div>
