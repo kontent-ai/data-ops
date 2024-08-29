@@ -18,6 +18,7 @@ const createEnvironmentModel = (isWebSpotlightEnabled: boolean, rootTypeId: stri
   contentTypeSnippets: [],
   taxonomyGroups: [],
   assetFolders: [],
+  collections: [],
   webSpotlight: {
     enabled: isWebSpotlightEnabled,
     root_type: rootTypeId ? { id: rootTypeId } : null,
