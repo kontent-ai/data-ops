@@ -23,6 +23,12 @@ export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
     logInfo(logOptions, "standard", "No asset folders to update.");
   }
 
+  if (diffModel.collections.length) {
+    diffModel.collections.forEach(op => printPatchOperation(op, logOptions));
+  } else {
+    logInfo(logOptions, "standard", "No collections to update.");
+  }
+
   logInfo(logOptions, "standard", chalk.blue.bold("\nTAXONOMY GROUPS:"));
   printDiffEntity(diffModel.taxonomyGroups, "taxonomy groups", logOptions);
 
