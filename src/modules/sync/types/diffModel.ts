@@ -22,6 +22,7 @@ export type DiffModel = Readonly<{
   taxonomyGroups: DiffObject<RequiredCodename<TaxonomyModels.IAddTaxonomyRequestModel>>;
   contentTypeSnippets: DiffObject<RequiredCodename<ContentTypeSnippetModels.IAddContentTypeSnippetData>>;
   contentTypes: DiffObject<RequiredCodename<ContentTypeModels.IAddContentTypeData>>;
+  collections: ReadonlyArray<PatchOperation>;
   webSpotlight: WebSpotlightDiffModel;
   assetFolders: ReadonlyArray<PatchOperation>;
 }>;

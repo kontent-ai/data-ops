@@ -1,4 +1,5 @@
 import { assetFoldersHandler } from "./diff/assetFolder.js";
+import { collectionsHandler } from "./diff/collection.js";
 import { Handler } from "./diff/combinators.js";
 import { makeContentTypeHandler, wholeContentTypesHandler } from "./diff/contentType.js";
 import { makeContentTypeSnippetHandler, wholeContentTypeSnippetsHandler } from "./diff/contentTypeSnippet.js";
@@ -54,6 +55,11 @@ export const diff = (params: DiffParams): DiffModel => {
     taxonomyGroupHandler,
   );
 
+  const collectionDiffModel = collectionsHandler(
+    params.sourceEnvModel.collections,
+    params.targetEnvModel.collections,
+  );
+
   const webSpotlightDiffModel = webSpotlightHandler(
     params.sourceEnvModel.webSpotlight,
     params.targetEnvModel.webSpotlight,
@@ -69,6 +75,7 @@ export const diff = (params: DiffParams): DiffModel => {
     taxonomyGroups: mapAdded(taxonomyDiffModel, transformTaxonomyToAddModel),
     contentTypeSnippets: mapAdded(snippetsDiffModel, transformSnippetToAddModel(params)),
     contentTypes: mapAdded(typesDiffModel, transformTypeToAddModel(params)),
+    collections: collectionDiffModel,
     webSpotlight: webSpotlightDiffModel,
     assetFolders: assetFoldersDiffModel,
   };

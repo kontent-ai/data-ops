@@ -1,5 +1,6 @@
 import {
   AssetFolderContracts,
+  CollectionContracts,
   ContentTypeContracts,
   ContentTypeElements,
   ContentTypeSnippetContracts,
@@ -123,6 +124,8 @@ export type WebSpotlightSyncModel = Replace<
   WebSpotlightContracts.IWebSpotlightStatus,
   { root_type: Readonly<{ codename: string }> | null }
 >;
+
+export type CollectionSyncModel = Omit<CollectionContracts.ICollectionContract, "id">;
 
 export type AssetFolderSyncModel = Replace<
   Omit<AssetFolderContracts.IAssetFolderContract, "id" | "external_id">,
