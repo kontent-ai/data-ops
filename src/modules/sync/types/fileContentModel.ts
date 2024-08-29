@@ -1,5 +1,6 @@
 import {
   AssetFolderSyncModel,
+  CollectionSyncModel,
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   TaxonomySyncModel,
@@ -12,4 +13,5 @@ export type FileContentModel = Readonly<{
   contentTypes: ReadonlyArray<ContentTypeSyncModel>;
   webSpotlight: WebSpotlightSyncModel;
   assetFolders: ReadonlyArray<AssetFolderSyncModel>;
+  collections: ReadonlyArray<CollectionSyncModel>;
 }>;

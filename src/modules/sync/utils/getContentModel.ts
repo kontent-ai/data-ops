@@ -4,6 +4,7 @@ import * as fs from "fs/promises";
 import { LogOptions } from "../../../log.js";
 import {
   assetFoldersFileName,
+  collectionsFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
   taxonomiesFileName,
@@ -34,6 +35,10 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     await fs.readFile(`${folderName}/${taxonomiesFileName}`, "utf8"),
   ) as ReadonlyArray<TaxonomySyncModel>;
 
+  const collections = JSON.parse(
+    await fs.readFile(`${folderName}/${collectionsFileName}`, "utf8"),
+  ) as ReadonlyArray<TaxonomySyncModel>;
+
   const webSpotlight = JSON.parse(
     await fs.readFile(`${folderName}/${webSpotlightFileName}`, "utf8"),
   ) as WebSpotlightSyncModel;
@@ -46,6 +51,7 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     contentTypes,
     contentTypeSnippets: snippets,
     taxonomyGroups: taxonomyGroups,
+    collections,
     webSpotlight,
     assetFolders,
   };

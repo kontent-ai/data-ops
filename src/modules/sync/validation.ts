@@ -9,7 +9,7 @@ import { elementTypes } from "./constants/elements.js";
 import { contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName } from "./constants/filename.js";
 import { ElementsTypes } from "./types/contractModels.js";
 import { DiffModel } from "./types/diffModel.js";
-import { PatchOperation } from "./types/patchOperation.js";
+import { getTargetCodename, PatchOperation } from "./types/patchOperation.js";
 
 export const validateSyncModelFolder = async (folderPath: string) => {
   const stats = await fs.stat(folderPath);
@@ -39,6 +39,17 @@ export const validateDiffedModel = async (
     `Content type (codename: ${typeCodename}) is being used and can't be removed (In given environment exists content items of given content type)`
   );
 
+  const collectionsUsage = await getUsedCollectionsCodenames(
+    client,
+    new Set(
+      diffedModel.collections.filter(c => c.op === "remove").map(getTargetCodename).filter(notNullOrUndefined),
+    ),
+  );
+
+  const collectionsUsageErrors = collectionsUsage.map(collectionCodename =>
+    `Collection (codename: ${collectionCodename}) is being used and can't be removed (In given environment exists content items of given collection)`
+  );
+
   const changeElementTypeOps = getElementChangeTypeOps([
     ...diffedModel.contentTypes.updated,
     ...diffedModel.contentTypeSnippets.updated,
@@ -50,7 +61,7 @@ export const validateDiffedModel = async (
     )
   );
 
-  return [...typeUsageErrors, ...changeElementOpsErrors];
+  return [...typeUsageErrors, ...collectionsUsageErrors, ...changeElementOpsErrors];
 };
 
 type ElementTypeCodename = Readonly<{ type: ElementsTypes; codename: string }>;
@@ -81,6 +92,19 @@ const getUsedContentTypesCodenames = async (client: ManagementClient, contentTyp
       .byTypeCodename(typeCodename)
       .toPromise()
       .then(res => res.data.items.length ? typeCodename : null)
+  );
+
+  return (await serially(promises))
+    .filter(notNullOrUndefined);
+};
+
+const getUsedCollectionsCodenames = async (client: ManagementClient, collectionCodenames: ReadonlySet<string>) => {
+  const promises = [...collectionCodenames].map(collectionCodename => () =>
+    client
+      .listLanguageVariantsByCollection()
+      .byCollectionCodename(collectionCodename)
+      .toPromise()
+      .then(res => res.data.items.length ? collectionCodename : null)
   );
 
   return (await serially(promises))
