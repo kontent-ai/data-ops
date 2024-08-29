@@ -489,6 +489,20 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
         content: assetFolders.map(renderPatchOp).join("\n"),
       })
       : "<h3>No changes to asset folders.</h3>"],
+  [
+    "{{collections_section}}",
+    ({ collections }: DiffData) =>
+      collections.length
+        ? renderSection({
+          id: "collections-section",
+          header: `<div>Collections</div>
+          ${modifiedNum(collections.filter(isOp("replace")).length, true)}
+          ${addedNum(collections.filter(isOp("addInto")).length)}
+          ${removedNum(collections.filter(isOp("remove")).length)}`,
+          content: collections.map(renderPatchOp).join("\n"),
+        })
+        : "<h3>No changes to collections</h3>",
+  ],
 ]);
 
 const patchOpRendererMap: ReadonlyMap<
