@@ -41,7 +41,7 @@ const expectSameSyncContentEnvironments = async (
   expectSameAllEnvData(data1, data2, { include: ["variants"] });
 };
 
-describe("Sync two environments with credentials", () => {
+describe.concurrent("Sync two environments with credentials", () => {
   it.concurrent(
     "sync-content source environment to target environment without linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
@@ -97,7 +97,7 @@ describe("Sync two environments with credentials", () => {
   );
 });
 
-describe("Sync content from zip", () => {
+describe.concurrent("Sync content from zip", () => {
   const relativeFolderPath = "./tests/integration/sync/content/data";
   const relativeContentZipPath = `${relativeFolderPath}/sourceContent.zip`;
 
