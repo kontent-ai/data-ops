@@ -7,6 +7,7 @@ build/
 # Tests tmp data
 tests/integration/sync/content/data/sourceContent.zip
 tests/integration/sync/data/sourceContentModel/*
+tests/integration/importExport/data/exportedData.zip
 
 # MacOS
 .DS_Store
