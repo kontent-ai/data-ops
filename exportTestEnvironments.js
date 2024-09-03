@@ -45,7 +45,7 @@ const runCommand = (command, props) => {
 };
 const syncSourcePath = "tests/integration/sync/data/sync_test_source.zip";
 const syncTargetPath = "tests/integration/sync/data/sync_test_target.zip";
-const importPath = "tests/integration/importExport/data/exportedData.zip"
+const importPath = "tests/integration/importExport/data/exportSnapshot.zip"
 
 const syncSourceExportCommand = `export -e=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -f=${syncSourcePath} -k=${API_KEY}`;
 const syncTargetExportCommand = `export -e=${SYNC_TARGET_TEST_ENVIRONMENT_ID} -f=${syncTargetPath} -k=${API_KEY}`;
