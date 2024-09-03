@@ -49,7 +49,7 @@ const sortAssetFolders = (allData: AllEnvData): AllEnvData => ({
   assetFolders: allData.assetFolders.toSorted((a, b) => a.codename.localeCompare(b.codename)),
 });
 
-describe("Sync model of two environments with credentials", () => {
+describe.concurrent("Sync model of two environments with credentials", () => {
   it.concurrent(
     "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
@@ -78,7 +78,7 @@ describe("Sync model of two environments with credentials", () => {
   );
 });
 
-describe("Sync environment from folder", () => {
+describe.concurrent("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
   it("generate sync model test", async () => {
