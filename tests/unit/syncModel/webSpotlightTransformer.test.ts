@@ -24,6 +24,7 @@ const createEnvironmentModel = (isWebSpotlightEnabled: boolean, rootTypeId: stri
     enabled: isWebSpotlightEnabled,
     root_type: rootTypeId ? { id: rootTypeId } : null,
   },
+  languages: [],
   assets: [],
   items: [],
 });
