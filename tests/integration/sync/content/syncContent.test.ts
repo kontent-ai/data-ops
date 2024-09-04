@@ -101,7 +101,7 @@ describe.concurrent("Sync content from zip", () => {
   const relativeFolderPath = "./tests/integration/sync/content/data";
   const relativeContentZipPath = `${relativeFolderPath}/sourceContent.zip`;
 
-  it("export sync content", async () => {
+  it.sequential("export sync content", async () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
     const command =
@@ -115,7 +115,7 @@ describe.concurrent("Sync content from zip", () => {
     expect(fileExists).toEqual(true);
   });
 
-  it(
+  it.sequential(
     "Run sync content from zip",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
