@@ -81,7 +81,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
 describe.concurrent("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
-  it("generate sync model test", async () => {
+  it.sequential("generate sync model test", async () => {
     const command = `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
@@ -105,7 +105,7 @@ describe.concurrent("Sync environment from folder", () => {
     expect(taxonomiesJsonExists).toEqual(true);
   });
 
-  it(
+  it.sequential(
     "Sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
