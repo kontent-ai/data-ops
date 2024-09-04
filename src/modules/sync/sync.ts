@@ -4,6 +4,7 @@ import { logInfo, LogOptions } from "../../log.js";
 import { serially } from "../../utils/requests.js";
 import { syncAssetFolders } from "./sync/assetFolders.js";
 import { syncAddAndReplaceCollections, syncRemoveCollections } from "./sync/collections.js";
+import { syncLanguages } from "./sync/languages.js";
 import {
   addElementsIntoSnippetsWithoutReferences,
   addSnippetsReferences,
@@ -28,6 +29,8 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
   await syncSpaces(client, diff.spaces, logOptions);
 
   await syncRemoveCollections(client, diff.collections);
+
+  await syncLanguages(client, diff.languages, logOptions);
 
   await syncTaxonomies(client, diff.taxonomyGroups, logOptions);
 
