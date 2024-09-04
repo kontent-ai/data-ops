@@ -183,11 +183,11 @@ const getLanguageDiffModel = (
 const adjustSourceDefaultLanguageCodename = (
   source: ReadonlyArray<LanguageSyncModel>,
   codename: string,
-) => {
+): ReadonlyArray<LanguageSyncModel> => {
   const sourceDefaultLang = getDefaultLang(source);
   const newSource = source.filter(l => l.codename !== sourceDefaultLang.codename);
 
-  return [{ ...sourceDefaultLang, codename, fallback_language: { codename } }, ...newSource];
+  return [{ ...sourceDefaultLang, codename }, ...newSource];
 };
 
 const getDefaultLang = (languages: ReadonlyArray<LanguageSyncModel>) => {

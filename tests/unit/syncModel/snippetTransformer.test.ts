@@ -46,6 +46,7 @@ describe("content type snippet transfomers", () => {
         enabled: false,
         root_type: null,
       },
+      languages: [],
       assets: [],
       items: [],
     };

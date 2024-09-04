@@ -44,6 +44,7 @@ const createEnvironmentModel = (contentTypes: ReadonlyArray<ContentTypeWithUnion
     enabled: false,
     root_type: null,
   },
+  languages: [],
   assets: [],
   items: [],
 });

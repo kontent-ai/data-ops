@@ -28,7 +28,15 @@ const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
 ): Promise<void> => {
-  const syncEntitties = ["types", "snippets", "taxonomies", "webSpotlight", "assetFolders", "collections"] as const;
+  const syncEntitties = [
+    "types",
+    "snippets",
+    "taxonomies",
+    "webSpotlight",
+    "assetFolders",
+    "collections",
+    "languages",
+  ] as const;
 
   const data1 = await loadAllEnvData(environmentId1, { include: syncEntitties })
     .then(prepareReferences)

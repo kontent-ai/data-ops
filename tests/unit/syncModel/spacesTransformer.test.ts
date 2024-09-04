@@ -28,6 +28,7 @@ describe("transformSpacesModel", () => {
       webSpotlight: { enabled: false, root_type: null },
       taxonomyGroups: [],
       contentTypes: [],
+      languages: [],
       contentTypeSnippets: [],
       assetFolders: [],
       assets: [],
