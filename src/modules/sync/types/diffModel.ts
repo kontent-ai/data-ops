@@ -1,6 +1,7 @@
 import {
   ContentTypeModels,
   ContentTypeSnippetModels,
+  LanguageModels,
   SharedContracts,
   SpaceModels,
   TaxonomyModels,
@@ -37,4 +38,5 @@ export type DiffModel = Readonly<{
       { collections: ReadonlyArray<SharedContracts.IReferenceObjectContract> }
     >
   >;
+  languages: DiffObject<RequiredCodename<LanguageModels.IAddLanguageData> & Readonly<{ is_default: boolean }>>;
 }>;

@@ -8,6 +8,7 @@ import {
   collectionsFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
+  languagesFileName,
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
@@ -18,6 +19,7 @@ import {
   AssetFolderSyncModel,
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
+  LanguageSyncModel,
   SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
@@ -54,6 +56,10 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     await fs.readFile(`${folderName}/${spacesFileName}`, "utf8").catch(() => "[]"),
   ) as ReadonlyArray<SpaceSyncModel>;
 
+  const languages = JSON.parse(
+    await fs.readFile(`${folderName}/${languagesFileName}`, "utf8").catch(() => "[]"),
+  ) as ReadonlyArray<LanguageSyncModel>;
+
   return {
     contentTypes,
     contentTypeSnippets: snippets,
@@ -62,6 +68,7 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     webSpotlight,
     assetFolders,
     spaces,
+    languages,
   };
 };
 

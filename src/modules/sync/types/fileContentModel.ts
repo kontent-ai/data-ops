@@ -3,6 +3,7 @@ import {
   CollectionSyncModel,
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
+  LanguageSyncModel,
   SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
@@ -16,4 +17,5 @@ export type FileContentModel = Readonly<{
   assetFolders: ReadonlyArray<AssetFolderSyncModel>;
   collections: ReadonlyArray<CollectionSyncModel>;
   spaces: ReadonlyArray<SpaceSyncModel>;
+  languages: ReadonlyArray<LanguageSyncModel>;
 }>;

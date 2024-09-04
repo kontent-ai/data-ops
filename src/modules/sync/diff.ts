@@ -1,8 +1,10 @@
+import { throwError } from "../../utils/error.js";
 import { assetFoldersHandler } from "./diff/assetFolder.js";
 import { collectionsHandler } from "./diff/collection.js";
 import { Handler } from "./diff/combinators.js";
 import { makeContentTypeHandler, wholeContentTypesHandler } from "./diff/contentType.js";
 import { makeContentTypeSnippetHandler, wholeContentTypeSnippetsHandler } from "./diff/contentTypeSnippet.js";
+import { languageHandler, wholeLanguageHandler } from "./diff/language.js";
 import { spaceHandler, wholeSpacesHandler } from "./diff/space.js";
 import { taxonomyGroupHandler, wholeTaxonomyGroupsHandler } from "./diff/taxonomy.js";
 import {
@@ -14,6 +16,7 @@ import { webSpotlightHandler } from "./diff/webSpotlight.js";
 import { DiffModel } from "./types/diffModel.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { PatchOperation } from "./types/patchOperation.js";
+import { LanguageSyncModel } from "./types/syncModel.js";
 
 type TargetReference = { id: string; codename: string };
 
@@ -76,6 +79,8 @@ export const diff = (params: DiffParams): DiffModel => {
     spaceHandler,
   );
 
+  const languageDiffModel = getLanguageDiffModel(params.sourceEnvModel.languages, params.targetEnvModel.languages);
+
   return {
     // All the arrays are mutable in the SDK (even though they shouldn't) and readonly in our models. Unfortunately, TS doesn't allow casting it without casting to unknown first.
     taxonomyGroups: mapAdded(taxonomyDiffModel, transformTaxonomyToAddModel),
@@ -85,6 +90,7 @@ export const diff = (params: DiffParams): DiffModel => {
     webSpotlight: webSpotlightDiffModel,
     assetFolders: assetFoldersDiffModel,
     spaces: spacesDiffModel,
+    languages: languageDiffModel,
   };
 };
 
@@ -131,3 +137,60 @@ const createDiffModel = <Entity extends Readonly<{ codename: string }>>(
       },
       { added: [], updated: new Map(), deleted: new Set() },
     );
+
+const getLanguageDiffModel = (
+  sourceLanguages: ReadonlyArray<LanguageSyncModel>,
+  targetLanguages: ReadonlyArray<LanguageSyncModel>,
+) => {
+  const sourceDefaultLanguageCodename = getDefaultLang(sourceLanguages).codename;
+  const targetDefaultLanguageCodename = getDefaultLang(targetLanguages).codename;
+
+  /**
+   * Update the source default language to match the codename of the target default language.
+   * This ensures that during the diff process, the existing default language in the target environment is updated,
+   * rather than creating a new default language, which is not feasible.
+   */
+  const languageSource = adjustSourceDefaultLanguageCodename(
+    sourceLanguages,
+    targetDefaultLanguageCodename,
+  );
+
+  const languageDiffModel = createDiffModel(
+    wholeLanguageHandler(languageSource, targetLanguages),
+    languageHandler,
+  );
+
+  /**
+   * Manually add an operation to change the codename of the default language in the target environment
+   * to match the codename of the default language in the source environment.
+   */
+
+  languageDiffModel.updated.set(targetDefaultLanguageCodename, [
+    ...languageDiffModel.updated.get(targetDefaultLanguageCodename) ?? [],
+    ...sourceDefaultLanguageCodename === targetDefaultLanguageCodename ? [] : [
+      {
+        op: "replace",
+        path: "/codename",
+        value: sourceDefaultLanguageCodename,
+        oldValue: targetDefaultLanguageCodename,
+      } as const,
+    ],
+  ]);
+
+  return languageDiffModel;
+};
+
+const adjustSourceDefaultLanguageCodename = (
+  source: ReadonlyArray<LanguageSyncModel>,
+  codename: string,
+) => {
+  const sourceDefaultLang = getDefaultLang(source);
+  const newSource = source.filter(l => l.codename !== sourceDefaultLang.codename);
+
+  return [{ ...sourceDefaultLang, codename, fallback_language: { codename } }, ...newSource];
+};
+
+const getDefaultLang = (languages: ReadonlyArray<LanguageSyncModel>) => {
+  const defaultLang = languages.find(l => l.is_default);
+  return defaultLang ?? throwError(`Language enviroment model does not contain default language`);
+};

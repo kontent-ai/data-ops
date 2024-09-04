@@ -4,6 +4,7 @@ import {
   ContentTypeContracts,
   ContentTypeElements,
   ContentTypeSnippetContracts,
+  LanguageContracts,
   SpaceContracts,
   TaxonomyContracts,
   WebSpotlightContracts,
@@ -139,6 +140,11 @@ export type SpaceSyncModel = Replace<
     web_spotlight_root_item?: Readonly<{ codename: string }>;
     collections: ReadonlyArray<Readonly<{ codename: string }>>;
   }>
+>;
+
+export type LanguageSyncModel = Replace<
+  Omit<LanguageContracts.ILanguageModelContract, "id" | "external_id">,
+  Readonly<{ fallback_language?: CodenameReference }>
 >;
 
 export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>

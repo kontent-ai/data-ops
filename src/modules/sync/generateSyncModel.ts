@@ -3,6 +3,7 @@ import {
   AssetFolderContracts,
   CollectionContracts,
   ContentItemContracts,
+  LanguageContracts,
   ManagementClient,
   SpaceContracts,
   TaxonomyContracts,
@@ -21,6 +22,7 @@ import {
   collectionsFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
+  languagesFileName,
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
@@ -29,6 +31,7 @@ import { transformAssetFolderModel } from "./modelTransfomers/assetFolder.js";
 import { transformCollectionsModel } from "./modelTransfomers/collections.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
+import { transformLanguageModel } from "./modelTransfomers/language.js";
 import { transformSpacesModel } from "./modelTransfomers/spaceTransformers.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
@@ -40,6 +43,7 @@ import {
   fetchCollections,
   fetchContentTypes,
   fetchContentTypeSnippets,
+  fetchLanguages,
   fetchRequiredAssets,
   fetchRequiredContentItems,
   fetchSpaces,
@@ -57,6 +61,7 @@ export type EnvironmentModel = {
   spaces: ReadonlyArray<SpaceContracts.ISpaceContract>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
+  languages: ReadonlyArray<LanguageContracts.ILanguageModelContract>;
 };
 
 export const fetchModel = async (client: ManagementClient): Promise<EnvironmentModel> => {
@@ -73,6 +78,8 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
   const spaces = await fetchSpaces(client);
 
   const collections = await fetchCollections(client);
+
+  const languages = await fetchLanguages(client);
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
     (previous, type) => {
@@ -102,6 +109,7 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
     assets,
     items,
     assetFolders,
+    languages,
   };
 };
 
@@ -113,6 +121,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
   const webSpotlightModel = transformWebSpotlightModel(environmentModel);
   const assetFoldersModel = environmentModel.assetFolders.map(transformAssetFolderModel);
   const spacesModel = transformSpacesModel(environmentModel);
+  const languagesModel = transformLanguageModel(environmentModel.languages);
 
   return {
     contentTypes: contentTypeModel,
@@ -122,6 +131,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
     webSpotlight: webSpotlightModel,
     assetFolders: assetFoldersModel,
     spaces: spacesModel,
+    languages: languagesModel,
   };
 };
 
@@ -176,6 +186,10 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   await fsPromises.writeFile(
     path.resolve(folderName, spacesFileName),
     JSON.stringify(finalModel.spaces, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, languagesFileName),
+    JSON.stringify(finalModel.languages, null, 2),
   );
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
 
