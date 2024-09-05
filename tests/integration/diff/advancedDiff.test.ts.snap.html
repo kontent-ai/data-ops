@@ -2368,6 +2368,116 @@
         <div class="entity-section">
           <div
             class="entity-section-header"
+            onclick="toggleVisibility('languages')"
+          >
+            <div>Languages</div>
+            <div class="num-modified push">✎ 3</div>
+            <div class="num-added">+ 1</div>
+            <div class="num-removed">− 1</div>
+          </div>
+          <div id="languages" class="entity-section-content">
+            <div class="updated">
+              <h3>updated</h3>
+              <div class="entity-detail">
+                <div
+                  class="entity-name"
+                  onClick="toggleVisibility('changed_default')"
+                >
+                  changed_default
+                </div>
+                <div
+                  class="entity-operations"
+                  style="display: none"
+                  id="changed_default"
+                >
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Property
+                    name changed <div class="compared-elements">
+                      <div class="element">Changed Default Lang Name</div>
+                      <div class="comparator">→</div>
+                      <div class="element">Default project language</div>
+                    </div>
+                  </div>
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Object at
+                    path /codename changed <div class="compared-elements">
+                      <div class="element">changed_default</div>
+                      <div class="comparator">→</div>
+                      <div class="element">default</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="entity-detail">
+                <div class="entity-name" onClick="toggleVisibility('lang1')">
+                  lang1
+                </div>
+                <div class="entity-operations" style="display: none" id="lang1">
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Object at
+                    path /fallback_language changed <div
+                      class="compared-elements"
+                    >
+                      <div class="element">lang2</div>
+                      <div class="comparator">→</div>
+                      <div class="element">default</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="entity-detail">
+                <div class="entity-name" onClick="toggleVisibility('lang2')">
+                  lang2
+                </div>
+                <div class="entity-operations" style="display: none" id="lang2">
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Object at
+                    path /fallback_language changed <div
+                      class="compared-elements"
+                    >
+                      <div class="element">lang4</div>
+                      <div class="comparator">→</div>
+                      <div class="element">lang1</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="added-and-deleted">
+              <div class="deleted">
+                <h3>deleted</h3>
+                <div class="entity-detail">
+                  <div class="entity-name removed">lang4</div>
+                </div>
+              </div>
+
+              <div class="added">
+                <h3>added</h3>
+                <div class="entity-detail">
+                  <div class="entity-name" onClick="toggleVisibility('lang3')">
+                    lang3
+                  </div>
+                  <div
+                    class="entity-operations"
+                    style="display: block"
+                    id="lang3"
+                  >
+                    <div class="added-element">name: lang3</div>
+                    <div class="added-element">codename: lang3</div>
+                    <div class="added-element">is_active: true</div>
+                    <div class="added-element">is_default: false</div>
+                    <div class="added-element">fallback_language: lang2</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="entity-section">
+          <div
+            class="entity-section-header"
             onclick="toggleVisibility('web-spotlight')"
           >
             <div>Web Spotlight</div>
