@@ -2371,7 +2371,7 @@
             onclick="toggleVisibility('languages')"
           >
             <div>Languages</div>
-            <div class="num-modified push">✎ 3</div>
+            <div class="num-modified push">✎ 4</div>
             <div class="num-added">+ 1</div>
             <div class="num-removed">− 1</div>
           </div>
@@ -2381,14 +2381,14 @@
               <div class="entity-detail">
                 <div
                   class="entity-name"
-                  onClick="toggleVisibility('changed_default')"
+                  onClick="toggleVisibility('default_changed')"
                 >
-                  changed_default
+                  default_changed
                 </div>
                 <div
                   class="entity-operations"
                   style="display: none"
-                  id="changed_default"
+                  id="default_changed"
                 >
                   <div class="op">
                     <span class="num-modified modifier-icon">⇄</span>Property
@@ -2401,7 +2401,7 @@
                   <div class="op">
                     <span class="num-modified modifier-icon">⇄</span>Object at
                     path /codename changed <div class="compared-elements">
-                      <div class="element">changed_default</div>
+                      <div class="element">default_changed</div>
                       <div class="comparator">→</div>
                       <div class="element">default</div>
                     </div>
@@ -2438,6 +2438,30 @@
                       <div class="element">lang4</div>
                       <div class="comparator">→</div>
                       <div class="element">lang1</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="entity-detail">
+                <div
+                  class="entity-name"
+                  onClick="toggleVisibility('static_lang')"
+                >
+                  static_lang
+                </div>
+                <div
+                  class="entity-operations"
+                  style="display: none"
+                  id="static_lang"
+                >
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Object at
+                    path /fallback_language changed <div
+                      class="compared-elements"
+                    >
+                      <div class="element">default_changed</div>
+                      <div class="comparator">→</div>
+                      <div class="element">default</div>
                     </div>
                   </div>
                 </div>

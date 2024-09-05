@@ -40,10 +40,12 @@ const expectSameSyncEnvironments = async (
 
   const data1 = await loadAllEnvData(environmentId1, { include: syncEntitties })
     .then(prepareReferences)
-    .then(sortAssetFolders);
+    .then(sortAssetFolders)
+    .then(prepareLanguages);
   const data2 = await loadAllEnvData(environmentId2, { include: syncEntitties })
     .then(prepareReferences)
-    .then(sortAssetFolders);
+    .then(sortAssetFolders)
+    .then(prepareLanguages);
 
   expectSameAllEnvData(data1, data2, { include: syncEntitties });
 };
@@ -51,6 +53,11 @@ const expectSameSyncEnvironments = async (
 const sortAssetFolders = (allData: AllEnvData): AllEnvData => ({
   ...allData,
   assetFolders: allData.assetFolders.toSorted((a, b) => a.codename.localeCompare(b.codename)),
+});
+
+const prepareLanguages = (allData: AllEnvData): AllEnvData => ({
+  ...allData,
+  languages: allData.languages.filter(l => l.is_active).toSorted((a, b) => a.codename.localeCompare(b.codename)),
 });
 
 describe.concurrent("Sync model of two environments with credentials", () => {
