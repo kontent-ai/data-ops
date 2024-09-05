@@ -4,9 +4,12 @@ import * as path from "path";
 import { describe, expect, it } from "vitest";
 
 import {
+  assetFoldersFileName,
+  collectionsFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
   taxonomiesFileName,
+  webSpotlightFileName,
 } from "../../../src/modules/sync/constants/filename.ts";
 import { syncModelRun } from "../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
@@ -32,7 +35,7 @@ const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
 ): Promise<void> => {
-  const syncEntitties = ["types", "snippets", "taxonomies", "webSpotlight", "assetFolders"] as const;
+  const syncEntitties = ["types", "snippets", "taxonomies", "webSpotlight", "assetFolders", "collections"] as const;
 
   const data1 = await loadAllEnvData(environmentId1, { include: syncEntitties })
     .then(prepareReferences)
@@ -99,10 +102,23 @@ describe.concurrent("Sync environment from folder", () => {
       .then(stats => stats.isFile())
       .catch(() => false);
 
+    const webSpotlightJsonExists = await fsPromises.stat(`${folderPath}/${webSpotlightFileName}`)
+      .then(stats => stats.isFile())
+      .catch(() => false);
+    const assetFoldersJsonExists = await fsPromises.stat(`${folderPath}/${assetFoldersFileName}`)
+      .then(stats => stats.isFile())
+      .catch(() => false);
+    const collectionsJsonExists = await fsPromises.stat(`${folderPath}/${collectionsFileName}`)
+      .then(stats => stats.isFile())
+      .catch(() => false);
+
     expect(folderExists).toEqual(true);
     expect(typesJsonExists).toEqual(true);
     expect(snippetJsonExists).toEqual(true);
     expect(taxonomiesJsonExists).toEqual(true);
+    expect(webSpotlightJsonExists).toEqual(true);
+    expect(assetFoldersJsonExists).toEqual(true);
+    expect(collectionsJsonExists).toEqual(true);
   });
 
   it.sequential(
