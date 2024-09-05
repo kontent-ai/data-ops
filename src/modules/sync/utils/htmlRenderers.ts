@@ -2,6 +2,7 @@ import {
   ContentTypeElements,
   ContentTypeModels,
   ContentTypeSnippetModels,
+  LanguageModels,
   TaxonomyModels,
 } from "@kontent-ai/management-sdk";
 import { match } from "ts-pattern";
@@ -38,7 +39,7 @@ type Operation = PatchOperation["op"];
 type TypeOrSnippet = ContentTypeModels.IAddContentTypeData | ContentTypeSnippetModels.IAddContentTypeSnippetData;
 type ElementOrTerm = ContentTypeElements.Element | TaxonomyModels.IAddTaxonomyRequestModel;
 type RenderFunction<T extends PatchOperation> = (patchOp: T) => string;
-type EntityType = "taxonomies" | "types" | "snippets" | "spaces";
+type EntityType = "taxonomies" | "types" | "snippets" | "spaces" | "languages";
 type EntityActionType = "added" | "updated" | "deleted";
 type AdvancedDiffParams =
   & Readonly<{
@@ -151,6 +152,11 @@ const getValueOrIdentifier = (value: unknown): string | string[] => {
 
   return `<strong>${String(value)}</strong>`;
 };
+
+const renderAddObjectProperties = (obj: Object) =>
+  Object.entries(obj).map(([key, value]) => renderAddProperty(key, value)).join("\n");
+
+const renderAddProperty = (key: string, value: string) => `<div class="added-element">${key}: ${value}</div>`;
 
 const renderPatchOp = (patchOp: PatchOperation) => patchOpRendererMap.get(patchOp.op)?.(patchOp);
 
@@ -307,6 +313,16 @@ const renderAddedTaxonomiesSectionData = <T extends TaxonomyModels.IAddTaxonomyR
   diff.added.map(a => renderAddedTaxonomyData(a, a.terms)).join("\n")
   + "<div class=\"warning\">⚠️ Only the first three depth levels shown.</div>";
 
+const renderAddedLanguagesSectionData = (
+  diff: Pick<DiffObject<RequiredCodename<LanguageModels.IAddLanguageData>>, "added">,
+) =>
+  diff.added.map(entity =>
+    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: block" id=${entity.codename}>
+    ${renderAddObjectProperties({ ...entity, fallback_language: entity.fallback_language?.codename })}
+    </div></div>`
+  )
+    .join("\n");
+
 const renderDeletedEntitiesSectionData = <T extends { codename: string }>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "deleted">,
 ) => [...diff.deleted].map(renderDeletedEntity).join("\n");
@@ -335,6 +351,7 @@ const renderEntitySection = (
     taxonomies: "Taxonomy groups",
     types: "Content types",
     spaces: "Spaces",
+    languages: "Languages",
   };
 
   return renderSection({
@@ -443,6 +460,18 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     ({ taxonomyGroups }: DiffData) => renderUpdatedEntitiesSectionData(taxonomyGroups),
   ],
   [
+    "{{added_languages}}",
+    ({ languages }: DiffData) => renderAddedLanguagesSectionData(languages),
+  ],
+  [
+    "{{deleted_languages}}",
+    ({ languages }: DiffData) => renderDeletedEntitiesSectionData(languages),
+  ],
+  [
+    "{{updated_languages}}",
+    ({ languages }: DiffData) => renderUpdatedEntitiesSectionData(languages),
+  ],
+  [
     "{{source_env_id}}",
     ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName!,
   ],
@@ -511,6 +540,11 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
         ? renderEntitySection("spaces", spaces)
         : "<h3>No changes to spaces.</h3>",
   ],
+  [
+    "{{languages_section}}",
+    ({ languages }: DiffData) =>
+      getCombinedOpLength(languages) ? renderEntitySection("languages", languages) : "<h3>No changes to languages</h3>",
+  ],
 ]);
 
 const patchOpRendererMap: ReadonlyMap<
@@ -533,7 +567,7 @@ const modifierMap: ReadonlyMap<Operation, string> = new Map([
 const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /^\/name$/,
-    render: () => `Content type name`,
+    render: () => `Property name`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/([^/]+)$/,
