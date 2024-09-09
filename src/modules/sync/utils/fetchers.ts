@@ -98,6 +98,12 @@ export const fetchAssetFolders = (client: ManagementClient) =>
     .toPromise()
     .then(res => res.rawData.folders);
 
+export const fetchSpaces = (client: ManagementClient) =>
+  client
+    .listSpaces()
+    .toPromise()
+    .then(res => res.rawData);
+
 export const fetchCollections = (client: ManagementClient) =>
   client
     .listCollections()

@@ -29,6 +29,9 @@ export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
     logInfo(logOptions, "standard", "No collections to update.");
   }
 
+  logInfo(logOptions, "standard", chalk.blue.bold("\nSPACES:"));
+  printDiffEntity(diffModel.spaces, "spaces", logOptions);
+
   logInfo(logOptions, "standard", chalk.blue.bold("\nTAXONOMY GROUPS:"));
   printDiffEntity(diffModel.taxonomyGroups, "taxonomy groups", logOptions);
 
@@ -59,7 +62,7 @@ export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
 
 const printDiffEntity = (
   diffObject: DiffObject<unknown>,
-  entityName: "content types" | "content type snippets" | "taxonomy groups",
+  entityName: "content types" | "content type snippets" | "taxonomy groups" | "spaces",
   logOptions: LogOptions,
 ) => {
   if (diffObject.added.length) {

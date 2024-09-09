@@ -4,6 +4,7 @@ import {
   CollectionContracts,
   ContentItemContracts,
   ManagementClient,
+  SpaceContracts,
   TaxonomyContracts,
   WebSpotlightContracts,
 } from "@kontent-ai/management-sdk";
@@ -14,11 +15,13 @@ import * as path from "path";
 import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { serializeDateForFileName } from "../../utils/files.js";
+import { notNullOrUndefined } from "../../utils/typeguards.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
+  spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
 } from "./constants/filename.js";
@@ -26,6 +29,7 @@ import { transformAssetFolderModel } from "./modelTransfomers/assetFolder.js";
 import { transformCollectionsModel } from "./modelTransfomers/collections.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
+import { transformSpacesModel } from "./modelTransfomers/spaceTransformers.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
 import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "./types/contractModels.js";
@@ -38,6 +42,7 @@ import {
   fetchContentTypeSnippets,
   fetchRequiredAssets,
   fetchRequiredContentItems,
+  fetchSpaces,
   fetchTaxonomies,
   fetchWebSpotlight,
 } from "./utils/fetchers.js";
@@ -49,6 +54,7 @@ export type EnvironmentModel = {
   collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
   webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
   assetFolders: ReadonlyArray<AssetFolderContracts.IAssetFolderContract>;
+  spaces: ReadonlyArray<SpaceContracts.ISpaceContract>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
 };
@@ -64,6 +70,8 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
 
   const assetFolders = await fetchAssetFolders(client);
 
+  const spaces = await fetchSpaces(client);
+
   const collections = await fetchCollections(client);
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
@@ -75,7 +83,10 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
         itemIds: new Set([...previous.itemIds, ...ids.itemIds]),
       };
     },
-    { assetIds: new Set(), itemIds: new Set() },
+    {
+      assetIds: new Set(),
+      itemIds: new Set(spaces.map(s => s.web_spotlight_root_item?.id).filter(notNullOrUndefined)),
+    },
   );
 
   const assets = await fetchRequiredAssets(client, Array.from(allIds.assetIds));
@@ -87,6 +98,7 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
     taxonomyGroups: taxonomies,
     collections,
     webSpotlight,
+    spaces,
     assets,
     items,
     assetFolders,
@@ -100,6 +112,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
   const collectionsModel = transformCollectionsModel(environmentModel.collections);
   const webSpotlightModel = transformWebSpotlightModel(environmentModel);
   const assetFoldersModel = environmentModel.assetFolders.map(transformAssetFolderModel);
+  const spacesModel = transformSpacesModel(environmentModel);
 
   return {
     contentTypes: contentTypeModel,
@@ -108,6 +121,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
     collections: collectionsModel,
     webSpotlight: webSpotlightModel,
     assetFolders: assetFoldersModel,
+    spaces: spacesModel,
   };
 };
 
@@ -158,6 +172,10 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   await fsPromises.writeFile(
     path.resolve(folderName, collectionsFileName),
     JSON.stringify(finalModel.collections, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, spacesFileName),
+    JSON.stringify(finalModel.spaces, null, 2),
   );
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
 

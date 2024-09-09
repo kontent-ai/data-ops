@@ -56,9 +56,7 @@ export const makeLeafObjectHandler = <Entity extends object>(
     Object.keys(sourceValue) as (keyof typeof customComparers)[],
     zip(Object.values(sourceValue), Object.values(targetValue)),
   )
-    .some(([key, [source, target]]) =>
-      customComparers[key] ? !customComparers[key](source, target) : source !== target
-    );
+    .some(([key, [source, target]]) => !(customComparers[key]?.(source, target) ?? source === target));
 
   return shouldReplace
     ? [{ op: "replace", value: transformBeforeReplace(sourceValue), oldValue: targetValue, path: "" }]
@@ -333,3 +331,16 @@ export const baseHandler: Handler<string | boolean | number> = (sourceVal, targe
  * Never creates a patch operation. Use for values that can never change (e.g. property "type" in elements).
  */
 export const constantHandler: Handler<unknown> = () => [];
+
+/**
+ * Compares objects on the "codename" property and creates "addInto", "remove" and "replace" operations for the whole objects.
+ * You should then use a different handler for comparing the same objects (those in the "replace" operations).
+ * The main purpose of this is to determine what objects (e.g. types or spaces) need to be added, removed or replaced.
+ */
+export const makeWholeObjectsHandler = <
+  Object extends Readonly<{ codename: string; name: string }>,
+>(): Handler<ReadonlyArray<Object>> =>
+  makeArrayHandler(
+    el => el.codename,
+    makeLeafObjectHandler({ name: () => false } as { [k in keyof Object]?: () => false }), // Any property apart from "codename" | "id" | "external_id" works. We just need to make sure that this handler always returns a replace operation, because it is only called on objects with the same codename.
+  );

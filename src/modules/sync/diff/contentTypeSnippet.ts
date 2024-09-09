@@ -5,10 +5,10 @@ import {
   Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
-  makeLeafObjectHandler,
   makeObjectHandler,
   makeOrderingHandler,
   makeUnionHandler,
+  makeWholeObjectsHandler,
 } from "./combinators.js";
 import {
   makeAssetElementHandler,
@@ -98,7 +98,5 @@ const patchOpToOrdNumber = (op: PatchOperation) => {
 const snippetOperationsComparator = (el1: PatchOperation, el2: PatchOperation): number =>
   patchOpToOrdNumber(el1) - patchOpToOrdNumber(el2);
 
-export const wholeContentTypeSnippetsHandler: Handler<ReadonlyArray<ContentTypeSnippetsSyncModel>> = makeArrayHandler(
-  s => s.codename,
-  makeLeafObjectHandler({ name: () => false }), // always replace snippets with the same codename as this handler only handles whole snippets not their parts
-);
+export const wholeContentTypeSnippetsHandler: Handler<ReadonlyArray<ContentTypeSnippetsSyncModel>> =
+  makeWholeObjectsHandler();

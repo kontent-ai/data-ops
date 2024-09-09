@@ -3,6 +3,7 @@ import { collectionsHandler } from "./diff/collection.js";
 import { Handler } from "./diff/combinators.js";
 import { makeContentTypeHandler, wholeContentTypesHandler } from "./diff/contentType.js";
 import { makeContentTypeSnippetHandler, wholeContentTypeSnippetsHandler } from "./diff/contentTypeSnippet.js";
+import { spaceHandler, wholeSpacesHandler } from "./diff/space.js";
 import { taxonomyGroupHandler, wholeTaxonomyGroupsHandler } from "./diff/taxonomy.js";
 import {
   transformSnippetToAddModel,
@@ -70,6 +71,11 @@ export const diff = (params: DiffParams): DiffModel => {
     params.targetEnvModel.assetFolders,
   );
 
+  const spacesDiffModel = createDiffModel(
+    wholeSpacesHandler(params.sourceEnvModel.spaces, params.targetEnvModel.spaces),
+    spaceHandler,
+  );
+
   return {
     // All the arrays are mutable in the SDK (even though they shouldn't) and readonly in our models. Unfortunately, TS doesn't allow casting it without casting to unknown first.
     taxonomyGroups: mapAdded(taxonomyDiffModel, transformTaxonomyToAddModel),
@@ -78,6 +84,7 @@ export const diff = (params: DiffParams): DiffModel => {
     collections: collectionDiffModel,
     webSpotlight: webSpotlightDiffModel,
     assetFolders: assetFoldersDiffModel,
+    spaces: spacesDiffModel,
   };
 };
 

@@ -11,10 +11,10 @@ import {
   makeAdjustEntityHandler,
   makeAdjustOperationHandler,
   makeArrayHandler,
-  makeLeafObjectHandler,
   makeObjectHandler,
   makeOrderingHandler,
   makeProvideHandler,
+  makeWholeObjectsHandler,
 } from "./combinators.js";
 
 export const taxonomyGroupHandler: Handler<TaxonomySyncModel> = makeObjectHandler({
@@ -33,10 +33,7 @@ export const taxonomyGroupHandler: Handler<TaxonomySyncModel> = makeObjectHandle
   },
 });
 
-export const wholeTaxonomyGroupsHandler: Handler<ReadonlyArray<TaxonomySyncModel>> = makeArrayHandler(
-  g => g.codename,
-  makeLeafObjectHandler({ name: () => false }), // always replace taxonomy groups with the same codename as this handler only handles whole taxonomy groups not their parts
-);
+export const wholeTaxonomyGroupsHandler: Handler<ReadonlyArray<TaxonomySyncModel>> = makeWholeObjectsHandler();
 
 type FlattenedSyncTaxonomy = Replace<TaxonomySyncModel, { terms: [] }> & Readonly<{ position: ReadonlyArray<string> }>;
 

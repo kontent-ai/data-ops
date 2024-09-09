@@ -2380,6 +2380,36 @@
             </div>
           </div>
         </div>
+
+        <div class="entity-section">
+          <div
+            class="entity-section-header"
+            onclick="toggleVisibility('spaces')"
+          >
+            <div>Spaces</div>
+            <div class="num-modified push">✎ 2</div>
+            <div class="num-added">+ 1</div>
+            <div class="num-removed">− 1</div>
+          </div>
+          <div id="spaces" class="entity-section-content">
+            <div class="updated">
+              <h3>updated</h3>
+              {{updated_spaces}}
+            </div>
+
+            <div class="added-and-deleted">
+              <div class="deleted">
+                <h3>deleted</h3>
+                {{deleted_spaces}}
+              </div>
+
+              <div class="added">
+                <h3>added</h3>
+                {{added_spaces}}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <script>
