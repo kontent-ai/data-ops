@@ -3,14 +3,7 @@ import * as fsPromises from "fs/promises";
 import * as path from "path";
 import { describe, expect, it } from "vitest";
 
-import {
-  assetFoldersFileName,
-  collectionsFileName,
-  contentTypesFileName,
-  contentTypeSnippetsFileName,
-  taxonomiesFileName,
-  webSpotlightFileName,
-} from "../../../src/modules/sync/constants/filename.ts";
+import * as fileNames from "../../../src/modules/sync/constants/filename.ts";
 import { syncModelRun } from "../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
 import { AllEnvData, loadAllEnvData } from "../importExport/utils/envData.ts";
@@ -92,33 +85,21 @@ describe.concurrent("Sync environment from folder", () => {
       .then(stats => stats.isDirectory())
       .catch(() => false);
 
-    const typesJsonExists = await fsPromises.stat(`${folderPath}/${contentTypesFileName}`)
-      .then(stats => stats.isFile())
-      .catch(() => false);
-    const snippetJsonExists = await fsPromises.stat(`${folderPath}/${contentTypeSnippetsFileName}`)
-      .then(stats => stats.isFile())
-      .catch(() => false);
-    const taxonomiesJsonExists = await fsPromises.stat(`${folderPath}/${taxonomiesFileName}`)
-      .then(stats => stats.isFile())
-      .catch(() => false);
-
-    const webSpotlightJsonExists = await fsPromises.stat(`${folderPath}/${webSpotlightFileName}`)
-      .then(stats => stats.isFile())
-      .catch(() => false);
-    const assetFoldersJsonExists = await fsPromises.stat(`${folderPath}/${assetFoldersFileName}`)
-      .then(stats => stats.isFile())
-      .catch(() => false);
-    const collectionsJsonExists = await fsPromises.stat(`${folderPath}/${collectionsFileName}`)
-      .then(stats => stats.isFile())
-      .catch(() => false);
-
     expect(folderExists).toEqual(true);
-    expect(typesJsonExists).toEqual(true);
-    expect(snippetJsonExists).toEqual(true);
-    expect(taxonomiesJsonExists).toEqual(true);
-    expect(webSpotlightJsonExists).toEqual(true);
-    expect(assetFoldersJsonExists).toEqual(true);
-    expect(collectionsJsonExists).toEqual(true);
+
+    const filesExistence = Object.fromEntries(
+      await Promise.all(
+        Object.values(fileNames).map((filename) =>
+          fsPromises.stat(`${folderPath}/${filename}`)
+            .then(stats => [filename, stats.isFile()])
+            .catch((e) => [filename, e])
+        ),
+      ),
+    );
+
+    const allFilesExist = Object.fromEntries(Object.values(fileNames).map(value => [value, true]));
+
+    expect(filesExistence).toEqual(allFilesExist);
   });
 
   it.sequential(
