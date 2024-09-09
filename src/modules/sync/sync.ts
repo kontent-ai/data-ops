@@ -11,6 +11,7 @@ import {
   deleteSnippet,
   updateSnippets,
 } from "./sync/snippets.js";
+import { syncSpaces } from "./sync/spaces.js";
 import { syncTaxonomies } from "./sync/taxonomy.js";
 import { addTypesWithoutReferences, deleteContentType, updateContentTypesAndAddReferences } from "./sync/types.js";
 import { isOp } from "./sync/utils.js";
@@ -23,6 +24,8 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
 
   logInfo(logOptions, "standard", "Syncing Collections");
   await syncAddAndReplaceCollections(client, diff.collections);
+
+  await syncSpaces(client, diff.spaces, logOptions);
 
   await syncRemoveCollections(client, diff.collections);
 

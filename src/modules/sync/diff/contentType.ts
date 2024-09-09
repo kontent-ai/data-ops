@@ -10,10 +10,10 @@ import {
   Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
-  makeLeafObjectHandler,
   makeObjectHandler,
   makeOrderingHandler,
   makeUnionHandler,
+  makeWholeObjectsHandler,
   optionalHandler,
 } from "./combinators.js";
 import {
@@ -137,7 +137,4 @@ const patchOpToOrdNumber = (op: PatchOperation) => {
 const contentTypeOperationsComparator = (el1: PatchOperation, el2: PatchOperation): number =>
   patchOpToOrdNumber(el1) - patchOpToOrdNumber(el2);
 
-export const wholeContentTypesHandler: Handler<ReadonlyArray<ContentTypeSyncModel>> = makeArrayHandler(
-  t => t.codename,
-  makeLeafObjectHandler({ name: () => false }), // always replace types with the same codename as this handler only handles whole types not their parts
-);
+export const wholeContentTypesHandler: Handler<ReadonlyArray<ContentTypeSyncModel>> = makeWholeObjectsHandler();

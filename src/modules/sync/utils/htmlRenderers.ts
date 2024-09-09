@@ -38,7 +38,7 @@ type Operation = PatchOperation["op"];
 type TypeOrSnippet = ContentTypeModels.IAddContentTypeData | ContentTypeSnippetModels.IAddContentTypeSnippetData;
 type ElementOrTerm = ContentTypeElements.Element | TaxonomyModels.IAddTaxonomyRequestModel;
 type RenderFunction<T extends PatchOperation> = (patchOp: T) => string;
-type EntityType = "taxonomies" | "types" | "snippets";
+type EntityType = "taxonomies" | "types" | "snippets" | "spaces";
 type EntityActionType = "added" | "updated" | "deleted";
 type AdvancedDiffParams =
   & Readonly<{
@@ -330,16 +330,17 @@ const renderEntitySection = (
   entityType: EntityType,
   { added, updated, deleted }: DiffObject<unknown>,
 ) => {
-  const entityTypeNameMap: ReadonlyMap<typeof entityType, string> = new Map([
-    ["snippets", "Snippets"],
-    ["taxonomies", "Taxonomy groups"],
-    ["types", "Content types"],
-  ]);
+  const entityTypeNameMap: Readonly<Record<typeof entityType, string>> = {
+    snippets: "Snippets",
+    taxonomies: "Taxonomy groups",
+    types: "Content types",
+    spaces: "Spaces",
+  };
 
   return renderSection({
     id: entityType,
     header: `
-    <div>${entityTypeNameMap.get(entityType)}</div>
+    <div>${entityTypeNameMap[entityType]}</div>
     ${modifiedNum([...updated.values()].filter(ops => ops.length).length, true)}
     ${addedNum(added.length)}
     ${removedNum(deleted.size)}
@@ -502,6 +503,13 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
           content: collections.map(renderPatchOp).join("\n"),
         })
         : "<h3>No changes to collections</h3>",
+  ],
+  [
+    "{{spaces_section}}",
+    ({ spaces }: DiffData) =>
+      getCombinedOpLength(spaces)
+        ? renderEntitySection("spaces", spaces)
+        : "<h3>No changes to spaces.</h3>",
   ],
 ]);
 

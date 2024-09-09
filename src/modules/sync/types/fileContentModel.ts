@@ -3,6 +3,7 @@ import {
   CollectionSyncModel,
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
+  SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
 } from "./syncModel.js";
@@ -14,4 +15,5 @@ export type FileContentModel = Readonly<{
   webSpotlight: WebSpotlightSyncModel;
   assetFolders: ReadonlyArray<AssetFolderSyncModel>;
   collections: ReadonlyArray<CollectionSyncModel>;
+  spaces: ReadonlyArray<SpaceSyncModel>;
 }>;

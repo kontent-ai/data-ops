@@ -14,6 +14,7 @@ import {
   makePrefixHandler,
   makeProvideHandler,
   makeUnionHandler,
+  makeWholeObjectsHandler,
   optionalHandler,
 } from "../../../../src/modules/sync/diff/combinators.ts";
 import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
@@ -587,6 +588,33 @@ describe("makePrefixHandler", () => {
       { op: "remove", path: "/toDelete", oldValue: 666 },
       { op: "move", path: "/toDelete", after: { codename: "cd" } },
       { op: "addInto", path: "/test:addPath", value: 99 },
+    ]);
+  });
+});
+
+describe("makeWholeObjectsHandler", () => {
+  it("Replaces the whole object when it has the same codename in source and target, even when they are the same", () => {
+    type Obj = Readonly<{ codename: string; name: string }>;
+
+    const source: ReadonlyArray<Obj> = [{ codename: "test", name: "source" }];
+    const target: ReadonlyArray<Obj> = source;
+
+    const result = makeWholeObjectsHandler<Obj>()(source, target);
+
+    expect(result).toStrictEqual([{ op: "replace", path: "/codename:test", value: source[0], oldValue: target[0] }]);
+  });
+
+  it("Adds objects with no matching codename in target and removes those with no matching codename in source", () => {
+    type Obj = Readonly<{ codename: string; name: string }>;
+
+    const source: ReadonlyArray<Obj> = [{ codename: "testSource", name: "source" }];
+    const target: ReadonlyArray<Obj> = [{ codename: "testTarget", name: "target" }];
+
+    const result = makeWholeObjectsHandler<Obj>()(source, target);
+
+    expect(result).toStrictEqual([
+      { op: "addInto", path: "", value: source[0] },
+      { op: "remove", path: "/codename:testTarget", oldValue: target[0] },
     ]);
   });
 });

@@ -4,6 +4,7 @@ import {
   ContentTypeContracts,
   ContentTypeElements,
   ContentTypeSnippetContracts,
+  SpaceContracts,
   TaxonomyContracts,
   WebSpotlightContracts,
 } from "@kontent-ai/management-sdk";
@@ -130,6 +131,14 @@ export type CollectionSyncModel = Omit<CollectionContracts.ICollectionContract, 
 export type AssetFolderSyncModel = Replace<
   Omit<AssetFolderContracts.IAssetFolderContract, "id" | "external_id">,
   Readonly<{ folders: ReadonlyArray<AssetFolderSyncModel> }>
+>;
+
+export type SpaceSyncModel = Replace<
+  Omit<SpaceContracts.ISpaceContract, "id">,
+  Readonly<{
+    web_spotlight_root_item?: Readonly<{ codename: string }>;
+    collections: ReadonlyArray<Readonly<{ codename: string }>>;
+  }>
 >;
 
 export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>

@@ -2,11 +2,13 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import * as fs from "fs/promises";
 
 import { LogOptions } from "../../../log.js";
+import { notNullOrUndefined } from "../../../utils/typeguards.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
   contentTypesFileName,
   contentTypeSnippetsFileName,
+  spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
 } from "../constants/filename.js";
@@ -16,6 +18,7 @@ import {
   AssetFolderSyncModel,
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
+  SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
 } from "../types/syncModel.js";
@@ -47,6 +50,10 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     await fs.readFile(`${folderName}/${assetFoldersFileName}`, "utf8").catch(() => "[]"),
   ) as ReadonlyArray<AssetFolderSyncModel>;
 
+  const spaces = JSON.parse(
+    await fs.readFile(`${folderName}/${spacesFileName}`, "utf8").catch(() => "[]"),
+  ) as ReadonlyArray<SpaceSyncModel>;
+
   return {
     contentTypes,
     contentTypeSnippets: snippets,
@@ -54,6 +61,7 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     collections,
     webSpotlight,
     assetFolders,
+    spaces,
   };
 };
 
@@ -63,19 +71,23 @@ type AssetItemsCodenames = Readonly<{
 }>;
 
 export const getSourceItemAndAssetCodenames = (sourceModel: FileContentModel): AssetItemsCodenames =>
-  [...sourceModel.contentTypes, ...sourceModel.contentTypeSnippets].reduce<
-    { assetCodenames: Set<string>; itemCodenames: Set<string> }
-  >(
-    (previous, type) => {
-      const requiredIds = getRequiredCodenames(type.elements);
+  [...sourceModel.contentTypes, ...sourceModel.contentTypeSnippets]
+    .reduce<{ assetCodenames: Set<string>; itemCodenames: Set<string> }>(
+      (previous, type) => {
+        const requiredIds = getRequiredCodenames(type.elements);
 
-      requiredIds.assetCodenames.forEach(c => previous.assetCodenames.add(c));
-      requiredIds.itemCodenames.forEach(c => previous.itemCodenames.add(c));
+        requiredIds.assetCodenames.forEach(c => previous.assetCodenames.add(c));
+        requiredIds.itemCodenames.forEach(c => previous.itemCodenames.add(c));
 
-      return previous;
-    },
-    { assetCodenames: new Set(), itemCodenames: new Set() },
-  );
+        return previous;
+      },
+      {
+        assetCodenames: new Set(),
+        itemCodenames: new Set(
+          sourceModel.spaces.map(s => s.web_spotlight_root_item?.codename).filter(notNullOrUndefined),
+        ),
+      },
+    );
 
 export const getTargetContentModel = async (
   targetClient: ManagementClient,

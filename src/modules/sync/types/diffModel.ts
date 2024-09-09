@@ -1,6 +1,12 @@
-import { ContentTypeModels, ContentTypeSnippetModels, TaxonomyModels } from "@kontent-ai/management-sdk";
+import {
+  ContentTypeModels,
+  ContentTypeSnippetModels,
+  SharedContracts,
+  SpaceModels,
+  TaxonomyModels,
+} from "@kontent-ai/management-sdk";
 
-import { RequiredCodename } from "../../../utils/types.js";
+import { Replace, RequiredCodename } from "../../../utils/types.js";
 import { PatchOperation } from "./patchOperation.js";
 
 type Codename = string;
@@ -25,4 +31,10 @@ export type DiffModel = Readonly<{
   collections: ReadonlyArray<PatchOperation>;
   webSpotlight: WebSpotlightDiffModel;
   assetFolders: ReadonlyArray<PatchOperation>;
+  spaces: DiffObject<
+    Replace<
+      RequiredCodename<SpaceModels.IAddSpaceData>,
+      { collections: ReadonlyArray<SharedContracts.IReferenceObjectContract> }
+    >
+  >;
 }>;
