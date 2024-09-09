@@ -3,7 +3,7 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import { logInfo, LogOptions } from "../../log.js";
 import { serially } from "../../utils/requests.js";
 import { syncAssetFolders } from "./sync/assetFolders.js";
-import { syncCollections } from "./sync/collections.js";
+import { syncAddAndReplaceCollections, syncRemoveCollections } from "./sync/collections.js";
 import {
   addElementsIntoSnippetsWithoutReferences,
   addSnippetsReferences,
@@ -22,7 +22,9 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
   await syncAssetFolders(client, diff.assetFolders, logOptions);
 
   logInfo(logOptions, "standard", "Syncing Collections");
-  await syncCollections(client, diff.collections);
+  await syncAddAndReplaceCollections(client, diff.collections);
+
+  await syncRemoveCollections(client, diff.collections);
 
   await syncTaxonomies(client, diff.taxonomyGroups, logOptions);
 
