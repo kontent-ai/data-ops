@@ -4,14 +4,25 @@ import { omit } from "../../../utils/object.js";
 import { DiffModel } from "../types/diffModel.js";
 import { getTargetCodename, PatchOperation } from "../types/patchOperation.js";
 
-export const syncCollections = (client: ManagementClient, collections: DiffModel["collections"]) => {
+export const syncAddAndReplaceCollections = (client: ManagementClient, collections: DiffModel["collections"]) => {
   if (!collections.length) {
     return Promise.resolve();
   }
 
   return client
     .setCollections()
-    .withData(collections.map(transformCollectionsReferences))
+    .withData(collections.filter(op => op.op !== "remove").map(transformCollectionsReferences))
+    .toPromise();
+};
+
+export const syncRemoveCollections = (client: ManagementClient, collections: DiffModel["collections"]) => {
+  if (!collections.length) {
+    return Promise.resolve();
+  }
+
+  return client
+    .setCollections()
+    .withData(collections.filter(op => op.op === "remove").map(transformCollectionsReferences))
     .toPromise();
 };
 
