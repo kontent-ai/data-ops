@@ -71,6 +71,7 @@ Using Management API introduces some limitations:
 - Snippet element can't be referenced in the same request it's created in. Because of this, the tool can't move it to the correct place in the content type.
 - Asset folders cannot be moved so if they are in a different location in the source environment, they are removed and created in the new place.
 - Asset folders cannot be deleted (or moved, see the previous point) if they contain assets. The command is not able to check this without loading all the assets in the project so it doesn't check it. Please, make sure that all folders that will be deleted does not contain any assets. You can see what assets will be deleted in the generated diff `sync-model diff ...`.
+- Languages cannot be deleted, instead, they are deactivated. Their name and codename are replaced with the first 8 characters of a randomly generated UUID (name and codename have a limit of 25 characters).
 
 ## Contributing
 
