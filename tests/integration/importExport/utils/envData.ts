@@ -51,6 +51,7 @@ export type AllEnvData = Readonly<{
 export const loadVariantsByItemCodename = async (
   envId: string,
   itemCodenames: ReadonlyArray<string>,
+  langId: string,
 ): Promise<AllEnvData> => {
   const client = new ManagementClient({
     apiKey: API_KEY,
@@ -63,7 +64,7 @@ export const loadVariantsByItemCodename = async (
         .listLanguageVariantsOfItem()
         .byItemCodename(codename)
         .toPromise()
-        .then(r => r.data.items.map(i => i._raw))
+        .then(r => r.data.items.map(i => i._raw).filter(i => i.language.id === langId))
     ),
   )).flat();
 

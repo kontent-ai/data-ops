@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { syncContentRun } from "../../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../../importExport/utils/compare.ts";
-import { loadAllEnvData, loadVariantsByItemCodename } from "../../importExport/utils/envData.ts";
+import { AllEnvData, loadAllEnvData, loadVariantsByItemCodename } from "../../importExport/utils/envData.ts";
 import { runCommand } from "../../utils/runCommand.ts";
 import { withTestEnvironment } from "../../utils/setup.ts";
 
@@ -26,16 +26,31 @@ if (!DELIVERY_KEY) {
   throw new Error("DELIVERY_KEY env variable was not provided.");
 }
 
+const language = "static_lang";
+
 const expectSameSyncContentEnvironments = async (
   environmentId1: string,
   environmentId2: string,
   itemCodenames: ReadonlyArray<string>,
 ): Promise<void> => {
-  const data1 = await loadAllEnvData(environmentId1, { include: ["types"] })
-    .then(async res => ({ ...(await loadVariantsByItemCodename(environmentId1, itemCodenames)), types: res.types }))
+  const loadLanguageVariants = async (envData: AllEnvData, environment: string) => {
+    const lang = envData.languages.find(l => l.codename === language);
+
+    if (!lang) {
+      throw new Error(`Could not find required language with codename "${language}"`);
+    }
+
+    return {
+      ...(await loadVariantsByItemCodename(environment, itemCodenames, lang.id)),
+      types: envData.types,
+    };
+  };
+
+  const data1 = await loadAllEnvData(environmentId1, { include: ["types", "languages"] })
+    .then(res => loadLanguageVariants(res, environmentId1))
     .then(prepareReferences);
-  const data2 = await loadAllEnvData(environmentId2, { include: ["types"] })
-    .then(async res => ({ ...(await loadVariantsByItemCodename(environmentId2, itemCodenames)), types: res.types }))
+  const data2 = await loadAllEnvData(environmentId2, { include: ["types", "languages"] })
+    .then(res => loadLanguageVariants(res, environmentId2))
     .then(prepareReferences);
 
   expectSameAllEnvData(data1, data2, { include: ["variants"] });
@@ -46,7 +61,7 @@ describe.concurrent("Sync two environments with credentials", () => {
     "sync-content source environment to target environment without linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=default --items sync_item_1 --verbose --skipConfirmation`;
+        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=${language} --items sync_item_1 --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -62,7 +77,7 @@ describe.concurrent("Sync two environments with credentials", () => {
         sourceApiKey: API_KEY,
         targetEnvironmentId: environmentId,
         targetApiKey: API_KEY,
-        language: "default",
+        language,
         sourceDeliveryPreviewKey: DELIVERY_KEY,
         items: ["sync_item_1"],
         depth: 2,
@@ -80,7 +95,7 @@ describe.concurrent("Sync two environments with credentials", () => {
     "Sync source environment to target environment directly from source environment get item byContentType with linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --sd=${DELIVERY_KEY} -l=default --byTypesCodenames no_change_linked_type no_change_base_type --verbose --skipConfirmation`;
+        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -105,7 +120,7 @@ describe.concurrent("Sync content from zip", () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
     const command =
-      `sync-content export -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=default --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
+      `sync-content export -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
     await runCommand(command);
 
     const fileExists = await fsPromises.stat(relativeContentZipPath)
@@ -119,7 +134,7 @@ describe.concurrent("Sync content from zip", () => {
     "Run sync content from zip",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l default --verbose --skipConfirmation`;
+        `sync-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l=${language} --verbose --skipConfirmation`;
 
       await runCommand(command);
 
