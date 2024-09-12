@@ -2,12 +2,11 @@ import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
+import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
 import { printDiff } from "../../../modules/sync/printDiff.js";
-import { sync } from "../../../modules/sync/sync.js";
-import { getDiffModel, SyncModelRunParams, validateTargetEnvironment } from "../../../modules/sync/syncModelRun.js";
+import { SyncEntities, syncModelRunInternal, SyncModelRunParams } from "../../../modules/sync/syncModelRun.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
-import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "run";
@@ -53,6 +52,14 @@ export const register: RegisterCommand = yargs =>
           implies: ["sourceEnvironmentId"],
           alias: "sk",
         })
+        .option("entities", {
+          alias: "e",
+          type: "array",
+          choices: syncEntityChoices,
+          describe: `Sync specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+          demandOption: "You need to provide the what entities to sync.",
+          conflicts: "exclude",
+        })
         .option("skipConfirmation", {
           type: "boolean",
           describe: "Skip confirmation message.",
@@ -64,6 +71,7 @@ type SyncModelRunCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
+    entities: ReadonlyArray<SyncEntityName>;
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
@@ -74,47 +82,33 @@ type SyncModelRunCliParams =
 const syncModelRunCli = async (params: SyncModelRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  const targetClient = createClient({
-    apiKey: params.targetApiKey,
-    environmentId: params.targetEnvironmentId,
-    commandName,
-  });
-
-  const diffModel = await getDiffModel(resolvedParams, targetClient, commandName);
-
-  logInfo(params, "standard", "Validating patch operations...\n");
-
   try {
-    await validateTargetEnvironment(diffModel, targetClient);
+    await syncModelRunInternal(resolvedParams, commandName, async (diffModel) => {
+      printDiff(diffModel, params);
+
+      const warningMessage = chalk.yellow(
+        `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
+- Removing content due to element deletion
+OK to proceed y/n? (suppress this message with --sw parameter)\n`,
+      );
+
+      const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
+
+      if (!confirmed) {
+        logInfo(params, "standard", chalk.red("Operation aborted."));
+        process.exit(1);
+      }
+    });
   } catch (e) {
     logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
     process.exit(1);
   }
-
-  printDiff(diffModel, params);
-
-  const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
-- Removing content due to element deletion
-OK to proceed y/n? (suppress this message with --sw parameter)\n`,
-  );
-
-  const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
-
-  if (!confirmed) {
-    logInfo(params, "standard", chalk.red("Operation aborted."));
-    process.exit(1);
-  }
-
-  await sync(
-    targetClient,
-    diffModel,
-    params,
-  );
 };
 
-const resolveParams = (params: SyncModelRunCliParams): SyncModelRunParams =>
-  match(params)
+const resolveParams = (params: SyncModelRunCliParams): SyncModelRunParams => {
+  const entities = createSyncEntitiesParameter(params.entities);
+
+  const x = match(params)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
       ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
@@ -127,3 +121,17 @@ const resolveParams = (params: SyncModelRunCliParams): SyncModelRunParams =>
       );
       process.exit(1);
     });
+
+  return { ...x, entities };
+};
+
+const createSyncEntitiesParameter = (
+  entities: ReadonlyArray<SyncEntityName>,
+): SyncEntities => {
+  const filterEntries = [
+    ...entities.filter(a => a !== "webSpotlight").map(e => [e, () => true]),
+    ...entities.includes("webSpotlight") ? [["webSpotlight", true]] : [],
+  ] as const;
+
+  return Object.fromEntries(filterEntries);
+};

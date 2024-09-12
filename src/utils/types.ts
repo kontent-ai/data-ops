@@ -69,6 +69,8 @@ export type AnyOnePropertyOf<Obj extends object> = [keyof Obj, keyof Obj] extend
   : never
   : never;
 
+export type Expect<T, U extends T> = U;
+
 /**
  * Adds a new property type to each object in a tuple of objects.
  *

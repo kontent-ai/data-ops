@@ -8,6 +8,7 @@ import { throwError } from "../../../utils/error.js";
 import { second } from "../../../utils/function.js";
 import { superiorFromEntries } from "../../../utils/object.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
+import { syncEntityChoices, SyncEntityName } from "../constants/entities.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
@@ -109,8 +110,9 @@ export const getTargetContentModel = async (
   targetClient: ManagementClient,
   itemAndAssetCodenames: AssetItemsCodenames,
   logOptions: LogOptions,
+  entities: Set<SyncEntityName> = new Set(syncEntityChoices),
 ) => {
-  const targetModel = await fetchModel(targetClient);
+  const targetModel = await fetchModel(targetClient, entities);
   const targetAssetsBySourceCodenames = await fetchRequiredAssetsByCodename(
     targetClient,
     Array.from(itemAndAssetCodenames.assetCodenames),
