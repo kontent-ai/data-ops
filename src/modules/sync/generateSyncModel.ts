@@ -18,6 +18,7 @@ import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
+import { syncEntityChoices, SyncEntityName } from "./constants/entities.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
@@ -38,6 +39,7 @@ import { transformSpacesModel } from "./modelTransfomers/spaceTransformers.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
 import { transformWorkflowModel } from "./modelTransfomers/workflow.js";
+import { SyncEntities } from "./syncModelRun.js";
 import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "./types/contractModels.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
@@ -69,24 +71,26 @@ export type EnvironmentModel = {
   workflows: ReadonlyArray<WorkflowContracts.IWorkflowContract>;
 };
 
-export const fetchModel = async (client: ManagementClient): Promise<EnvironmentModel> => {
-  const contentTypes = await fetchContentTypes(client) as unknown as ContentTypeWithUnionElements[];
-  const contentTypeSnippets = await fetchContentTypeSnippets(
-    client,
-  ) as unknown as ContentTypeSnippetsWithUnionElements[];
-  const taxonomies = await fetchTaxonomies(client);
+export const fetchModel = async (
+  client: ManagementClient,
+  entities: ReadonlySet<SyncEntityName> = new Set(syncEntityChoices),
+): Promise<EnvironmentModel> => {
+  const contentTypes = entities.has("contentTypes")
+    ? await fetchContentTypes(client) as unknown as ContentTypeWithUnionElements[]
+    : [];
+  const contentTypeSnippets = entities.has("contentTypeSnippets")
+    ? await fetchContentTypeSnippets(client) as unknown as ContentTypeSnippetsWithUnionElements[]
+    : [];
 
-  const webSpotlight = await fetchWebSpotlight(client);
-
-  const assetFolders = await fetchAssetFolders(client);
-
-  const spaces = await fetchSpaces(client);
-
-  const collections = await fetchCollections(client);
-
-  const languages = await fetchLanguages(client);
-
-  const workflows = await fetchWorkflows(client);
+  const taxonomies = entities.has("taxonomies") ? await fetchTaxonomies(client) : [];
+  const webSpotlight = entities.has("webSpotlight")
+    ? await fetchWebSpotlight(client)
+    : { enabled: false, root_type: { id: "no-fetch" } };
+  const assetFolders = entities.has("assetFolders") ? await fetchAssetFolders(client) : [];
+  const spaces = entities.has("spaces") ? await fetchSpaces(client) : [];
+  const collections = entities.has("collections") ? await fetchCollections(client) : [];
+  const languages = entities.has("languages") ? await fetchLanguages(client) : [];
+  const workflows = entities.has("workflows") ? await fetchWorkflows(client) : [];
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
     (previous, type) => {
@@ -219,3 +223,19 @@ type FileContentWithMetadata =
       generatedFromEnvironmentId: string;
     }>;
   }>;
+
+export const filterModel = (model: FileContentModel, entities: SyncEntities): FileContentModel => ({
+  contentTypes: filterEntities(model.contentTypes, entities.contentTypes),
+  contentTypeSnippets: filterEntities(model.contentTypeSnippets, entities.contentTypeSnippets),
+  taxonomyGroups: filterEntities(model.taxonomyGroups, entities.taxonomies),
+  assetFolders: filterEntities(model.assetFolders, entities.assetFolders),
+  collections: filterEntities(model.collections, entities.collections),
+  spaces: filterEntities(model.spaces, entities.spaces),
+  languages: filterEntities(model.languages, entities.languages),
+  // when turned syncning web-spotlight off, give default object - diff will find no patch operations for same objects.
+  webSpotlight: entities.webSpotlight ? model.webSpotlight : { enabled: false, root_type: { codename: "no-sync" } },
+  workflows: filterEntities(model.workflows, entities.workflows),
+});
+
+const filterEntities = <T>(arr: ReadonlyArray<T>, filterFnc: ((e: T) => boolean) | undefined): ReadonlyArray<T> =>
+  filterFnc ? arr.filter(filterFnc) : [];

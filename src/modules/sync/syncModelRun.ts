@@ -1,11 +1,23 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { logError, LogOptions } from "../../log.js";
+import { logError, logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
+import { Expect } from "../../utils/types.js";
+import { syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
 import { diff } from "./diff.js";
-import { fetchModel, transformSyncModel } from "./generateSyncModel.js";
+import { fetchModel, filterModel, transformSyncModel } from "./generateSyncModel.js";
 import { sync } from "./sync.js";
 import { DiffModel } from "./types/diffModel.js";
+import {
+  AssetFolderSyncModel,
+  CollectionSyncModel,
+  ContentTypeSnippetsSyncModel,
+  ContentTypeSyncModel,
+  LanguageSyncModel,
+  SpaceSyncModel,
+  TaxonomySyncModel,
+  WorkflowSyncModel,
+} from "./types/syncModel.js";
 import {
   getSourceItemAndAssetCodenames,
   getTargetContentModel,
@@ -13,10 +25,27 @@ import {
 } from "./utils/getContentModel.js";
 import { validateDiffedModel, validateSyncModelFolder } from "./validation.js";
 
+type ExpectedSyncEntities = Record<SyncEntityName, ((entity: any) => boolean) | boolean>;
+
+export type SyncEntities = Partial<
+  Expect<ExpectedSyncEntities, {
+    contentTypes: (type: ContentTypeSyncModel) => boolean;
+    contentTypeSnippets: (snippet: ContentTypeSnippetsSyncModel) => boolean;
+    taxonomies: (taxonomy: TaxonomySyncModel) => boolean;
+    assetFolders: (assetFolder: AssetFolderSyncModel) => boolean;
+    collections: (collection: CollectionSyncModel) => boolean;
+    spaces: (space: SpaceSyncModel) => boolean;
+    languages: (language: LanguageSyncModel) => boolean;
+    workflows: (workflow: WorkflowSyncModel) => boolean;
+    webSpotlight: boolean;
+  }>
+>;
+
 export type SyncModelRunParams = Readonly<
   & {
     targetEnvironmentId: string;
     targetApiKey: string;
+    entities: SyncEntities;
   }
   & (
     | { folderName: string }
@@ -24,9 +53,31 @@ export type SyncModelRunParams = Readonly<
   )
   & LogOptions
 >;
+/**
+ * Synchronizes content model between two environments. This function can either synchronize
+ * from a source environment to a target environment or use a pre-defined folder containing the content model
+ * for synchronization.
+ *
+ * Warning!: Synchronizing workflows will make them accessible to all roles in your environment.
+ *
+ * @param {SyncModelRunParams} params - The parameters for running the synchronization.
+ * @param {string} params.targetEnvironmentId - The ID of the target environment where the content model will be synchronized.
+ * @param {string} params.targetApiKey - The API key for accessing the target environment.
+ * @param {SyncEntities} params.entities - The entities that need to be synchronized. It includes content types, snippets, taxonomies, etc. If entity is not specified, no items from the given entity will be synced. To sync all item form an entity use () => true.
+ * @param {string} [params.folderName] - Optional. The name of the folder containing the source content model to be synchronized.
+ * @param {string} [params.sourceEnvironmentId] - Optional. The ID of the source environment from which the content model will be fetched.
+ * @param {string} [params.sourceApiKey] - Optional. The API key for accessing the source environment.
+ * @param {LogOptions} params.logOptions - Optional. Configuration for logging options such as log level, output, etc.
+ *
+ * @returns {Promise<void>} A promise that resolves when the synchronization is complete.
+ */
+export const syncModelRun = (params: SyncModelRunParams) => syncModelRunInternal(params, "sync-model-run-API");
 
-export const syncModelRun = async (params: SyncModelRunParams) => {
-  const commandName = "sync-model-run-API";
+export const syncModelRunInternal = async (
+  params: SyncModelRunParams,
+  commandName: string,
+  withDiffModel: (diffModel: DiffModel) => Promise<void> = () => Promise.resolve(),
+) => {
   const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
@@ -35,7 +86,15 @@ export const syncModelRun = async (params: SyncModelRunParams) => {
 
   const diffModel = await getDiffModel(params, targetEnvironmentClient, commandName);
 
-  await validateTargetEnvironment(diffModel, targetEnvironmentClient);
+  logInfo(params, "standard", "Validating patch operations...\n");
+
+  try {
+    await validateTargetEnvironment(diffModel, targetEnvironmentClient);
+  } catch (e) {
+    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+  }
+
+  await withDiffModel(diffModel);
 
   await sync(
     targetEnvironmentClient,
@@ -44,7 +103,7 @@ export const syncModelRun = async (params: SyncModelRunParams) => {
   );
 };
 
-export const getDiffModel = async (
+const getDiffModel = async (
   params: SyncModelRunParams,
   targetClient: ManagementClient,
   commandName: string,
@@ -56,6 +115,10 @@ export const getDiffModel = async (
     }
   }
 
+  const fetchDependencies = new Set(
+    Object.keys(params.entities).flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+  );
+
   const sourceModel = "folderName" in params
     ? await readContentModelFromFolder(params.folderName).catch(e => {
       if (e instanceof AggregateError) {
@@ -66,11 +129,14 @@ export const getDiffModel = async (
       process.exit(1);
     })
     : transformSyncModel(
-      await fetchModel(createClient({
-        environmentId: params.sourceEnvironmentId,
-        apiKey: params.sourceApiKey,
-        commandName,
-      })),
+      await fetchModel(
+        createClient({
+          environmentId: params.sourceEnvironmentId,
+          apiKey: params.sourceApiKey,
+          commandName,
+        }),
+        fetchDependencies,
+      ),
       params,
     );
 
@@ -80,13 +146,17 @@ export const getDiffModel = async (
     targetClient,
     allCodenames,
     params,
+    fetchDependencies,
   );
+
+  const filteredSourceModel = filterModel(sourceModel, params.entities);
+  const filteredTargetModel = filterModel(transformedTargetModel, params.entities);
 
   return diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,
     targetItemsReferencedFromSourceByCodenames: itemReferences,
-    targetEnvModel: transformedTargetModel,
-    sourceEnvModel: sourceModel,
+    targetEnvModel: filteredTargetModel,
+    sourceEnvModel: filteredSourceModel,
   });
 };
 
