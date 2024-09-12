@@ -156,7 +156,10 @@ const createDiffModel = <Entity extends Readonly<{ codename: string }>>(
 const getLanguageDiffModel = (
   sourceLanguages: ReadonlyArray<LanguageSyncModel>,
   targetLanguages: ReadonlyArray<LanguageSyncModel>,
-) => {
+): DiffModel["languages"] => {
+  if (sourceLanguages.length === 0 && targetLanguages.length === 0) {
+    return { added: [], updated: new Map(), deleted: new Set() };
+  }
   const sourceDefaultLanguageCodename = getDefaultLang(sourceLanguages).codename;
   const targetDefaultLanguageCodename = getDefaultLang(targetLanguages).codename;
 
@@ -207,5 +210,6 @@ const adjustSourceDefaultLanguageCodename = (
 
 const getDefaultLang = (languages: ReadonlyArray<LanguageSyncModel>) => {
   const defaultLang = languages.find(l => l.is_default);
+
   return defaultLang ?? throwError(`Language enviroment model does not contain default language`);
 };
