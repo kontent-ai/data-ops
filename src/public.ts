@@ -9,7 +9,19 @@ export { RunMigrationFilterParams, runMigrations, RunMigrationsParams } from "./
 
 export { diffEnvironments, DiffEnvironmentsParams } from "./modules/sync/diffEnvironments.js";
 export { syncModelExport, SyncModelExportParams } from "./modules/sync/syncModelExport.js";
-export { syncModelRun, SyncModelRunParams } from "./modules/sync/syncModelRun.js";
+export { SyncEntities, syncModelRun, SyncModelRunParams } from "./modules/sync/syncModelRun.js";
+export {
+  AssetFolderSyncModel,
+  CollectionSyncModel,
+  ContentTypeSnippetsSyncModel,
+  ContentTypeSyncModel,
+  LanguageSyncModel,
+  SpaceSyncModel,
+  SyncSnippetElement,
+  SyncTypeElement,
+  TaxonomySyncModel,
+  WebSpotlightSyncModel,
+} from "./modules/sync/types/syncModel.js";
 
 export { syncContentExport, SyncContentExportParams } from "./modules/syncContent/syncContentExport.js";
 export { SyncContentFilterParams, syncContentRun, SyncContentRunParams } from "./modules/syncContent/syncContentRun.js";
