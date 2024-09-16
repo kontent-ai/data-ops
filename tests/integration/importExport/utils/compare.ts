@@ -87,6 +87,53 @@ export const expectSameAllEnvData = (
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
+export const expectDifferentAllEnvData = (
+  data1: AllEnvData,
+  data2: AllEnvData,
+  filterParam: FilterParam = { exclude: [] },
+) => {
+  const has = (e: keyof AllEnvData) =>
+    "exclude" in filterParam
+      ? !filterParam.exclude.includes(e)
+      : filterParam.include.includes(e);
+
+  const sortedVariants = (data: AllEnvData) => sortBy(data.variants, v => `${v.item.id};${v.language.id}`);
+
+  // disabling unused expressions here as they are a lot more compact then ifs and a lot of them is necessary here
+  /* eslint-disable @typescript-eslint/no-unused-expressions */
+  has("collections")
+    && expect(sortByCodename(data1.collections)).not.toStrictEqual(sortByCodename(data2.collections));
+  has("spaces") && expect(sortByCodename(data1.spaces)).not.toStrictEqual(sortByCodename(data2.spaces));
+  has("languages") && expect(sortByCodename(data1.languages)).not.toStrictEqual(sortByCodename(data2.languages));
+  has("previewUrls") && expect(data1.previewUrls).not.to.toStrictEqual(data2.previewUrls);
+  has("taxonomies") && expect(sortByCodename(data1.taxonomies)).not.toStrictEqual(sortByCodename(data2.taxonomies));
+  has("assetFolders") && expect(data1.assetFolders).not.toStrictEqual(data2.assetFolders);
+  has("assets") && expect(sortByCodename(data1.assets)).not.toStrictEqual(sortByCodename(data2.assets));
+  has("roles") && expect(sortBy(data1.roles, r => r.name)).not.toStrictEqual(sortBy(data2.roles, r => r.name));
+  has("workflows") && expect(sortByCodename(data1.workflows)).not.toStrictEqual(sortByCodename(data2.workflows));
+  has("snippets") && expect(sortByCodename(data1.snippets)).not.toStrictEqual(sortByCodename(data2.snippets));
+  has("types")
+    && expect(
+      sortByCodename(
+        data1.types.map(t => ({
+          ...t,
+          elements: t.content_groups?.length ? sortTypesElements(t.elements) : t.elements,
+        })),
+      ),
+    ).not.toStrictEqual(
+      sortByCodename(data2.types.map(t => ({
+        ...t,
+        elements: t.content_groups?.length ? sortTypesElements(t.elements) : t.elements,
+      }))),
+    );
+  has("items") && expect(sortByCodename(data1.items)).not.toStrictEqual(sortByCodename(data2.items));
+  has("variants") && expect(sortedVariants(data1)).not.toStrictEqual(sortedVariants(data2));
+  has("webhooks")
+    && expect(sortBy(data1.webhooks, w => w.name)).not.toStrictEqual(sortBy(data2.webhooks, w => w.name));
+  has("webSpotlight") && expect(data1.webSpotlight).not.toStrictEqual(data2.webSpotlight);
+  /* eslint-enable @typescript-eslint/no-unused-expressions */
+};
+
 const sortBy = <T>(entities: ReadonlyArray<T>, sortByPicker: (e: T) => string): ReadonlyArray<T> =>
   [...entities].sort((e1, e2) => sortByPicker(e1).localeCompare(sortByPicker(e2)));
 
