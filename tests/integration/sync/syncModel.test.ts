@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import * as fileNames from "../../../src/modules/sync/constants/filename.ts";
 import { syncModelRun } from "../../../src/public.ts";
-import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
+import { expectDifferentAllEnvData, expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
 import { AllEnvData, loadAllEnvData } from "../importExport/utils/envData.ts";
 import { runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
@@ -24,31 +24,37 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
   throw new Error("SYNC_TARGET_TEST_ENVIRONMENT_ID env variable was not provided.");
 }
 
+const allSyncEntities = [
+  "types",
+  "snippets",
+  "taxonomies",
+  "webSpotlight",
+  "assetFolders",
+  "collections",
+  "languages",
+  "spaces",
+  "workflows",
+] as const;
+
+type SyncEntityName = (typeof allSyncEntities)[number];
+
 const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
+  include: ReadonlyArray<SyncEntityName> = allSyncEntities,
 ): Promise<void> => {
-  const syncEntities = [
-    "types",
-    "snippets",
-    "taxonomies",
-    "webSpotlight",
-    "assetFolders",
-    "collections",
-    "languages",
-    "workflows",
-  ] as const;
-
-  const data1 = await loadAllEnvData(environmentId1, { include: syncEntities })
+  const coInclude = allSyncEntities.filter(e => !include.includes(e) && e !== "webSpotlight");
+  const data1 = await loadAllEnvData(environmentId1, { include: allSyncEntities })
     .then(prepareReferences)
     .then(sortAssetFolders)
     .then(prepareLanguages);
-  const data2 = await loadAllEnvData(environmentId2, { include: syncEntities })
+  const data2 = await loadAllEnvData(environmentId2, { include: allSyncEntities })
     .then(prepareReferences)
     .then(sortAssetFolders)
     .then(prepareLanguages);
 
-  expectSameAllEnvData(data1, data2, { include: syncEntities });
+  expectSameAllEnvData(data1, data2, { include });
+  expectDifferentAllEnvData(data1, data2, { include: coInclude });
 };
 
 const sortAssetFolders = (allData: AllEnvData): AllEnvData => ({
@@ -66,11 +72,27 @@ describe.concurrent("Sync model of two environments with credentials", () => {
     "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-model run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --verbose --skipConfirmation`;
+        `sync-model run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows --verbose --skipConfirmation`;
 
       await runCommand(command);
 
       await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID);
+    }),
+  );
+
+  it.concurrent(
+    "Sync source environment to target environment directly from source environment with include core entities",
+    withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
+      const command =
+        `sync-model run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
+
+      await runCommand(command);
+
+      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, [
+        "types",
+        "snippets",
+        "taxonomies",
+      ]);
     }),
   );
 
@@ -83,9 +105,38 @@ describe.concurrent("Sync model of two environments with credentials", () => {
         targetEnvironmentId: environmentId,
         targetApiKey: API_KEY,
         verbose: true,
+        entities: {
+          contentTypes: () => true,
+          contentTypeSnippets: () => true,
+          taxonomies: () => true,
+          collections: () => true,
+          assetFolders: () => true,
+          spaces: () => true,
+          languages: () => true,
+          workflows: () => true,
+          webSpotlight: true,
+        },
       });
 
       await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID);
+    }),
+  );
+
+  it.concurrent(
+    "Sync target environment languages to source environment directly from target environment using API",
+    withTestEnvironment(SYNC_SOURCE_TEST_ENVIRONMENT_ID, async (environmentId) => {
+      await syncModelRun({
+        sourceEnvironmentId: SYNC_TARGET_TEST_ENVIRONMENT_ID,
+        sourceApiKey: API_KEY,
+        targetEnvironmentId: environmentId,
+        targetApiKey: API_KEY,
+        verbose: true,
+        entities: {
+          languages: () => true,
+        },
+      });
+
+      await expectSameSyncEnvironments(environmentId, SYNC_TARGET_TEST_ENVIRONMENT_ID, ["languages"]);
     }),
   );
 });
@@ -122,7 +173,7 @@ describe.concurrent("Sync environment from folder", () => {
     "Sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --verbose --skipConfirmation`;
+        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows  --verbose --skipConfirmation`;
 
       await runCommand(command);
 
