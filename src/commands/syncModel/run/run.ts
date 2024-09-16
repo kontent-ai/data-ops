@@ -94,7 +94,7 @@ const syncModelRunCli = async (params: SyncModelRunCliParams) => {
   printDiff(diffModel, params);
 
   const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentoined changes might include:
+    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
 - Removing content due to element deletion
 OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   );
