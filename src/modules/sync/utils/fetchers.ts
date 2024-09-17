@@ -115,3 +115,9 @@ export const fetchLanguages = (client: ManagementClient) =>
     .listLanguages()
     .toPromise()
     .then(res => res.rawData.languages);
+
+export const fetchWorkflows = (client: ManagementClient) =>
+  client
+    .listWorkflows()
+    .toPromise()
+    .then(res => res.rawData);

@@ -8,6 +8,7 @@ import {
   SpaceContracts,
   TaxonomyContracts,
   WebSpotlightContracts,
+  WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import * as fsPromises from "fs/promises";
@@ -26,6 +27,7 @@ import {
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
+  workflowsFileName,
 } from "./constants/filename.js";
 import { transformAssetFolderModel } from "./modelTransfomers/assetFolder.js";
 import { transformCollectionsModel } from "./modelTransfomers/collections.js";
@@ -35,6 +37,7 @@ import { transformLanguageModel } from "./modelTransfomers/language.js";
 import { transformSpacesModel } from "./modelTransfomers/spaceTransformers.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
+import { transformWorkflowModel } from "./modelTransfomers/workflow.js";
 import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "./types/contractModels.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
@@ -49,6 +52,7 @@ import {
   fetchSpaces,
   fetchTaxonomies,
   fetchWebSpotlight,
+  fetchWorkflows,
 } from "./utils/fetchers.js";
 
 export type EnvironmentModel = {
@@ -62,6 +66,7 @@ export type EnvironmentModel = {
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
   languages: ReadonlyArray<LanguageContracts.ILanguageModelContract>;
+  workflows: ReadonlyArray<WorkflowContracts.IWorkflowContract>;
 };
 
 export const fetchModel = async (client: ManagementClient): Promise<EnvironmentModel> => {
@@ -80,6 +85,8 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
   const collections = await fetchCollections(client);
 
   const languages = await fetchLanguages(client);
+
+  const workflows = await fetchWorkflows(client);
 
   const allIds = [...contentTypes, ...contentTypeSnippets].reduce<{ assetIds: Set<string>; itemIds: Set<string> }>(
     (previous, type) => {
@@ -110,6 +117,7 @@ export const fetchModel = async (client: ManagementClient): Promise<EnvironmentM
     items,
     assetFolders,
     languages,
+    workflows,
   };
 };
 
@@ -122,6 +130,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
   const assetFoldersModel = environmentModel.assetFolders.map(transformAssetFolderModel);
   const spacesModel = transformSpacesModel(environmentModel);
   const languagesModel = transformLanguageModel(environmentModel.languages);
+  const workflowsModel = transformWorkflowModel(environmentModel);
 
   return {
     contentTypes: contentTypeModel,
@@ -132,6 +141,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
     assetFolders: assetFoldersModel,
     spaces: spacesModel,
     languages: languagesModel,
+    workflows: workflowsModel,
   };
 };
 
@@ -190,6 +200,10 @@ export const saveSyncModel = async (params: SaveModelParams) => {
   await fsPromises.writeFile(
     path.resolve(folderName, languagesFileName),
     JSON.stringify(finalModel.languages, null, 2),
+  );
+  await fsPromises.writeFile(
+    path.resolve(folderName, workflowsFileName),
+    JSON.stringify(finalModel.workflows, null, 2),
   );
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
 

@@ -8,6 +8,7 @@ import {
   SpaceContracts,
   TaxonomyContracts,
   WebSpotlightContracts,
+  WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 
 import { CodenameReference, Replace } from "../../../utils/types.js";
@@ -145,6 +146,22 @@ export type SpaceSyncModel = Replace<
 export type LanguageSyncModel = Replace<
   Omit<LanguageContracts.ILanguageModelContract, "id" | "external_id">,
   Readonly<{ fallback_language?: CodenameReference }>
+>;
+
+// scheduled_step exists only in GET according to docs
+export type WorkflowSyncModel = Replace<
+  Omit<WorkflowContracts.IWorkflowContract, "id" | "scheduled_step">,
+  Readonly<{
+    scopes: Array<{ content_types: Array<CodenameReference>; collections: Array<CodenameReference> }>;
+    steps: WorkflowStepSyncModel[];
+    published_step: Omit<WorkflowContracts.IWorkflowPublishedStepContract, "id">;
+    archived_step: Omit<WorkflowContracts.IWorkflowArchivedStepContract, "id">;
+  }>
+>;
+
+export type WorkflowStepSyncModel = Replace<
+  Omit<WorkflowContracts.IWorkflowStepNewContract, "id">,
+  Readonly<{ transitions_to: Array<{ step: CodenameReference }> }>
 >;
 
 export const isSyncCustomElement = (entity: unknown): entity is SyncCustomElement =>

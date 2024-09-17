@@ -44,6 +44,9 @@ export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
   logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPES:"));
   printDiffEntity(diffModel.contentTypes, "content types", logOptions);
 
+  logInfo(logOptions, "standard", chalk.blue.bold("\nWORKFLOWS:"));
+  printDiffEntity(diffModel.workflows, "workflows", logOptions);
+
   if (diffModel.webSpotlight.change !== "none") {
     logInfo(logOptions, "standard", chalk.blue.bold("\nWEB SPOTLIGHT:"));
 
@@ -65,7 +68,7 @@ export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
 
 const printDiffEntity = (
   diffObject: DiffObject<unknown>,
-  entityName: "content types" | "content type snippets" | "taxonomy groups" | "spaces" | "languages",
+  entityName: "content types" | "content type snippets" | "taxonomy groups" | "spaces" | "languages" | "workflows",
   logOptions: LogOptions,
 ) => {
   if (diffObject.added.length) {
