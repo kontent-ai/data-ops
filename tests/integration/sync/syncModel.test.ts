@@ -28,7 +28,7 @@ const expectSameSyncEnvironments = async (
   environmentId1: string,
   environmentId2: string,
 ): Promise<void> => {
-  const syncEntitties = [
+  const syncEntities = [
     "types",
     "snippets",
     "taxonomies",
@@ -36,18 +36,19 @@ const expectSameSyncEnvironments = async (
     "assetFolders",
     "collections",
     "languages",
+    "workflows",
   ] as const;
 
-  const data1 = await loadAllEnvData(environmentId1, { include: syncEntitties })
+  const data1 = await loadAllEnvData(environmentId1, { include: syncEntities })
     .then(prepareReferences)
     .then(sortAssetFolders)
     .then(prepareLanguages);
-  const data2 = await loadAllEnvData(environmentId2, { include: syncEntitties })
+  const data2 = await loadAllEnvData(environmentId2, { include: syncEntities })
     .then(prepareReferences)
     .then(sortAssetFolders)
     .then(prepareLanguages);
 
-  expectSameAllEnvData(data1, data2, { include: syncEntitties });
+  expectSameAllEnvData(data1, data2, { include: syncEntities });
 };
 
 const sortAssetFolders = (allData: AllEnvData): AllEnvData => ({

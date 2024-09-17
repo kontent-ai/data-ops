@@ -79,6 +79,7 @@ describe("diff function", () => {
     spaces: [],
     taxonomyGroups: [],
     webSpotlight: { enabled: false, root_type: { codename: "non-existing" } },
+    workflows: [],
   });
 
   const createDiffParams = (sourceModel: FileContentModel, targetModel: FileContentModel): DiffParams => ({

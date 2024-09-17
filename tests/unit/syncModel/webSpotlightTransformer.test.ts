@@ -27,6 +27,7 @@ const createEnvironmentModel = (isWebSpotlightEnabled: boolean, rootTypeId: stri
   languages: [],
   assets: [],
   items: [],
+  workflows: [],
 });
 
 describe("web spotlight transfomers", () => {

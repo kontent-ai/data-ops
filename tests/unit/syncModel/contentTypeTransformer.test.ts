@@ -47,6 +47,7 @@ const createEnvironmentModel = (contentTypes: ReadonlyArray<ContentTypeWithUnion
   languages: [],
   assets: [],
   items: [],
+  workflows: [],
 });
 
 describe("content type transfomers", () => {

@@ -49,6 +49,7 @@ describe("content type snippet transfomers", () => {
       languages: [],
       assets: [],
       items: [],
+      workflows: [],
     };
 
     const expectedOutput = [

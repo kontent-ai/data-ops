@@ -32,6 +32,7 @@ describe("transformSpacesModel", () => {
       contentTypeSnippets: [],
       assetFolders: [],
       assets: [],
+      workflows: [],
     };
 
     const result = transformSpacesModel(environmentModel);
