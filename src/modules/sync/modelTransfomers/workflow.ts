@@ -1,7 +1,7 @@
-import { omit } from "../../../utils/object.js";
-import { WorkflowSyncModel } from "../types/syncModel.js";
-import { EnvironmentModel } from "../generateSyncModel.js";
 import { throwError } from "../../../utils/error.js";
+import { omit } from "../../../utils/object.js";
+import { EnvironmentModel } from "../generateSyncModel.js";
+import { WorkflowSyncModel } from "../types/syncModel.js";
 
 export const transformWorkflowModel = (
   environmentModel: EnvironmentModel,
