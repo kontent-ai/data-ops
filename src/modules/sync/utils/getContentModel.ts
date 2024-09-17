@@ -12,6 +12,7 @@ import {
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
+  workflowsFileName,
 } from "../constants/filename.js";
 import { fetchModel, transformSyncModel } from "../generateSyncModel.js";
 import { FileContentModel } from "../types/fileContentModel.js";
@@ -23,6 +24,7 @@ import {
   SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
+  WorkflowSyncModel,
 } from "../types/syncModel.js";
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "./fetchers.js";
@@ -60,6 +62,10 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     await fs.readFile(`${folderName}/${languagesFileName}`, "utf8").catch(() => "[]"),
   ) as ReadonlyArray<LanguageSyncModel>;
 
+  const workflows = JSON.parse(
+    await fs.readFile(`${folderName}/${workflowsFileName}`, "utf8").catch(() => "[]"),
+  ) as ReadonlyArray<WorkflowSyncModel>;
+
   return {
     contentTypes,
     contentTypeSnippets: snippets,
@@ -69,6 +75,7 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     assetFolders,
     spaces,
     languages,
+    workflows,
   };
 };
 

@@ -6,3 +6,4 @@ export const webSpotlightFileName = "webSpotlight.json";
 export const assetFoldersFileName = "assetFolders.json";
 export const spacesFileName = "spaces.json";
 export const languagesFileName = "languages.json";
+export const workflowsFileName = "workflows.json";

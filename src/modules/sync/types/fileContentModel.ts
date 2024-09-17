@@ -7,6 +7,7 @@ import {
   SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
+  WorkflowSyncModel,
 } from "./syncModel.js";
 
 export type FileContentModel = Readonly<{
@@ -18,4 +19,5 @@ export type FileContentModel = Readonly<{
   collections: ReadonlyArray<CollectionSyncModel>;
   spaces: ReadonlyArray<SpaceSyncModel>;
   languages: ReadonlyArray<LanguageSyncModel>;
+  workflows: ReadonlyArray<WorkflowSyncModel>;
 }>;

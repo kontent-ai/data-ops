@@ -5,6 +5,7 @@ import {
   SharedContracts,
   SpaceModels,
   TaxonomyModels,
+  WorkflowModels,
 } from "@kontent-ai/management-sdk";
 
 import { Replace, RequiredCodename } from "../../../utils/types.js";
@@ -39,4 +40,7 @@ export type DiffModel = Readonly<{
     >
   >;
   languages: DiffObject<RequiredCodename<LanguageModels.IAddLanguageData> & Readonly<{ is_default: boolean }>>;
+  workflows: DiffObject<RequiredCodename<WorkflowModels.IAddWorkflowData>> & {
+    sourceWorkflows: ReadonlyArray<WorkflowModels.IAddWorkflowData>;
+  };
 }>;

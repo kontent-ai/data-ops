@@ -1,4 +1,7 @@
+import { WorkflowModels } from "@kontent-ai/management-sdk";
+
 import { throwError } from "../../utils/error.js";
+import { RequiredCodename } from "../../utils/types.js";
 import { assetFoldersHandler } from "./diff/assetFolder.js";
 import { collectionsHandler } from "./diff/collection.js";
 import { Handler } from "./diff/combinators.js";
@@ -13,10 +16,11 @@ import {
   transformTypeToAddModel,
 } from "./diff/transformToAddModel.js";
 import { webSpotlightHandler } from "./diff/webSpotlight.js";
-import { DiffModel } from "./types/diffModel.js";
+import { wholeWorkflowsHandler, workflowHandler } from "./diff/workflow.js";
+import { DiffModel, DiffObject } from "./types/diffModel.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { PatchOperation } from "./types/patchOperation.js";
-import { LanguageSyncModel } from "./types/syncModel.js";
+import { LanguageSyncModel, WorkflowSyncModel } from "./types/syncModel.js";
 
 type TargetReference = { id: string; codename: string };
 
@@ -81,6 +85,16 @@ export const diff = (params: DiffParams): DiffModel => {
 
   const languageDiffModel = getLanguageDiffModel(params.sourceEnvModel.languages, params.targetEnvModel.languages);
 
+  const workflowsDiffModel: DiffObject<RequiredCodename<WorkflowModels.IAddWorkflowData>> & {
+    sourceWorkflows: ReadonlyArray<WorkflowSyncModel>;
+  } = {
+    ...createDiffModel(
+      wholeWorkflowsHandler(params.sourceEnvModel.workflows, params.targetEnvModel.workflows),
+      workflowHandler,
+    ),
+    sourceWorkflows: params.sourceEnvModel.workflows,
+  };
+
   return {
     // All the arrays are mutable in the SDK (even though they shouldn't) and readonly in our models. Unfortunately, TS doesn't allow casting it without casting to unknown first.
     taxonomyGroups: mapAdded(taxonomyDiffModel, transformTaxonomyToAddModel),
@@ -91,6 +105,7 @@ export const diff = (params: DiffParams): DiffModel => {
     assetFolders: assetFoldersDiffModel,
     spaces: spacesDiffModel,
     languages: languageDiffModel,
+    workflows: workflowsDiffModel,
   };
 };
 

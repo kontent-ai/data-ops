@@ -17,10 +17,11 @@ import { syncTaxonomies } from "./sync/taxonomy.js";
 import { addTypesWithoutReferences, deleteContentType, updateContentTypesAndAddReferences } from "./sync/types.js";
 import { isOp } from "./sync/utils.js";
 import { updateWebSpotlight } from "./sync/webSpotlight.js";
+import { syncWorkflows } from "./sync/workflows.js";
 import { DiffModel } from "./types/diffModel.js";
 
 export const sync = async (client: ManagementClient, diff: DiffModel, logOptions: LogOptions) => {
-  // there order of these operations is very important
+  // the order of these operations is very important
   await syncAssetFolders(client, diff.assetFolders, logOptions);
 
   logInfo(logOptions, "standard", "Syncing Collections");
@@ -51,6 +52,8 @@ export const sync = async (client: ManagementClient, diff: DiffModel, logOptions
 
   logInfo(logOptions, "standard", "Updating content types and adding their references");
   await updateContentTypesAndAddReferences(client, diff.contentTypes);
+
+  await syncWorkflows(client, diff.workflows, logOptions);
 
   // uses a created/updated type when enabling and disables before deleting the root type
   logInfo(logOptions, "standard", "Updating web spotlight");
