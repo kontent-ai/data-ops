@@ -69,9 +69,8 @@ export const contentTypesEntity = {
 } as const satisfies EntityDefinition<ReadonlyArray<Type>>;
 
 export const updateItemAndTypeReferencesInTypesImportEntity = {
-  name: "contentTypes",
+  name: contentTypesEntity.name,
   displayName: "references in contentTypes",
-  isDependentOn: contentTypesEntity.name,
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileTypes, context, logOptions) => {
     await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context, logOptions })));

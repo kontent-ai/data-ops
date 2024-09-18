@@ -79,7 +79,6 @@ export const workflowsEntity = {
 export const importWorkflowScopesEntity = {
   name: workflowsEntity.name,
   displayName: "workflow scopes",
-  isDependentOn: workflowsEntity.name,
   deserializeEntities: JSON.parse,
   importEntities: async (client, importWfs, context, logOptions) => {
     const oldProjectWfs = await client.listWorkflows().toPromise().then(res => res.data);

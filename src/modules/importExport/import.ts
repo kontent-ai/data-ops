@@ -78,10 +78,7 @@ export const importEnvironmentInternal = async (client: ManagementClient, params
   const root = new StreamZip.async({ file: params.fileName });
 
   const definitionsToImport = importEntityDefinitions
-    .filter(e =>
-      includeExcludePredicate(params)(e)
-      || ("isDependentOn" in e && includeExcludePredicate(params)({ name: e.isDependentOn }))
-    );
+    .filter(includeExcludePredicate(params));
 
   logInfo(
     params,
