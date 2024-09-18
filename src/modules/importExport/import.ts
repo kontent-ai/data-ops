@@ -24,7 +24,7 @@ import { spacesEntity } from "./importExportEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
 import { webhooksEntity } from "./importExportEntities/entities/webhooks.js";
 import { webSpotlightEntity } from "./importExportEntities/entities/webSpotlight.js";
-import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
+import { importWorkflowScopesEntity, workflowsEntity } from "./importExportEntities/entities/workflows.js";
 import { EntityDefinition, EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
 import { IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
 
@@ -46,6 +46,7 @@ export const importEntityDefinitions = [
   spacesEntity,
   previewUrlsEntity,
   languageVariantsEntity,
+  importWorkflowScopesEntity,
   webhooksEntity,
 ] as const satisfies ReadonlyArray<EntityImportDefinition<any>>;
 

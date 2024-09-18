@@ -5,8 +5,9 @@ import { defaultCodename, defaultName, emptyId } from "../../../../constants/ids
 import { logInfo, LogOptions } from "../../../../log.js";
 import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
+import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { MapValues, ReplaceReferences } from "../../../../utils/types.js";
-import { EntityDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
 
 const defaultWorkflowId = emptyId;
 
@@ -16,12 +17,14 @@ export const workflowsEntity = {
   name: "workflows",
   displayName: "workflows",
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
-  serializeEntities: workflows => JSON.stringify(workflows),
+  serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
   importEntities: async (client, importWfs, context, logOptions) => {
+    const importWfsWithoutScopes = importWfs.map(wf => ({ ...wf, scopes: [] }));
+
     const oldProjectDefaultWf = await client.listWorkflows().toPromise()
       .then(res => res.data.find(w => w.id === defaultWorkflowId));
-    const importDefaultWf = importWfs.find(w => w.id === defaultWorkflowId);
+    const importDefaultWf = importWfsWithoutScopes.find(w => w.id === defaultWorkflowId);
 
     if (!importDefaultWf || !oldProjectDefaultWf) {
       throw new Error("The default workflow is missing in the imported file or the project to import into.");
@@ -30,7 +33,7 @@ export const workflowsEntity = {
     logInfo(logOptions, "verbose", `Updating: default workflow (${chalk.yellow(importDefaultWf.name)})`);
 
     const projectDefaultWf = await updateWorkflow(client, oldProjectDefaultWf, importDefaultWf, context);
-    const newProjectWfs = await addWorkflows(client, importWfs, context, logOptions);
+    const newProjectWfs = await addWorkflows(client, importWfsWithoutScopes, context, logOptions);
 
     const newDefaultWfStepIdEntries = extractStepIdEntriesWithContext(importDefaultWf, projectDefaultWf);
 
@@ -64,11 +67,36 @@ export const workflowsEntity = {
             .byWorkflowId(workflow.id)
             .withData(createDefaultWorkflowData(workflow))
             .toPromise()
-          : client.deleteWorkflow().byWorkflowId(workflow.id).toPromise();
+          : client
+            .deleteWorkflow()
+            .byWorkflowId(workflow.id)
+            .toPromise();
       }),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<Workflow>>;
+
+export const importWorkflowScopesEntity = {
+  name: workflowsEntity.name,
+  displayName: "workflow scopes",
+  isDependentOn: workflowsEntity.name,
+  deserializeEntities: JSON.parse,
+  importEntities: async (client, importWfs, context, logOptions) => {
+    const oldProjectWfs = await client.listWorkflows().toPromise().then(res => res.data);
+
+    await serially(
+      importWfs
+        .filter(wf => !!wf.scopes.length)
+        .map(wf => [wf, oldProjectWfs.find(w => w.codename === wf.codename)] as const)
+        .filter(second(notNullOrUndefined))
+        .map(([wf, importedWf]) => () => {
+          logInfo(logOptions, "verbose", `Updating: workflow scopes of workflow ${wf.id} (${chalk.yellow(wf.name)})`);
+
+          return updateWorkflow(client, importedWf, wf, context);
+        }),
+    );
+  },
+} as const satisfies EntityImportDefinition<ReadonlyArray<Workflow>>;
 
 const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) => ({
   ...importWorkflow,
@@ -225,3 +253,8 @@ const createDefaultWorkflowData = (wf: Workflow): WorkflowModels.IUpdateWorkflow
   published_step: { ...wf.published_step, codename: "published", name: "Published" },
   archived_step: { ...wf.archived_step, codename: "archived", name: "Archived" },
 });
+
+const second = <Original, Guarded extends Original, First, Rest extends ReadonlyArray<unknown>>(
+  guard: (value: Original) => value is Guarded,
+) =>
+(tuple: readonly [First, Original, ...Rest]): tuple is readonly [First, Guarded, ...Rest] => guard(tuple[1]);
