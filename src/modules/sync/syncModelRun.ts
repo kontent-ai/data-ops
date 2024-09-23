@@ -1,6 +1,6 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../log.js";
+import { logError, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { diff } from "./diff.js";
 import { fetchModel, transformSyncModel } from "./generateSyncModel.js";
@@ -57,7 +57,14 @@ export const getDiffModel = async (
   }
 
   const sourceModel = "folderName" in params
-    ? await readContentModelFromFolder(params.folderName)
+    ? await readContentModelFromFolder(params.folderName).catch(e => {
+      if (e instanceof AggregateError) {
+        logError(params, `Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
+        process.exit(1);
+      }
+      logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
+      process.exit(1);
+    })
     : transformSyncModel(
       await fetchModel(createClient({
         environmentId: params.sourceEnvironmentId,
