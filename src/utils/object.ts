@@ -1,4 +1,4 @@
-import { SuperiorOmit } from "./types.js";
+import { ObjectFromTuple, SuperiorOmit } from "./types.js";
 
 export const omit = <T extends object, K extends keyof T>(obj: T, props: K[]): SuperiorOmit<T, K> =>
   Object.fromEntries(Object.entries(obj).filter(([key]) => !props.includes(key as K))) as SuperiorOmit<T, K>;
@@ -22,3 +22,7 @@ type ObjectPerKey<Key extends string, Value> = Key extends any ? { [k in Key]: V
 
 export const makeObjectWithKey = <Key extends string, Value>(key: Key, value: Value): ObjectPerKey<Key, Value> =>
   ({ [key]: value }) as ObjectPerKey<Key, Value>;
+
+export const superiorFromEntries = <InputType extends readonly (readonly [string, any])[]>(
+  entries: InputType,
+): ObjectFromTuple<InputType> => Object.fromEntries(entries) as ObjectFromTuple<InputType>;

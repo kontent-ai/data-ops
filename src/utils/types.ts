@@ -115,3 +115,23 @@ export type CombineTuples<Tuple1 extends ReadonlyArray<unknown>, Tuple2 extends 
 export type AddPropToObjectTuple<Tuple extends ReadonlyArray<Object>, ToAdd extends object> =
   ReadonlyArray<Object> extends Tuple ? never
     : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
+
+export type Either<Left, Right> = Left | Right;
+
+/**
+ * Maps a tuple of key-value pairs to an object type.
+ *
+ * @example
+ * // For the following tuple type:
+ * type Tuple = [['name', string], ['age', number]];
+ *
+ * // The resulting type will be:
+ * type Result = ObjectFromTuple<Tuple>;
+ * // {
+ * //   name: string;
+ * //   age: number;
+ * // }
+ */
+export type ObjectFromTuple<T extends readonly (readonly [string, any])[]> = {
+  [K in T[number][0]]: Extract<T[number], readonly [K, any]>[1];
+};

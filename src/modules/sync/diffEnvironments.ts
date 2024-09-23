@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../../log.js";
+import { logError, logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { diff } from "./diff.js";
 import { fetchModel, transformSyncModel } from "./generateSyncModel.js";
@@ -44,7 +44,14 @@ export const diffEnvironmentsInternal = async (params: DiffEnvironmentsParams, c
   );
 
   const sourceModel = "folderName" in params && params.folderName !== undefined
-    ? await readContentModelFromFolder(params.folderName)
+    ? await readContentModelFromFolder(params.folderName).catch(e => {
+      if (e instanceof AggregateError) {
+        logError(params, `Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
+        process.exit(1);
+      }
+      logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
+      process.exit(1);
+    })
     : transformSyncModel(
       await fetchModel(
         createClient({

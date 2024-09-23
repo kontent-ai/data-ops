@@ -1,8 +1,13 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import * as fs from "fs/promises";
+import { z } from "zod";
+import { fromError } from "zod-validation-error";
 
 import { LogOptions } from "../../../log.js";
+import { throwError } from "../../../utils/error.js";
+import { superiorFromEntries } from "../../../utils/object.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
+import { Either } from "../../../utils/types.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
@@ -12,71 +17,70 @@ import {
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
-  workflowsFileName,
 } from "../constants/filename.js";
 import { fetchModel, transformSyncModel } from "../generateSyncModel.js";
 import { FileContentModel } from "../types/fileContentModel.js";
 import {
-  AssetFolderSyncModel,
-  ContentTypeSnippetsSyncModel,
-  ContentTypeSyncModel,
-  LanguageSyncModel,
-  SpaceSyncModel,
-  TaxonomySyncModel,
-  WebSpotlightSyncModel,
-  WorkflowSyncModel,
-} from "../types/syncModel.js";
+  SyncAssetFolderSchema,
+  SyncCollectionsSchema,
+  SyncLanguageSchema,
+  SyncSnippetsSchema,
+  SyncSpacesSchema,
+  SyncTaxonomySchema,
+  SyncTypesSchema,
+  SyncWebSpotlightSchema,
+} from "../validation/syncSchemas.js";
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "./fetchers.js";
 
+type ParseWithError<Result> = Either<ParseResult<Result>, ParseError>;
+type ParseError = { success: false; error: Error };
+type ParseResult<Result> = { success: true; result: Result };
+
 export const readContentModelFromFolder = async (folderName: string): Promise<FileContentModel> => {
-  // in future we should use typeguard to check whether the content is valid
-  const contentTypes = JSON.parse(
-    await fs.readFile(`${folderName}/${contentTypesFileName}`, "utf8"),
-  ) as ReadonlyArray<ContentTypeSyncModel>;
+  const parseReults = [
+    ["contentTypes", await parseSchema(SyncTypesSchema, folderName, contentTypesFileName)],
+    ["contentTypeSnippets", await parseSchema(SyncSnippetsSchema, folderName, contentTypeSnippetsFileName)],
+    ["taxonomyGroups", await parseSchema(SyncTaxonomySchema, folderName, taxonomiesFileName)],
+    ["collections", await parseSchema(SyncCollectionsSchema, folderName, collectionsFileName)],
+    ["webSpotlight", await parseSchema(SyncWebSpotlightSchema, folderName, webSpotlightFileName)],
+    ["assetFolders", await parseSchema(SyncAssetFolderSchema, folderName, assetFoldersFileName)],
+    ["spaces", await parseSchema(SyncSpacesSchema, folderName, spacesFileName)],
+    ["languages", await parseSchema(SyncLanguageSchema, folderName, languagesFileName)],
+  ] as const;
 
-  const snippets = JSON.parse(
-    await fs.readFile(`${folderName}/${contentTypeSnippetsFileName}`, "utf8"),
-  ) as ReadonlyArray<ContentTypeSnippetsSyncModel>;
-  const taxonomyGroups = JSON.parse(
-    await fs.readFile(`${folderName}/${taxonomiesFileName}`, "utf8"),
-  ) as ReadonlyArray<TaxonomySyncModel>;
+  const isError = (a: ParseWithError<unknown>): a is ParseError => !a.success;
 
-  const collections = JSON.parse(
-    await fs.readFile(`${folderName}/${collectionsFileName}`, "utf8"),
-  ) as ReadonlyArray<TaxonomySyncModel>;
+  const isErrorEntry = <EntityName>(
+    tuple: readonly [EntityName, ParseWithError<unknown>],
+  ): tuple is [EntityName, ParseError] => isError(tuple[1]);
 
-  const webSpotlight = JSON.parse(
-    await fs.readFile(`${folderName}/${webSpotlightFileName}`, "utf8"),
-  ) as WebSpotlightSyncModel;
+  const errors = parseReults.filter(isErrorEntry).map(([, val]) => val.error);
 
-  const assetFolders = JSON.parse(
-    await fs.readFile(`${folderName}/${assetFoldersFileName}`, "utf8").catch(() => "[]"),
-  ) as ReadonlyArray<AssetFolderSyncModel>;
+  if (errors.length) {
+    throw new AggregateError(errors);
+  }
 
-  const spaces = JSON.parse(
-    await fs.readFile(`${folderName}/${spacesFileName}`, "utf8").catch(() => "[]"),
-  ) as ReadonlyArray<SpaceSyncModel>;
+  return superiorFromEntries(
+    parseReults.map(([key, value]) =>
+      value.success ? [key, value.result] : throwError("Error with parsing the model from folder.")
+    ),
+  );
+};
 
-  const languages = JSON.parse(
-    await fs.readFile(`${folderName}/${languagesFileName}`, "utf8").catch(() => "[]"),
-  ) as ReadonlyArray<LanguageSyncModel>;
+const parseSchema = async <Output>(
+  schema: z.ZodType<Output, z.ZodTypeDef, unknown>,
+  folderName: string,
+  filename: string,
+): Promise<ParseWithError<Output>> => {
+  const result = schema.safeParse(JSON.parse(await fs.readFile(`${folderName}/${filename}`, "utf8")));
 
-  const workflows = JSON.parse(
-    await fs.readFile(`${folderName}/${workflowsFileName}`, "utf8").catch(() => "[]"),
-  ) as ReadonlyArray<WorkflowSyncModel>;
-
-  return {
-    contentTypes,
-    contentTypeSnippets: snippets,
-    taxonomyGroups: taxonomyGroups,
-    collections,
-    webSpotlight,
-    assetFolders,
-    spaces,
-    languages,
-    workflows,
-  };
+  return result.success
+    ? { success: true, result: result.data }
+    : {
+      success: false,
+      error: new Error(fromError(result.error, { unionSeparator: " or\n", prefix: filename }).message),
+    };
 };
 
 type AssetItemsCodenames = Readonly<{
