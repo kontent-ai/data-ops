@@ -67,3 +67,51 @@ export type AnyOnePropertyOf<Obj extends object> = [keyof Obj, keyof Obj] extend
   ? Key extends keyof Obj ? { [K in Key]: Obj[K] } & { [K in Exclude<AllKeys, Key>]?: undefined }
   : never
   : never;
+
+/**
+ * Combines two tuple types into a single tuple type, if both are valid tuple types.
+ *
+ * @example
+ * // If both Tuple1 and Tuple2 are valid tuples:
+ * type Result = CombineTuples<[1, 2], [3, 4]>;
+ * // Result: [1, 2, 3, 4]
+ *
+ * @example
+ * // If either Tuple1 or Tuple2 is not a valid tuple:
+ * type Invalid = CombineTuples<[], ReadonlyArray<number>>;
+ * // Result: "never"
+ *
+ * @description
+ * - If `Tuple1` or `Tuple2` extends `ReadonlyArray<unknown>`, meaning they are not fixed-length tuples,
+ *   the resulting type is `"never"`.
+ */
+
+export type CombineTuples<Tuple1 extends ReadonlyArray<unknown>, Tuple2 extends ReadonlyArray<unknown>> =
+  ReadonlyArray<unknown> extends Tuple1 ? "never" : ReadonlyArray<unknown> extends Tuple2 ? "never"
+  : [...Tuple1, ...Tuple2];
+
+/**
+ * Adds a new property type to each object in a tuple of objects.
+ *
+ * @template Tuple - A tuple type consisting of objects.
+ * @template ToAdd - An object type representing the properties to be added to each object in the tuple.
+ *
+ * @example
+ * // If given a tuple of objects and an object to add:
+ * type OriginalTuple = [{ name: string }, { age: number }];
+ * type AdditionalProps = { id: number };
+ * type Result = AddPropToObjectTuple<OriginalTuple, AdditionalProps>;
+ * // Result: [{ id: number; name: string }, { id: number; age: number }]
+ *
+ * @example
+ * // If the input tuple is not a tuple of objects, it results in `never`:
+ * type Invalid = AddPropToObjectTuple<ReadonlyArray<number>, { id: number }>;
+ * // Result: never
+ *
+ * @description
+ * - If `Tuple` extends `ReadonlyArray<Object>`, meaning it is not a fixed-length tuple of objects,
+ *   the resulting type is `never`.
+ */
+export type AddPropToObjectTuple<Tuple extends ReadonlyArray<Object>, ToAdd extends object> =
+  ReadonlyArray<Object> extends Tuple ? never
+    : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
