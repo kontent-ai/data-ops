@@ -152,12 +152,17 @@ export type LanguageSyncModel = Replace<
 export type WorkflowSyncModel = Replace<
   Omit<WorkflowContracts.IWorkflowContract, "id" | "scheduled_step">,
   Readonly<{
-    scopes: Array<{ content_types: Array<CodenameReference>; collections: Array<CodenameReference> }>;
+    scopes: Array<ScopeSyncModel>;
     steps: WorkflowStepSyncModel[];
     published_step: Omit<WorkflowContracts.IWorkflowPublishedStepContract, "id">;
     archived_step: Omit<WorkflowContracts.IWorkflowArchivedStepContract, "id">;
   }>
 >;
+
+type ScopeSyncModel = {
+  content_types: Array<CodenameReference>;
+  collections: Array<CodenameReference>;
+};
 
 export type WorkflowStepSyncModel = Replace<
   Omit<WorkflowContracts.IWorkflowStepNewContract, "id">,
