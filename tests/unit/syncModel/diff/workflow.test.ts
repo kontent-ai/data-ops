@@ -83,7 +83,6 @@ describe("workflowHandler", () => {
     };
 
     const result = workflowHandler(source, target);
-
     expect(result).toStrictEqual(
       [
         {
@@ -113,6 +112,56 @@ describe("workflowHandler", () => {
                 },
               },
             ],
+          },
+        },
+        {
+          oldValue: {
+            collections: [
+              {
+                codename: "collection_1",
+              },
+            ],
+            content_types: [
+              {
+                codename: "type_1",
+              },
+            ],
+            index: "0",
+          },
+          op: "replace",
+          path: "/scopes/codename:0",
+          value: {
+            collections: [
+              {
+                codename: "collection_1",
+              },
+            ],
+            content_types: [
+              {
+                codename: "type_1",
+              },
+              {
+                codename: "type_2",
+              },
+            ],
+            index: "0",
+          },
+        },
+        {
+          op: "addInto",
+          path: "/scopes",
+          value: {
+            collections: [
+              {
+                codename: "collection_2",
+              },
+            ],
+            content_types: [
+              {
+                codename: "type_3",
+              },
+            ],
+            index: "1",
           },
         },
       ],

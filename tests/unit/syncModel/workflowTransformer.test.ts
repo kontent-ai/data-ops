@@ -11,20 +11,7 @@ describe("transformWorkflowModel", () => {
         id: "1cdb6e21-3330-4f0f-88cd-171098950e4f",
         name: "type 1",
         codename: "type_codename_1",
-        elements: [
-          {
-            id: "6e72b773-ec9b-464c-90cd-4eda8b10c266",
-            codename: "text_codename1",
-            name: "element 1",
-            type: "text",
-          },
-          {
-            id: "45d12a44-42df-485d-94a0-7692bcbde8d9",
-            codename: "text_codename2",
-            name: "element2 ",
-            type: "text",
-          },
-        ],
+        elements: [],
         last_modified: "",
       },
     ] as const satisfies ReadonlyArray<ContentTypeContracts.IContentTypeContract>;

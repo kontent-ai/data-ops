@@ -1,8 +1,10 @@
+import { zip } from "../../../utils/array.js";
 import { WorkflowStepSyncModel, WorkflowSyncModel } from "../types/syncModel.js";
 import {
   baseHandler,
   constantHandler,
   Handler,
+  makeAdjustEntityHandler,
   makeArrayHandler,
   makeLeafObjectHandler,
   makeObjectHandler,
@@ -35,28 +37,20 @@ export const workflowHandler: Handler<WorkflowSyncModel> = makeObjectHandler({
     name: baseHandler,
     role_ids: constantHandler,
   }),
-  scopes: (sourceValue, targetValue) => {
-    const scopeRefsHandler = makeObjectHandler({
-      codename: baseHandler,
-    });
-
-    const emptyScope = {
-      content_types: [],
-      collections: [],
-    };
-
-    const contentTypesOps = sourceValue.flatMap((sourceScope, index) => {
-      const targetScope = targetValue[index] || emptyScope;
-      return scopeRefsHandler(sourceScope.content_types, targetScope.content_types);
-    });
-
-    const collectionsOps = sourceValue.flatMap((sourceScope, index) => {
-      const targetScope = targetValue[index] || emptyScope;
-      return scopeRefsHandler(sourceScope.collections, targetScope.collections);
-    });
-
-    return [...contentTypesOps, ...collectionsOps];
-  },
+  scopes: makeAdjustEntityHandler(
+    (entity) => entity.map((e, index) => ({ ...e, index: index.toString() })),
+    makeArrayHandler(
+      el => el.index,
+      makeLeafObjectHandler({
+        content_types: (source, target) =>
+          source.length === target.length
+          && zip(source, target).every(([sourceValue, targetValue]) => sourceValue.codename === targetValue.codename),
+        collections: (source, target) =>
+          source.length === target.length
+          && zip(source, target).every(([sourceValue, targetValue]) => sourceValue.codename === targetValue.codename),
+      }),
+    ),
+  ),
 });
 
 export const wholeWorkflowsHandler: Handler<ReadonlyArray<WorkflowSyncModel>> = makeWholeObjectsHandler();
