@@ -17,6 +17,7 @@ import {
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
+  workflowsFileName,
 } from "../constants/filename.js";
 import { fetchModel, transformSyncModel } from "../generateSyncModel.js";
 import { FileContentModel } from "../types/fileContentModel.js";
@@ -29,6 +30,7 @@ import {
   SyncTaxonomySchema,
   SyncTypesSchema,
   SyncWebSpotlightSchema,
+  SyncWorkflowSchema,
 } from "../validation/syncSchemas.js";
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "./fetchers.js";
@@ -47,6 +49,7 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     ["assetFolders", await parseSchema(SyncAssetFolderSchema, folderName, assetFoldersFileName)],
     ["spaces", await parseSchema(SyncSpacesSchema, folderName, spacesFileName)],
     ["languages", await parseSchema(SyncLanguageSchema, folderName, languagesFileName)],
+    ["workflows", await parseSchema(SyncWorkflowSchema, folderName, workflowsFileName)],
   ] as const;
 
   const isError = (a: ParseWithError<unknown>): a is ParseError => !a.success;
