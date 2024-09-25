@@ -110,3 +110,55 @@ export const LanguageSchema: z.ZodType<LanguageSyncModel> = z.discriminatedUnion
     },
   ),
 ]);
+
+const WorkflowColorSchema = z.union([
+  z.literal("gray"),
+  z.literal("red"),
+  z.literal("rose"),
+  z.literal("light-purple"),
+  z.literal("dark-purple"),
+  z.literal("dark-blue"),
+  z.literal("light-blue"),
+  z.literal("sky-blue"),
+  z.literal("mint-green"),
+  z.literal("persian-green"),
+  z.literal("dark-green"),
+  z.literal("light-green"),
+  z.literal("yellow"),
+  z.literal("pink"),
+  z.literal("orange"),
+  z.literal("brown"),
+]);
+
+const WorkflowPublishedStepSchema = z.strictObject({
+  name: z.string(),
+  codename: z.string(),
+  create_new_version_role_ids: z.array(z.string()).length(0),
+  unpublish_role_ids: z.array(z.string()).length(0),
+});
+
+const WorkflowArchivedStepSchema = z.strictObject({
+  name: z.string(),
+  codename: z.string(),
+  role_ids: z.array(z.string()).length(0),
+});
+
+const WorkflowStepSchema = z.strictObject({
+  name: z.string(),
+  codename: z.string(),
+  color: WorkflowColorSchema,
+  transitions_to: z.array(z.strictObject({ step: CodenameReferenceSchema })),
+  role_ids: z.array(z.string()).length(0),
+});
+
+export const WorkflowSchema = z.strictObject({
+  name: z.string(),
+  codename: z.string(),
+  scopes: z.array(z.strictObject({
+    content_types: z.array(CodenameReferenceSchema),
+    collections: z.array(CodenameReferenceSchema),
+  })),
+  steps: z.array(WorkflowStepSchema),
+  published_step: WorkflowPublishedStepSchema,
+  archived_step: WorkflowArchivedStepSchema,
+});
