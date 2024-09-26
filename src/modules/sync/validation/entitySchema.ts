@@ -1,8 +1,8 @@
-import { ContentTypeContracts } from "@kontent-ai/management-sdk";
+import { WorkflowContracts } from "@kontent-ai/management-sdk";
 import { z } from "zod";
 
 import { omit } from "../../../utils/object.js";
-import { Replace } from "../../../utils/types.js";
+import { IsFullEnum, IsSubset, RequiredZodObject } from "../../../utils/types.js";
 import {
   AssetFolderSyncModel,
   CollectionSyncModel,
@@ -12,6 +12,7 @@ import {
   SpaceSyncModel,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
+  WorkflowSyncModel,
 } from "../types/syncModel.js";
 import { CodenameReferenceSchema } from "./commonSchemas.js";
 import {
@@ -20,30 +21,36 @@ import {
   TypeElementWithGroupSchemasUnion,
 } from "./elementSchemas.js";
 
-export const AssetFolderSchema: z.ZodType<AssetFolderSyncModel> = z.strictObject({
-  name: z.string(),
-  folders: z.lazy(() => AssetFolderSchema.array()),
-  codename: z.string(),
-});
+export const AssetFolderSchema: z.ZodType<AssetFolderSyncModel> = z.strictObject(
+  {
+    name: z.string(),
+    folders: z.lazy(() => AssetFolderSchema.array()),
+    codename: z.string(),
+  } satisfies RequiredZodObject<AssetFolderSyncModel>,
+);
 
-export const TaxonomySchema: z.ZodType<TaxonomySyncModel> = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  terms: z.lazy(() => TaxonomySchema.array()),
-});
+export const TaxonomySchema: z.ZodType<TaxonomySyncModel> = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    terms: z.lazy(() => TaxonomySchema.array()),
+  } satisfies RequiredZodObject<TaxonomySyncModel>,
+);
 
-export const SnippetSchema: z.ZodType<ContentTypeSnippetsSyncModel> = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  elements: z.array(SnippetElementsSchemasUnion),
-});
+export const SnippetSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    elements: z.array(SnippetElementsSchemasUnion),
+  } satisfies RequiredZodObject<ContentTypeSnippetsSyncModel>,
+);
 
 const ContentGroupSchema = z.strictObject({ codename: z.string(), name: z.string() });
 
 export const TypeSchema: z.ZodType<
   ContentTypeSyncModel,
   z.ZodTypeDef,
-  { content_groups: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, { codename: string }>> }
+  Pick<ContentTypeSyncModel, "content_groups">
 > = z
   .strictObject({ content_groups: z.array(ContentGroupSchema) })
   .passthrough()
@@ -74,31 +81,37 @@ export const TypeSchema: z.ZodType<
   )
   .transform(obj => omit(obj, ["groups_number"]));
 
-export const WebSpotlightSchema: z.ZodType<WebSpotlightSyncModel> = z.strictObject({
-  enabled: z.boolean(),
-  root_type: CodenameReferenceSchema.nullable(),
-});
+export const WebSpotlightSchema = z.strictObject(
+  {
+    enabled: z.boolean(),
+    root_type: CodenameReferenceSchema.nullable(),
+  } satisfies RequiredZodObject<WebSpotlightSyncModel>,
+);
 
-export const CollectionSchema: z.ZodType<CollectionSyncModel> = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-});
+export const CollectionSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+  } satisfies RequiredZodObject<CollectionSyncModel>,
+);
 
-export const SpaceSchema: z.ZodType<SpaceSyncModel> = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  web_spotlight_root_item: CodenameReferenceSchema.optional(),
-  collections: z.array(CodenameReferenceSchema),
-});
+export const SpaceSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    web_spotlight_root_item: CodenameReferenceSchema.optional(),
+    collections: z.array(CodenameReferenceSchema),
+  } satisfies RequiredZodObject<SpaceSyncModel>,
+);
 
-export const LanguageSchema: z.ZodType<LanguageSyncModel> = z.discriminatedUnion("is_default", [
+export const LanguageSchema = z.discriminatedUnion("is_default", [
   z.strictObject(
     {
       name: z.string(),
       codename: z.string(),
       is_active: z.boolean(),
       is_default: z.literal(true),
-    },
+    } satisfies RequiredZodObject<Omit<LanguageSyncModel, "fallback_language">>,
   ),
   z.strictObject(
     {
@@ -107,58 +120,74 @@ export const LanguageSchema: z.ZodType<LanguageSyncModel> = z.discriminatedUnion
       is_active: z.boolean(),
       is_default: z.literal(false),
       fallback_language: CodenameReferenceSchema,
-    },
+    } satisfies RequiredZodObject<LanguageSyncModel>,
   ),
 ]);
 
-const WorkflowColorSchema = z.union([
-  z.literal("gray"),
-  z.literal("red"),
-  z.literal("rose"),
-  z.literal("light-purple"),
-  z.literal("dark-purple"),
-  z.literal("dark-blue"),
-  z.literal("light-blue"),
-  z.literal("sky-blue"),
-  z.literal("mint-green"),
-  z.literal("persian-green"),
-  z.literal("dark-green"),
-  z.literal("light-green"),
-  z.literal("yellow"),
-  z.literal("pink"),
-  z.literal("orange"),
-  z.literal("brown"),
-]);
+const colors = [
+  "gray",
+  "red",
+  "rose",
+  "light-purple",
+  "dark-purple",
+  "dark-blue",
+  "light-blue",
+  "sky-blue",
+  "mint-green",
+  "persian-green",
+  "dark-green",
+  "light-green",
+  "yellow",
+  "orange",
+  "brown",
+  "pink",
+] as const;
 
-const WorkflowPublishedStepSchema = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  create_new_version_role_ids: z.array(z.string()).length(0),
-  unpublish_role_ids: z.array(z.string()).length(0),
-});
+const WorkflowColorSchema = z.enum(
+  colors satisfies IsFullEnum<
+    IsSubset<WorkflowContracts.WorkflowColor, typeof colors[number]>,
+    IsSubset<typeof colors[number], WorkflowContracts.WorkflowColor>,
+    IsSubset<typeof colors[number], WorkflowContracts.WorkflowColor>
+  >,
+);
 
-const WorkflowArchivedStepSchema = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  role_ids: z.array(z.string()).length(0),
-});
+const WorkflowPublishedStepSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    create_new_version_role_ids: z.array(z.string()).length(0),
+    unpublish_role_ids: z.array(z.string()).length(0),
+  } satisfies RequiredZodObject<Omit<WorkflowContracts.IWorkflowPublishedStepContract, "id">>,
+);
 
-const WorkflowStepSchema = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  color: WorkflowColorSchema,
-  transitions_to: z.array(z.strictObject({ step: CodenameReferenceSchema })),
-  role_ids: z.array(z.string()).length(0),
-});
+const WorkflowArchivedStepSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    role_ids: z.array(z.string()).length(0),
+  } satisfies RequiredZodObject<Omit<WorkflowContracts.IWorkflowArchivedStepContract, "id">>,
+);
 
-export const WorkflowSchema = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  scopes: z.array(z.strictObject({
-    content_types: z.array(CodenameReferenceSchema),
-    collections: z.array(CodenameReferenceSchema),
-  })),
-  steps: z.array(WorkflowStepSchema),
-  published_step: WorkflowPublishedStepSchema,
-  archived_step: WorkflowArchivedStepSchema,
-});
+const WorkflowStepSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    color: WorkflowColorSchema,
+    transitions_to: z.array(z.strictObject({ step: CodenameReferenceSchema })),
+    role_ids: z.array(z.string()).length(0),
+  } satisfies RequiredZodObject<Omit<WorkflowContracts.IWorkflowStepNewContract, "id">>,
+);
+
+export const WorkflowSchema = z.strictObject(
+  {
+    name: z.string(),
+    codename: z.string(),
+    scopes: z.array(z.strictObject({
+      content_types: z.array(CodenameReferenceSchema),
+      collections: z.array(CodenameReferenceSchema),
+    })),
+    steps: z.array(WorkflowStepSchema),
+    published_step: WorkflowPublishedStepSchema,
+    archived_step: WorkflowArchivedStepSchema,
+  } satisfies RequiredZodObject<WorkflowSyncModel>,
+);

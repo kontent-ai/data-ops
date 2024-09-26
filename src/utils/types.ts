@@ -1,4 +1,5 @@
 import { SharedContracts } from "@kontent-ai/management-sdk";
+import { z } from "zod";
 
 export type MapValues<Map extends ReadonlyMap<unknown, unknown>> = Map extends ReadonlyMap<unknown, infer Res> ? Res
   : never;
@@ -69,28 +70,6 @@ export type AnyOnePropertyOf<Obj extends object> = [keyof Obj, keyof Obj] extend
   : never;
 
 /**
- * Combines two tuple types into a single tuple type, if both are valid tuple types.
- *
- * @example
- * // If both Tuple1 and Tuple2 are valid tuples:
- * type Result = CombineTuples<[1, 2], [3, 4]>;
- * // Result: [1, 2, 3, 4]
- *
- * @example
- * // If either Tuple1 or Tuple2 is not a valid tuple:
- * type Invalid = CombineTuples<[], ReadonlyArray<number>>;
- * // Result: "never"
- *
- * @description
- * - If `Tuple1` or `Tuple2` extends `ReadonlyArray<unknown>`, meaning they are not fixed-length tuples,
- *   the resulting type is `"never"`.
- */
-
-export type CombineTuples<Tuple1 extends ReadonlyArray<unknown>, Tuple2 extends ReadonlyArray<unknown>> =
-  ReadonlyArray<unknown> extends Tuple1 ? "never" : ReadonlyArray<unknown> extends Tuple2 ? "never"
-  : [...Tuple1, ...Tuple2];
-
-/**
  * Adds a new property type to each object in a tuple of objects.
  *
  * @template Tuple - A tuple type consisting of objects.
@@ -116,8 +95,6 @@ export type AddPropToObjectTuple<Tuple extends ReadonlyArray<Object>, ToAdd exte
   ReadonlyArray<Object> extends Tuple ? never
     : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
 
-export type Either<Left, Right> = Left | Right;
-
 /**
  * Maps a tuple of key-value pairs to an object type.
  *
@@ -135,3 +112,12 @@ export type Either<Left, Right> = Left | Right;
 export type ObjectFromTuple<T extends readonly (readonly [string, any])[]> = {
   [K in T[number][0]]: Extract<T[number], readonly [K, any]>[1];
 };
+
+export type IsSubset<A, B extends A> = B;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type IsFullEnum<ActualEnum extends string, FullEnum extends ActualEnum, _ActualEnum2 extends FullEnum> =
+  ReadonlyArray<
+    unknown
+  >;
+
+export type RequiredZodObject<T> = { [K in keyof T]-?: z.ZodType<T[K]> };
