@@ -63,16 +63,16 @@ export type SyncSubpagesElement =
   & ReplaceReferences<ContentTypeElements.ISubpagesElement>
   & Pick<SyncLinkedItemsElement, "default">; // The property is missing in the SDK type
 
-type SyncSnippetCustomElement = SnippetElement<SyncCustomElement>;
-type SyncSnippetMultipleChoiceElement = SnippetElement<SyncMultipleChoiceElement>;
-type SyncSnippetAssetElement = SnippetElement<SyncAssetElement>;
-type SyncSnippetRichTextElement = SnippetElement<SyncRichTextElement>;
-type SyncSnippetTaxonomyElement = SnippetElement<SyncTaxonomyElement>;
-type SyncSnippetLinkedItemsElement = SnippetElement<SyncLinkedItemsElement>;
-type SyncSnippetGuidelinesElement = SnippetElement<SyncGuidelinesElement>;
-type SyncSnippetTextElement = SnippetElement<SyncTextElement>;
-type SyncSnippetDateTimeElement = SnippetElement<SyncDateTimeElement>;
-type SyncSnippetNumberElement = SnippetElement<SyncNumberElement>;
+export type SyncSnippetCustomElement = SnippetElement<SyncCustomElement>;
+export type SyncSnippetMultipleChoiceElement = SnippetElement<SyncMultipleChoiceElement>;
+export type SyncSnippetAssetElement = SnippetElement<SyncAssetElement>;
+export type SyncSnippetRichTextElement = SnippetElement<SyncRichTextElement>;
+export type SyncSnippetTaxonomyElement = SnippetElement<SyncTaxonomyElement>;
+export type SyncSnippetLinkedItemsElement = SnippetElement<SyncLinkedItemsElement>;
+export type SyncSnippetGuidelinesElement = SnippetElement<SyncGuidelinesElement>;
+export type SyncSnippetTextElement = SnippetElement<SyncTextElement>;
+export type SyncSnippetDateTimeElement = SnippetElement<SyncDateTimeElement>;
+export type SyncSnippetNumberElement = SnippetElement<SyncNumberElement>;
 
 export type SyncSnippetElement =
   | SyncSnippetCustomElement
