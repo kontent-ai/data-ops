@@ -4,6 +4,7 @@ import chalk from "chalk";
 import { defaultCodename, defaultName, emptyId } from "../../../../constants/ids.js";
 import { logInfo, LogOptions } from "../../../../log.js";
 import { zip } from "../../../../utils/array.js";
+import { second } from "../../../../utils/function.js";
 import { serially } from "../../../../utils/requests.js";
 import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { MapValues, ReplaceReferences } from "../../../../utils/types.js";
@@ -252,8 +253,3 @@ const createDefaultWorkflowData = (wf: Workflow): WorkflowModels.IUpdateWorkflow
   published_step: { ...wf.published_step, codename: "published", name: "Published" },
   archived_step: { ...wf.archived_step, codename: "archived", name: "Archived" },
 });
-
-const second = <Original, Guarded extends Original, First, Rest extends ReadonlyArray<unknown>>(
-  guard: (value: Original) => value is Guarded,
-) =>
-(tuple: readonly [First, Original, ...Rest]): tuple is readonly [First, Guarded, ...Rest] => guard(tuple[1]);
