@@ -5,9 +5,9 @@ import { fromError } from "zod-validation-error";
 
 import { LogOptions } from "../../../log.js";
 import { throwError } from "../../../utils/error.js";
+import { second } from "../../../utils/function.js";
 import { superiorFromEntries } from "../../../utils/object.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
-import { Either } from "../../../utils/types.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
@@ -35,12 +35,12 @@ import {
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
 import { fetchRequiredAssetsByCodename, fetchRequiredContentItemsByCodename } from "./fetchers.js";
 
-type ParseWithError<Result> = Either<ParseResult<Result>, ParseError>;
+type ParseWithError<Result> = ParseResult<Result> | ParseError;
 type ParseError = { success: false; error: Error };
 type ParseResult<Result> = { success: true; result: Result };
 
 export const readContentModelFromFolder = async (folderName: string): Promise<FileContentModel> => {
-  const parseReults = [
+  const parseResults = [
     ["contentTypes", await parseSchema(SyncTypesSchema, folderName, contentTypesFileName)],
     ["contentTypeSnippets", await parseSchema(SyncSnippetsSchema, folderName, contentTypeSnippetsFileName)],
     ["taxonomyGroups", await parseSchema(SyncTaxonomySchema, folderName, taxonomiesFileName)],
@@ -52,20 +52,15 @@ export const readContentModelFromFolder = async (folderName: string): Promise<Fi
     ["workflows", await parseSchema(SyncWorkflowSchema, folderName, workflowsFileName)],
   ] as const;
 
-  const isError = (a: ParseWithError<unknown>): a is ParseError => !a.success;
-
-  const isErrorEntry = <EntityName>(
-    tuple: readonly [EntityName, ParseWithError<unknown>],
-  ): tuple is [EntityName, ParseError] => isError(tuple[1]);
-
-  const errors = parseReults.filter(isErrorEntry).map(([, val]) => val.error);
+  const errors = parseResults.filter(r => second<ParseWithError<unknown>, ParseError, string, []>(x => !x.success)(r))
+    .map(([, value]) => value.error);
 
   if (errors.length) {
     throw new AggregateError(errors);
   }
 
   return superiorFromEntries(
-    parseReults.map(([key, value]) =>
+    parseResults.map(([key, value]) =>
       value.success ? [key, value.result] : throwError("Error with parsing the model from folder.")
     ),
   );
