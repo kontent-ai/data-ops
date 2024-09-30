@@ -10,24 +10,36 @@ export const syncTaxonomies = async (
   taxonomies: DiffModel["taxonomyGroups"],
   logOptions: LogOptions,
 ) => {
-  logInfo(logOptions, "standard", "Adding taxonomies");
-  await serially(taxonomies.added.map(g => () => addTaxonomyGroup(client, g)));
+  if (taxonomies.added.length) {
+    logInfo(logOptions, "standard", "Adding taxonomies");
+    await serially(taxonomies.added.map(g => () => addTaxonomyGroup(client, g)));
+  } else {
+    logInfo(logOptions, "standard", "No taxonomies to add");
+  }
 
-  logInfo(logOptions, "standard", "Updating taxonomies");
-  await serially(
-    Array.from(taxonomies.updated.entries()).map(([codename, operations]) => () =>
-      operations.length
-        ? updateTaxonomyGroup(
-          client,
-          codename,
-          operations.map(transformTaxonomyOperations),
-        )
-        : Promise.resolve()
-    ),
-  );
+  if ([...taxonomies.updated].flatMap(([, arr]) => arr).length) {
+    logInfo(logOptions, "standard", "Updating taxonomies");
+    await serially(
+      Array.from(taxonomies.updated.entries()).map(([codename, operations]) => () =>
+        operations.length
+          ? updateTaxonomyGroup(
+            client,
+            codename,
+            operations.map(transformTaxonomyOperations),
+          )
+          : Promise.resolve()
+      ),
+    );
+  } else {
+    logInfo(logOptions, "standard", "No taxonomies to update");
+  }
 
-  logInfo(logOptions, "standard", "Deleting taxonomies");
-  await serially(Array.from(taxonomies.deleted).map(c => () => deleteTaxonomyGroup(client, c)));
+  if (taxonomies.deleted.size) {
+    logInfo(logOptions, "standard", "Deleting taxonomies");
+    await serially(Array.from(taxonomies.deleted).map(c => () => deleteTaxonomyGroup(client, c)));
+  } else {
+    logInfo(logOptions, "standard", "No taxonomies to delete");
+  }
 };
 
 const addTaxonomyGroup = (client: ManagementClient, taxonomy: TaxonomyModels.IAddTaxonomyRequestModel) =>

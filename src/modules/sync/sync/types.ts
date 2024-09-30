@@ -1,5 +1,6 @@
 import { ContentTypeModels, ManagementClient } from "@kontent-ai/management-sdk";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import { DiffModel } from "../types/diffModel.js";
@@ -8,17 +9,32 @@ import { createUpdateReferencesOps, removeReferencesFromAddOp } from "./utils.js
 export const addTypesWithoutReferences = async (
   client: ManagementClient,
   addContentTypes: DiffModel["contentTypes"]["added"],
+  logOptions: LogOptions,
 ) => {
   const addTypesWithoutReferences = addContentTypes.map(removeReferencesFromAddOp);
+
+  if (!addTypesWithoutReferences.length) {
+    logInfo(logOptions, "standard", "No content types to add");
+    return;
+  }
+
+  logInfo(logOptions, "standard", "Adding content types");
   await serially(addTypesWithoutReferences.map(t => () => addContentType(client, t)));
 };
 
 export const updateContentTypesAndAddReferences = async (
   client: ManagementClient,
   typeOps: DiffModel["contentTypes"],
+  logOptions: LogOptions,
 ) => {
   const typesReplaceReferencesOps = typeOps.added.map(createUpdateReferencesOps);
 
+  if (!typesReplaceReferencesOps.length) {
+    logInfo(logOptions, "standard", "No content types to update");
+    return;
+  }
+
+  logInfo(logOptions, "standard", "Updating content types and adding their references");
   await serially(
     [...typeOps.updated.entries(), ...typesReplaceReferencesOps].map(([codename, operations]) => () =>
       operations.length
@@ -34,6 +50,19 @@ export const updateContentTypesAndAddReferences = async (
         : Promise.resolve()
     ),
   );
+};
+
+export const deleteContentTypes = async (
+  client: ManagementClient,
+  typeOps: DiffModel["contentTypes"],
+  logOptions: LogOptions,
+) => {
+  if (typeOps.deleted.size) {
+    logInfo(logOptions, "standard", "Deleting content types");
+    await serially(Array.from(typeOps.deleted).map(c => () => deleteContentType(client, c)));
+  } else {
+    logInfo(logOptions, "standard", "No content types to delete");
+  }
 };
 
 const addContentType = (client: ManagementClient, type: ContentTypeModels.IAddContentTypeData) =>
@@ -53,7 +82,7 @@ const updateContentType = (
     .withData(typeData)
     .toPromise();
 
-export const deleteContentType = (
+const deleteContentType = (
   client: ManagementClient,
   codename: string,
 ) =>

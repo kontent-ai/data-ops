@@ -15,11 +15,12 @@ export const syncAssetFolders = async (
   operations: DiffModel["assetFolders"],
   logOptions: LogOptions,
 ) => {
-  logInfo(logOptions, "standard", "Updating asset folders");
-
   if (!operations.length) {
+    logInfo(logOptions, "standard", "No asset folders updates");
     return;
   }
+
+  logInfo(logOptions, "standard", "Updating asset folders");
 
   const removeOps = operations.filter(isOp("remove"));
 
