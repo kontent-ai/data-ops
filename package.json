@@ -19,8 +19,8 @@
   "files": [
     "./build/**/*"
   ],
-  "main": "./build/src/index.js",
-  "types": "./build/src/index.d.ts",
+  "main": "./build/src/public.js",
+  "types": "./build/src/public.d.ts",
   "bin": {
     "data-ops": "./build/src/index.js"
   },
