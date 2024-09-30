@@ -12,33 +12,46 @@ export const syncSpaces = async (
   model: DiffModel["spaces"],
   logOptions: LogOptions,
 ) => {
-  logInfo(logOptions, "standard", "Adding new spaces");
+  if (model.added.length) {
+    logInfo(logOptions, "standard", "Adding spaces");
 
-  await serially(model.added.map(space => () =>
-    client
-      .addSpace()
-      .withData(space as SpaceModels.IAddSpaceData)
-      .toPromise()
-  ));
+    await serially(model.added.map(space => () =>
+      client
+        .addSpace()
+        .withData(space as SpaceModels.IAddSpaceData)
+        .toPromise()
+    ));
+  } else {
+    logInfo(logOptions, "standard", "No spaces to add");
+  }
 
-  logInfo(logOptions, "standard", "Updating spaces");
+  if ([...model.updated].flatMap(([, arr]) => arr).length) {
+    logInfo(logOptions, "standard", "Updating spaces");
 
-  await serially([...model.updated].map(([spaceCodename, operations]) => () =>
-    client
-      .modifySpace()
-      .bySpaceCodename(spaceCodename)
-      .withData(operations.map(convertOperation))
-      .toPromise()
-  ));
+    await serially([...model.updated].map(([spaceCodename, operations]) => () =>
+      client
+        .modifySpace()
+        .bySpaceCodename(spaceCodename)
+        .withData(operations.map(convertOperation))
+        .toPromise()
+    ));
+  } else {
+    logInfo(logOptions, "standard", "No spaces to update");
+  }
 
-  logInfo(logOptions, "standard", "Removing spaces");
+  if (model.deleted.size) {
+    logInfo(logOptions, "standard", "Deleting spaces");
 
-  await serially([...model.deleted].map(spaceCodename => () =>
-    client
-      .deleteSpace()
-      .bySpaceCodename(spaceCodename)
-      .toPromise()
-  ));
+    await serially([...model.deleted].map(spaceCodename => () =>
+      client
+        .deleteSpace()
+        .bySpaceCodename(spaceCodename)
+        .toPromise()
+    ));
+  }
+  {
+    logInfo(logOptions, "standard", "No spaces to delete");
+  }
 };
 
 const convertOperation = (operation: PatchOperation): SpaceModels.IModifySpaceData =>

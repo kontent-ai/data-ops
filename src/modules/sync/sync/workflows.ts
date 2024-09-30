@@ -10,27 +10,38 @@ export const syncWorkflows = async (
   operations: DiffModel["workflows"],
   logOptions: LogOptions,
 ) => {
-  logInfo(logOptions, "standard", "Adding Workflows");
+  if (operations.added.length) {
+    logInfo(logOptions, "standard", "Adding workflows");
+    await serially(operations.added.map(w => () => addWorkflow(client, w)));
+  } else {
+    logInfo(logOptions, "standard", "No workflows to add");
+  }
 
-  await serially(operations.added.map(w => () => addWorkflow(client, w)));
+  if ([...operations.updated].flatMap(([, arr]) => arr).length) {
+    logInfo(logOptions, "standard", "Updating workflows");
 
-  logInfo(logOptions, "standard", "Updating Workflows");
+    await serially(
+      [...operations.updated.keys()].map(codename => () =>
+        modifyWorkflow(
+          client,
+          codename,
+          operations.sourceWorkflows.find(w => w.codename === codename)
+            ?? throwError(`Workflow { codename: ${codename} } not found.`),
+        )
+      ),
+    );
+  } else {
+    logInfo(logOptions, "standard", "No workflows to update");
+  }
 
-  await serially(
-    [...operations.updated.keys()].map(codename => () =>
-      modifyWorkflow(
-        client,
-        codename,
-        operations.sourceWorkflows.find(w => w.codename === codename)
-          ?? throwError(`Workflow { codename: ${codename} } not found.`),
-      )
-    ),
-  );
-
-  logInfo(logOptions, "standard", "Deleting Workflows");
-  await serially(
-    [...operations.deleted].map(codename => () => deleteWorkflow(client, codename)),
-  );
+  if (operations.deleted.size) {
+    logInfo(logOptions, "standard", "Deleting workflows");
+    await serially(
+      [...operations.deleted].map(codename => () => deleteWorkflow(client, codename)),
+    );
+  } else {
+    logInfo(logOptions, "standard", "No workflows to delete");
+  }
 };
 
 const addWorkflow = (client: ManagementClient, workflow: WorkflowModels.IAddWorkflowData) =>

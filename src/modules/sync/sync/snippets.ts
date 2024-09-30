@@ -1,5 +1,6 @@
 import { ContentTypeElements, ContentTypeSnippetModels, ManagementClient } from "@kontent-ai/management-sdk";
 
+import { logInfo, LogOptions } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import { elementTypes } from "../constants/elements.js";
@@ -17,7 +18,13 @@ import {
 export const addSnippetsWithoutReferences = async (
   client: ManagementClient,
   addSnippets: DiffModel["contentTypeSnippets"]["added"],
+  logOptions: LogOptions,
 ) => {
+  if (!addSnippets.length) {
+    logInfo(logOptions, "standard", "No content type snippets to add");
+    return;
+  }
+  logInfo(logOptions, "standard", "Adding content type snippets");
   const addSnippetsWithoutReferences = addSnippets.map(removeReferencesFromAddOp);
   await serially(addSnippetsWithoutReferences.map(s => () => addSnippet(client, s)));
 };
@@ -28,6 +35,7 @@ export const addSnippetsReferences = async (
     Readonly<[string, ReadonlyArray<Extract<PatchOperation, { op: "addInto" }>>]>
   >,
   addSnippets: DiffModel["contentTypeSnippets"]["added"],
+  logOptions: LogOptions,
 ) => {
   const snippetReplaceOpsAddIntoReferencingElements = updateSnippetAddIntoOps.map((
     [codename, ops],
@@ -43,6 +51,12 @@ export const addSnippetsReferences = async (
   );
   const snippetsReplaceReferencesOps = addSnippets.map(createUpdateReferencesOps);
 
+  if (snippetsReplaceReferencesOps.every(([, arr]) => !arr.length)) {
+    logInfo(logOptions, "standard", "No content type snippet's references to update");
+    return;
+  }
+
+  logInfo(logOptions, "standard", "Updating content type snippet's references");
   await serially(
     [...snippetReplaceOpsAddIntoReferencingElements, ...snippetsReplaceReferencesOps].map(
       ([codename, operations]) => () =>
@@ -62,6 +76,7 @@ export const addElementsIntoSnippetsWithoutReferences = async (
   updateSnippetAddIntoOps: ReadonlyArray<
     Readonly<[string, ReadonlyArray<Extract<PatchOperation, { op: "addInto" }>>]>
   >,
+  logOptions: LogOptions,
 ) => {
   const addSnippetsOpsWithoutRefs = updateSnippetAddIntoOps.map((
     [c, ops],
@@ -79,6 +94,12 @@ export const addElementsIntoSnippetsWithoutReferences = async (
     ] as const
   );
 
+  if (addSnippetsOpsWithoutRefs.every(([, ops]) => !ops.length)) {
+    logInfo(logOptions, "standard", "No elements to add into content type snippets");
+    return;
+  }
+
+  logInfo(logOptions, "standard", "Adding elements into content type snippets");
   await serially(addSnippetsOpsWithoutRefs.map(
     ([codename, operations]) => () =>
       operations.length
@@ -90,9 +111,17 @@ export const addElementsIntoSnippetsWithoutReferences = async (
 export const updateSnippets = async (
   client: ManagementClient,
   updateSnippetsOps: DiffModel["contentTypeSnippets"]["updated"],
+  logOptions: LogOptions,
 ) => {
   const otherSnippetOps = [...updateSnippetsOps.entries()]
     .map(([c, ops]) => [c, ops.filter(o => !isOp("addInto")(o))] as const);
+
+  if (otherSnippetOps.flatMap(([, ops]) => ops).length === 0) {
+    logInfo(logOptions, "standard", "No content type snippets to update");
+    return;
+  }
+
+  logInfo(logOptions, "standard", "Updating content type snippets");
   await serially(
     otherSnippetOps.map(
       ([codename, operations]) => () =>
@@ -105,6 +134,19 @@ export const updateSnippets = async (
           : Promise.resolve(),
     ),
   );
+};
+
+export const deleteContentTypeSnippets = async (
+  client: ManagementClient,
+  snippetOps: DiffModel["contentTypeSnippets"],
+  logOptions: LogOptions,
+) => {
+  if (snippetOps.deleted.size) {
+    logInfo(logOptions, "standard", "Deleting content type snippets");
+    await serially(Array.from(snippetOps.deleted).map(c => () => deleteSnippet(client, c)));
+  } else {
+    logInfo(logOptions, "standard", "No content type snippets to delete");
+  }
 };
 
 const addSnippet = (client: ManagementClient, snippet: ContentTypeSnippetModels.IAddContentTypeSnippetData) =>
@@ -124,7 +166,7 @@ const updateSnippet = (
     .withData(snippetData)
     .toPromise();
 
-export const deleteSnippet = (
+const deleteSnippet = (
   client: ManagementClient,
   codename: string,
 ) =>

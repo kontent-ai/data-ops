@@ -99,6 +99,7 @@ export const syncModelRunInternal = async (
   await sync(
     targetEnvironmentClient,
     diffModel,
+    new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
     params,
   );
 };

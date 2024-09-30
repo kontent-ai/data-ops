@@ -14,30 +14,40 @@ export const syncLanguages = async (
   operations: DiffModel["languages"],
   logOptions: LogOptions,
 ) => {
-  logInfo(logOptions, "standard", "Syncing Languages");
+  if (operations.added.length) {
+    logInfo(logOptions, "standard", "Adding languages");
+    await serially(operations.added.filter(op => !op.is_default).map(l => () => addLanguage(client, l)));
+  } else {
+    logInfo(logOptions, "standard", "No languages to add");
+  }
 
-  logInfo(logOptions, "standard", "Adding Languages");
+  if ([...operations.updated].flatMap(([, arr]) => arr).length) {
+    logInfo(logOptions, "standard", "Updating Languages");
 
-  await serially(operations.added.filter(op => !op.is_default).map(l => () => addLanguage(client, l)));
+    const transformedOperations = [...operations.updated].map(
+      ([codename, operations]) => [codename, operations.map(transformLanguagePatchOperation)] as const,
+    );
 
-  logInfo(logOptions, "standard", "Updating Languages");
-  const transformedOperations = [...operations.updated].map(
-    ([codename, operations]) => [codename, operations.map(transformLanguagePatchOperation)] as const,
-  );
+    const sortedOperations = transformedOperations.toSorted(([, operations], [, operations2]) =>
+      operationsToOrdNumb(operations) - operationsToOrdNumb(operations2)
+    );
 
-  const sortedOperations = transformedOperations.toSorted(([, operations], [, operations2]) =>
-    operationsToOrdNumb(operations) - operationsToOrdNumb(operations2)
-  );
+    await serially(
+      sortedOperations.map(([codename, operations]) => () => modifyLanguage(client, codename, operations)),
+    );
+  } else {
+    logInfo(logOptions, "standard", "No languages to update");
+  }
 
-  await serially(
-    sortedOperations.map(([codename, operations]) => () => modifyLanguage(client, codename, operations)),
-  );
+  if (operations.deleted.size) {
+    logInfo(logOptions, "standard", "Deactivating languages");
 
-  logInfo(logOptions, "standard", "Deactivating languages");
-
-  await serially(
-    [...operations.deleted].map(codename => () => deleteLanguage(client, codename)),
-  );
+    await serially(
+      [...operations.deleted].map(codename => () => deleteLanguage(client, codename)),
+    );
+  } else {
+    logInfo(logOptions, "standard", "No languages to deactivate");
+  }
 };
 
 const addLanguage = (client: ManagementClient, langauge: LanguageModels.IAddLanguageData) =>

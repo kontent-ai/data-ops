@@ -1,7 +1,6 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../log.js";
-import { serially } from "../../utils/requests.js";
+import { LogOptions } from "../../log.js";
 import { syncAssetFolders } from "./sync/assetFolders.js";
 import { syncAddAndReplaceCollections, syncRemoveCollections } from "./sync/collections.js";
 import { syncLanguages } from "./sync/languages.js";
@@ -9,63 +8,59 @@ import {
   addElementsIntoSnippetsWithoutReferences,
   addSnippetsReferences,
   addSnippetsWithoutReferences,
-  deleteSnippet,
+  deleteContentTypeSnippets,
   updateSnippets,
 } from "./sync/snippets.js";
 import { syncSpaces } from "./sync/spaces.js";
 import { syncTaxonomies } from "./sync/taxonomy.js";
-import { addTypesWithoutReferences, deleteContentType, updateContentTypesAndAddReferences } from "./sync/types.js";
+import { addTypesWithoutReferences, deleteContentTypes, updateContentTypesAndAddReferences } from "./sync/types.js";
 import { isOp } from "./sync/utils.js";
 import { updateWebSpotlight } from "./sync/webSpotlight.js";
 import { syncWorkflows } from "./sync/workflows.js";
+import { SyncEntities } from "./syncModelRun.js";
 import { DiffModel } from "./types/diffModel.js";
 
-export const sync = async (client: ManagementClient, diff: DiffModel, logOptions: LogOptions) => {
+export const sync = async (
+  client: ManagementClient,
+  diff: DiffModel,
+  entities: ReadonlySet<SyncEntityName>,
+  logOptions: LogOptions,
+) => {
   // the order of these operations is very important
   await syncAssetFolders(client, diff.assetFolders, logOptions);
 
-  logInfo(logOptions, "standard", "Syncing Collections");
-  await syncAddAndReplaceCollections(client, diff.collections);
+  await syncAddAndReplaceCollections(client, diff.collections, logOptions);
 
   await syncSpaces(client, diff.spaces, logOptions);
 
-  await syncRemoveCollections(client, diff.collections);
+  await syncRemoveCollections(client, diff.collections, logOptions);
 
   await syncLanguages(client, diff.languages, logOptions);
 
   await syncTaxonomies(client, diff.taxonomyGroups, logOptions);
 
-  logInfo(logOptions, "standard", "Adding content type snippets");
-  await addSnippetsWithoutReferences(client, diff.contentTypeSnippets.added);
+  await addSnippetsWithoutReferences(client, diff.contentTypeSnippets.added, logOptions);
 
   const updateSnippetAddIntoOps = [...diff.contentTypeSnippets.updated]
     .map(([c, ops]) => [c, ops.filter(isOp("addInto"))] as const);
 
-  logInfo(logOptions, "standard", "Adding elements into content type snippets");
-  await addElementsIntoSnippetsWithoutReferences(client, updateSnippetAddIntoOps);
+  await addElementsIntoSnippetsWithoutReferences(client, updateSnippetAddIntoOps, logOptions);
 
-  logInfo(logOptions, "standard", "Adding content types");
-  await addTypesWithoutReferences(client, diff.contentTypes.added);
+  await addTypesWithoutReferences(client, diff.contentTypes.added, logOptions);
 
-  logInfo(logOptions, "standard", "Updating content type snippet's references");
-  await addSnippetsReferences(client, updateSnippetAddIntoOps, diff.contentTypeSnippets.added);
+  await addSnippetsReferences(client, updateSnippetAddIntoOps, diff.contentTypeSnippets.added, logOptions);
 
-  logInfo(logOptions, "standard", "Updating content types and adding their references");
-  await updateContentTypesAndAddReferences(client, diff.contentTypes);
+  await updateContentTypesAndAddReferences(client, diff.contentTypes, logOptions);
 
   await syncWorkflows(client, diff.workflows, logOptions);
 
   // uses a created/updated type when enabling and disables before deleting the root type
-  logInfo(logOptions, "standard", "Updating web spotlight");
-  await updateWebSpotlight(client, diff.webSpotlight);
+  await updateWebSpotlight(client, diff.webSpotlight, logOptions);
 
-  logInfo(logOptions, "standard", "Removing content types");
-  await serially(Array.from(diff.contentTypes.deleted).map(c => () => deleteContentType(client, c)));
+  await deleteContentTypes(client, diff.contentTypes, logOptions);
 
-  logInfo(logOptions, "standard", "Removing content type snippets");
-  await serially(Array.from(diff.contentTypeSnippets.deleted).map(c => () => deleteSnippet(client, c)));
+  await deleteContentTypeSnippets(client, diff.contentTypeSnippets, logOptions);
 
   // replace, remove, move operations
-  logInfo(logOptions, "standard", "Updating content type snippets");
-  await updateSnippets(client, diff.contentTypeSnippets.updated);
+  await updateSnippets(client, diff.contentTypeSnippets.updated, logOptions);
 };
