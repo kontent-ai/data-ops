@@ -39,7 +39,15 @@ type Operation = PatchOperation["op"];
 type TypeOrSnippet = ContentTypeModels.IAddContentTypeData | ContentTypeSnippetModels.IAddContentTypeSnippetData;
 type ElementOrTerm = ContentTypeElements.Element | TaxonomyModels.IAddTaxonomyRequestModel;
 type RenderFunction<T extends PatchOperation> = (patchOp: T) => string;
-type EntityType = "taxonomies" | "types" | "snippets" | "spaces" | "languages";
+type EntityType =
+  | "taxonomies"
+  | "types"
+  | "snippets"
+  | "spaces"
+  | "languages"
+  | "workflows"
+  | "collections"
+  | "assetFolders";
 type EntityActionType = "added" | "updated" | "deleted";
 type AdvancedDiffParams =
   & Readonly<{
@@ -148,15 +156,28 @@ const getValueOrIdentifier = (value: unknown): string | string[] => {
     if (typeof valueObj.regex === "string") {
       return `<strong>${valueObj.regex}</strong>`;
     }
+
+    if ("step" in valueObj) {
+      return getValueOrIdentifier(valueObj.step);
+    }
+
+    if ("scope" in valueObj) {
+      return getValueOrIdentifier(valueObj.scope);
+    }
+
+    if ("content_types" in valueObj && "collections" in valueObj) {
+      return `types: ${getValueOrIdentifier(valueObj.content_types)}, collections: ${
+        getValueOrIdentifier(valueObj.collections)
+      }`;
+    }
+
+    if ("collections" in valueObj) {
+      return getValueOrIdentifier(valueObj.collections);
+    }
   }
 
   return `<strong>${String(value)}</strong>`;
 };
-
-const renderAddObjectProperties = (obj: Object) =>
-  Object.entries(obj).map(([key, value]) => renderAddProperty(key, value)).join("\n");
-
-const renderAddProperty = (key: string, value: string) => `<div class="added-element">${key}: ${value}</div>`;
 
 const renderPatchOp = (patchOp: PatchOperation) => patchOpRendererMap.get(patchOp.op)?.(patchOp);
 
@@ -206,7 +227,7 @@ const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>) => {
 
 const renderAddedElement = (element: ContentTypeElements.Element) =>
   `<div class="added-element"><div class="element" onClick="toggleVisibility('${element.codename}')">${element.codename}<div id=${element.codename} style="display: none">${
-    renderAddedElementProperties(element)
+    renderAddedObjectProperties(element)
   }</div></div><div class="element-type">${
     element.type
       .toUpperCase()
@@ -214,12 +235,12 @@ const renderAddedElement = (element: ContentTypeElements.Element) =>
   }
     </div></div>`;
 
-const renderAddedElementProperties = (element: ContentTypeElements.Element) =>
-  Object.entries(element)
-    .map(renderAddedElementProperty)
+const renderAddedObjectProperties = (object: object) =>
+  Object.entries(object)
+    .map(renderAddedObjectProperty)
     .join("\n");
 
-const renderAddedElementProperty = ([property, value]: Readonly<[string, unknown]>) => {
+const renderAddedObjectProperty = ([property, value]: Readonly<[string, unknown]>) => {
   // property keys where empty array means all related values are allowed
   const emptyAllowsAll: ReadonlyArray<string> = [
     "allowed_content_types",
@@ -317,8 +338,18 @@ const renderAddedLanguagesSectionData = (
   diff: Pick<DiffObject<RequiredCodename<LanguageModels.IAddLanguageData>>, "added">,
 ) =>
   diff.added.map(entity =>
-    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: block" id=${entity.codename}>
-    ${renderAddObjectProperties({ ...entity, fallback_language: entity.fallback_language?.codename })}
+    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: none" id=${entity.codename}>
+    ${renderAddedObjectProperties({ ...entity, fallback_language: entity.fallback_language?.codename })}
+    </div></div>`
+  )
+    .join("\n");
+
+const renderAddedWorkflowsOrSpacesSectionData = (
+  diff: Pick<DiffObject<RequiredCodename<LanguageModels.IAddLanguageData>>, "added">,
+) =>
+  diff.added.map(entity =>
+    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: none" id=${entity.codename}>
+    ${renderAddedObjectProperties(entity)}
     </div></div>`
   )
     .join("\n");
@@ -346,12 +377,15 @@ const renderEntitySection = (
   entityType: EntityType,
   { added, updated, deleted }: DiffObject<unknown>,
 ) => {
-  const entityTypeNameMap: Readonly<Record<typeof entityType, string>> = {
+  const entityTypeNameMap: Readonly<Record<EntityType, string>> = {
     snippets: "Snippets",
     taxonomies: "Taxonomy groups",
     types: "Content types",
     spaces: "Spaces",
     languages: "Languages",
+    collections: "Collections",
+    assetFolders: "Asset folders",
+    workflows: "Workflows",
   };
 
   return renderSection({
@@ -472,6 +506,30 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     ({ languages }: DiffData) => renderUpdatedEntitiesSectionData(languages),
   ],
   [
+    "{{added_workflows}}",
+    ({ workflows }: DiffData) => renderAddedWorkflowsOrSpacesSectionData(workflows),
+  ],
+  [
+    "{{deleted_workflows}}",
+    ({ workflows }: DiffData) => renderDeletedEntitiesSectionData(workflows),
+  ],
+  [
+    "{{updated_workflows}}",
+    ({ workflows }: DiffData) => renderUpdatedEntitiesSectionData(workflows),
+  ],
+  [
+    "{{added_spaces}}",
+    ({ spaces }: DiffData) => renderAddedWorkflowsOrSpacesSectionData(spaces),
+  ],
+  [
+    "{{deleted_spaces}}",
+    ({ spaces }: DiffData) => renderDeletedEntitiesSectionData(spaces),
+  ],
+  [
+    "{{updated_spaces}}",
+    ({ spaces }: DiffData) => renderUpdatedEntitiesSectionData(spaces),
+  ],
+  [
     "{{source_env_id}}",
     ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName!,
   ],
@@ -545,6 +603,13 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     ({ languages }: DiffData) =>
       getCombinedOpLength(languages) ? renderEntitySection("languages", languages) : "<h3>No changes to languages</h3>",
   ],
+  [
+    "{{workflows_section}}",
+    ({ workflows }: DiffData) =>
+      getCombinedOpLength(workflows)
+        ? renderEntitySection("workflows", workflows)
+        : "<h3>No changes to workflows.</h3>",
+  ],
 ]);
 
 const patchOpRendererMap: ReadonlyMap<
@@ -567,7 +632,31 @@ const modifierMap: ReadonlyMap<Operation, string> = new Map([
 const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /^\/name$/,
-    render: () => `Property name`,
+    render: () => `Property <strong>name</strong>`,
+  },
+  {
+    regex: /^\/collections$/,
+    render: () => `Collection for space`,
+  },
+  {
+    regex: /^\/codename$/,
+    render: () => `Property <strong>codename</strong>`,
+  },
+  {
+    regex: /^\/codename:([^/]+)/,
+    render: (match: string[]) => `Object <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/scopes\/codename:([^/]+)$/,
+    render: (match: string[]) => `Scope <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/fallback_language$/,
+    render: () => `Property <strong>fallback_language</strong>`,
+  },
+  {
+    regex: /^\/steps\/codename:([^/]+)\/color$/,
+    render: (match: string[]) => `Color for step <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/([^/]+)$/,
@@ -602,6 +691,18 @@ const addEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /^\/terms$/,
     render: () => `Top level term`,
+  },
+  {
+    regex: /steps$/,
+    render: () => `Step`,
+  },
+  {
+    regex: /scopes$/,
+    render: () => `Scope with the following configuration →`,
+  },
+  {
+    regex: /^\/steps\/codename:([^/]+)\/transitions_to$/,
+    render: (match: string[]) => `Transition from step <strong>${match[1]}</strong> to step`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_content_types$/,
@@ -686,6 +787,19 @@ const removeEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
     render: (match: string[]) =>
       `Allowed block <strong>${match[2]}</strong> for rich text element <strong>${match[1]}</strong>`,
   },
+  {
+    regex: /^\/steps\/codename:([^/]+)\/transitions_to\/codename:([^/]+)$/,
+    render: (match: string[]) =>
+      `Transition from step <strong>${match[1]}</strong> to step <strong>${match[2]}</strong>`,
+  },
+  {
+    regex: /^\/steps\/codename:([^/]+)$/,
+    render: (match: string[]) => `Step <strong>${match[1]}</strong>`,
+  },
+  {
+    regex: /^\/codename:([^/]+)/,
+    render: (match: string[]) => `Object <strong>${match[1]}</strong>`,
+  },
 ];
 
 const moveEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
@@ -705,5 +819,9 @@ const moveEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /\/terms\/codename:([^/]+)/g,
     render: (matches: string[]) => renderTaxonomyPath(matches),
+  },
+  {
+    regex: /^\/codename:([^/]+)/,
+    render: (match: string[]) => `Object <strong>${match[1]}</strong>`,
   },
 ];
