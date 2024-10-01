@@ -1,7 +1,7 @@
 import { ContentTypeElements } from "@kontent-ai/management-sdk";
 import { z } from "zod";
 
-import { AddPropToObjectTuple, IsFullEnum, IsSubset } from "../../../utils/types.js";
+import { AddPropToObjectTuple, IsFullEnum, IsSubset, RequiredZodObject } from "../../../utils/types.js";
 import {
   SyncSnippetAssetElement,
   SyncSnippetCustomElement,
@@ -18,8 +18,6 @@ import {
   SyncUrlSlugElement,
 } from "../types/syncModel.js";
 import { CodenameReferenceSchema } from "./commonSchemas.js";
-
-type RequiredZodObject<T> = { [K in keyof T]-?: z.ZodType<T[K]> };
 
 export const AssetElementDataSchema = z.strictObject(
   {
@@ -356,15 +354,15 @@ const TypeElementSchemas = [
   UrlSlugElementDataSchema,
 ] as const;
 
-export const TypeElementSchemasWithGroups = TypeElementSchemas
-  .map(schema => schema.extend({ content_group: CodenameReferenceSchema })) as unknown as AddPropToObjectTuple<
-    typeof TypeElementSchemas,
-    typeof ContentGroupSchema
-  >;
-
 const ContentGroupSchema = z.strictObject({
   content_group: CodenameReferenceSchema,
 });
+
+export const TypeElementSchemasWithGroups = TypeElementSchemas
+  .map(schema => schema.merge(ContentGroupSchema)) as unknown as AddPropToObjectTuple<
+    typeof TypeElementSchemas,
+    typeof ContentGroupSchema
+  >;
 
 export const SnippetElementsSchemasUnion = z.discriminatedUnion("type", [...SnippetElementsSchemas]);
 export const TypeElementsSchemasUnion = z.discriminatedUnion("type", [...TypeElementSchemas]);

@@ -120,4 +120,4 @@ export type IsFullEnum<ActualEnum extends string, FullEnum extends ActualEnum, _
     unknown
   >;
 
-export type RequiredZodObject<T> = { [K in keyof T]-?: z.ZodType<T[K]> };
+export type RequiredZodObject<T> = Readonly<{ [K in keyof T]-?: z.ZodType<T[K]> }>;
