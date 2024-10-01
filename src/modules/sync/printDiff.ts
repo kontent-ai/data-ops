@@ -4,6 +4,7 @@ import { dirname, resolve } from "path";
 import { match } from "ts-pattern";
 
 import { logInfo, LogOptions } from "../../log.js";
+import { SyncEntityName } from "./constants/entities.js";
 import { DiffModel, DiffObject } from "./types/diffModel.js";
 import { PatchOperation } from "./types/patchOperation.js";
 import {
@@ -15,55 +16,77 @@ import {
 } from "./utils/fileUtils.js";
 import { DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
-export const printDiff = (diffModel: DiffModel, logOptions: LogOptions) => {
-  logInfo(logOptions, "standard", chalk.blue.bold("TAXONOMY GROUPS:"));
-  printDiffEntity(diffModel.taxonomyGroups, "taxonomy groups", logOptions);
-
-  logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPE SNIPPETS:"));
-  printDiffEntity(diffModel.contentTypeSnippets, "content type snippets", logOptions);
-
-  logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPES:"));
-  printDiffEntity(diffModel.contentTypes, "content types", logOptions);
-
-  logInfo(logOptions, "standard", chalk.blue.bold("\nASSET FOLDERS:"));
-  if (diffModel.assetFolders.length) {
-    diffModel.assetFolders.forEach(op => printPatchOperation(op, logOptions));
-  } else {
-    logInfo(logOptions, "standard", "No asset folders to update.");
+export const printDiff = (
+  diffModel: DiffModel,
+  entities: ReadonlySet<SyncEntityName>,
+  logOptions: LogOptions,
+) => {
+  if (entities.has("taxonomies")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("TAXONOMY GROUPS:"));
+    printDiffEntity(diffModel.taxonomyGroups, "taxonomy groups", logOptions);
   }
 
-  logInfo(logOptions, "standard", chalk.blue.bold("\nCOLLECTIONS:"));
-  if (diffModel.collections.length) {
-    diffModel.collections.forEach(op => printPatchOperation(op, logOptions));
-  } else {
-    logInfo(logOptions, "standard", "No collections to update.");
+  if (entities.has("contentTypeSnippets")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPE SNIPPETS:"));
+    printDiffEntity(diffModel.contentTypeSnippets, "content type snippets", logOptions);
   }
 
-  logInfo(logOptions, "standard", chalk.blue.bold("\nSPACES:"));
-  printDiffEntity(diffModel.spaces, "spaces", logOptions);
+  if (entities.has("contentTypes")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nCONTENT TYPES:"));
+    printDiffEntity(diffModel.contentTypes, "content types", logOptions);
+  }
 
-  logInfo(logOptions, "standard", chalk.blue.bold("\nLANGUAGES:"));
-  printDiffEntity(diffModel.languages, "languages", logOptions);
+  if (entities.has("assetFolders")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nASSET FOLDERS:"));
+    if (diffModel.assetFolders.length) {
+      diffModel.assetFolders.forEach(op => printPatchOperation(op, logOptions));
+    } else {
+      logInfo(logOptions, "standard", "No asset folders to update.");
+    }
+  }
 
-  logInfo(logOptions, "standard", chalk.blue.bold("\nWORKFLOWS:"));
-  printDiffEntity(diffModel.workflows, "workflows", logOptions);
+  if (entities.has("collections")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nCOLLECTIONS:"));
+    if (diffModel.collections.length) {
+      diffModel.collections.forEach(op => printPatchOperation(op, logOptions));
+    } else {
+      logInfo(logOptions, "standard", "No collections to update.");
+    }
+  }
 
-  if (diffModel.webSpotlight.change !== "none") {
-    logInfo(logOptions, "standard", chalk.blue.bold("\nWEB SPOTLIGHT:"));
+  if (entities.has("spaces")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nSPACES:"));
+    printDiffEntity(diffModel.spaces, "spaces", logOptions);
+  }
 
-    const messsage = match(diffModel.webSpotlight)
-      .with(
-        { change: "activate" },
-        ({ rootTypeCodename }) => `Web Spotlight is to be activated with root type: ${chalk.green(rootTypeCodename)}`,
-      )
-      .with(
-        { change: "changeRootType" },
-        ({ rootTypeCodename }) => `Web Spotlight root type is changed to: ${chalk.green(rootTypeCodename)}`,
-      )
-      .with({ change: "deactivate" }, () => "Web Spotlight is to be deactivated")
-      .exhaustive();
+  if (entities.has("languages")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nLANGUAGES:"));
+    printDiffEntity(diffModel.languages, "languages", logOptions);
+  }
 
-    logInfo(logOptions, "standard", messsage);
+  if (entities.has("workflows")) {
+    logInfo(logOptions, "standard", chalk.blue.bold("\nWORKFLOWS:"));
+    printDiffEntity(diffModel.workflows, "workflows", logOptions);
+  }
+
+  if (entities.has("webSpotlight")) {
+    if (diffModel.webSpotlight.change !== "none") {
+      logInfo(logOptions, "standard", chalk.blue.bold("\nWEB SPOTLIGHT:"));
+
+      const messsage = match(diffModel.webSpotlight)
+        .with(
+          { change: "activate" },
+          ({ rootTypeCodename }) => `Web Spotlight is to be activated with root type: ${chalk.green(rootTypeCodename)}`,
+        )
+        .with(
+          { change: "changeRootType" },
+          ({ rootTypeCodename }) => `Web Spotlight root type is changed to: ${chalk.green(rootTypeCodename)}`,
+        )
+        .with({ change: "deactivate" }, () => "Web Spotlight is to be deactivated")
+        .exhaustive();
+
+      logInfo(logOptions, "standard", messsage);
+    }
   }
 };
 
