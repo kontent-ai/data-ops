@@ -114,6 +114,11 @@
         margin-top: 5px;
         border-radius: 16px;
     }
+
+    .entity-section-content > .op {
+        padding-left: 1em;
+    }
+
     .entity-detail {
         border: 1px solid #ccc;
         border-radius: 16px;
@@ -271,6 +276,10 @@
     .entity-operations {
         padding: 0 0 1rem 1rem;
         font-size: smaller;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .entity-operations .div {
+        font-family: Arial, Helvetica, sans-serif;
     }
     .op p {
         text-indent: -1em;
@@ -2301,20 +2310,20 @@
               /codename:nochange/folders <strong>tomoveinside</strong> added
             </div>
             <div class="op">
-              <span class="num-removed modifier-icon">−</span>Object at path
-              /codename:nochange/folders/codename:tomoveoutside removed
+              <span class="num-removed modifier-icon">−</span>Object <strong
+              >nochange</strong> removed
             </div>
             <div class="op">
               <span class="num-added modifier-icon">+</span>Object at path
               <strong>tomoveoutside</strong> added
             </div>
             <div class="op">
-              <span class="num-removed modifier-icon">−</span>Object at path
-              /codename:todelete removed
+              <span class="num-removed modifier-icon">−</span>Object <strong
+              >todelete</strong> removed
             </div>
             <div class="op">
-              <span class="num-removed modifier-icon">−</span>Object at path
-              /codename:tomoveinside removed
+              <span class="num-removed modifier-icon">−</span>Object <strong
+              >tomoveinside</strong> removed
             </div>
           </div>
         </div>
@@ -2331,8 +2340,8 @@
           </div>
           <div id="collections-section" class="entity-section-content">
             <div class="op">
-              <span class="num-modified modifier-icon">⇄</span>Object at path
-              /codename:collection_to_be_renamed/name changed <div
+              <span class="num-modified modifier-icon">⇄</span>Object <strong
+              >collection_to_be_renamed</strong> changed <div
                 class="compared-elements"
               >
                 <div class="element">Collection To Rename</div>
@@ -2345,22 +2354,22 @@
               <strong>collection_to_add</strong> added
             </div>
             <div class="op">
-              <span class="num-removed modifier-icon">−</span>Object at path
-              /codename:collection_to_delete removed
+              <span class="num-removed modifier-icon">−</span>Object <strong
+              >collection_to_delete</strong> removed
             </div>
             <div class="op">
-              <span class="num-modified modifier-icon">⤷</span>Object at path
-              /codename:collection_to_be_renamed moved after <strong
+              <span class="num-modified modifier-icon">⤷</span>Object <strong
+              >collection_to_be_renamed</strong> moved after <strong
               >collection_to_be_moved</strong>
             </div>
             <div class="op">
-              <span class="num-modified modifier-icon">⤷</span>Object at path
-              /codename:collection_to_add moved after <strong
+              <span class="num-modified modifier-icon">⤷</span>Object <strong
+              >collection_to_add</strong> moved after <strong
               >collection_to_be_renamed</strong>
             </div>
             <div class="op">
-              <span class="num-modified modifier-icon">⤷</span>Object at path
-              /codename:default moved after <strong>collection_to_add</strong>
+              <span class="num-modified modifier-icon">⤷</span>Object <strong
+              >default</strong> moved after <strong>collection_to_add</strong>
             </div>
           </div>
         </div>
@@ -2392,15 +2401,19 @@
                 >
                   <div class="op">
                     <span class="num-modified modifier-icon">⇄</span>Property
-                    name changed <div class="compared-elements">
+                    <strong>name</strong> changed <div
+                      class="compared-elements"
+                    >
                       <div class="element">Changed Default Lang Name</div>
                       <div class="comparator">→</div>
                       <div class="element">Default project language</div>
                     </div>
                   </div>
                   <div class="op">
-                    <span class="num-modified modifier-icon">⇄</span>Object at
-                    path /codename changed <div class="compared-elements">
+                    <span class="num-modified modifier-icon">⇄</span>Property
+                    <strong>codename</strong> changed <div
+                      class="compared-elements"
+                    >
                       <div class="element">default_changed</div>
                       <div class="comparator">→</div>
                       <div class="element">default</div>
@@ -2414,8 +2427,8 @@
                 </div>
                 <div class="entity-operations" style="display: none" id="lang1">
                   <div class="op">
-                    <span class="num-modified modifier-icon">⇄</span>Object at
-                    path /fallback_language changed <div
+                    <span class="num-modified modifier-icon">⇄</span>Property
+                    <strong>fallback_language</strong> changed <div
                       class="compared-elements"
                     >
                       <div class="element">lang2</div>
@@ -2431,8 +2444,8 @@
                 </div>
                 <div class="entity-operations" style="display: none" id="lang2">
                   <div class="op">
-                    <span class="num-modified modifier-icon">⇄</span>Object at
-                    path /fallback_language changed <div
+                    <span class="num-modified modifier-icon">⇄</span>Property
+                    <strong>fallback_language</strong> changed <div
                       class="compared-elements"
                     >
                       <div class="element">lang4</div>
@@ -2455,8 +2468,8 @@
                   id="static_lang"
                 >
                   <div class="op">
-                    <span class="num-modified modifier-icon">⇄</span>Object at
-                    path /fallback_language changed <div
+                    <span class="num-modified modifier-icon">⇄</span>Property
+                    <strong>fallback_language</strong> changed <div
                       class="compared-elements"
                     >
                       <div class="element">default_changed</div>
@@ -2484,14 +2497,14 @@
                   </div>
                   <div
                     class="entity-operations"
-                    style="display: block"
+                    style="display: none"
                     id="lang3"
                   >
-                    <div class="added-element">name: lang3</div>
-                    <div class="added-element">codename: lang3</div>
-                    <div class="added-element">is_active: true</div>
-                    <div class="added-element">is_default: false</div>
-                    <div class="added-element">fallback_language: lang2</div>
+                    <div>name: <strong>lang3</strong></div>
+                    <div>codename: <strong>lang3</strong></div>
+                    <div>is_active: <strong>true</strong></div>
+                    <div>is_default: <strong>false</strong></div>
+                    <div>fallback_language: <strong>lang2</strong></div>
                   </div>
                 </div>
               </div>
@@ -2528,18 +2541,245 @@
           <div id="spaces" class="entity-section-content">
             <div class="updated">
               <h3>updated</h3>
-              {{updated_spaces}}
+              <div class="entity-detail">
+                <div
+                  class="entity-name"
+                  onClick="toggleVisibility('space_to_rename')"
+                >
+                  space_to_rename
+                </div>
+                <div
+                  class="entity-operations"
+                  style="display: none"
+                  id="space_to_rename"
+                >
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Property
+                    <strong>name</strong> changed <div
+                      class="compared-elements"
+                    >
+                      <div class="element">Space to rename (target)</div>
+                      <div class="comparator">→</div>
+                      <div class="element">Space to rename</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="entity-detail">
+                <div
+                  class="entity-name"
+                  onClick="toggleVisibility('space_to_change_collections')"
+                >
+                  space_to_change_collections
+                </div>
+                <div
+                  class="entity-operations"
+                  style="display: none"
+                  id="space_to_change_collections"
+                >
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Collection
+                    for space changed <div class="compared-elements">
+                      <div class="element">
+                        collection_to_delete, collection_to_be_renamed
+                      </div>
+                      <div class="comparator">→</div>
+                      <div class="element">default</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="added-and-deleted">
               <div class="deleted">
                 <h3>deleted</h3>
-                {{deleted_spaces}}
+                <div class="entity-detail">
+                  <div class="entity-name removed">space_to_delete</div>
+                </div>
               </div>
 
               <div class="added">
                 <h3>added</h3>
-                {{added_spaces}}
+                <div class="entity-detail">
+                  <div
+                    class="entity-name"
+                    onClick="toggleVisibility('space_to_add')"
+                  >
+                    space_to_add
+                  </div>
+                  <div
+                    class="entity-operations"
+                    style="display: none"
+                    id="space_to_add"
+                  >
+                    <div>codename: <strong>space_to_add</strong></div>
+                    <div>name: <strong>Space to add</strong></div>
+                    <div>
+                      web_spotlight_root_item: <strong>undefined</strong>
+                    </div>
+                    <div>
+                      collections: <strong>collection_to_add</strong>,<strong
+                      >collection_to_be_renamed</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="entity-section">
+          <div
+            class="entity-section-header"
+            onclick="toggleVisibility('workflows')"
+          >
+            <div>Workflows</div>
+            <div class="num-modified push">✎ 2</div>
+            <div class="num-added">+ 1</div>
+            <div class="num-removed">− 1</div>
+          </div>
+          <div id="workflows" class="entity-section-content">
+            <div class="updated">
+              <h3>updated</h3>
+              <div class="entity-detail">
+                <div class="entity-name" onClick="toggleVisibility('default')">
+                  default
+                </div>
+                <div
+                  class="entity-operations"
+                  style="display: none"
+                  id="default"
+                >
+                  <div class="op">
+                    <span class="num-added modifier-icon">+</span>Transition
+                    from step <strong>draft</strong> to step <strong
+                    >added_default_workflow_step</strong> added
+                  </div>
+                  <div class="op">
+                    <span class="num-added modifier-icon">+</span>Step <strong
+                    >added_default_workflow_step</strong> added
+                  </div>
+                </div>
+              </div>
+              <div class="entity-detail">
+                <div
+                  class="entity-name"
+                  onClick="toggleVisibility('workflow_to_be_extensively_updated')"
+                >
+                  workflow_to_be_extensively_updated
+                </div>
+                <div
+                  class="entity-operations"
+                  style="display: none"
+                  id="workflow_to_be_extensively_updated"
+                >
+                  <div class="op">
+                    <span class="num-added modifier-icon">+</span>Step <strong
+                    >draft_d4f48a1</strong> added
+                  </div>
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Color for
+                    step <strong>workflow_step_to_be_updated</strong> changed
+                    <div class="compared-elements">
+                      <div class="element">sky-blue</div>
+                      <div class="comparator">→</div>
+                      <div class="element">dark-green</div>
+                    </div>
+                  </div>
+                  <div class="op">
+                    <span class="num-added modifier-icon">+</span>Transition
+                    from step <strong>workflow_step_to_be_updated</strong> to
+                    step <strong>published</strong> added
+                  </div>
+                  <div class="op">
+                    <span class="num-removed modifier-icon">−</span>Transition
+                    from step <strong>workflow_step_to_be_updated</strong> to
+                    step <strong>step_to_be_transitioned_into</strong> removed
+                  </div>
+                  <div class="op">
+                    <span class="num-removed modifier-icon">−</span>Step <strong
+                    >draft_713b4c6</strong> removed
+                  </div>
+                  <div class="op">
+                    <span class="num-removed modifier-icon">−</span>Step <strong
+                    >workflow_step_to_be_removed</strong> removed
+                  </div>
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Scope
+                    <strong>0</strong> changed <div class="compared-elements">
+                      <div class="element">
+                        types: <strong>empty_type_b</strong>,<strong
+                        >empty_type</strong>, collections: <strong
+                        >collection_to_be_moved</strong>
+                      </div>
+                      <div class="comparator">→</div>
+                      <div class="element">
+                        types: <strong>empty_type_b</strong>, collections:
+                        <strong>collection_to_be_moved</strong>,<strong
+                        >collection_to_be_renamed</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="op">
+                    <span class="num-modified modifier-icon">⇄</span>Scope
+                    <strong>1</strong> changed <div class="compared-elements">
+                      <div class="element">
+                        types: <strong>no_change_base_type</strong>,
+                        collections: <strong>collection_to_be_renamed</strong>
+                      </div>
+                      <div class="comparator">→</div>
+                      <div class="element">
+                        types: <strong>empty_type</strong>, collections: <strong
+                        >collection_to_add</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="op">
+                    <span class="num-added modifier-icon">+</span>Scope with the
+                    following configuration → types: <strong
+                    >no_change_base_type</strong>, collections: added
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="added-and-deleted">
+              <div class="deleted">
+                <h3>deleted</h3>
+                <div class="entity-detail">
+                  <div class="entity-name removed">workflow_to_be_deleted</div>
+                </div>
+              </div>
+
+              <div class="added">
+                <h3>added</h3>
+                <div class="entity-detail">
+                  <div
+                    class="entity-name"
+                    onClick="toggleVisibility('untitled_workflow')"
+                  >
+                    untitled_workflow
+                  </div>
+                  <div
+                    class="entity-operations"
+                    style="display: none"
+                    id="untitled_workflow"
+                  >
+                    <div>name: <strong>Added workflow</strong></div>
+                    <div>codename: <strong>untitled_workflow</strong></div>
+                    <div>
+                      scopes: types: <strong>empty_type</strong>, collections:
+                      <strong>collection_to_add</strong>
+                    </div>
+                    <div>
+                      steps: <strong>draft_9be4e8b</strong>,<strong
+                      >some_step</strong>
+                    </div>
+                    <div>published_step: <strong>published</strong></div>
+                    <div>archived_step: <strong>archived</strong></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
