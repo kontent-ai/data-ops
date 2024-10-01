@@ -84,7 +84,7 @@ const syncModelRunCli = async (params: SyncModelRunCliParams) => {
 
   try {
     await syncModelRunInternal(resolvedParams, commandName, async (diffModel) => {
-      printDiff(diffModel, params);
+      printDiff(diffModel, new Set(params.entities), params);
 
       const warningMessage = chalk.yellow(
         `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:

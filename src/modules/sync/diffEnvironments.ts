@@ -2,6 +2,7 @@ import chalk from "chalk";
 
 import { logError, logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
+import { syncEntityChoices } from "./constants/entities.js";
 import { diff } from "./diff.js";
 import { fetchModel, transformSyncModel } from "./generateSyncModel.js";
 import { createAdvancedDiffFile, printDiff } from "./printDiff.js";
@@ -86,5 +87,5 @@ export const diffEnvironmentsInternal = async (params: DiffEnvironmentsParams, c
 
   return "advanced" in params
     ? createAdvancedDiffFile({ ...diffModel, ...params })
-    : printDiff(diffModel, params);
+    : printDiff(diffModel, new Set(syncEntityChoices), params);
 };
