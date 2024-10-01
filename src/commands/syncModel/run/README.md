@@ -4,6 +4,7 @@
 > Synchronizing content model might lead to irreversible changes to the environment such as:
 > - Deletion of content by deleting elements from a content type
 > - Deletion of used taxonomies
+> - Removing roles limitations in workflows (see [known limitations](#known-limitations))
 
 The `sync-model run` command synchronizes the **source content model** into the **target environment** via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). The source content can be obtained from an existing Kontent.ai environment (considering you have access to the required credentials) or a folder structure in a required format (see [sync-model export](../export/README.md) command for more information). Using the CLI command you can filter data by entity type with the mandatory `--entities` parameter. For more advanced filtering, you can use the `entities` parameter through [programmatic sync](#sync-model-programmatically), where you can define custom filter predicate functions for each entity. These functions are optional and, if not provided, the entity WON'T be synced by default.
 
@@ -24,6 +25,7 @@ In the context of this command, the content model is represented by the followin
 To successfully synchronize the content model, we introduced a couple of conditions your environment **must follow** before attempting the sync:
 - There mustn't be an operation that changes the content type or content type snippet's element type - checked by validation.
 - There mustn't be an operation deleting a used content type (there is at least one content item of that type) - checked by validation.
+- There mustn't be an operation deleting a used collection (there is at least one content item in that collection) - checked by validation.
 - The source content model mustn't reference a deleted taxonomy group - not checked by validation!
 - If providing source content model via a folder, you must ensure that the content model is in a valid state 
   - Files are partially checked to see whether they meet the MAPI structure using `zod` validation. Not all conditions are checked! (e.g. whether the used codename exists)
@@ -55,7 +57,8 @@ npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-env
 >   "sourceEnvironmentId": "<source-env-id>",
 >   "sourceApiKey": "<source-mapi-key>",
 >   "targetEnvironmentId": "<target-env-id>",
->   "targetApiKey": "<target-mapi-key>"
+>   "targetApiKey": "<target-mapi-key>",
+>    "entities": ["contentTypes", "contentTypeSnippets", "taxonomies", "collections", "assetFolders", "spaces", "languages", "webSpotlight", "workflows"]
 > }
 > ```
 
