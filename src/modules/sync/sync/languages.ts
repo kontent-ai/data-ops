@@ -1,4 +1,5 @@
 import { LanguageModels, ManagementClient } from "@kontent-ai/management-sdk";
+import { oraPromise } from "ora";
 import { match } from "ts-pattern";
 import { v4 as createUuid } from "uuid";
 import { z } from "zod";
@@ -6,6 +7,7 @@ import { z } from "zod";
 import { logInfo, LogOptions } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
+import { noSyncTaskEmoji } from "../constants/emojiCodes.js";
 import { DiffModel } from "../types/diffModel.js";
 import { PatchOperation } from "../types/patchOperation.js";
 
@@ -15,15 +17,14 @@ export const syncLanguages = async (
   logOptions: LogOptions,
 ) => {
   if (operations.added.length) {
-    logInfo(logOptions, "standard", "Adding languages");
-    await serially(operations.added.filter(op => !op.is_default).map(l => () => addLanguage(client, l)));
+    await oraPromise(serially(operations.added.filter(op => !op.is_default).map(l => () => addLanguage(client, l))), {
+      text: "Adding languages",
+    });
   } else {
-    logInfo(logOptions, "standard", "No languages to add");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji}No languages to add`);
   }
 
   if ([...operations.updated].flatMap(([, arr]) => arr).length) {
-    logInfo(logOptions, "standard", "Updating Languages");
-
     const transformedOperations = [...operations.updated].map(
       ([codename, operations]) => [codename, operations.map(transformLanguagePatchOperation)] as const,
     );
@@ -32,21 +33,25 @@ export const syncLanguages = async (
       operationsToOrdNumb(operations) - operationsToOrdNumb(operations2)
     );
 
-    await serially(
-      sortedOperations.map(([codename, operations]) => () => modifyLanguage(client, codename, operations)),
+    await oraPromise(
+      serially(
+        sortedOperations.map(([codename, operations]) => () => modifyLanguage(client, codename, operations)),
+      ),
+      { text: "Updating Languages" },
     );
   } else {
-    logInfo(logOptions, "standard", "No languages to update");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No languages to update`);
   }
 
   if (operations.deleted.size) {
-    logInfo(logOptions, "standard", "Deactivating languages");
-
-    await serially(
-      [...operations.deleted].map(codename => () => deleteLanguage(client, codename)),
+    await oraPromise(
+      serially(
+        [...operations.deleted].map(codename => () => deleteLanguage(client, codename)),
+      ),
+      { text: "Deactivating languages" },
     );
   } else {
-    logInfo(logOptions, "standard", "No languages to deactivate");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No languages to deactivate`);
   }
 };
 

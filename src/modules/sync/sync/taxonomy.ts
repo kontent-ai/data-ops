@@ -1,7 +1,9 @@
 import { ManagementClient, TaxonomyModels } from "@kontent-ai/management-sdk";
+import { oraPromise } from "ora";
 
 import { logInfo, LogOptions } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
+import { noSyncTaskEmoji } from "../constants/emojiCodes.js";
 import { DiffModel } from "../types/diffModel.js";
 import { getTargetCodename, PatchOperation } from "../types/patchOperation.js";
 
@@ -11,34 +13,38 @@ export const syncTaxonomies = async (
   logOptions: LogOptions,
 ) => {
   if (taxonomies.added.length) {
-    logInfo(logOptions, "standard", "Adding taxonomies");
-    await serially(taxonomies.added.map(g => () => addTaxonomyGroup(client, g)));
+    await oraPromise(serially(taxonomies.added.map(g => () => addTaxonomyGroup(client, g))), {
+      text: "Adding taxonomies",
+    });
   } else {
-    logInfo(logOptions, "standard", "No taxonomies to add");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No taxonomies to add`);
   }
 
   if ([...taxonomies.updated].flatMap(([, arr]) => arr).length) {
-    logInfo(logOptions, "standard", "Updating taxonomies");
-    await serially(
-      Array.from(taxonomies.updated.entries()).map(([codename, operations]) => () =>
-        operations.length
-          ? updateTaxonomyGroup(
-            client,
-            codename,
-            operations.map(transformTaxonomyOperations),
-          )
-          : Promise.resolve()
+    await oraPromise(
+      serially(
+        Array.from(taxonomies.updated.entries()).map(([codename, operations]) => () =>
+          operations.length
+            ? updateTaxonomyGroup(
+              client,
+              codename,
+              operations.map(transformTaxonomyOperations),
+            )
+            : Promise.resolve()
+        ),
       ),
+      { text: "Updating taxonomies" },
     );
   } else {
-    logInfo(logOptions, "standard", "No taxonomies to update");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No taxonomies to update`);
   }
 
   if (taxonomies.deleted.size) {
-    logInfo(logOptions, "standard", "Deleting taxonomies");
-    await serially(Array.from(taxonomies.deleted).map(c => () => deleteTaxonomyGroup(client, c)));
+    await oraPromise(serially(Array.from(taxonomies.deleted).map(c => () => deleteTaxonomyGroup(client, c))), {
+      text: "Deleting taxonomies",
+    });
   } else {
-    logInfo(logOptions, "standard", "No taxonomies to delete");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No taxonomies to delete`);
   }
 };
 
