@@ -1,9 +1,11 @@
 import { ContentTypeElements, ContentTypeSnippetModels, ManagementClient } from "@kontent-ai/management-sdk";
+import { oraPromise } from "ora";
 
 import { logInfo, LogOptions } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import { elementTypes } from "../constants/elements.js";
+import { noSyncTaskEmoji } from "../constants/emojiCodes.js";
 import { DiffModel } from "../types/diffModel.js";
 import { PatchOperation } from "../types/patchOperation.js";
 import {
@@ -21,12 +23,16 @@ export const addSnippetsWithoutReferences = async (
   logOptions: LogOptions,
 ) => {
   if (!addSnippets.length) {
-    logInfo(logOptions, "standard", "No content type snippets to add");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No content type snippets to add`);
     return;
   }
-  logInfo(logOptions, "standard", "Adding content type snippets");
   const addSnippetsWithoutReferences = addSnippets.map(removeReferencesFromAddOp);
-  await serially(addSnippetsWithoutReferences.map(s => () => addSnippet(client, s)));
+  await oraPromise(
+    serially(addSnippetsWithoutReferences.map(s => () => addSnippet(client, s))),
+    {
+      text: "Adding content type snippets",
+    },
+  );
 };
 
 export const addSnippetsReferences = async (
@@ -52,22 +58,24 @@ export const addSnippetsReferences = async (
   const snippetsReplaceReferencesOps = addSnippets.map(createUpdateReferencesOps);
 
   if (snippetsReplaceReferencesOps.every(([, arr]) => !arr.length)) {
-    logInfo(logOptions, "standard", "No content type snippet's references to update");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No content type snippet's references to update`);
     return;
   }
 
-  logInfo(logOptions, "standard", "Updating content type snippet's references");
-  await serially(
-    [...snippetReplaceOpsAddIntoReferencingElements, ...snippetsReplaceReferencesOps].map(
-      ([codename, operations]) => () =>
-        operations.length
-          ? updateSnippet(
-            client,
-            codename,
-            operations.map(o => omit(o, ["oldValue"])),
-          )
-          : Promise.resolve(),
+  await oraPromise(
+    serially(
+      [...snippetReplaceOpsAddIntoReferencingElements, ...snippetsReplaceReferencesOps].map(
+        ([codename, operations]) => () =>
+          operations.length
+            ? updateSnippet(
+              client,
+              codename,
+              operations.map(o => omit(o, ["oldValue"])),
+            )
+            : Promise.resolve(),
+      ),
     ),
+    { text: "Updating content type snippet's references" },
   );
 };
 
@@ -95,17 +103,19 @@ export const addElementsIntoSnippetsWithoutReferences = async (
   );
 
   if (addSnippetsOpsWithoutRefs.every(([, ops]) => !ops.length)) {
-    logInfo(logOptions, "standard", "No elements to add into content type snippets");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No elements to add into content type snippets`);
     return;
   }
 
-  logInfo(logOptions, "standard", "Adding elements into content type snippets");
-  await serially(addSnippetsOpsWithoutRefs.map(
-    ([codename, operations]) => () =>
-      operations.length
-        ? updateSnippet(client, codename, operations)
-        : Promise.resolve(),
-  ));
+  await oraPromise(
+    serially(addSnippetsOpsWithoutRefs.map(
+      ([codename, operations]) => () =>
+        operations.length
+          ? updateSnippet(client, codename, operations)
+          : Promise.resolve(),
+    )),
+    { text: "Adding elements into content type snippets" },
+  );
 };
 
 export const updateSnippets = async (
@@ -117,22 +127,24 @@ export const updateSnippets = async (
     .map(([c, ops]) => [c, ops.filter(o => !isOp("addInto")(o))] as const);
 
   if (otherSnippetOps.flatMap(([, ops]) => ops).length === 0) {
-    logInfo(logOptions, "standard", "No content type snippets to update");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No content type snippets to update`);
     return;
   }
 
-  logInfo(logOptions, "standard", "Updating content type snippets");
-  await serially(
-    otherSnippetOps.map(
-      ([codename, operations]) => () =>
-        operations.length
-          ? updateSnippet(
-            client,
-            codename,
-            operations.map(op => "oldValue" in op ? omit(op, ["oldValue"]) : op),
-          )
-          : Promise.resolve(),
+  await oraPromise(
+    serially(
+      otherSnippetOps.map(
+        ([codename, operations]) => () =>
+          operations.length
+            ? updateSnippet(
+              client,
+              codename,
+              operations.map(op => "oldValue" in op ? omit(op, ["oldValue"]) : op),
+            )
+            : Promise.resolve(),
+      ),
     ),
+    { text: "Updating content type snippets" },
   );
 };
 
@@ -142,10 +154,11 @@ export const deleteContentTypeSnippets = async (
   logOptions: LogOptions,
 ) => {
   if (snippetOps.deleted.size) {
-    logInfo(logOptions, "standard", "Deleting content type snippets");
-    await serially(Array.from(snippetOps.deleted).map(c => () => deleteSnippet(client, c)));
+    await oraPromise(serially(Array.from(snippetOps.deleted).map(c => () => deleteSnippet(client, c))), {
+      text: "Deleting content type snippets",
+    });
   } else {
-    logInfo(logOptions, "standard", "No content type snippets to delete");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No content type snippets to delete`);
   }
 };
 

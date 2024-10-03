@@ -1,4 +1,5 @@
 import { AssetFolderModels, ManagementClient } from "@kontent-ai/management-sdk";
+import { oraPromise } from "ora";
 import { match } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
@@ -6,6 +7,7 @@ import { handleKontentErrors, throwError } from "../../../utils/error.js";
 import { apply, not } from "../../../utils/function.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
+import { noSyncTaskEmoji } from "../constants/emojiCodes.js";
 import { DiffModel } from "../types/diffModel.js";
 import { getTargetCodename, PatchOperation } from "../types/patchOperation.js";
 import { isOp } from "./utils.js";
@@ -16,29 +18,30 @@ export const syncAssetFolders = async (
   logOptions: LogOptions,
 ) => {
   if (!operations.length) {
-    logInfo(logOptions, "standard", "No asset folders updates");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji}No asset folders updates.`);
     return;
   }
 
-  logInfo(logOptions, "standard", "Updating asset folders");
-
   const removeOps = operations.filter(isOp("remove"));
 
-  await serially(removeOps.map(operation => () =>
-    client
-      .modifyAssetFolders()
-      .withData([convertOperation(operation)])
-      .toPromise()
-      .catch(handleKontentErrors(err => {
-        logError(
-          logOptions,
-          "error",
-          `Failed to remove asset folder "${operation.path}" error: ${JSON.stringify(err)}. Skipping it.`,
-        );
+  await oraPromise(
+    serially(removeOps.map(operation => () =>
+      client
+        .modifyAssetFolders()
+        .withData([convertOperation(operation)])
+        .toPromise()
+        .catch(handleKontentErrors(err => {
+          logError(
+            logOptions,
+            "error",
+            `Failed to remove asset folder "${operation.path}" error: ${JSON.stringify(err)}. Skipping it.`,
+          );
 
-        return undefined;
-      }, [5])) // this is a generic code for invalid body, but the error with folder containing assets unfortunately doesn't have a specific code
-  ));
+          return undefined;
+        }, [5])) // this is a generic code for invalid body, but the error with folder containing assets unfortunately doesn't have a specific code
+    )),
+    { text: "Updating asset folders" },
+  );
 
   const restOps = operations.filter(not(isOp("remove")));
 

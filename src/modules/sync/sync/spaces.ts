@@ -1,9 +1,11 @@
 import { ManagementClient, SpaceModels } from "@kontent-ai/management-sdk";
+import { oraPromise } from "ora";
 import { match, P } from "ts-pattern";
 
 import { logInfo, LogOptions } from "../../../log.js";
 import { throwError } from "../../../utils/error.js";
 import { serially } from "../../../utils/requests.js";
+import { noSyncTaskEmoji } from "../constants/emojiCodes.js";
 import { DiffModel } from "../types/diffModel.js";
 import { PatchOperation } from "../types/patchOperation.js";
 
@@ -13,44 +15,47 @@ export const syncSpaces = async (
   logOptions: LogOptions,
 ) => {
   if (model.added.length) {
-    logInfo(logOptions, "standard", "Adding spaces");
-
-    await serially(model.added.map(space => () =>
-      client
-        .addSpace()
-        .withData(space as SpaceModels.IAddSpaceData)
-        .toPromise()
-    ));
+    await oraPromise(
+      serially(model.added.map(space => () =>
+        client
+          .addSpace()
+          .withData(space as SpaceModels.IAddSpaceData)
+          .toPromise()
+      )),
+      { text: "Adding spaces" },
+    );
   } else {
-    logInfo(logOptions, "standard", "No spaces to add");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No spaces to add`);
   }
 
   if ([...model.updated].flatMap(([, arr]) => arr).length) {
-    logInfo(logOptions, "standard", "Updating spaces");
-
-    await serially([...model.updated].map(([spaceCodename, operations]) => () =>
-      client
-        .modifySpace()
-        .bySpaceCodename(spaceCodename)
-        .withData(operations.map(convertOperation))
-        .toPromise()
-    ));
+    await oraPromise(
+      serially([...model.updated].map(([spaceCodename, operations]) => () =>
+        client
+          .modifySpace()
+          .bySpaceCodename(spaceCodename)
+          .withData(operations.map(convertOperation))
+          .toPromise()
+      )),
+      { text: "Updating spaces" },
+    );
   } else {
-    logInfo(logOptions, "standard", "No spaces to update");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No spaces to update`);
   }
 
   if (model.deleted.size) {
-    logInfo(logOptions, "standard", "Deleting spaces");
-
-    await serially([...model.deleted].map(spaceCodename => () =>
-      client
-        .deleteSpace()
-        .bySpaceCodename(spaceCodename)
-        .toPromise()
-    ));
+    await oraPromise(
+      serially([...model.deleted].map(spaceCodename => () =>
+        client
+          .deleteSpace()
+          .bySpaceCodename(spaceCodename)
+          .toPromise()
+      )),
+      { text: "Deleting spaces" },
+    );
   }
   {
-    logInfo(logOptions, "standard", "No spaces to delete");
+    logInfo(logOptions, "standard", `${noSyncTaskEmoji} No spaces to delete`);
   }
 };
 
