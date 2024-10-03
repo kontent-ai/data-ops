@@ -117,7 +117,7 @@ const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Sn
         builder,
         typeOrSnippetCodename: snippet.codename,
         elementExternalIdsByOldId: new Map(
-          snippet.elements.map(el => [el.id, el.external_id ?? `${snippet.codename}_${el.codename}`]),
+          snippet.elements.map(el => [el.id, el.external_id ?? `${snippet.codename}_${el.codename}_element`]),
         ),
         contentGroupExternalIdByOldId: new Map(),
       })),

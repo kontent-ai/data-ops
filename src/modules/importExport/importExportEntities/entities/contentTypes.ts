@@ -152,11 +152,11 @@ const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
 const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => async () => {
   logInfo(params.logOptions, "verbose", `Importing: type ${type.id} (${chalk.yellow(type.name)})`);
 
-  const makeGroupFallbackExternalId = (groupCodename: string | undefined) => `${type.codename}_${groupCodename}`;
+  const makeGroupFallbackExternalId = (groupCodename: string | undefined) => `${type.codename}_${groupCodename}_group`;
 
   const getElementContentGroupCodename = (element: TypeElement) =>
     type.content_groups?.find(g => g.id === (element as ContentTypeElements.Element).content_group?.id)
-      ?.codename;
+      ?.codename ?? "default";
 
   return params.client
     .addContentType()
@@ -177,9 +177,7 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
             el => [
               el.id,
               el.external_id
-                ?? `${type.codename}${
-                  getElementContentGroupCodename(el) ? `_${getElementContentGroupCodename(el)}_` : "_"
-                }${el.codename}`,
+                ?? `${type.codename}_${getElementContentGroupCodename(el)}_${el.codename}_element`,
             ],
           ),
         ),
