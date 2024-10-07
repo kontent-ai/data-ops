@@ -1,7 +1,9 @@
 import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
+import { syncEntityChoices } from "../../../modules/sync/constants/entities.js";
 import { diffEnvironmentsInternal, DiffEnvironmentsParams } from "../../../modules/sync/diffEnvironments.js";
+import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -82,11 +84,15 @@ type DiffEnvironmentsCliParams =
 const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  await diffEnvironmentsInternal(resolvedParams, commandName);
+  const diffModel = await diffEnvironmentsInternal(resolvedParams, commandName);
+
+  return "advanced" in params
+    ? createAdvancedDiffFile({ ...diffModel, ...params })
+    : printDiff(diffModel, new Set(syncEntityChoices), params);
 };
 
-const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams => {
-  const baseParams = match(params)
+const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams =>
+  match(params)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
       ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
@@ -99,10 +105,3 @@ const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParam
       );
       process.exit(1);
     });
-
-  if (!params.advanced) {
-    return { ...baseParams, advanced: false };
-  }
-
-  return { ...baseParams, advanced: true };
-};
