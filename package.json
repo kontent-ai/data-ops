@@ -43,8 +43,8 @@
   "dependencies": {
     "@kontent-ai/core-sdk": "^10.8.0",
     "@kontent-ai/delivery-sdk": "^15.2.0",
-    "@kontent-ai/management-sdk": "^7.4.0",
-    "@kontent-ai/migration-toolkit": "^2.0.0",
+    "@kontent-ai/management-sdk": "^7.5.1",
+    "@kontent-ai/migration-toolkit": "^2.1.1",
     "@kontent-ai/rich-text-resolver": "1.2.1",
     "archiver": "^7.0.1",
     "axios": "^1.7.7",
