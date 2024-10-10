@@ -1,50 +1,162 @@
-# sync-model diff
-The `sync-model diff` command compares **content models** of two environments and outputs the difference either to a command line interface or to a standalone HTML file for improved visual representation and sharing purposes. Two environments can be compared to each other directly by providing parameters for both source and target (environment ID and MAPI key). Alternatively, you can also compare the target environment with a folder model created by [sync-model export](../export/README.md) command.
+# Sync-Model Diff Command
 
-## Default output
+The `sync-model diff` command compares the **content models** of two environments and outputs the differences either to the command line interface (CLI) or to a standalone HTML file for improved visual representation and sharing purposes. You can compare two environments directly by providing parameters for both the source and target (environment IDs and Management API keys). Alternatively, you can compare an environment with a local content model folder created by the [`sync-model export`](../export/README.md) command.
 
-By default, `sync-model diff` command outputs to CLI, in a slightly altered format of [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) operations for each modified entity. This can be suitable for smaller diffs or if you want to inspect individual operations.
+## Default Output
 
-## Advanced output
+By default, the `sync-model diff` command outputs the differences to the CLI in a format similar to [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) operations for each modified entity. This is suitable for smaller diffs or when you want to inspect individual operations in detail.
 
-By specifying the `-a, --advanced` flag in the `sync-model diff` command, you can opt for visual diff instead. This will generate an HTML file at a path specified by `-o, --outPath` parameter (mandatory if `-a` is used). The generated diff file should open automatically if the process succeeds. You can suppress automatic file opening by using `-n, --noOpen` flag.
+## Advanced Output
 
-Advanced output comes in the form of a stylized, interactive overview of all the differences between two content models. It includes the total number and types of changes to individual entity types, along with detailed information on each modified entity and its changeset, with emphasis on human-readability.
+By specifying the `-a` or `--advanced` flag in the `sync-model diff` command, you can generate a visual diff instead. This will create an HTML file at a path specified by the `-o` or `--outPath` parameter (required if `--advanced` is used). By default, the generated diff file will open automatically upon completion. You can suppress this behavior by using the `-n` or `--noOpen` flag.
 
-> [!TIP]
-> You can specify both directory and file paths with `-o` parameter. If you provide a file path (with `.html` suffix), the generated diff will have the name of your choice. For directory paths, a default naming convention will be used (`diff_<current UTC dateTime>.html`). 
+The advanced output is a stylized, interactive overview of all the differences between the two content models. It includes the total number and types of changes to individual entity types, along with detailed information on each modified entity and its changeset, emphasizing human readability.
+
+> **Tip**
+>
+> You can specify both directory and file paths with the `-o` parameter. If you provide a file path (with a `.html` suffix), the generated diff will have the name you specify. For directory paths, a default naming convention will be used (`diff_<current UTC dateTime>.html`).
 >
 > In both cases, directories along the path are created automatically if they don't exist yet.
 
-### Showcase
+### Example of Advanced Output
 
-![visual-diff-showcase](https://github.com/kontent-ai/data-ops/assets/52500882/4c85b987-3343-4bad-bd34-1888c506397d)
+![Visual Diff Showcase](https://github.com/kontent-ai/data-ops/assets/52500882/4c85b987-3343-4bad-bd34-1888c506397d)
 
 ## Usage
 
-```bash
-npx @kontent-ai/data-ops@latest sync-model diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --sourceEnvironmentId <source-environment-id> --sourceApiKey <Management-API-key> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
-```
+You can use the `sync-model diff` command in two ways:
 
-Or
+### Comparing Two Environments Directly
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model diff --targetEnvironmentId <environment-id> --targetApiKey <Management-API-key> --folderName <content-model-folder> [--advanced] [--noOpen] [--outPath] <absolute-folder-path>
+npx @kontent-ai/data-ops@latest sync-model diff \
+  --targetEnvironmentId <target-environment-id> \
+  --targetApiKey <target-management-api-key> \
+  --sourceEnvironmentId <source-environment-id> \
+  --sourceApiKey <source-management-api-key> \
+  [--advanced] [--noOpen] [--outPath <output-path>] \
+  [--entities <entity1> <entity2> ...]
 ```
 
-### Diff environments programmatically
+### Comparing an Environment with a Local Content Model Folder
 
-To diff your environments in your scripts, use `diffEnvironments` function:
+```bash
+npx @kontent-ai/data-ops@latest sync-model diff \
+  --targetEnvironmentId <target-environment-id> \
+  --targetApiKey <target-management-api-key> \
+  --folderName <content-model-folder> \
+  [--advanced] [--noOpen] [--outPath <output-path>] \
+  [--entities <entity1> <entity2> ...]
+```
 
-```ts
+### Parameters
+
+| Parameter               | Description                                                                                                                                                                |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--targetEnvironmentId` | The ID of the target environment to compare.                                                                                                                               |
+| `--targetApiKey`        | The Management API key for the target environment.                                                                                                                         |
+| `--sourceEnvironmentId` | The ID of the source environment to compare. (Use either this or `--folderName`.)                                                                                          |
+| `--sourceApiKey`        | The Management API key for the source environment.                                                                                                                         |
+| `--folderName`          | The path to the local content model folder exported with `sync-model export`. (Use either this or `--sourceEnvironmentId` and `--sourceApiKey`.)                            |
+| `--advanced`, `-a`      | (Optional) Generates an advanced visual diff in HTML format.                                                                                                               |
+| `--outPath`, `-o`       | (Required if `--advanced` is used) Specifies the output path for the HTML diff file.                                                                                       |
+| `--noOpen`, `-n`        | (Optional) Prevents the generated HTML diff file from opening automatically.                                                                                               |
+| `--entities`            | (Optional) Specifies which entities to include in the diff (e.g., `contentTypes`, `contentTypeSnippets`, `taxonomies`).                                                     |
+| `--configFile`          | (Optional) Path to a JSON configuration file containing parameters.                                                                                                        |
+
+### Examples
+
+**Example 1: Comparing Two Environments with Advanced Output**
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model diff \
+  --targetEnvironmentId <target-environment-id> \
+  --targetApiKey <target-management-api-key> \
+  --sourceEnvironmentId <source-environment-id> \
+  --sourceApiKey <source-management-api-key> \
+  --advanced \
+  --outPath ./diff-report.html
+```
+
+**Example 2: Comparing an Environment with a Local Content Model Folder**
+
+First, export the content model from the source environment:
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model export \
+  --environmentId <source-environment-id> \
+  --apiKey <source-management-api-key> \
+  --outputFolder ./source-model
+```
+
+Then, perform the diff:
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model diff \
+  --targetEnvironmentId <target-environment-id> \
+  --targetApiKey <target-management-api-key> \
+  --folderName ./source-model \
+  --advanced \
+  --outPath ./diff-report.html
+```
+
+**Example 3: Specifying Entities to Include in the Diff**
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model diff \
+  --targetEnvironmentId <target-environment-id> \
+  --targetApiKey <target-management-api-key> \
+  --sourceEnvironmentId <source-environment-id> \
+  --sourceApiKey <source-management-api-key> \
+  --entities contentTypes contentTypeSnippets \
+  --advanced \
+  --outPath ./diff-report.html
+```
+
+### Using `sync-model diff` Programmatically
+
+To compare environments in your scripts, use the `diffEnvironments` function:
+
+```typescript
 import { diffEnvironments, DiffEnvironmentsParams } from "@kontent-ai/data-ops";
 
 const params: DiffEnvironmentsParams = {
-  sourceEnvironmentId: "<source-env-id>",
-  sourceApiKey: "<source-mapi-key>",
   targetEnvironmentId: "<target-env-id>",
-  targetApiKey: "<target-mapi-key>",
+  targetApiKey: "<target-api-key>",
+  // Use either sourceEnvironmentId and sourceApiKey, or folderName
+  sourceEnvironmentId: "<source-env-id>",
+  sourceApiKey: "<source-api-key>",
+  // folderName: "./source-model",
+  advancedMode: true, // Set to true for advanced HTML output
+  outFile: "./diff-report.html",
+  noOpen: false, // Set to true to prevent automatic opening of the HTML file
+  entities: ['contentTypes', 'contentTypeSnippets'], // Optional: specify entities to include
 };
 
 await diffEnvironments(params);
 ```
+
+### Notes
+
+- **Available Entities**: You can specify the entities to include in the diff using the `--entities` option. Available entities are:
+
+  - `collections`
+  - `spaces`
+  - `taxonomies`
+  - `languages`
+  - `previewUrls`
+  - `roles`
+  - `workflows`
+  - `contentTypeSnippets`
+  - `contentTypes`
+  - `assetFolders`
+  - `webhooks`
+  - `webSpotlight`
+
+
+
+- **API Rate Limits**: Be aware of the Kontent.ai Management API rate limits when comparing large environments.
+
+- **Config Files**: For complex commands or to avoid including sensitive information in command-line parameters, consider using a configuration file with the `--configFile` option.
+
+---

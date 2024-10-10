@@ -1,101 +1,249 @@
-# sync-model run
+# Sync-Model Run Command
 
-> [!CAUTION] 
-> Synchronizing content model might lead to irreversible changes to the environment such as:
-> - Deletion of content by deleting elements from a content type
-> - Deletion of used taxonomies
-> - Removing roles limitations in workflows (see [known limitations](#known-limitations))
+> **⚠️ Caution**
+>
+> Synchronizing the content model can lead to irreversible changes in the target environment, such as:
+>
+> - **Deletion of content** by removing elements from content types.
+> - **Deletion of used taxonomies**.
+> - **Removal of role limitations** in workflows (see [Known Limitations](#known-limitations)).
+>
+> Proceed with caution and consider backing up your environment or testing in a non-production environment first.
 
-The `sync-model run` command synchronizes the **source content model** into the **target environment** via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). The source content can be obtained from an existing Kontent.ai environment (considering you have access to the required credentials) or a folder structure in a required format (see [sync-model export](../export/README.md) command for more information). Using the CLI command you can filter data by entity type with the mandatory `--entities` parameter. For more advanced filtering, you can use the `entities` parameter through [programmatic sync](#sync-model-programmatically), where you can define custom filter predicate functions for each entity. These functions are optional and, if not provided, the entity WON'T be synced by default.
+The `sync-model run` command synchronizes the **source content model** into the **target environment** using the [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). This command is essential for maintaining consistency across environments (e.g., Development, Staging, Production) by updating the content model in the target environment to match the source.
 
-> [!CAUTION]
-> Partial sync requires that all dependent entities are either already present in the environment or included in the sync process. Otherwise, the partial sync may fail, leaving your environment in an incomplete state.
+## Why Use `sync-model run`?
 
-In the context of this command, the content model is represented by the following entities: `Taxonomies`, `Content Types`, `Content Type Snippets`, `Web Spotlight`, `Asset Folders`, `Collections`, `Spaces`, `Languages` and `Workflows`. The command begins by comparing the provided content models and generates patch operations, which are then printed as the **environment diff**.  
+- **Environment Consistency**: Ensure that content models are identical across environments, preventing issues caused by discrepancies.
+- **Deployment Automation**: Automate content model updates as part of your CI/CD pipeline.
+- **Team Collaboration**: Allow multiple team members to work on content models in different environments and synchronize changes efficiently.
 
-**We strongly encourage you to examine the changes before you proceed with the model synchronization.** Following the diff, a validation is performed to ensure the sync operation can succeed. Should the validation find any inconsistencies, the operation may be terminated. Otherwise, you will be asked for confirmation to begin the synchronization.
+## Source Content Model Options
 
-## Key principles
-- Sync matches entities between the source and the target models via a `codename`.
-- The command does not sync `external_id` properties of content model entities (existing `external_id` cannot be changed and can conflict with other entities). 
-- If the model contains `guidelines` that reference content items or assets that are not present in the target environment, they will be referenced by their `external_id`(if externalId is non-existent `id` is used as `external_id`) after the synchronization. Remember to migrate any missing content to the target environment either beforehand (preferably) or afterward to achieve the desired results.
-- If `Linked items` or `Rich text element` references non-existent content types, they will be referenced using the `external_id` after the synchronization (one or more entity `codenames` are used to form the `external_id`).
-  
-## Sync model conditions
-To successfully synchronize the content model, we introduced a couple of conditions your environment **must follow** before attempting the sync:
-- There mustn't be an operation that changes the content type or content type snippet's element type - checked by validation.
-- There mustn't be an operation deleting a used content type (there is at least one content item of that type) - checked by validation.
-- There mustn't be an operation deleting a used collection (there is at least one content item in that collection) - checked by validation.
-- The source content model mustn't reference a deleted taxonomy group - not checked by validation!
-- If providing source content model via a folder, you must ensure that the content model is in a valid state 
-  - Files are partially checked to see whether they meet the MAPI structure using `zod` validation. Not all conditions are checked! (e.g. whether the used codename exists)
+You can obtain the source content model in two ways:
 
-## Known limitations
-Using Management API introduces some limitations:
-- Snippet element can't be referenced in the same request it's created in. Because of this, the tool can't move it to the correct place in the content type.
-- Asset folders cannot be moved so if they are in a different location in the source environment, they are removed and created in the new place.
-- Asset folders cannot be deleted (or moved, see the previous point) if they contain assets. The command is not able to check this without loading all the assets in the project so it doesn't check it. Please, make sure that all folders that will be deleted does not contain any assets. You can see what folders will be deleted in the generated diff `sync-model diff ...`.
-- Languages cannot be deleted, instead, they are deactivated. Their name and codename are replaced with the first 8 characters of a randomly generated UUID (name and codename have a limit of 25 characters).
-- Roles cannot be added or patched via MAPI and are therefore not synced.
-  - Consequently, **all role restrictions for workflow steps are lost** when adding a new workflow or adjusting an existing one during sync.
+1. **From an Existing Kontent.ai Environment**: Provide the source environment ID and Management API key to fetch the content model directly.
+2. **From a Local Folder**: Use a local folder containing the content model exported using the [`sync-model export`](../export/README.md) command.
+
+**Using a local snapshot of the content model is the recommended approach**, as it creates a stable snapshot that won't change during the synchronization process. This prevents discrepancies that can occur if changes are made in the source environment between diffing and syncing.
+
+## Key Features
+
+- **Selective Synchronization**: Specify which entities to synchronize using the mandatory `--entities` parameter.
+- **Pre-Sync Validation**: Performs validation checks to prevent operations that could cause errors or data loss.
+- **Change Preview (Diff)**: Generates and displays a diff of the changes before applying them, allowing you to review and confirm.
+
+## Supported Entities
+
+The following entities can be synchronized:
+
+- **Content Types**
+- **Content Type Snippets**
+- **Taxonomies**
+- **Web Spotlight**
+- **Asset Folders**
+- **Collections**
+- **Spaces**
+- **Languages**
+- **Workflows**
+
+## Important Considerations
+
+- **Entity Matching**: Entities are matched by their `codename`.
+- **Partial Synchronization**: Ensure all dependent entities are included or already exist in the target environment.
+- **No External ID Synchronization**: `external_id` properties are not synchronized to avoid conflicts.
+- **Guidelines References**: References to items or assets not present in the target environment will use `external_id` after synchronization.
+
+## Conditions for Successful Synchronization
+
+Before running the synchronization, ensure:
+
+- **No Element Type Changes**: Changing the type of an existing element is not allowed.
+- **No Deletion of Used Content Types**: Cannot delete content types with existing content items.
+- **No Deletion of Used Collections**: Cannot delete collections containing content items.
+- **No References to Deleted Taxonomies**: The source model should not reference deleted taxonomies.
+- **Valid Content Model**: If using a folder, ensure the content model files are valid and correctly structured.
+
+## Known Limitations
+
+- **Snippet Elements**: Cannot reference snippet elements in the same request they're created.
+- **Asset Folders**:
+  - Cannot be moved; they are deleted and recreated if structure differs.
+  - Cannot be deleted if containing assets; ensure folders to be deleted are empty.
+- **Languages**: Cannot be deleted; they are deactivated and renamed with a UUID.
+- **Roles and Workflows**:
+  - Roles cannot be added or updated via the API.
+  - Role assignments in workflows cannot be synchronized; role restrictions are lost when updating workflows.
 
 ## Usage
-```bash
-npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id> --entities contentTypes contentTypeSnippets taxonomies
---sourceApiKey=<source-api-key>
-```
-OR
+
+### Synchronizing from Environments
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model run --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --folderName=<path-to-content-folder> --entities contentTypes contentTypeSnippets taxonomies 
+npx @kontent-ai/data-ops@latest sync-model run \
+  --targetEnvironmentId=<target-env-id> \
+  --targetApiKey=<target-api-key> \
+  --sourceEnvironmentId=<source-env-id> \
+  --sourceApiKey=<source-api-key> \
+  --entities contentTypes contentTypeSnippets taxonomies
 ```
 
-> [!NOTE]  
-> As the command might get long, we recommend passing parameters in a JSON configuration file (e.g. --configFile params.json)
-> ```JSON
-> {
->   "sourceEnvironmentId": "<source-env-id>",
->   "sourceApiKey": "<source-mapi-key>",
->   "targetEnvironmentId": "<target-env-id>",
->   "targetApiKey": "<target-mapi-key>",
->    "entities": ["contentTypes", "contentTypeSnippets", "taxonomies", "collections", "assetFolders", "spaces", "languages", "webSpotlight", "workflows"]
-> }
-> ```
+### Synchronizing from a Local Folder (Recommended)
 
-To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-model run --help`.
+First, export the content model:
 
-### Sync model programmatically
+```bash
+npx @kontent-ai/data-ops@latest sync-model export \
+  --environmentId=<source-env-id> \
+  --apiKey=<source-api-key> \
+  --outputFolder=./content-model
+```
 
-To sync model in environments in your scripts, use `syncModelRun` function:
+Then, synchronize to the target environment:
 
-```ts
+```bash
+npx @kontent-ai/data-ops@latest sync-model run \
+  --targetEnvironmentId=<target-env-id> \
+  --targetApiKey=<target-api-key> \
+  --folderName=./content-model \
+  --entities contentTypes contentTypeSnippets taxonomies
+```
+
+### Using a Configuration File
+
+Create a `params.json` file:
+
+```json
+{
+  "targetEnvironmentId": "<target-env-id>",
+  "targetApiKey": "<target-api-key>",
+  "folderName": "./content-model",
+  "entities": [
+    "contentTypes",
+    "contentTypeSnippets",
+    "taxonomies",
+    "collections",
+    "assetFolders",
+    "spaces",
+    "languages",
+    "webSpotlight",
+    "workflows"
+  ]
+}
+```
+
+Run the command with the configuration file:
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model run --configFile params.json
+```
+
+### Parameters
+
+| Parameter                | Description                                                                                                  |
+|--------------------------|--------------------------------------------------------------------------------------------------------------|
+| `--targetEnvironmentId`  | The ID of the target environment where the content model will be synchronized.                                |
+| `--targetApiKey`         | The Management API key for the target environment.                                                           |
+| `--sourceEnvironmentId`  | (Optional) The ID of the source environment to fetch the content model from.                                  |
+| `--sourceApiKey`         | (Optional) The Management API key for the source environment.                                                 |
+| `--folderName`           | (Optional) Path to the folder containing the exported content model.                                          |
+| `--entities`             | List of entities to synchronize (e.g., `contentTypes`, `taxonomies`).                                         |
+| `--configFile`           | (Optional) Path to a JSON configuration file containing parameters.                                           |
+
+**Note**: Use either `--sourceEnvironmentId` and `--sourceApiKey`, or `--folderName`, not both.
+
+### Examples
+
+**Synchronize Content Types and Taxonomies Only**
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model run \
+  --targetEnvironmentId=<target-env-id> \
+  --targetApiKey=<target-api-key> \
+  --folderName=./content-model \
+  --entities contentTypes taxonomies
+```
+
+### Viewing Help
+
+To see all supported parameters, run:
+
+```bash
+npx @kontent-ai/data-ops@latest sync-model run --help
+```
+
+## Sync Model Programmatically
+
+You can synchronize the content model within your scripts using the `syncModelRun` function:
+
+```typescript
 import { syncModelRun, SyncModelRunParams } from "@kontent-ai/data-ops";
 
 const params: SyncModelRunParams = {
-  sourceEnvironmentId: "<source-env-id>",
-  sourceApiKey: "<source-mapi-key>",
   targetEnvironmentId: "<target-env-id>",
-  targetApiKey: "<target-mapi-key>",
+  targetApiKey: "<target-api-key>",
+  // Use either sourceEnvironmentId and sourceApiKey, or folderName
+  // sourceEnvironmentId: "<source-env-id>",
+  // sourceApiKey: "<source-api-key>",
+  folderName: "./content-model",
   entities: {
-    contentTypes: () => true, // will sync
-    taxonomies: () => false, // won't sync
-    languages: (lang) => lang.codename === "default" // will sync only codename with default codename
+    contentTypes: () => true, // Synchronize all content types
+    taxonomies: (taxonomy) => taxonomy.codename.startsWith('category_'), // Synchronize specific taxonomies
+    languages: (language) => language.codename === "default" // Synchronize only the default language
   }
 };
 
 await syncModelRun(params);
 ```
 
+### Advanced Filtering
+
+When synchronizing programmatically, you can provide custom filter functions for each entity type:
+
+```typescript
+entities: {
+  contentTypes: (contentType) => contentType.codename !== 'obsolete_type',
+  taxonomies: (taxonomy) => taxonomy.terms.length > 0,
+  // Other entities...
+}
+```
+
+## Additional Notes
+
+- **Review Changes**: Always review the diff generated before synchronization to understand the changes that will be applied.
+- **Backup**: Consider exporting the target environment's content model before synchronization as a backup.
+- **Testing**: Test the synchronization in a non-production environment to ensure it behaves as expected.
+- **Dependencies**: Ensure that all dependencies (e.g., referenced taxonomies, content types) are included or exist in the target environment.
+
+## Common Use Cases
+
+- **Promoting Changes**: Move content model changes from Development to Production environments.
+- **Environment Refresh**: Keep Staging and Development environments in sync with Production.
+- **Automation**: Integrate content model synchronization into CI/CD pipelines.
+
+## Troubleshooting
+
+- **Validation Errors**: If synchronization fails due to validation errors, check the error messages and ensure all conditions are met.
+- **Missing Dependencies**: Ensure all dependent entities are included or exist in the target environment.
+- **API Rate Limits**: Be aware of Kontent.ai API rate limits when synchronizing large content models.
+
+---
+
+By following these guidelines and understanding the potential impacts, you can effectively use the `sync-model run` command to synchronize content models between environments, ensuring consistency and streamlining your content management workflows.
+
+---
 ## Contributing
 
 To successfully patch a content type, its operations for content groups and elements must be in a specific order:
-![Content type operations order](./images/content_type_operations_order.png)
 
-### Taxonomy diff handler
+![Content Type Operations Order](./images/content_type_operations_order.png)
+
+### Taxonomy Diff Handler
 
 Taxonomies are handled as a flat array of terms with each term having an additional property `position` that encodes its position in the tree.
+
 The `position` property is an array of term codenames starting from the term's parent up to the root term (a taxonomy group child).
 
-Since the terms are flattened in pre-order (parent is before its children), moving a term into an added term is not an issue, as the parent term will be processed before the moved term (added first). 
+Since the terms are flattened in pre-order (parent is before its children), moving a term into an added term is not an issue, as the parent term will be processed before the moved term (added first).
 
 Similarly, remove operations in the array handler are added at the end, so moving a term from a removed term is also not a problem.
