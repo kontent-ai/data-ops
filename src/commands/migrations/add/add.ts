@@ -24,7 +24,7 @@ export const register: RegisterCommand = yargs =>
         })
         .option("type", {
           alias: "t",
-          describe: "Type of the scirpt. Allowed values 'ts' or 'js'. Default ts.",
+          describe: "Type of the script. Allowed values 'ts' or 'js'. Default ts.",
           type: "string",
           default: "ts",
           choices: ["js", "ts"],

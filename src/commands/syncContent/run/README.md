@@ -1,63 +1,144 @@
-# sync-content run
-> [!CAUTION] 
-> Synchronizing content might lead to irreversible changes to your environment!
-
-The `sync-content` command synchronizes the **selected content items** into the **target environment** via [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) utilizing the [Kontent.ai migration toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit). You can manually specify the codenames of content items from the source environment you want to synchronize, or you can utilize [Kontent.ai Delivery REST API](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) to obtain the content items codenames. Before the synchronization, the command prints the codenames of the affected content items. We `ENCOURAGE` you to examine the affected content items selection before you proceed with the content synchronization.
-
-## How to utilize Delivery API to select items codenames
-The command provides several parameters to cover various scenarios for selecting codenames from the source environment:
-- **Synchronize Specific Items**: Use the `--items:array<string>` parameter without the `--depth:number` parameter to synchronize **only** the specified list of content items.
-- **Synchronize Items with Depth**: Use the `--items:array<string>` parameter along with the `--depth:number` parameter to first obtain items from the Delivery API with their linked items on selected depth.
-- **Synchronize x Last Modified Items**: Use the `--last:number` parameter to synchronize the last `x` modified content items. If you want to synchronize `x > 2000` items then `x` must by divisible by 100 and limit parameter is set to 100.
-- **Synchronize by Content Type**: Use the `--byTypeCodename:array<string>` parameter to synchronize content items filtered by the specified content types.
-- **Custom Query Filtering**: Use the `--filter:string` parameter to apply a custom query string for filtering codenames. For more information, refer to the [Kontent.ai Delivery API documentation](https://kontent.ai/learn/docs/apis/openapi/delivery-api/).
-
-> [!NOTE]
-> All of the parameters above are mutually exclusive.
-
-> [!NOTE]
-> When using parameters that utilizes Delivery API, you need to provide a valid Delivery API Key that grants Preview permission using `--sourceDeliveryPreviewKey` or `--sd` parameters.
+# Sync-Content Run Command
 
 > [!CAUTION]
-> All of the commands support optional `--depth` and `--limit` parameters affecting the depth of linked items selection and responze size. When specifying `--depth` parameter, we encourage you to use `--limit` appropriately to prevent hitting the upper limit for Delivery responze size. For more information, refer to the [Kontent.ai Delivery API documentation.](https://kontent.ai/learn/docs/apis/openapi/delivery-api/#section/Response-size)
-  
-## Usage
+>
+> Synchronizing content might lead to irreversible changes in your environment! If the target environment already contains content items or assets with the same identifiers, their content will be **updated** or **overwritten** with the data from the source environment. Proceed with caution and ensure you are aware of the impact on your existing content.
+
+The `sync-content run` command synchronizes **selected content items** and their assets into a **target environment** using the [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) and the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit). You can manually specify the codenames of content items from the source environment you want to synchronize, or utilize the [Kontent.ai Delivery API](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) to obtain content item codenames based on various criteria.
+
+Before synchronization, the command prints the codenames of the content items that will be affected. We **strongly encourage** you to examine this list carefully before proceeding, as existing content items and assets in the target environment may be updated or overwritten.
+
+## Important Limitations
+
+- **Content Variants and Assets Only**: The synchronization process includes only content items (language variants) and assets. Other entities associated with content items, such as **tasks, assignees, comments, or any workflow-related data**, will **not** be migrated.
+
+- **Existing Associated Entities Remain**: If the target environment's content items have associated entities like tasks, assignees, or comments, these will **not** be removed during synchronization. The synchronization process simply patches the content of the variant, leaving associated entities intact.
+
+## Selecting Content Items to be Synchronized
+
+The command provides several parameters to cover various scenarios for selecting content items from the source environment:
+
+- **Synchronize Specific Items**: Use the `--items` parameter without the `--depth` parameter to synchronize **only** the specified list of content items.
+
+  **Example:**
+
+  ```bash
+  npx @kontent-ai/data-ops sync-content run \
+    --sourceEnvironmentId=<source-env-id> \
+    --sourceApiKey=<source-api-key> \
+    --targetEnvironmentId=<target-env-id> \
+    --targetApiKey=<target-api-key> \
+    --language=<language-codename> \
+    --items item1 item2 item3
+  ```
+
+- **Synchronize Items with Linked Items**: Use the `--items` parameter along with the `--depth` parameter to synchronize the specified items and their linked items up to the specified depth.
+
+  **Example:**
+
+  ```bash
+  npx @kontent-ai/data-ops sync-content run \
+    --sourceEnvironmentId=<source-env-id> \
+    --sourceApiKey=<source-api-key> \
+    --sourceDeliveryPreviewKey=<delivery-preview-key> \
+    --targetEnvironmentId=<target-env-id> \
+    --targetApiKey=<target-api-key> \
+    --language=<language-codename> \
+    --items item1 item2 \
+    --depth 2
+  ```
+
+- **Synchronize Last Modified Items**: Use the `--last` parameter to synchronize the last `x` modified content items. For `x > 2000`, `x` must be divisible by 100, and the `--limit` parameter is set to 100.
+
+  **Example:**
+
+  ```bash
+  npx @kontent-ai/data-ops sync-content run \
+    --sourceEnvironmentId=<source-env-id> \
+    --sourceApiKey=<source-api-key> \
+    --sourceDeliveryPreviewKey=<delivery-preview-key> \
+    --targetEnvironmentId=<target-env-id> \
+    --targetApiKey=<target-api-key> \
+    --language=<language-codename> \
+    --last 500
+  ```
+
+- **Synchronize by Content Type**: Use the `--byTypeCodename` parameter to synchronize content items filtered by the specified content types.
+
+  **Example:**
+
+  ```bash
+  npx @kontent-ai/data-ops sync-content run \
+    --sourceEnvironmentId=<source-env-id> \
+    --sourceApiKey=<source-api-key> \
+    --sourceDeliveryPreviewKey=<delivery-preview-key> \
+    --targetEnvironmentId=<target-env-id> \
+    --targetApiKey=<target-api-key> \
+    --language=<language-codename> \
+    --byTypeCodename article blog_post
+  ```
+
+- **Custom Query Filtering**: Use the `--filter` parameter to apply a custom query string for filtering content items. Refer to the [Kontent.ai Delivery API documentation](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) for query options.
+
+  **Example:**
+
+  ```bash
+  npx @kontent-ai/data-ops sync-content run \
+    --sourceEnvironmentId=<source-env-id> \
+    --sourceApiKey=<source-api-key> \
+    --sourceDeliveryPreviewKey=<delivery-preview-key> \
+    --targetEnvironmentId=<target-env-id> \
+    --targetApiKey=<target-api-key> \
+    --language=<language-codename> \
+    --filter "elements.category[contains]=news"
+  ```
+> **Important Notes:**
+>
+> - The parameters above are **mutually exclusive**. Use only one of them at a time.
+> - When using parameters that utilize the Delivery API (`--last`, `--byTypeCodename`, `--filter`, or when using `--items` with `--depth`), you need to provide a valid Delivery Preview API Key using the `--sourceDeliveryPreviewKey` (or shorthand `--sd`) parameter.
+> - All commands support optional `--depth` and `--limit` parameters affecting the depth of linked items selection and response size. When specifying the `--depth` parameter, we encourage you to use the `--limit` parameter appropriately to prevent hitting the upper limit for Delivery API response size. For more information, refer to the [Kontent.ai Delivery API documentation](https://kontent.ai/learn/docs/apis/openapi/delivery-api/#section/Response-size).
+
+## Parameters
+
+| Parameter                            | Description                                                                                                                      |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| `--sourceEnvironmentId`              | The ID of the source environment to synchronize content from.                                                                    |
+| `--sourceApiKey`                     | The Management API key for the source environment.                                                                               |
+| `--sourceDeliveryPreviewKey`, `--sd` | (Required when using Delivery API parameters) The Delivery Preview API key for the source environment.                           |
+| `--targetEnvironmentId`              | The ID of the target environment where content will be synchronized to.                                                          |
+| `--targetApiKey`                     | The Management API key for the target environment.                                                                               |
+| `--language`                         | Defines language, for which content items will be migrated.                                                                      |
+| `--items`                            | (Mutually exclusive) A list of content item codenames to synchronize.                                                            |
+| `--last`                             | (Mutually exclusive) The number of last modified content items to synchronize.                                                   |
+| `--byTypeCodename`                   | (Mutually exclusive) A list of content type codenames to filter content items.                                                   |
+| `--filter`                           | (Mutually exclusive) A custom query string for filtering content items via the Delivery API.                                     |
+| `--depth`                            | (Optional) The depth of linked items to include in the synchronization.                                                          |
+| `--limit`                            | (Optional) The maximum number of content items to retrieve per API call (default is 100, maximum is 100).                        |
+| `--configFile`                       | (Optional) Path to a JSON configuration file containing parameters.                                                              |
+
+To see all supported parameters, run:
+
 ```bash
-npx @kontent-ai/data-ops sync-content run --targetEnvironmentId=<target-environment-id> --targetApiKey=<target-management-API-key> --sourceEnvironmentId=<source-environment-id>
---sourceApiKey=<source-api-key> --language=<language-codename> --items item1 item2 item3
+npx @kontent-ai/data-ops@latest sync-content run --help
 ```
 
-As the command might get long, we recommend passing parameters in a JSON configuration file.
-```JSON
-{
-  "sourceEnvironmentId": "<source-env-id>",
-  "sourceApiKey": "<source-mapi-key>",
-  "targetEnvironmentId": "<target-env-id>",
-  "targetApiKey": "<target-mapi-key>",
-  "language": "<language-codename>",
-}
-```
-Then you can use the command: 
+## Synchronizing Content Programmatically
 
-```bash
-npx @kontent-ai/data-ops sync-content run --items item1 item2 item3 --configFile=params.json
-```
+To synchronize content between environments in your scripts, use the `syncContentRun` function:
 
-To see all supported parameters, run `npx @kontent-ai/data-ops@latest sync-content run --help`.
-
-### Sync content programmatically
-
-To sync content in environments in your scripts, use `syncContentRun` function:
-
-```ts
+```typescript
 import { syncContentRun, SyncContentRunParams } from "@kontent-ai/data-ops";
 
 const params: SyncContentRunParams = {
   sourceEnvironmentId: "<source-env-id>",
-  sourceApiKey: "<source-mapi-key>",
+  sourceApiKey: "<source-api-key>",
+  sourceDeliveryPreviewKey: "<delivery-preview-key>", // Required if using Delivery API parameters
   targetEnvironmentId: "<target-env-id>",
-  targetApiKey: "<target-mapi-key>",
-  language: '<language-codename>'
+  targetApiKey: "<target-api-key>",
+  language: "en-US",
+  items: ["article1", "article2"],
+  // depth: 2,
+  // limit: 100,
 };
 
 await syncContentRun(params);
