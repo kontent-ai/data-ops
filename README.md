@@ -1,7 +1,3 @@
-Certainly! Here's the updated `README.md` with the **'Structure'** section moved into the **'Contributing'** section, and the **'Note'** and **'Security Tip'** appropriately placed.
-
----
-
 # Kontent.ai Data Ops: Control Your Infrastructure & Data
 
 [![NPM Version][npm-shield]][npm-url]
