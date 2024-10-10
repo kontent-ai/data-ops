@@ -2,13 +2,13 @@
 
 The `clean` command allows you to delete data in your Kontent.ai environment using the [Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2).
 
-> **⚠️ Warning**
+> [!WARNING]
 >
 > Running this command may result in **irreversible changes to your content**. Proceed with caution to avoid any unintended data loss.
 
-> **🚨 Important**
+> [!IMPORTANT]
 >
-> Before running the `clean` command, it's highly recommended to back up your environment's data using the [`export`](./src/commands/importExport/README.md) command.
+> Before running the `clean` command, it's highly recommended to back up your environment's data using the [`export`](/src/commands/importExport/README.md) command.
 
 
 ### Usage
@@ -23,7 +23,7 @@ To see all supported parameters, run:
 npx @kontent-ai/data-ops@latest clean --help
 ```
 
-> **💡 Tip**
+> [!TIP]
 >
 > You can select a specific subset of entities to clean using either the `--include` or `--exclude` parameter. Note that the clean operation will fail if you attempt to delete an entity with existing dependents (e.g., a content type with existing items based on it).
 
@@ -36,6 +36,7 @@ npx @kontent-ai/data-ops@latest clean --help
 | `--include`        | (Optional) Entities to include in the clean operation (e.g., `contentItems`, `assets`). |
 | `--exclude`        | (Optional) Entities to exclude from the clean operation.               |
 | `--configFile`     | (Optional) Path to a JSON configuration file containing parameters.    |
+| `--skipWarning`    | (Optional) Skip warning messages.    |
 
 ### Examples
 
@@ -84,9 +85,3 @@ const params: CleanEnvironmentParams = {
 
 await cleanEnvironment(params);
 ```
-
-### Additional Notes
-
-- **Entity Dependencies**: The clean operation will fail if you attempt to delete an entity that has existing dependents. Ensure you delete dependent entities first or use the appropriate `--include` or `--exclude` parameters.
-
-- **Default Behavior**: If neither `--include` nor `--exclude` is specified, the `clean` command attempts to delete all supported entities in a predefined order that respects dependencies.

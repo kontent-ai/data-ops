@@ -1,6 +1,6 @@
 # Sync-Model Run Command
 
-> **⚠️ Caution**
+> [!CAUTION]
 >
 > Synchronizing the content model can lead to irreversible changes in the target environment, such as:
 >
@@ -25,13 +25,11 @@ You can obtain the source content model in two ways:
 1. **From an Existing Kontent.ai Environment**: Provide the source environment ID and Management API key to fetch the content model directly.
 2. **From a Local Folder**: Use a local folder containing the content model exported using the [`sync-model export`](../export/README.md) command.
 
-**Using a local snapshot of the content model is the recommended approach**, as it creates a stable snapshot that won't change during the synchronization process. This prevents discrepancies that can occur if changes are made in the source environment between diffing and syncing.
-
 ## Key Features
 
 - **Selective Synchronization**: Specify which entities to synchronize using the mandatory `--entities` parameter.
-- **Pre-Sync Validation**: Performs validation checks to prevent operations that could cause errors or data loss.
-- **Change Preview (Diff)**: Generates and displays a diff of the changes before applying them, allowing you to review and confirm.
+- **Pre-Sync Validation**: Data-ops automatically performs validation checks to prevent operations that could cause errors or data loss.
+- **Change Preview (Diff)**: Each run displays a set of patch operations that will be performed on the target environment, allowing you to review and confirm the changes about to be made.
 
 ## Supported Entities
 
@@ -50,7 +48,6 @@ The following entities can be synchronized:
 ## Important Considerations
 
 - **Entity Matching**: Entities are matched by their `codename`.
-- **Partial Synchronization**: Ensure all dependent entities are included or already exist in the target environment.
 - **No External ID Synchronization**: `external_id` properties are not synchronized to avoid conflicts.
 - **Guidelines References**: References to items or assets not present in the target environment will use `external_id` after synchronization.
 
@@ -66,11 +63,11 @@ Before running the synchronization, ensure:
 
 ## Known Limitations
 
-- **Snippet Elements**: Cannot reference snippet elements in the same request they're created.
+- **Snippet Elements**: Cannot reference snippet elements in the same request they're created. Because of this, the tool can't move it to the correct place in the content type.
 - **Asset Folders**:
   - Cannot be moved; they are deleted and recreated if structure differs.
   - Cannot be deleted if containing assets; ensure folders to be deleted are empty.
-- **Languages**: Cannot be deleted; they are deactivated and renamed with a UUID.
+- **Languages**: cannot be deleted, instead, they are deactivated. Their name and codename are replaced with the first 8 characters of a randomly generated UUID (name and codename have a limit of 25 characters).
 - **Roles and Workflows**:
   - Roles cannot be added or updated via the API.
   - Role assignments in workflows cannot be synchronized; role restrictions are lost when updating workflows.
@@ -147,10 +144,11 @@ npx @kontent-ai/data-ops@latest sync-model run --configFile params.json
 | `--sourceEnvironmentId`  | (Optional) The ID of the source environment to fetch the content model from.                                  |
 | `--sourceApiKey`         | (Optional) The Management API key for the source environment.                                                 |
 | `--folderName`           | (Optional) Path to the folder containing the exported content model.                                          |
-| `--entities`             | List of entities to synchronize (e.g., `contentTypes`, `taxonomies`).                                         |
+| `--entities`             | List of entities to synchronize (e.g., `contentTypes`, `taxonomies`).     
+| `--skipConfirmation`     | (Optional) Skip confirmation message.                                      |                                    |
 | `--configFile`           | (Optional) Path to a JSON configuration file containing parameters.                                           |
 
-**Note**: Use either `--sourceEnvironmentId` and `--sourceApiKey`, or `--folderName`, not both.
+[!NOTE]: Use either `--sourceEnvironmentId` and `--sourceApiKey`, or `--folderName`, not both.
 
 ### Examples
 
@@ -226,10 +224,6 @@ entities: {
 - **Validation Errors**: If synchronization fails due to validation errors, check the error messages and ensure all conditions are met.
 - **Missing Dependencies**: Ensure all dependent entities are included or exist in the target environment.
 - **API Rate Limits**: Be aware of Kontent.ai API rate limits when synchronizing large content models.
-
----
-
-By following these guidelines and understanding the potential impacts, you can effectively use the `sync-model run` command to synchronize content models between environments, ensuring consistency and streamlining your content management workflows.
 
 ---
 ## Contributing

@@ -2,7 +2,7 @@
 
 The `sync-content export` command allows you to export **selected content items** along with their assets from a **source Kontent.ai environment** into a file. It utilizes the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit). You can manually specify the codenames of content items you want to export, or leverage the [Kontent.ai Delivery API](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) to obtain content item codenames based on your own criteria.
 
-> **Note**
+> [!Note]
 >
 > For more information about the format of exported items, refer to the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit) repository.
 
@@ -120,11 +120,10 @@ await syncContentExport(params);
 
 ## Export from External Systems
 
-If you want to export content from external systems and make it importable by data-ops, you can follow the instructions in the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit/blob/main/samples/migrate-from-external-system.ts). This repository also provides a [sample script](https://github.com/kontent-ai/kontent-ai-migration-toolkit/blob/main/samples/migrate-from-external-system.ts) demonstrating how to migrate content from external systems.
+If you want to export content from external systems and make it importable by data-ops, you can follow the instructions in the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit/). This repository also provides a [sample script](https://github.com/kontent-ai/kontent-ai-migration-toolkit/blob/main/samples/migrate-from-external-system.ts) demonstrating how to migrate content from external systems.
 
 ## Additional Notes
 
-- **Response Size and Limits**: Be aware of the Delivery API's response size limits when using the `--depth` and `--limit` parameters. Adjust these parameters to prevent exceeding the maximum response size.
 - **Mutually Exclusive Parameters**: The content selection parameters (`--items`, `--last`, `--byTypeCodename`, `--filter`) are mutually exclusive. Use only one of these parameters per command.
 - **API Keys Security**: Ensure that you handle API keys securely. Do not expose them in version control systems or logs.
 - **Content Dependencies**: When exporting content items with linked items, ensure that the linked items are included in the export by setting the appropriate `--depth`.

@@ -15,13 +15,13 @@ export const register: RegisterCommand = yargs =>
         yargs
           .option("environmentId", {
             type: "string",
-            describe: "Id of the target Kontent.ai environment that should be synced.",
-            demandOption: "You need to provide the environmentId of the Kontent.ai to be synced.",
+            describe: "The Id of the environment to export the content model from.",
+            demandOption: "You need to provide the environmentId of the Kontent.ai to export the content model from.",
             alias: "e",
           })
           .option("apiKey", {
             type: "string",
-            describe: "Management API key of target Kontent.ai project.",
+            describe: "Management API key of target Kontent.ai environment.",
             demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
             alias: "k",
           })

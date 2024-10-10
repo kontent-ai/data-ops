@@ -1,4 +1,4 @@
-# Kontent.ai Data Ops: Control Your Infrastructure & Data
+# Kontent.ai Data Ops: Control Your Infrastructure & Data (Import, Export, Sync)
 
 [![NPM Version][npm-shield]][npm-url]
 [![Contributors][contributors-shield]][contributors-url]
@@ -13,7 +13,7 @@ Kontent.ai Data Ops is a powerful CLI tool designed to streamline data managemen
 - **Importing Data**: Easily import content and content models into your projects.
 - **Exporting Data**: Export your project's data for backup or migration purposes.
 - **Synchronizing Data**: Keep content and content models in sync across different projects and environments.
-- **Executing Migration Scripts**: Apply changes incrementally using migration scripts to maintain a clear history of modifications.
+- **Executing Migration Scripts**: Apply changes incrementally using migration scripts and maintain a clear history of modifications.
 
 By automating these processes, Data Ops helps maintain consistency, reduce manual effort, and accelerate your deployment workflows.
 
@@ -43,9 +43,10 @@ By automating these processes, Data Ops helps maintain consistency, reduce manua
 
 ## Prerequisites
 
-- **Node.js**: Install Node.js version 14.x or higher (LTS version with ESM support).
+- **Node.js**: Node.js with ESM support (lts).
 - **Kontent.ai Account**: Access to your Kontent.ai project with appropriate permissions.
 - **Management API Key**: Obtain a Management API key for your project.
+- **Preview Delivery API Key**: For Synchronizing content, Preview Delivery API key might be required. 
 
   > **Security Tip**: Always store your Management API keys securely. Avoid hardcoding them in scripts or sharing them publicly. Use environment variables or secure credential storage solutions when possible.
 
@@ -55,7 +56,8 @@ By automating these processes, Data Ops helps maintain consistency, reduce manua
 
 ### Installation
 
-We recommend running Data Ops with `npx` to ensure you're using the latest version without installing it globally:
+We recommend running data-ops with `npx`. Be aware that npx calls the cached version of the tool. Use @latest to ensure you're using the latest version.
+
 
 ```bash
 npx @kontent-ai/data-ops@latest <command>
@@ -118,11 +120,11 @@ Below are the available commands:
   - **add**: Add new migration scripts.
   - **run**: Execute migration scripts.
 
-> **Note**: All command functions are publicly exposed, making it easy to include them in your scripts.
+> [!NOTE]: All command functions are publicly exposed, making it easy to include them in your scripts. See the individual command readmes for more information.
 
 ### Including and Excluding Entities in Commands
 
-Many of the data-ops commands support the `--include` and `--exclude` options. These options allow you to specify which entities you want the command to process, giving you fine-grained control over the operation.
+Certain data-ops commands (import, export, clean) support the `--include` and `--exclude` options. These options allow you to specify which entities you want the command to process, giving you fine-grained control over the operation.
 
 #### Available Entities
 
@@ -192,12 +194,11 @@ npx @kontent-ai/data-ops@latest sync-model run \
 #### Tips
 
 - **Selective Operations**: Use the `--include` option when you want to operate on a limited set of entities.
-- **Avoiding Errors**: Exclude entities that may cause conflicts or are not needed to prevent errors during operations.
 - **Configuration Files**: For complex commands with multiple entities, consider using a configuration file with the `--configFile` option to manage your parameters more easily.
 
 ---
 
-By understanding and utilizing the `--include` and `--exclude` options, you can tailor the data-ops tool commands to fit your specific needs, ensuring efficient and effective management of your Kontent.ai projects.
+By understanding and utilizing the `--include` and `--exclude` options, you can tailor the data-ops tool commands to fit your specific needs, ensuring efficient and effective management of your Kontent.ai projects, however, you have to be aware of dependent entities when using these options. 
 
 ---
 
@@ -233,9 +234,9 @@ We have comprehensive test suites to ensure the reliability of the Data Ops tool
 - **Unit Tests**: Run `npm run test:unit` to execute unit tests.
 - **Integration Tests**: Run `npm run test:integration` to execute integration tests.
 
-  > **Important**: Integration tests require access to a Kontent.ai project and may create temporary environments. Interrupting tests may lead to orphaned environments. Always allow tests to complete or clean up manually if necessary.
+  > [!IMPORTANT]: Integration tests require access to a Kontent.ai project and may create temporary environments. Interrupting tests may lead to orphaned environments. Always allow tests to complete or clean up manually if necessary.
 
-- **Advanced Diff Tests**: Run `npm run test:advancedDiff` to compare generated advanced diffs with test baselines.
+- > [!IMPORTANT]: Run `npm run test:advancedDiff` to compare generated advanced diffs with test baselines.
 
 ### Prepare Your Testing Project
 
@@ -245,7 +246,7 @@ To successfully execute integration tests, you need to prepare a Kontent.ai proj
 
 All Kontent.ai test environments are exported in `tests/integration/<testName>/data/<zipName>.zip`. When you update any of these environments, you should also update the corresponding exported zip files. To streamline this process, we've provided a script called `exportTestEnvironments.js`. You can run it with the command `npm run export:testEnv`. If you need to export specific environments, you can use the following command parameters: `-i` for Import/Export test environment, `-s` for Sync Source Template environment, and `-t` for Sync Target Template environment. For instance, to export only the Sync Source and Sync Target environments, you would run `npm run export:testEnv -- -s -t`.
 
-> **Important**: Creation and removal of new environments takes some time; therefore, try to keep the number of environment-dependent tests to a minimum.
+> [!IMPORTANT]: Creation and removal of new environments takes some time; therefore, try to keep the number of environment-dependent tests to a minimum.
 
 ### Configuration for Testing
 
@@ -278,8 +279,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 If you have any questions or need assistance, please reach out:
 
 - **Kontent.ai Support**: [Contact Support](https://kontent.ai/support/)
-- **GitHub Issues**: [Submit an Issue](https://github.com/kontent-ai/data-ops/issues)
-- **Discord Community**: Join our [Discord Server](https://discord.com/invite/SKCxwPtevJ)
 
 ---
 

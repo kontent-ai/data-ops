@@ -1,6 +1,6 @@
 # Export & Import
 
-## Export
+## Export Command
 
 With the `export` command, you can export data from your Kontent.ai environment into a single `.zip` file. The command uses the [Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2) to retrieve the environment data.
 
@@ -70,7 +70,7 @@ await exportEnvironment(params);
 
 The exported `.zip` package contains a `.json` file for each exported entity and a `metadata.json` file with additional information. The format of all entities is compatible with the output of the [Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/).
 
-> **💡 Tip**
+> [!TIP]
 >
 > If you need the data in a different format, you can process the `.zip` data with other tools to transform it according to your requirements.
 
@@ -93,7 +93,7 @@ The exported `.zip` package contains a `.json` file for each exported entity and
 
 You can check out exported data of an example project in [the data for integration tests](https://github.com/kontent-ai/data-ops/blob/main/tests/integration/importExport/data/exportSnapshot.zip).
 
-> **⚠️ Caution**
+> [!CAUTION]
 >
 > Exporting roles requires the [Enterprise plan](https://kontent.ai/pricing).
 >
@@ -110,15 +110,15 @@ You can check out exported data of an example project in [the data for integrati
 
 ---
 
-## Import
+## Import Command
 
 With the `import` command, you can import data into your Kontent.ai environment. The command uses the [Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2) to import the data.
 
-> **⚠️ Caution**
+> [!CAUTION]
 >
 > **The target environment needs to be empty**, otherwise the command might fail (e.g., when there are entities with the same codename already present).
 
-> **💡 Tip**
+> [!TIP]
 >
 > The command requires the import data in a `.zip` file with the same [structure](#structure-of-the-exported-data) as that produced by the [export command](#export).
 >
@@ -130,12 +130,6 @@ With the `import` command, you can import data into your Kontent.ai environment.
 npx @kontent-ai/data-ops@latest import --fileName <file-to-import> --environmentId <target-environment-id> --apiKey <Management-API-key>
 ```
 
-To see all supported parameters, run:
-
-```bash
-npx @kontent-ai/data-ops@latest import --help
-```
-
 ### Parameters
 
 | Parameter         | Description                                                                |
@@ -143,6 +137,8 @@ npx @kontent-ai/data-ops@latest import --help
 | `--fileName`      | The path to the `.zip` file containing the data to import.                 |
 | `--environmentId` | The ID of the target environment where you want to import data.            |
 | `--apiKey`        | The Management API key for the target environment.                         |
+| `--include`       | (Optional) Specify entities to include in the export.                      |
+| `--exclude`       | (Optional) Specify entities to exclude from the export.                    |
 | `--configFile`    | (Optional) Path to a JSON configuration file containing parameters.        |
 
 ### Examples
@@ -154,6 +150,16 @@ npx @kontent-ai/data-ops@latest import \
   --fileName export.zip \
   --environmentId <target-environment-id> \
   --apiKey <Management-API-key>
+```
+
+**Importing Data Excluding Roles**
+
+```bash
+npx @kontent-ai/data-ops@latest import \
+  --fileName export.zip \
+  --environmentId <target-environment-id> \
+  --apiKey <Management-API-key>
+  --exclude roles
 ```
 
 ### Import Programmatically

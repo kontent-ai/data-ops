@@ -1,6 +1,6 @@
 # Sync-Content Run Command
 
-> **⚠️ Caution**
+> [!CAUTION]
 >
 > Synchronizing content might lead to irreversible changes in your environment! If the target environment already contains content items or assets with the same identifiers, their content will be **updated** or **overwritten** with the data from the source environment. Proceed with caution and ensure you are aware of the impact on your existing content.
 
@@ -107,14 +107,14 @@ The command provides several parameters to cover various scenarios for selecting
 | `--sourceDeliveryPreviewKey`, `--sd` | (Required when using Delivery API parameters) The Delivery Preview API key for the source environment.                           |
 | `--targetEnvironmentId`              | The ID of the target environment where content will be synchronized to.                                                          |
 | `--targetApiKey`                     | The Management API key for the target environment.                                                                               |
-| `--language`                         | The codename of the language variant to synchronize.                                                                             |
+| `--language`                         | Defines language, for which content items will be migrated.                                                                      |
 | `--items`                            | (Mutually exclusive) A list of content item codenames to synchronize.                                                            |
 | `--last`                             | (Mutually exclusive) The number of last modified content items to synchronize.                                                   |
 | `--byTypeCodename`                   | (Mutually exclusive) A list of content type codenames to filter content items.                                                   |
 | `--filter`                           | (Mutually exclusive) A custom query string for filtering content items via the Delivery API.                                     |
 | `--depth`                            | (Optional) The depth of linked items to include in the synchronization.                                                          |
 | `--limit`                            | (Optional) The maximum number of content items to retrieve per API call (default is 100, maximum is 100).                        |
-| `--configFile`                       | (Optional) Path to a JSON configuration file containing parameters.                                                             |
+| `--configFile`                       | (Optional) Path to a JSON configuration file containing parameters.                                                              |
 
 To see all supported parameters, run:
 
@@ -143,19 +143,3 @@ const params: SyncContentRunParams = {
 
 await syncContentRun(params);
 ```
-
-## Additional Notes
-
-- **Content Overwrite Warning**: Synchronizing content items and assets will **overwrite** existing content in the target environment if items with the same identifiers (e.g., codenames) exist. Ensure that overwriting existing content is the intended behavior before proceeding.
-
-- **Associated Entities Not Migrated**: The synchronization process includes only content items (language variants) and assets. Other entities associated with content items, such as **tasks, assignees, comments, or any workflow-related data**, will **not** be migrated.
-
-- **Existing Associated Entities Remain**: If the target environment's content items have associated entities like tasks, assignees, or comments, these will **not** be removed during synchronization. The synchronization process simply patches the content of the variant, leaving associated entities intact.
-
-- **Review Affected Items**: Before synchronization, the command will print the codenames of the content items that will be affected. Carefully review this list to ensure you are synchronizing the correct items.
-
-- **Mutually Exclusive Parameters**: The content selection parameters (`--items`, `--last`, `--byTypeCodename`, `--filter`) are mutually exclusive. Use only one per command.
-
-- **API Keys Security**: Handle your API keys securely. Do not expose them in version control systems or logs.
-
-- **Delivery API Limits**: Be mindful of the Delivery API's response size limits when using `--depth` and `--limit`. Adjust these parameters to prevent exceeding maximum response size.

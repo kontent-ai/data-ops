@@ -35,7 +35,6 @@ npx @kontent-ai/data-ops@latest sync-model diff \
   --sourceEnvironmentId <source-environment-id> \
   --sourceApiKey <source-management-api-key> \
   [--advanced] [--noOpen] [--outPath <output-path>] \
-  [--entities <entity1> <entity2> ...]
 ```
 
 ### Comparing an Environment with a Local Content Model Folder
@@ -46,7 +45,6 @@ npx @kontent-ai/data-ops@latest sync-model diff \
   --targetApiKey <target-management-api-key> \
   --folderName <content-model-folder> \
   [--advanced] [--noOpen] [--outPath <output-path>] \
-  [--entities <entity1> <entity2> ...]
 ```
 
 ### Parameters
@@ -60,8 +58,7 @@ npx @kontent-ai/data-ops@latest sync-model diff \
 | `--folderName`          | The path to the local content model folder exported with `sync-model export`. (Use either this or `--sourceEnvironmentId` and `--sourceApiKey`.)                            |
 | `--advanced`, `-a`      | (Optional) Generates an advanced visual diff in HTML format.                                                                                                               |
 | `--outPath`, `-o`       | (Required if `--advanced` is used) Specifies the output path for the HTML diff file.                                                                                       |
-| `--noOpen`, `-n`        | (Optional) Prevents the generated HTML diff file from opening automatically.                                                                                               |
-| `--entities`            | (Optional) Specifies which entities to include in the diff (e.g., `contentTypes`, `contentTypeSnippets`, `taxonomies`).                                                     |
+| `--noOpen`, `-n`        | (Optional) Prevents the generated HTML diff file from opening automatically.                                                                      
 | `--configFile`          | (Optional) Path to a JSON configuration file containing parameters.                                                                                                        |
 
 ### Examples
@@ -100,19 +97,6 @@ npx @kontent-ai/data-ops@latest sync-model diff \
   --outPath ./diff-report.html
 ```
 
-**Example 3: Specifying Entities to Include in the Diff**
-
-```bash
-npx @kontent-ai/data-ops@latest sync-model diff \
-  --targetEnvironmentId <target-environment-id> \
-  --targetApiKey <target-management-api-key> \
-  --sourceEnvironmentId <source-environment-id> \
-  --sourceApiKey <source-management-api-key> \
-  --entities contentTypes contentTypeSnippets \
-  --advanced \
-  --outPath ./diff-report.html
-```
-
 ### Using `sync-model diff` Programmatically
 
 To compare environments in your scripts, use the `diffEnvironments` function:
@@ -130,33 +114,7 @@ const params: DiffEnvironmentsParams = {
   advancedMode: true, // Set to true for advanced HTML output
   outFile: "./diff-report.html",
   noOpen: false, // Set to true to prevent automatic opening of the HTML file
-  entities: ['contentTypes', 'contentTypeSnippets'], // Optional: specify entities to include
 };
 
 await diffEnvironments(params);
 ```
-
-### Notes
-
-- **Available Entities**: You can specify the entities to include in the diff using the `--entities` option. Available entities are:
-
-  - `collections`
-  - `spaces`
-  - `taxonomies`
-  - `languages`
-  - `previewUrls`
-  - `roles`
-  - `workflows`
-  - `contentTypeSnippets`
-  - `contentTypes`
-  - `assetFolders`
-  - `webhooks`
-  - `webSpotlight`
-
-
-
-- **API Rate Limits**: Be aware of the Kontent.ai Management API rate limits when comparing large environments.
-
-- **Config Files**: For complex commands or to avoid including sensitive information in command-line parameters, consider using a configuration file with the `--configFile` option.
-
----
