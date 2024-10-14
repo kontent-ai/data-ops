@@ -1,6 +1,6 @@
 import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { syncModelExportInternal } from "../../../modules/sync/syncModelExport.js";
+import { syncExportInternal } from "../../../modules/sync/syncModelExport.js";
 import { SyncEntities } from "../../../public.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
@@ -54,12 +54,12 @@ type SyncModelExportCliParams =
 
 const syncModelExportCli = async (params: SyncModelExportCliParams) => {
   try {
-    await syncModelExportInternal(
+    await syncExportInternal(
       { ...params, entities: createSyncEntitiesParameter(params.entities) },
       createClient({
         environmentId: params.environmentId,
         apiKey: params.apiKey,
-        commandName: "sync-model-export-API",
+        commandName: `sync-${commandName}`,
       }),
     );
   } catch (e) {

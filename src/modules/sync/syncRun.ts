@@ -42,7 +42,7 @@ export type SyncEntities = Partial<
   }>
 >;
 
-export type SyncModelRunParams = Readonly<
+export type SyncRunParams = Readonly<
   & {
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -61,7 +61,7 @@ export type SyncModelRunParams = Readonly<
  *
  * Warning!: Synchronizing workflows will make them accessible to all roles in your environment.
  *
- * @param {SyncModelRunParams} params - The parameters for running the synchronization.
+ * @param {SyncRunParams} params - The parameters for running the synchronization.
  * @param {string} params.targetEnvironmentId - The ID of the target environment where the content model will be synchronized.
  * @param {string} params.targetApiKey - The API key for accessing the target environment.
  * @param {SyncEntities} params.entities - The entities that need to be synchronized. It includes content types, snippets, taxonomies, etc. If entity is not specified, no items from the given entity will be synced. To sync all item form an entity use () => true.
@@ -72,10 +72,10 @@ export type SyncModelRunParams = Readonly<
  *
  * @returns {Promise<void>} A promise that resolves when the synchronization is complete.
  */
-export const syncModelRun = (params: SyncModelRunParams) => syncModelRunInternal(params, "sync-model-run-API");
+export const syncRun = (params: SyncRunParams) => syncRunInternal(params, "sync-run-API");
 
-export const syncModelRunInternal = async (
-  params: SyncModelRunParams,
+export const syncRunInternal = async (
+  params: SyncRunParams,
   commandName: string,
   withDiffModel: (diffModel: DiffModel) => Promise<void> = () => Promise.resolve(),
 ) => {
@@ -106,7 +106,7 @@ export const syncModelRunInternal = async (
 };
 
 const getDiffModel = async (
-  params: SyncModelRunParams,
+  params: SyncRunParams,
   targetClient: ManagementClient,
   commandName: string,
 ) => {

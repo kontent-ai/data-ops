@@ -27,7 +27,7 @@ describe("Advanced diff", () => {
 
   it("matches the generated file with the baseline", async () => {
     const command =
-      `sync-model diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" -a -n`;
+      `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies collections webSpotlight spaces assetFolders workflows languages -a -n`;
     await runCommand(command);
 
     const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8")

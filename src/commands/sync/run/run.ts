@@ -4,7 +4,7 @@ import { match, P } from "ts-pattern";
 import { logError, logInfo, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
 import { printDiff } from "../../../modules/sync/printDiff.js";
-import { SyncEntities, syncModelRunInternal, SyncModelRunParams } from "../../../modules/sync/syncModelRun.js";
+import { SyncEntities, syncRunInternal, SyncRunParams } from "../../../modules/sync/syncRun.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -64,7 +64,7 @@ export const register: RegisterCommand = yargs =>
           type: "boolean",
           describe: "Skip confirmation message.",
         }),
-    handler: args => syncModelRunCli(args).catch(simplifyErrors),
+    handler: args => syncRunCli(args).catch(simplifyErrors),
   });
 
 type SyncModelRunCliParams =
@@ -79,11 +79,11 @@ type SyncModelRunCliParams =
   }>
   & LogOptions;
 
-const syncModelRunCli = async (params: SyncModelRunCliParams) => {
+const syncRunCli = async (params: SyncModelRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
   try {
-    await syncModelRunInternal(resolvedParams, commandName, async (diffModel) => {
+    await syncRunInternal(resolvedParams, `sync-${commandName}`, async (diffModel) => {
       printDiff(diffModel, new Set(params.entities), params);
 
       const warningMessage = chalk.yellow(
@@ -105,7 +105,7 @@ OK to proceed y/n? (suppress this message with --sw parameter)\n`,
   }
 };
 
-const resolveParams = (params: SyncModelRunCliParams): SyncModelRunParams => {
+const resolveParams = (params: SyncModelRunCliParams): SyncRunParams => {
   const entities = createSyncEntitiesParameter(params.entities);
 
   const x = match(params)

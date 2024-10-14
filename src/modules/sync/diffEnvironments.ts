@@ -14,7 +14,7 @@ import {
 } from "./utils/getContentModel.js";
 import { resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
-export type DiffEnvironmentsParams = Readonly<
+export type syncDiffParams = Readonly<
   & {
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -34,14 +34,14 @@ export type DiffEnvironmentsParams = Readonly<
  *
  * @returns {Promise<string>} HTML string containing the visual representation of the diff between the two environments.
  */
-export const diffEnvironments = async (params: DiffEnvironmentsParams) => {
-  const diffModel = await diffEnvironmentsInternal(params, "diff-API");
+export const syncDiff = async (params: syncDiffParams) => {
+  const diffModel = await syncDiffInternal(params, "diff-API");
   const templateString = readHtmlFile(resolve(import.meta.dirname, "./utils/diffTemplate.html"));
 
   return resolveHtmlTemplate(templateString, { ...diffModel, ...params });
 };
 
-export const diffEnvironmentsInternal = async (params: DiffEnvironmentsParams, commandName: string) => {
+export const syncDiffInternal = async (params: syncDiffParams, commandName: string) => {
   logInfo(
     params,
     "standard",
