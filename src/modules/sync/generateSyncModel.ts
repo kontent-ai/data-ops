@@ -139,7 +139,7 @@ export const transformSyncModel = (environmentModel: EnvironmentModel, logOption
   return {
     contentTypes: contentTypeModel,
     contentTypeSnippets: contentTypeSnippetModel,
-    taxonomyGroups: taxonomyGroupsModel,
+    taxonomies: taxonomyGroupsModel,
     collections: collectionsModel,
     webSpotlight: webSpotlightModel,
     assetFolders: assetFoldersModel,
@@ -154,6 +154,7 @@ type SaveModelParams =
     syncModel: FileContentModel;
     environmentId: string;
     folderName: string | undefined;
+    entities: ReadonlySet<SyncEntityName>;
   }>
   & LogOptions;
 
@@ -171,44 +172,26 @@ export const saveSyncModel = async (params: SaveModelParams) => {
 
   logInfo(params, "standard", `Saving the model into a folder "${chalk.yellow(folderName)}".`);
 
+  const writeFile = async (entity: SyncEntityName, filename: string, entities: Object) =>
+    params.entities.has(entity)
+      ? fsPromises.writeFile(
+        path.resolve(folderName, filename),
+        JSON.stringify(entities, null, 2),
+      )
+      : Promise.resolve();
+
   await fsPromises.mkdir(folderName, { recursive: true });
 
-  await fsPromises.writeFile(
-    path.resolve(folderName, contentTypesFileName),
-    JSON.stringify(finalModel.contentTypes, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, contentTypeSnippetsFileName),
-    JSON.stringify(finalModel.contentTypeSnippets, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, taxonomiesFileName),
-    JSON.stringify(finalModel.taxonomyGroups, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, webSpotlightFileName),
-    JSON.stringify(finalModel.webSpotlight, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, assetFoldersFileName),
-    JSON.stringify(finalModel.assetFolders, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, collectionsFileName),
-    JSON.stringify(finalModel.collections, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, spacesFileName),
-    JSON.stringify(finalModel.spaces, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, languagesFileName),
-    JSON.stringify(finalModel.languages, null, 2),
-  );
-  await fsPromises.writeFile(
-    path.resolve(folderName, workflowsFileName),
-    JSON.stringify(finalModel.workflows, null, 2),
-  );
+  await writeFile("contentTypes", contentTypesFileName, finalModel.contentTypes);
+  await writeFile("contentTypeSnippets", contentTypeSnippetsFileName, finalModel.contentTypeSnippets);
+  await writeFile("taxonomies", taxonomiesFileName, finalModel.taxonomies);
+  await writeFile("webSpotlight", webSpotlightFileName, finalModel.webSpotlight);
+  await writeFile("assetFolders", assetFoldersFileName, finalModel.assetFolders);
+  await writeFile("collections", collectionsFileName, finalModel.collections);
+  await writeFile("spaces", spacesFileName, finalModel.spaces);
+  await writeFile("languages", languagesFileName, finalModel.languages);
+  await writeFile("workflows", workflowsFileName, finalModel.workflows);
+
   await fsPromises.writeFile(path.resolve(folderName, "metadata.json"), JSON.stringify(finalModel.metadata, null, 2));
 
   return folderName;
@@ -227,7 +210,7 @@ type FileContentWithMetadata =
 export const filterModel = (model: FileContentModel, entities: SyncEntities): FileContentModel => ({
   contentTypes: filterEntities(model.contentTypes, entities.contentTypes),
   contentTypeSnippets: filterEntities(model.contentTypeSnippets, entities.contentTypeSnippets),
-  taxonomyGroups: filterEntities(model.taxonomyGroups, entities.taxonomies),
+  taxonomies: filterEntities(model.taxonomies, entities.taxonomies),
   assetFolders: filterEntities(model.assetFolders, entities.assetFolders),
   collections: filterEntities(model.collections, entities.collections),
   spaces: filterEntities(model.spaces, entities.spaces),

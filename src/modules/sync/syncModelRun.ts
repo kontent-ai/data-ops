@@ -1,11 +1,11 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { logError, logInfo, LogOptions } from "../../log.js";
+import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { Expect } from "../../utils/types.js";
 import { syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
 import { diff } from "./diff.js";
-import { fetchModel, filterModel, transformSyncModel } from "./generateSyncModel.js";
+import { filterModel } from "./generateSyncModel.js";
 import { sync } from "./sync.js";
 import { DiffModel } from "./types/diffModel.js";
 import {
@@ -19,9 +19,10 @@ import {
   WorkflowSyncModel,
 } from "./types/syncModel.js";
 import {
+  fetchSourceSyncModel,
   getSourceItemAndAssetCodenames,
+  getSourceSyncModelFromFolder,
   getTargetContentModel,
-  readContentModelFromFolder,
 } from "./utils/getContentModel.js";
 import { validateDiffedModel, validateSyncModelFolder } from "./validation.js";
 
@@ -121,23 +122,22 @@ const getDiffModel = async (
   );
 
   const sourceModel = "folderName" in params
-    ? await readContentModelFromFolder(params.folderName).catch(e => {
+    ? await getSourceSyncModelFromFolder(
+      params.folderName,
+      new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+    ).catch(e => {
       if (e instanceof AggregateError) {
-        logError(params, `Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
-        process.exit(1);
+        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
       }
-      logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
-      process.exit(1);
+      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
     })
-    : transformSyncModel(
-      await fetchModel(
-        createClient({
-          environmentId: params.sourceEnvironmentId,
-          apiKey: params.sourceApiKey,
-          commandName,
-        }),
-        fetchDependencies,
-      ),
+    : await fetchSourceSyncModel(
+      createClient({
+        environmentId: params.sourceEnvironmentId,
+        apiKey: params.sourceApiKey,
+        commandName,
+      }),
+      fetchDependencies,
       params,
     );
 

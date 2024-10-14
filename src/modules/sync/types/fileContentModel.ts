@@ -11,7 +11,7 @@ import {
 } from "./syncModel.js";
 
 export type FileContentModel = Readonly<{
-  taxonomyGroups: ReadonlyArray<TaxonomySyncModel>;
+  taxonomies: ReadonlyArray<TaxonomySyncModel>;
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsSyncModel>;
   contentTypes: ReadonlyArray<ContentTypeSyncModel>;
   webSpotlight: WebSpotlightSyncModel;
