@@ -8,9 +8,7 @@ import { addLogLevelOptions } from "./log.js";
 import { RegisterCommand } from "./types/yargs.js";
 
 const commandsToRegister: ReadonlyArray<RegisterCommand> = [
-  (await import("./commands/importExport/export.js")).register,
-  (await import("./commands/importExport/import.js")).register,
-  (await import("./commands/clean/clean.js")).register,
+  (await import("./commands/environment/environment.js")).register,
   (await import("./commands/syncModel/syncModel.js")).register,
   (await import("./commands/migrateContent/migrateContent.js")).register,
   (await import("./commands/migrations/migrations.js")).register,
@@ -22,9 +20,9 @@ const initialYargs = emptyYargs
   .wrap(emptyYargs.terminalWidth())
   .env("DATA_OPS")
   .scriptName("data-ops")
-  .example("$0 export --apiKey=xxx --environmentId=xxx", "Creates a zip backup of a Kontent.ai environment")
+  .example("$0 environment export --apiKey=xxx --environmentId=xxx", "Creates a zip backup of a Kontent.ai environment")
   .example(
-    "$0 import --apiKey=xxx --environmentId=xxx --fileName=backupFile",
+    "$0 environment import --apiKey=xxx --environmentId=xxx --fileName=backupFile",
     "Populates the target Kontent.ai environment with data from the provided zip file.",
   )
   .epilogue("If you have any questions, contact us at devrel@kontent.ai.")
