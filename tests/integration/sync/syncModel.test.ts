@@ -145,7 +145,8 @@ describe.concurrent("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
   it.sequential("generate sync model test", async () => {
-    const command = `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -k ${API_KEY} -f ${folderPath}`;
+    const command =
+      `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises.stat(folderPath)
@@ -178,6 +179,70 @@ describe.concurrent("Sync environment from folder", () => {
       await runCommand(command);
 
       await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID);
+    }),
+  );
+});
+
+describe.concurrent.only("Partial sync environment from folder", () => {
+  const folderPath = path.join(__dirname, "data/partialSourceContentModel");
+
+  it.sequential("generate  partial sync model test", async () => {
+    const command =
+      `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies collections -k ${API_KEY} -f ${folderPath}`;
+    await runCommand(command);
+
+    const folderExists = await fsPromises.stat(folderPath)
+      .then(stats => stats.isDirectory())
+      .catch(() => false);
+
+    expect(folderExists).toEqual(true);
+
+    const filesExistence = Object.fromEntries(
+      await Promise.all(
+        [fileNames.contentTypesFileName, fileNames.contentTypeSnippetsFileName, fileNames.taxonomiesFileName].map((
+          filename,
+        ) =>
+          fsPromises.stat(`${folderPath}/${filename}`)
+            .then(stats => [filename, stats.isFile()])
+            .catch((e) => [filename, e])
+        ),
+      ),
+    );
+
+    const allFilesExist = Object.fromEntries(
+      Object.values([
+        fileNames.contentTypesFileName,
+        fileNames.contentTypeSnippetsFileName,
+        fileNames.taxonomiesFileName,
+      ]).map(value => [value, true]),
+    );
+
+    expect(filesExistence).toEqual(allFilesExist);
+  });
+
+  it.sequential(
+    "Partial sync environment from folder",
+    withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
+      const command =
+        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
+
+      await runCommand(command);
+
+      await expectSameSyncEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, [
+        "types",
+        "snippets",
+        "taxonomies",
+      ]);
+    }),
+  );
+
+  it.sequential(
+    "Partial sync environment from folder should throw due more entities than in exported folder",
+    withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
+      const command =
+        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies languages --verbose --skipConfirmation`;
+
+      expect(async () => await runCommand(command)).rejects.toThrowError();
     }),
   );
 });

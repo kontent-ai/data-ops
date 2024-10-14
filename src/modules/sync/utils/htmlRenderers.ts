@@ -20,6 +20,7 @@ import {
   isValidationRegex,
 } from "../../../utils/typeguards.js";
 import { RequiredCodename } from "../../../utils/types.js";
+import { SyncEntityName } from "../constants/entities.js";
 import { isOp } from "../sync/utils.js";
 import { DiffModel, DiffObject } from "../types/diffModel.js";
 import {
@@ -55,6 +56,7 @@ type AdvancedDiffParams =
     outPath?: string;
     sourceEnvironmentId?: string;
     folderName?: string;
+    entities: ReadonlyArray<SyncEntityName>;
     noOpen?: boolean;
   }>
   & LogOptions;
@@ -544,71 +546,93 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
   ],
   [
     "{{types_section}}",
-    ({ contentTypes }: DiffData) =>
-      getCombinedOpLength(contentTypes)
-        ? renderEntitySection("types", contentTypes)
-        : "<h3>No changes to taxonomy groups.</h3>",
+    ({ contentTypes, entities }: DiffData) =>
+      entities.includes("contentTypes")
+        ? getCombinedOpLength(contentTypes)
+          ? renderEntitySection("types", contentTypes)
+          : "<h3>No changes to content types.</h3>"
+        : "",
   ],
   [
     "{{snippets_section}}",
-    ({ contentTypeSnippets }: DiffData) =>
-      getCombinedOpLength(contentTypeSnippets)
-        ? renderEntitySection("snippets", contentTypeSnippets)
-        : "<h3>No changes to snippets.</h3>",
+    ({ contentTypeSnippets, entities }: DiffData) =>
+      entities.includes("contentTypeSnippets")
+        ? getCombinedOpLength(contentTypeSnippets)
+          ? renderEntitySection("snippets", contentTypeSnippets)
+          : "<h3>No changes to snippets.</h3>"
+        : " ",
   ],
   [
     "{{taxonomies_section}}",
-    ({ taxonomyGroups }: DiffData) =>
-      getCombinedOpLength(taxonomyGroups)
-        ? renderEntitySection("taxonomies", taxonomyGroups)
-        : "<h3>No changes to taxonomy groups.</h3>",
+    ({ taxonomyGroups, entities }: DiffData) =>
+      entities.includes("taxonomies")
+        ? getCombinedOpLength(taxonomyGroups)
+          ? renderEntitySection("taxonomies", taxonomyGroups)
+          : "<h3>No changes to taxonomy groups.</h3>"
+        : "",
   ],
   [
     "{{web_spotlight_section}}",
-    ({ webSpotlight }: DiffData) => renderWebSpotlightSection(webSpotlight),
+    ({ webSpotlight, entities }: DiffData) =>
+      entities.includes("webSpotlight") ? renderWebSpotlightSection(webSpotlight) : "",
   ],
-  ["{{asset_folders_section}}", ({ assetFolders }: DiffData) =>
-    assetFolders.length
-      ? renderSection({
-        id: "assetFolders",
-        header: `<div>Asset folders</div>
+  [
+    "{{asset_folders_section}}",
+    ({ assetFolders, entities }: DiffData) =>
+      entities.includes("assetFolders")
+        ? assetFolders.length
+          ? renderSection({
+            id: "assetFolders",
+            header: `<div>Asset folders</div>
         ${addedNum(assetFolders.filter(isOp("addInto")).length, true)}
         ${removedNum(assetFolders.filter(isOp("remove")).length)}`,
-        content: assetFolders.map(renderPatchOp).join("\n"),
-      })
-      : "<h3>No changes to asset folders.</h3>"],
+            content: assetFolders.map(renderPatchOp).join("\n"),
+          })
+          : "<h3>No changes to asset folders.</h3>"
+        : "",
+  ],
   [
     "{{collections_section}}",
-    ({ collections }: DiffData) =>
-      collections.length
-        ? renderSection({
-          id: "collections-section",
-          header: `<div>Collections</div>
+    ({ collections, entities }: DiffData) =>
+      entities.includes("collections")
+        ? collections.length
+          ? renderSection({
+            id: "collections-section",
+            header: `<div>Collections</div>
           ${modifiedNum(collections.filter(isOp("replace")).length, true)}
           ${addedNum(collections.filter(isOp("addInto")).length)}
           ${removedNum(collections.filter(isOp("remove")).length)}`,
-          content: collections.map(renderPatchOp).join("\n"),
-        })
-        : "<h3>No changes to collections</h3>",
+            content: collections.map(renderPatchOp).join("\n"),
+          })
+          : "<h3>No changes to collections</h3>"
+        : "",
   ],
   [
     "{{spaces_section}}",
-    ({ spaces }: DiffData) =>
-      getCombinedOpLength(spaces)
-        ? renderEntitySection("spaces", spaces)
-        : "<h3>No changes to spaces.</h3>",
+    ({ spaces, entities }: DiffData) =>
+      entities.includes("spaces")
+        ? getCombinedOpLength(spaces)
+          ? renderEntitySection("spaces", spaces)
+          : "<h3>No changes to spaces.</h3>"
+        : "",
   ],
   [
     "{{languages_section}}",
-    ({ languages }: DiffData) =>
-      getCombinedOpLength(languages) ? renderEntitySection("languages", languages) : "<h3>No changes to languages</h3>",
+    ({ languages, entities }: DiffData) =>
+      entities.includes("languages")
+        ? getCombinedOpLength(languages)
+          ? renderEntitySection("languages", languages)
+          : "<h3>No changes to languages</h3>"
+        : "",
   ],
   [
     "{{workflows_section}}",
-    ({ workflows }: DiffData) =>
-      getCombinedOpLength(workflows)
-        ? renderEntitySection("workflows", workflows)
-        : "<h3>No changes to workflows.</h3>",
+    ({ workflows, entities }: DiffData) =>
+      entities.includes("workflows")
+        ? getCombinedOpLength(workflows)
+          ? renderEntitySection("workflows", workflows)
+          : "<h3>No changes to workflows.</h3>"
+        : "",
   ],
 ]);
 

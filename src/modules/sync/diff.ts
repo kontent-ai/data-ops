@@ -59,7 +59,7 @@ export const diff = (params: DiffParams): DiffModel => {
   );
 
   const taxonomyDiffModel = createDiffModel(
-    wholeTaxonomyGroupsHandler(params.sourceEnvModel.taxonomyGroups, params.targetEnvModel.taxonomyGroups),
+    wholeTaxonomyGroupsHandler(params.sourceEnvModel.taxonomies, params.targetEnvModel.taxonomies),
     taxonomyGroupHandler,
   );
 
@@ -160,6 +160,7 @@ const getLanguageDiffModel = (
   if (sourceLanguages.length === 0 && targetLanguages.length === 0) {
     return { added: [], updated: new Map(), deleted: new Set() };
   }
+
   const sourceDefaultLanguageCodename = getDefaultLang(sourceLanguages).codename;
   const targetDefaultLanguageCodename = getDefaultLang(targetLanguages).codename;
 
