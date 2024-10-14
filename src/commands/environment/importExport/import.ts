@@ -1,15 +1,15 @@
-import { logError, LogOptions } from "../../log.js";
+import { logError, LogOptions } from "../../../log.js";
 import {
   ImportEntityChoices,
   importEntityChoices,
   importEnvironmentInternal,
   ImportEnvironmentParams,
-} from "../../modules/importExport/import.js";
-import { resolveIncludeExcludeCliParams } from "../../modules/importExport/utils/includeExclude.js";
-import { RegisterCommand } from "../../types/yargs.js";
-import { createClient } from "../../utils/client.js";
-import { simplifyErrors } from "../../utils/error.js";
-import { omit } from "../../utils/object.js";
+} from "../../../modules/importExport/import.js";
+import { resolveIncludeExcludeCliParams } from "../../../modules/importExport/utils/includeExclude.js";
+import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
+import { simplifyErrors } from "../../../utils/error.js";
+import { omit } from "../../../utils/object.js";
 
 const commandName = "import";
 
@@ -70,7 +70,7 @@ const importEnvironmentCli = async (params: ImportEnvironmentCliParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
-    commandName,
+    commandName: `environment-${commandName}`,
   });
 
   try {

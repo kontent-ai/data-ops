@@ -35,7 +35,7 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans all entities in the target environment.",
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY} -s`;
+      const command = `environment clean -e=${environmentId} -k=${API_KEY} -s`;
 
       await runCommand(command);
 
@@ -55,7 +55,7 @@ describe("clean command", () => {
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
+        `environment clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
 
       await runCommand(command);
 
@@ -106,7 +106,7 @@ describe("clean command", () => {
 
   it.concurrent("Errors when removing types with existing items, prints message.", async () => {
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
+      const command = `environment clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
 
       const result = await runCommand(command).catch(err => err as CommandError);
 
@@ -116,33 +116,33 @@ describe("clean command", () => {
   });
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
-    const command = "clean --include collections contentTypes --exclude contentTypes -e test -k test -s";
+    const command = "environment clean --include collections contentTypes --exclude contentTypes -e test -k test -s";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "clean");
+    await expectHelpText(result.stderr, "environment clean");
     expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "clean --include collections invalidEntity -k test -e test -s";
+    const command = "environment clean --include collections invalidEntity -k test -e test -s";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "clean");
+    await expectHelpText(result.stderr, "environment clean");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "clean --exclude collections invalidEntity -k test -e test -s";
+    const command = "environment clean --exclude collections invalidEntity -k test -e test -s";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "clean");
+    await expectHelpText(result.stderr, "environment clean");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
   });
