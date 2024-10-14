@@ -1,15 +1,16 @@
 import chalk from "chalk";
 import { resolve } from "path";
 
-import { logError, logInfo, LogOptions } from "../../log.js";
+import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
+import { syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
 import { diff } from "./diff.js";
-import { fetchModel, transformSyncModel } from "./generateSyncModel.js";
 import { readHtmlFile } from "./utils/fileUtils.js";
 import {
+  fetchSourceSyncModel,
   getSourceItemAndAssetCodenames,
+  getSourceSyncModelFromFolder,
   getTargetContentModel,
-  readContentModelFromFolder,
 } from "./utils/getContentModel.js";
 import { resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
@@ -17,6 +18,7 @@ export type DiffEnvironmentsParams = Readonly<
   & {
     targetEnvironmentId: string;
     targetApiKey: string;
+    entities: ReadonlyArray<SyncEntityName>;
   }
   & (
     | { folderName: string }
@@ -48,23 +50,27 @@ export const diffEnvironmentsInternal = async (params: DiffEnvironmentsParams, c
     } and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
   );
 
+  const fetchDependencies = new Set(
+    params.entities.flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+  );
+
   const sourceModel = "folderName" in params && params.folderName !== undefined
-    ? await readContentModelFromFolder(params.folderName).catch(e => {
+    ? await getSourceSyncModelFromFolder(
+      params.folderName,
+      new Set(params.entities) as ReadonlySet<SyncEntityName>,
+    ).catch(e => {
       if (e instanceof AggregateError) {
-        logError(params, `Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
-        process.exit(1);
+        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
       }
-      logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
-      process.exit(1);
+      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
     })
-    : transformSyncModel(
-      await fetchModel(
-        createClient({
-          environmentId: params.sourceEnvironmentId,
-          apiKey: params.sourceApiKey,
-          commandName,
-        }),
-      ),
+    : await fetchSourceSyncModel(
+      createClient({
+        environmentId: params.sourceEnvironmentId,
+        apiKey: params.sourceApiKey,
+        commandName,
+      }),
+      fetchDependencies,
       params,
     );
 
@@ -80,6 +86,7 @@ export const diffEnvironmentsInternal = async (params: DiffEnvironmentsParams, c
     targetEnvironmentClient,
     allCodenames,
     params,
+    fetchDependencies,
   );
 
   return diff({
