@@ -1,4 +1,4 @@
-import { SyncEntities } from "../syncModelRun.js";
+import { SyncEntities } from "../syncRun.js";
 
 export const syncEntityChoices = [
   "contentTypes",

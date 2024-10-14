@@ -5,9 +5,9 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { SyncEntityName } from "./constants/entities.js";
 import { fetchModel, filterModel, saveSyncModel, transformSyncModel } from "./generateSyncModel.js";
-import { SyncEntities } from "./syncModelRun.js";
+import { SyncEntities } from "./syncRun.js";
 
-export type SyncModelExportParams = Readonly<
+export type SyncExportParams = Readonly<
   & {
     environmentId: string;
     apiKey: string;
@@ -17,14 +17,14 @@ export type SyncModelExportParams = Readonly<
   & LogOptions
 >;
 
-export const syncModelExport = async (params: SyncModelExportParams) => {
-  await syncModelExportInternal(
+export const syncExport = async (params: SyncExportParams) => {
+  await syncExportInternal(
     params,
-    createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName: "sync-model-export-API" }),
+    createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName: "sync-export-API" }),
   );
 };
 
-export const syncModelExportInternal = async (params: SyncModelExportParams, client: ManagementClient) => {
+export const syncExportInternal = async (params: SyncExportParams, client: ManagementClient) => {
   logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
   const environmentModel = await logOnError(
     chalk.red("Failed to fetch the model."),

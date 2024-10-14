@@ -7,9 +7,9 @@ export { MigrationModule, MigrationOrder } from "./modules/migrations/models/mig
 export { MigrationStatus, ReadStatus, SaveStatus, Status } from "./modules/migrations/models/status.js";
 export { RunMigrationFilterParams, runMigrations, RunMigrationsParams } from "./modules/migrations/run.js";
 
-export { diffEnvironments, DiffEnvironmentsParams } from "./modules/sync/diffEnvironments.js";
-export { syncModelExport, SyncModelExportParams } from "./modules/sync/syncModelExport.js";
-export { SyncEntities, syncModelRun, SyncModelRunParams } from "./modules/sync/syncModelRun.js";
+export { syncDiff, syncDiffParams } from "./modules/sync/diffEnvironments.js";
+export { syncExport, SyncExportParams } from "./modules/sync/syncModelExport.js";
+export { SyncEntities, syncRun, SyncRunParams } from "./modules/sync/syncRun.js";
 export {
   AssetFolderSyncModel,
   CollectionSyncModel,
