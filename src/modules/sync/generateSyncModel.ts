@@ -39,7 +39,7 @@ import { transformSpacesModel } from "./modelTransfomers/spaceTransformers.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
 import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
 import { transformWorkflowModel } from "./modelTransfomers/workflow.js";
-import { SyncEntities } from "./syncModelRun.js";
+import { SyncEntities } from "./syncRun.js";
 import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "./types/contractModels.js";
 import { FileContentModel } from "./types/fileContentModel.js";
 import { getRequiredIds } from "./utils/contentTypeHelpers.js";
