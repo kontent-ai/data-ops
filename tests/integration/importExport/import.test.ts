@@ -38,7 +38,7 @@ describe("import command", () => {
     "Imports all entities properly into the target project",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
+        `environment import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
 
       await runCommand(command);
 
@@ -50,7 +50,7 @@ describe("import command", () => {
     "Imports only entities specified in the include parameter",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --include collections languages taxonomies`;
+        `environment import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --include collections languages taxonomies`;
 
       await runCommand(command);
 
@@ -122,33 +122,34 @@ describe("import command", () => {
   );
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
-    const command = "import --include collections contentTypes --exclude contentTypes -f test -k test -e test";
+    const command =
+      "environment import --include collections contentTypes --exclude contentTypes -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "import");
+    await expectHelpText(result.stderr, "environment import");
     expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "import --include collections invalidEntity -f test -k test -e test";
+    const command = "environment import --include collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "import");
+    await expectHelpText(result.stderr, "environment import");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "import --exclude collections invalidEntity -f test -k test -e test";
+    const command = "environment import --exclude collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "import");
+    await expectHelpText(result.stderr, "environment import");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
   });

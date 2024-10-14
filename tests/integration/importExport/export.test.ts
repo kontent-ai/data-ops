@@ -23,7 +23,7 @@ describe("export command", () => {
   it("Exports all entities properly into the specified file", async () => {
     const filePath = "./tests/integration/importExport/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
-    const command = `export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath}`;
+    const command = `environment export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath}`;
 
     await runCommand(command);
 
@@ -37,7 +37,7 @@ describe("export command", () => {
     const filePath = "./tests/integration/importExport/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
     const command =
-      `export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --include collections spaces taxonomies contentTypes`;
+      `environment export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --include collections spaces taxonomies contentTypes`;
 
     await runCommand(command);
 
@@ -60,7 +60,7 @@ describe("export command", () => {
     const filePath = "./tests/integration/importExport/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
     const command =
-      `export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --exclude collections spaces taxonomies contentTypes`;
+      `environment export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --exclude collections spaces taxonomies contentTypes`;
 
     await runCommand(command);
 
@@ -96,33 +96,34 @@ describe("export command", () => {
   });
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
-    const command = "export --include collections contentTypes --exclude contentTypes -f test -k test -e test";
+    const command =
+      "environment export --include collections contentTypes --exclude contentTypes -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "export");
+    await expectHelpText(result.stderr, "environment export");
     expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "export --include collections invalidEntity -f test -k test -e test";
+    const command = "environment export --include collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "export");
+    await expectHelpText(result.stderr, "environment export");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "export --exclude collections invalidEntity -f test -k test -e test";
+    const command = "environment export --exclude collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "export");
+    await expectHelpText(result.stderr, "environment export");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
   });

@@ -68,7 +68,7 @@ export const exportEnvironment = async (params: ExportEnvironmentParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
-    commandName: "export-API",
+    commandName: "environment-export-API",
   });
 
   await exportEnvironmentInternal(client, params);

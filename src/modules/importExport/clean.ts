@@ -54,7 +54,11 @@ export type CleanEnvironmentParams = Readonly<
 >;
 
 export const cleanEnvironment = async (params: CleanEnvironmentParams) => {
-  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName: "clean-API" });
+  const client = createClient({
+    environmentId: params.environmentId,
+    apiKey: params.apiKey,
+    commandName: "environment-clean-API",
+  });
 
   await cleanEnvironmentInternal(params, client);
 };
