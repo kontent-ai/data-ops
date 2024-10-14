@@ -1,17 +1,17 @@
 import chalk from "chalk";
 
-import { logError, LogOptions } from "../../log.js";
+import { logError, LogOptions } from "../../../log.js";
 import {
   CleanEntityChoices,
   cleanEntityChoices,
   cleanEnvironmentInternal,
   CleanEnvironmentParams,
-} from "../../modules/importExport/clean.js";
-import { resolveIncludeExcludeCliParams } from "../../modules/importExport/utils/includeExclude.js";
-import { requestConfirmation } from "../../modules/sync/utils/consoleHelpers.js";
-import { RegisterCommand } from "../../types/yargs.js";
-import { createClient } from "../../utils/client.js";
-import { omit } from "../../utils/object.js";
+} from "../../../modules/importExport/clean.js";
+import { resolveIncludeExcludeCliParams } from "../../../modules/importExport/utils/includeExclude.js";
+import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
+import { RegisterCommand } from "../../../types/yargs.js";
+import { createClient } from "../../../utils/client.js";
+import { omit } from "../../../utils/object.js";
 
 export const commandName = "clean";
 
@@ -79,7 +79,11 @@ const cleanEnvironmentCli = async (
     process.exit(1);
   }
 
-  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
+  const client = createClient({
+    environmentId: params.environmentId,
+    apiKey: params.apiKey,
+    commandName: `environment-${commandName}`,
+  });
 
   try {
     await cleanEnvironmentInternal(resolveParams(params), client);

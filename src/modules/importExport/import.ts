@@ -68,7 +68,7 @@ export const importEnvironment = async (params: ImportEnvironmentParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
-    commandName: "import-API",
+    commandName: "environment-import-API",
   });
 
   await importEnvironmentInternal(client, params);

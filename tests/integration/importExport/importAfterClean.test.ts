@@ -21,8 +21,8 @@ describe("import command", () => {
     "Import environment, clean environment, import again",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const importCommand =
-        `import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
-      const cleanCommand = `clean -e=${environmentId} -k=${API_KEY} -s`;
+        `environment import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
+      const cleanCommand = `environment clean -e=${environmentId} -k=${API_KEY} -s`;
 
       await runCommand(importCommand);
       await runCommand(cleanCommand);
