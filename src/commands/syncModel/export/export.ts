@@ -1,5 +1,7 @@
 import { logError, LogOptions } from "../../../log.js";
+import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
 import { syncModelExportInternal } from "../../../modules/sync/syncModelExport.js";
+import { SyncEntities } from "../../../public.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -25,6 +27,13 @@ export const register: RegisterCommand = yargs =>
             demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
             alias: "k",
           })
+          .option("entities", {
+            type: "array",
+            string: true,
+            choices: syncEntityChoices,
+            describe: `Export specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+            demandOption: "You need to provide the what entities to export.",
+          })
           .option("folderName", {
             type: "string",
             describe: "Name of the folder to generate content model into.",
@@ -38,6 +47,7 @@ type SyncModelExportCliParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
+    entities: ReadonlyArray<SyncEntityName>;
     folderName?: string;
   }>
   & LogOptions;
@@ -45,7 +55,7 @@ type SyncModelExportCliParams =
 const syncModelExportCli = async (params: SyncModelExportCliParams) => {
   try {
     await syncModelExportInternal(
-      params,
+      { ...params, entities: createSyncEntitiesParameter(params.entities) },
       createClient({
         environmentId: params.environmentId,
         apiKey: params.apiKey,
@@ -56,4 +66,15 @@ const syncModelExportCli = async (params: SyncModelExportCliParams) => {
     logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
     process.exit(1);
   }
+};
+
+const createSyncEntitiesParameter = (
+  entities: ReadonlyArray<SyncEntityName>,
+): SyncEntities => {
+  const filterEntries = [
+    ...entities.filter(a => a !== "webSpotlight").map(e => [e, () => true]),
+    ...entities.includes("webSpotlight") ? [["webSpotlight", true]] : [],
+  ] as const;
+
+  return Object.fromEntries(filterEntries);
 };

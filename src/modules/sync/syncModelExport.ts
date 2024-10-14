@@ -3,12 +3,15 @@ import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
-import { fetchModel, saveSyncModel, transformSyncModel } from "./generateSyncModel.js";
+import { SyncEntityName } from "./constants/entities.js";
+import { fetchModel, filterModel, saveSyncModel, transformSyncModel } from "./generateSyncModel.js";
+import { SyncEntities } from "./syncModelRun.js";
 
 export type SyncModelExportParams = Readonly<
   & {
     environmentId: string;
     apiKey: string;
+    entities: SyncEntities;
     folderName?: string;
   }
   & LogOptions
@@ -25,15 +28,23 @@ export const syncModelExportInternal = async (params: SyncModelExportParams, cli
   logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
   const environmentModel = await logOnError(
     chalk.red("Failed to fetch the model."),
-    () => fetchModel(client),
+    () => fetchModel(client, new Set(Object.keys(params.entities) as ReadonlyArray<SyncEntityName>)),
   );
 
   logInfo(params, "standard", "Transforming the model.");
   const syncModel = transformSyncModel(environmentModel, params);
 
+  const filteredModel = filterModel(syncModel, params.entities);
+
   const folderName = await logOnError(
     chalk.red("Failed to save the model into the file."),
-    () => saveSyncModel({ syncModel, environmentId: params.environmentId, folderName: params.folderName }),
+    () =>
+      saveSyncModel({
+        syncModel: filteredModel,
+        environmentId: params.environmentId,
+        folderName: params.folderName,
+        entities: new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+      }),
   );
 
   logInfo(params, "standard", `Model is successfully saved into a folder ${chalk.green(folderName)}.`);

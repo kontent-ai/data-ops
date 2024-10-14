@@ -1,7 +1,7 @@
 import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
-import { syncEntityChoices } from "../../../modules/sync/constants/entities.js";
+import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
 import { diffEnvironmentsInternal, DiffEnvironmentsParams } from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import { RegisterCommand } from "../../../types/yargs.js";
@@ -53,6 +53,13 @@ export const register: RegisterCommand = yargs =>
           alias: "a",
           implies: ["outPath"],
         })
+        .option("entities", {
+          type: "array",
+          string: true,
+          choices: syncEntityChoices,
+          describe: `Diff specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+          demandOption: "You need to provide the what entities to diff.",
+        })
         .option("outPath", {
           type: "string",
           describe: "Path to the directory or file the diff will be generated into.",
@@ -75,6 +82,7 @@ type DiffEnvironmentsCliParams =
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
+    entities: ReadonlyArray<SyncEntityName>;
     advanced?: boolean;
     outPath?: string;
     noOpen?: boolean;
@@ -88,11 +96,11 @@ const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
 
   return "advanced" in params
     ? createAdvancedDiffFile({ ...diffModel, ...params })
-    : printDiff(diffModel, new Set(syncEntityChoices), params);
+    : printDiff(diffModel, new Set(params.entities), params);
 };
 
-const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams =>
-  match(params)
+const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams => ({
+  ...match(params)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
       ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
@@ -104,4 +112,5 @@ const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParam
         "You need to provide either 'folderName' or 'sourceEnvironmentId' with 'sourceApiKey' parameters",
       );
       process.exit(1);
-    });
+    }),
+});
