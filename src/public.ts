@@ -23,5 +23,9 @@ export {
   WebSpotlightSyncModel,
 } from "./modules/sync/types/syncModel.js";
 
-export { syncContentExport, SyncContentExportParams } from "./modules/syncContent/syncContentExport.js";
-export { SyncContentFilterParams, syncContentRun, SyncContentRunParams } from "./modules/syncContent/syncContentRun.js";
+export { migrateContentExport, MigrateContentExportParams } from "./modules/migrateContent/migrateContentExport.js";
+export {
+  MigrateContentFilterParams as SyncContentFilterParams,
+  migrateContentRun,
+  MigrateContentRunParams as SyncContentRunParams,
+} from "./modules/migrateContent/migrateContentRun.js";

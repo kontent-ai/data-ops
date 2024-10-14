@@ -12,7 +12,7 @@ const commandsToRegister: ReadonlyArray<RegisterCommand> = [
   (await import("./commands/importExport/import.js")).register,
   (await import("./commands/clean/clean.js")).register,
   (await import("./commands/syncModel/syncModel.js")).register,
-  (await import("./commands/syncContent/syncContent.js")).register,
+  (await import("./commands/migrateContent/migrateContent.js")).register,
   (await import("./commands/migrations/migrations.js")).register,
 ];
 
