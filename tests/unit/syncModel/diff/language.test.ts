@@ -77,7 +77,7 @@ describe("diff function", () => {
     contentTypeSnippets: [],
     languages,
     spaces: [],
-    taxonomyGroups: [],
+    taxonomies: [],
     webSpotlight: { enabled: false, root_type: { codename: "non-existing" } },
     workflows: [],
   });

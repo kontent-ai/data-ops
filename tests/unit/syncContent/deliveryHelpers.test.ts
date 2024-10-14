@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import {
   extractItemsCodenamesFromResponse,
   getDeliveryUrlParams,
-} from "../../../src/modules/syncContent/syncContent.ts";
-import * as deliveryHelpers from "../../../src/modules/syncContent/utils/deliveryHelpers.ts";
+} from "../../../src/modules/migrateContent/migrateContent.ts";
+import * as deliveryHelpers from "../../../src/modules/migrateContent/utils/deliveryHelpers.ts";
 
 describe("createDeliveryUrlParameters", () => {
   it("should return correct parameters for language and last parameter", () => {
