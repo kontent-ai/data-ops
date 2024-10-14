@@ -1,7 +1,10 @@
 import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
-import { syncContentExportInternal, SyncContentExportParams } from "../../../modules/syncContent/syncContentExport.js";
+import {
+  migrateContentExportInternal,
+  MigrateContentExportParams,
+} from "../../../modules/migrateContent/migrateContentExport.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -12,7 +15,7 @@ export const register: RegisterCommand = yargs =>
   yargs.command(
     {
       command: commandName,
-      describe: "Generates content json file used for sync-content from Kontent.ai environment.",
+      describe: "Generates content json file used for migrate-content from Kontent.ai environment.",
       builder: yargs =>
         yargs
           .option("sourceEnvironmentId", {
@@ -83,11 +86,11 @@ export const register: RegisterCommand = yargs =>
             type: "boolean",
             describe: "Skip confirmation message.",
           }),
-      handler: args => syncContentExportCli(args).catch(simplifyErrors),
+      handler: args => migrateContentExportCli(args).catch(simplifyErrors),
     },
   );
 
-type SyncContentExportCliParams =
+type MigrateContentExportCliParams =
   & Readonly<{
     sourceEnvironmentId: string;
     sourceApiKey: string;
@@ -104,15 +107,15 @@ type SyncContentExportCliParams =
   }>
   & LogOptions;
 
-const syncContentExportCli = async (params: SyncContentExportCliParams) => {
+const migrateContentExportCli = async (params: MigrateContentExportCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  await syncContentExportInternal(resolvedParams, "sync-content-export");
+  await migrateContentExportInternal(resolvedParams, "migrate-content-export");
 };
 
-const resolveParams = (params: SyncContentExportCliParams): SyncContentExportParams =>
+const resolveParams = (params: MigrateContentExportCliParams): MigrateContentExportParams =>
   match(params)
-    .returnType<SyncContentExportParams>()
+    .returnType<MigrateContentExportParams>()
     .with(
       { items: P.nonNullable, depth: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
       ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...params, items, depth, sourceDeliveryPreviewKey }),

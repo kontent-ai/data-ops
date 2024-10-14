@@ -3,13 +3,13 @@ import { match, P } from "ts-pattern";
 
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { SuperiorOmit } from "../../utils/types.js";
-import { SyncContentFilterParams } from "./syncContentRun.js";
+import { MigrateContentFilterParams } from "./migrateContentRun.js";
 import { createDeliveryUrlParameters } from "./utils/deliveryHelpers.js";
 
 const deliveryApiItemsLimit = 2000;
 
 type SyncContentFilterDeliveryOnlyParams =
-  | Exclude<SyncContentFilterParams, { items: ReadonlyArray<string> }>
+  | Exclude<MigrateContentFilterParams, { items: ReadonlyArray<string> }>
   | Readonly<
     { items: ReadonlyArray<string>; depth: number; limit?: number; sourceDeliveryPreviewKey: string; language: string }
   >;
