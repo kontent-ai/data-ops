@@ -2,7 +2,7 @@ import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { diffEnvironmentsInternal, DiffEnvironmentsParams } from "../../../modules/sync/diffEnvironments.js";
+import { syncDiffInternal, syncDiffParams } from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -92,14 +92,14 @@ type DiffEnvironmentsCliParams =
 const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  const diffModel = await diffEnvironmentsInternal(resolvedParams, commandName);
+  const diffModel = await syncDiffInternal(resolvedParams, commandName);
 
   return "advanced" in params
     ? createAdvancedDiffFile({ ...diffModel, ...params })
     : printDiff(diffModel, new Set(params.entities), params);
 };
 
-const resolveParams = (params: DiffEnvironmentsCliParams): DiffEnvironmentsParams => ({
+const resolveParams = (params: DiffEnvironmentsCliParams): syncDiffParams => ({
   ...match(params)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },

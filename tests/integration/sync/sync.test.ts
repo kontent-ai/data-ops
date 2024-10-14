@@ -4,10 +4,10 @@ import * as path from "path";
 import { describe, expect, it } from "vitest";
 
 import * as fileNames from "../../../src/modules/sync/constants/filename.ts";
-import { syncModelRun } from "../../../src/public.ts";
+import { syncRun } from "../../../src/public.ts";
 import { expectDifferentAllEnvData, expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
 import { AllEnvData, loadAllEnvData } from "../importExport/utils/envData.ts";
-import { runCommand } from "../utils/runCommand.ts";
+import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 
 dotenvConfig();
@@ -72,7 +72,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
     "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-model run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows --verbose --skipConfirmation`;
+        `sync run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -84,7 +84,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
     "Sync source environment to target environment directly from source environment with include core entities",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-model run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
+        `sync run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -99,7 +99,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
   it.concurrent(
     "Sync target environment to source environment directly from target environment using API",
     withTestEnvironment(SYNC_SOURCE_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      await syncModelRun({
+      await syncRun({
         sourceEnvironmentId: SYNC_TARGET_TEST_ENVIRONMENT_ID,
         sourceApiKey: API_KEY,
         targetEnvironmentId: environmentId,
@@ -125,7 +125,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
   it.concurrent(
     "Sync target environment languages to source environment directly from target environment using API",
     withTestEnvironment(SYNC_SOURCE_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      await syncModelRun({
+      await syncRun({
         sourceEnvironmentId: SYNC_TARGET_TEST_ENVIRONMENT_ID,
         sourceApiKey: API_KEY,
         targetEnvironmentId: environmentId,
@@ -146,7 +146,7 @@ describe.concurrent("Sync environment from folder", () => {
 
   it.sequential("generate sync model test", async () => {
     const command =
-      `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
+      `sync export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises.stat(folderPath)
@@ -174,7 +174,7 @@ describe.concurrent("Sync environment from folder", () => {
     "Sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows  --verbose --skipConfirmation`;
+        `sync run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows  --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -183,12 +183,12 @@ describe.concurrent("Sync environment from folder", () => {
   );
 });
 
-describe.concurrent.only("Partial sync environment from folder", () => {
+describe.concurrent("Partial sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/partialSourceContentModel");
 
   it.sequential("generate  partial sync model test", async () => {
     const command =
-      `sync-model export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies collections -k ${API_KEY} -f ${folderPath}`;
+      `sync export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies collections -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises.stat(folderPath)
@@ -197,34 +197,37 @@ describe.concurrent.only("Partial sync environment from folder", () => {
 
     expect(folderExists).toEqual(true);
 
+    const filesShouldExist = [
+      fileNames.contentTypesFileName,
+      fileNames.contentTypeSnippetsFileName,
+      fileNames.taxonomiesFileName,
+      fileNames.collectionsFileName,
+    ];
+    const filesShouldNotExist = Object.values(fileNames).filter(f => !filesShouldExist.includes(f));
+
     const filesExistence = Object.fromEntries(
       await Promise.all(
-        [fileNames.contentTypesFileName, fileNames.contentTypeSnippetsFileName, fileNames.taxonomiesFileName].map((
-          filename,
-        ) =>
+        Object.values(fileNames).map((filename) =>
           fsPromises.stat(`${folderPath}/${filename}`)
             .then(stats => [filename, stats.isFile()])
-            .catch((e) => [filename, e])
+            .catch(() => [filename, false])
         ),
       ),
     );
 
-    const allFilesExist = Object.fromEntries(
-      Object.values([
-        fileNames.contentTypesFileName,
-        fileNames.contentTypeSnippetsFileName,
-        fileNames.taxonomiesFileName,
-      ]).map(value => [value, true]),
-    );
+    const expectedResults = Object.fromEntries([
+      ...filesShouldExist.map(value => [value, true]),
+      ...filesShouldNotExist.map(value => [value, false]),
+    ]);
 
-    expect(filesExistence).toEqual(allFilesExist);
+    expect(filesExistence).toEqual(expectedResults);
   });
 
   it.sequential(
     "Partial sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
+        `sync run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -238,11 +241,13 @@ describe.concurrent.only("Partial sync environment from folder", () => {
 
   it.sequential(
     "Partial sync environment from folder should throw due more entities than in exported folder",
-    withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
+    async () => {
       const command =
-        `sync-model run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies languages --verbose --skipConfirmation`;
+        `sync run -t=00000000-0000-0000-0000-000000000000 --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies languages --verbose --skipConfirmation`;
 
-      expect(async () => await runCommand(command)).rejects.toThrowError();
-    }),
+      const result = await runCommand(command).catch(err => err as CommandError);
+
+      expect(result.stderr).toContain("Missing files in folder for these entities: languages");
+    },
   );
 });
