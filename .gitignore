@@ -5,7 +5,7 @@ configs/
 build/
 
 # Tests tmp data
-tests/integration/sync/content/data/sourceContent.zip
+tests/integration/migrateContent/data/sourceContent.zip
 tests/integration/sync/data/sourceContentModel/*
 tests/integration/sync/data/partialSourceContentModel/*
 tests/integration/importExport/data/exportedData.zip

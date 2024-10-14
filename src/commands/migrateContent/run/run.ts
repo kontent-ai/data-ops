@@ -1,7 +1,10 @@
 import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
-import { syncContentRunIntenal, SyncContentRunParams } from "../../../modules/syncContent/syncContentRun.js";
+import {
+  migrateContentRunIntenal,
+  MigrateContentRunParams,
+} from "../../../modules/migrateContent/migrateContentRun.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
@@ -12,7 +15,7 @@ const itemsFilterParams = ["items", "filter", "last", "byTypesCodenames"] as con
 export const register: RegisterCommand = yargs =>
   yargs.command({
     command: commandName,
-    describe: "Sync specified (by codenames) content items between source and target environments",
+    describe: "Migrate specified (by codenames) content items between source and target environments",
     builder: yargs =>
       yargs
         .option("targetEnvironmentId", {
@@ -88,7 +91,7 @@ export const register: RegisterCommand = yargs =>
         })
         .option("skipFailedItems", {
           type: "boolean",
-          describe: "Continue when encounter the item that can't be synced.",
+          describe: "Continue when encounter the item that can't be migrated.",
         })
         .option("filter", {
           type: "string",
@@ -100,7 +103,7 @@ export const register: RegisterCommand = yargs =>
           describe: "Skip confirmation message.",
         })
         .check((args) => {
-          // when syncing by filename, whole file is synced
+          // when migrating by filename, whole file is migrated
           if (!args.filter && !args.items && !args.last && !args.byTypesCodenames && !args.filename) {
             return "You need to provide exactly one of the 'items', 'last', 'byTypesCodenames' or 'filter' parameters.";
           }
@@ -109,10 +112,10 @@ export const register: RegisterCommand = yargs =>
           }
           return true;
         }),
-    handler: args => syncContentRunCli(args).catch(simplifyErrors),
+    handler: args => migrateContentRunCli(args).catch(simplifyErrors),
   });
 
-type SyncContentRunCliParams =
+type MigrateContentRunCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -132,13 +135,13 @@ type SyncContentRunCliParams =
   }>
   & LogOptions;
 
-const syncContentRunCli = async (params: SyncContentRunCliParams) => {
+const migrateContentRunCli = async (params: MigrateContentRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  syncContentRunIntenal(resolvedParams, "sync-content-run");
+  migrateContentRunIntenal(resolvedParams, "migrate-content-run");
 };
 
-const resolveParams = (params: SyncContentRunCliParams): SyncContentRunParams => {
+const resolveParams = (params: MigrateContentRunCliParams): MigrateContentRunParams => {
   const ommited = omit(params, ["sourceEnvironmentId", "sourceApiKey", "items", "filter", "last", "byTypesCodenames"]);
 
   if (params.filename) {
