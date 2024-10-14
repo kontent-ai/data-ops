@@ -2,24 +2,24 @@ import { exportAsync, getDefaultLogger, storeAsync } from "@kontent-ai/migration
 
 import { LogOptions } from "../../log.js";
 import { createClientDelivery } from "../../utils/client.js";
-import { getItemsCodenames } from "./syncContent.js";
-import { SyncContentFilterParams } from "./syncContentRun.js";
+import { getItemsCodenames } from "./migrateContent.js";
+import { MigrateContentFilterParams } from "./migrateContentRun.js";
 
-export type SyncContentExportParams = Readonly<
+export type MigrateContentExportParams = Readonly<
   & {
     sourceEnvironmentId: string;
     sourceApiKey: string;
     filename?: string;
   }
-  & SyncContentFilterParams
+  & MigrateContentFilterParams
   & LogOptions
 >;
 
-export const syncContentExport = async (params: SyncContentExportParams) => {
-  await syncContentExportInternal(params, "sync-content-export-API");
+export const migrateContentExport = async (params: MigrateContentExportParams) => {
+  await migrateContentExportInternal(params, "migrate-content-export-API");
 };
 
-export const syncContentExportInternal = async (params: SyncContentExportParams, commandName: string) => {
+export const migrateContentExportInternal = async (params: MigrateContentExportParams, commandName: string) => {
   const itemsCodenames = "items" in params && !("depth" in params)
     ? params.items
     : await getItemsCodenames(

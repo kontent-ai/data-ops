@@ -2,9 +2,9 @@ import { extractAsync, importAsync, migrateAsync } from "@kontent-ai/migration-t
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClientDelivery } from "../../utils/client.js";
-import { getItemsCodenames } from "./syncContent.js";
+import { getItemsCodenames } from "./migrateContent.js";
 
-export type SyncContentRunParams = Readonly<
+export type MigrateContentRunParams = Readonly<
   & {
     targetEnvironmentId: string;
     targetApiKey: string;
@@ -15,13 +15,13 @@ export type SyncContentRunParams = Readonly<
       sourceEnvironmentId: string;
       sourceApiKey: string;
     }
-      & SyncContentFilterParams
+      & MigrateContentFilterParams
     | { filename: string }
   )
   & LogOptions
 >;
 
-export type SyncContentFilterParams = Readonly<
+export type MigrateContentFilterParams = Readonly<
   & (
     | { items: ReadonlyArray<string> }
     | (
@@ -40,11 +40,11 @@ export type SyncContentFilterParams = Readonly<
   & { language: string }
 >;
 
-export const syncContentRun = async (params: SyncContentRunParams) => {
-  await syncContentRunIntenal(params, "sync-content-run-API");
+export const migrateContentRun = async (params: MigrateContentRunParams) => {
+  await migrateContentRunIntenal(params, "migrate-content-run-API");
 };
 
-export const syncContentRunIntenal = async (params: SyncContentRunParams, commandName: string) => {
+export const migrateContentRunIntenal = async (params: MigrateContentRunParams, commandName: string) => {
   if ("filename" in params) {
     const data = await extractAsync({ filename: params.filename });
 
@@ -77,7 +77,7 @@ export const syncContentRunIntenal = async (params: SyncContentRunParams, comman
   logInfo(
     params,
     "standard",
-    `Syncing ${itemsCodenames.length} items from ${params.sourceEnvironmentId} to ${params.targetEnvironmentId} ${
+    `Migrating ${itemsCodenames.length} items from ${params.sourceEnvironmentId} to ${params.targetEnvironmentId} ${
       itemsCodenames.length < 100 ? `with codenames:\n${itemsCodenames.join("\n")}` : ""
     }`,
   );

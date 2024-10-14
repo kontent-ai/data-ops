@@ -2,11 +2,11 @@ import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 import { describe, expect, it } from "vitest";
 
-import { syncContentRun } from "../../../../src/public.ts";
-import { expectSameAllEnvData, prepareReferences } from "../../importExport/utils/compare.ts";
-import { AllEnvData, loadAllEnvData, loadVariantsByItemCodename } from "../../importExport/utils/envData.ts";
-import { runCommand } from "../../utils/runCommand.ts";
-import { withTestEnvironment } from "../../utils/setup.ts";
+import { migrateContentRun } from "../../../src/public.ts";
+import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
+import { AllEnvData, loadAllEnvData, loadVariantsByItemCodename } from "../importExport/utils/envData.ts";
+import { runCommand } from "../utils/runCommand.ts";
+import { withTestEnvironment } from "../utils/setup.ts";
 
 dotenvConfig();
 
@@ -56,12 +56,12 @@ const expectSameSyncContentEnvironments = async (
   expectSameAllEnvData(data1, data2, { include: ["variants"] });
 };
 
-describe.concurrent("Sync two environments with credentials", () => {
+describe.concurrent("Migrate content between two environments with credentials", () => {
   it.concurrent(
-    "sync-content source environment to target environment without linked item",
+    "migrate-content source environment to target environment without linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=${language} --items sync_item_1 --verbose --skipConfirmation`;
+        `migrate-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=${language} --items sync_item_1 --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -70,9 +70,9 @@ describe.concurrent("Sync two environments with credentials", () => {
   );
 
   it.concurrent(
-    "Sync source environment to target environment directly from source environment with linked item using API",
+    "Migrate content from source environment to target environment directly from source environment with linked item using API",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      await syncContentRun({
+      await migrateContentRun({
         sourceEnvironmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID,
         sourceApiKey: API_KEY,
         targetEnvironmentId: environmentId,
@@ -92,10 +92,10 @@ describe.concurrent("Sync two environments with credentials", () => {
   );
 
   it.concurrent(
-    "Sync source environment to target environment directly from source environment get item byContentType with linked item",
+    "Migrate content from source environment to target environment directly from source environment get item byContentType with linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --verbose --skipConfirmation`;
+        `migrate-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -112,15 +112,15 @@ describe.concurrent("Sync two environments with credentials", () => {
   );
 });
 
-describe.concurrent("Sync content from zip", () => {
-  const relativeFolderPath = "./tests/integration/sync/content/data";
+describe.concurrent("Migrate content from zip", () => {
+  const relativeFolderPath = "./tests/integration/migrateContent/data";
   const relativeContentZipPath = `${relativeFolderPath}/sourceContent.zip`;
 
-  it.sequential("export sync content", async () => {
+  it.sequential("export migrate content", async () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
     const command =
-      `sync-content export -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
+      `migrate-content export -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
     await runCommand(command);
 
     const fileExists = await fsPromises.stat(relativeContentZipPath)
@@ -131,10 +131,10 @@ describe.concurrent("Sync content from zip", () => {
   });
 
   it.sequential(
-    "Run sync content from zip",
+    "Run migrate content from zip",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command =
-        `sync-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l=${language} --verbose --skipConfirmation`;
+        `migrate-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l=${language} --verbose --skipConfirmation`;
 
       await runCommand(command);
 
