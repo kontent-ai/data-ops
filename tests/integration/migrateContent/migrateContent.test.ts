@@ -3,8 +3,8 @@ import * as fsPromises from "fs/promises";
 import { describe, expect, it } from "vitest";
 
 import { migrateContentRun } from "../../../src/public.ts";
-import { expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
-import { AllEnvData, loadAllEnvData, loadVariantsByItemCodename } from "../importExport/utils/envData.ts";
+import { expectSameAllEnvData, prepareReferences } from "../backupRestore/utils/compare.ts";
+import { AllEnvData, loadAllEnvData, loadVariantsByItemCodename } from "../backupRestore/utils/envData.ts";
 import { runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 
@@ -116,11 +116,11 @@ describe.concurrent("Migrate content from zip", () => {
   const relativeFolderPath = "./tests/integration/migrateContent/data";
   const relativeContentZipPath = `${relativeFolderPath}/sourceContent.zip`;
 
-  it.sequential("export migrate content", async () => {
+  it.sequential("snapshot migrate content", async () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
     const command =
-      `migrate-content export -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
+      `migrate-content snapshot -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
     await runCommand(command);
 
     const fileExists = await fsPromises.stat(relativeContentZipPath)
