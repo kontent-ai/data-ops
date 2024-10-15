@@ -1,7 +1,7 @@
 import { config as dotenvConfig } from "dotenv";
 import { describe, expect, it } from "vitest";
 
-import { importEnvironment } from "../../../src/public.ts";
+import { restoreEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
@@ -33,12 +33,12 @@ if (!API_KEY) {
   throw new Error("API_KEY environment variable is not defined.");
 }
 
-describe("import command", () => {
+describe("restore command", () => {
   it.concurrent(
-    "Imports all entities properly into the target project",
+    "Restores all entities properly into the target project",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `environment import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
+        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
 
       await runCommand(command);
 
@@ -47,10 +47,10 @@ describe("import command", () => {
   );
 
   it.concurrent(
-    "Imports only entities specified in the include parameter",
+    "Restores only entities specified in the include parameter",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `environment import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --include collections languages taxonomies`;
+        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/exportSnapshot.zip -k=${API_KEY} --include collections languages taxonomies`;
 
       await runCommand(command);
 
@@ -71,11 +71,11 @@ describe("import command", () => {
   );
 
   it.concurrent(
-    "Imports all entities except those specified in the exclude parameter using API",
+    "Restores all entities except those specified in the exclude parameter using API",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
-      await importEnvironment({
+      await restoreEnvironment({
         environmentId: environmentId,
-        fileName: "tests/integration/importExport/data/exportSnapshot.zip",
+        fileName: "tests/integration/backupRestore/data/exportSnapshot.zip",
         apiKey: API_KEY,
         exclude: [
           "assets",
@@ -123,33 +123,33 @@ describe("import command", () => {
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
     const command =
-      "environment import --include collections contentTypes --exclude contentTypes -f test -k test -e test";
+      "environment restore --include collections contentTypes --exclude contentTypes -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "environment import");
+    await expectHelpText(result.stderr, "environment restore");
     expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "environment import --include collections invalidEntity -f test -k test -e test";
+    const command = "environment restore --include collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "environment import");
+    await expectHelpText(result.stderr, "environment restore");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "environment import --exclude collections invalidEntity -f test -k test -e test";
+    const command = "environment restore --exclude collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "environment import");
+    await expectHelpText(result.stderr, "environment restore");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
   });

@@ -8,7 +8,7 @@ build/
 tests/integration/migrateContent/data/sourceContent.zip
 tests/integration/sync/data/sourceContentModel/*
 tests/integration/sync/data/partialSourceContentModel/*
-tests/integration/importExport/data/exportedData.zip
+tests/integration/backupRestore/data/exportedData.zip
 
 # MacOS
 .DS_Store

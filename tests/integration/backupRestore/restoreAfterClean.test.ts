@@ -16,17 +16,17 @@ if (!API_KEY) {
   throw new Error("API_KEY environment variable is not defined.");
 }
 
-describe("import command", () => {
+describe("restore command", () => {
   it.concurrent(
-    "Import environment, clean environment, import again",
+    "Restore environment, clean environment, restore again",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
-      const importCommand =
-        `environment import -e=${environmentId} -f=tests/integration/importExport/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
+      const restoreCommand =
+        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
       const cleanCommand = `environment clean -e=${environmentId} -k=${API_KEY} -s`;
 
-      await runCommand(importCommand);
+      await runCommand(restoreCommand);
       await runCommand(cleanCommand);
-      await runCommand(importCommand);
+      await runCommand(restoreCommand);
 
       await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, { exclude: ["roles"] });
     }),
