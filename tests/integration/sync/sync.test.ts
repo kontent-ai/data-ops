@@ -184,7 +184,7 @@ describe.concurrent("Sync environment from folder", () => {
 });
 
 describe.concurrent("Partial sync environment from folder", () => {
-  const folderPath = path.join(__dirname, "data/partialSourceContentModel");
+  const folderPath = path.join(import.meta.dirname, "data/partialSourceContentModel");
 
   it.sequential("generate  partial sync model test", async () => {
     const command =
