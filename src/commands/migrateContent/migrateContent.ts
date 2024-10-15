@@ -3,7 +3,7 @@ import { RegisterCommand } from "../../types/yargs.js";
 const commandName = "migrate-content <command>";
 
 const runCommand = (await import("./run/run.js")).register;
-const exportCommand = (await import("./export/export.js")).register;
+const exportCommand = (await import("./snapshot/snapshot.js")).register;
 
 export const register: RegisterCommand = yargs =>
   yargs.command({

@@ -5,7 +5,7 @@ import { createClientDelivery } from "../../utils/client.js";
 import { getItemsCodenames } from "./migrateContent.js";
 import { MigrateContentFilterParams } from "./migrateContentRun.js";
 
-export type MigrateContentExportParams = Readonly<
+export type MigrateContentSnapshotParams = Readonly<
   & {
     sourceEnvironmentId: string;
     sourceApiKey: string;
@@ -15,11 +15,11 @@ export type MigrateContentExportParams = Readonly<
   & LogOptions
 >;
 
-export const migrateContentExport = async (params: MigrateContentExportParams) => {
-  await migrateContentExportInternal(params, "migrate-content-export-API");
+export const migrateContentSnapshot = async (params: MigrateContentSnapshotParams) => {
+  await migrateContentSnapshotInternal(params, "migrate-content-snapshot-API");
 };
 
-export const migrateContentExportInternal = async (params: MigrateContentExportParams, commandName: string) => {
+export const migrateContentSnapshotInternal = async (params: MigrateContentSnapshotParams, commandName: string) => {
   const itemsCodenames = "items" in params && !("depth" in params)
     ? params.items
     : await getItemsCodenames(
