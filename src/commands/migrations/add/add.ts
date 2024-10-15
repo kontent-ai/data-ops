@@ -13,25 +13,26 @@ export const register: RegisterCommand = yargs =>
       yargs
         .option("name", {
           alias: "n",
-          describe: "Name of the migration.",
-          demandOption: "You need to provide name of the migration.",
           type: "string",
+          describe: "Specifies the name of the migration.",
+          demandOption: "You need to provide name of the migration.",
         })
         .option("migrationsFolder", {
           alias: "m",
           type: "string",
-          describe: "Path to folder where should migration be stored.",
+          describe: "Specifies the path to the folder where the migration should be stored.",
         })
         .option("type", {
           alias: "t",
-          describe: "Type of the script. Allowed values 'ts' or 'js'. Default ts.",
           type: "string",
+          describe:
+            "Specifies the script type. Allowed values are 'ts' (TypeScript) or 'js' (JavaScript). Default is 'ts'.",
           default: "ts",
           choices: ["js", "ts"],
         })
         .option("timestamp", {
           alias: "d",
-          describe: "Adds the the current DateTime as order. Also the migration name starts with date.",
+          describe: "Sets the current DateTime in the order property and prefixes the migration name with it.",
           type: "boolean",
           default: false,
         }),

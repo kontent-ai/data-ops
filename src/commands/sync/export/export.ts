@@ -31,7 +31,7 @@ export const register: RegisterCommand = yargs =>
             type: "array",
             string: true,
             choices: syncEntityChoices,
-            describe: `Export specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+            describe: `Export specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}.`,
             demandOption: "You need to provide the what entities to export.",
           })
           .option("folderName", {
