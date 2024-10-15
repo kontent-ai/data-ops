@@ -131,7 +131,11 @@ type RunMigrationsCliParams =
   & LogOptions;
 
 const runMigrationsCli = async (params: RunMigrationsCliParams) => {
-  const client = createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName });
+  const client = createClient({
+    environmentId: params.environmentId,
+    apiKey: params.apiKey,
+    commandName: `migrations-${commandName}`,
+  });
 
   const resolvedParams = resolveParams(params);
 
