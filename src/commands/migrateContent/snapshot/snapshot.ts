@@ -2,20 +2,20 @@ import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
 import {
-  migrateContentExportInternal,
-  MigrateContentExportParams,
-} from "../../../modules/migrateContent/migrateContentExport.js";
+  migrateContentSnapshotInternal,
+  MigrateContentSnapshotParams,
+} from "../../../modules/migrateContent/migrateContentSnapshot.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
-const commandName = "export";
+const commandName = "snapshot";
 const itemsFilterParams = ["items", "filter", "last", "byTypesCodenames"] as const;
 
 export const register: RegisterCommand = yargs =>
   yargs.command(
     {
       command: commandName,
-      describe: "Generates export .zip file for migrate-content from Kontent.ai environment.",
+      describe: "Generates snapshot .zip file for migrate-content from Kontent.ai environment.",
       builder: yargs =>
         yargs
           .option("sourceEnvironmentId", {
@@ -87,11 +87,11 @@ export const register: RegisterCommand = yargs =>
             type: "boolean",
             describe: "Skip confirmation message.",
           }),
-      handler: args => migrateContentExportCli(args).catch(simplifyErrors),
+      handler: args => migrateContentSnapshotCli(args).catch(simplifyErrors),
     },
   );
 
-type MigrateContentExportCliParams =
+type MigrateContentSnapshotCliParams =
   & Readonly<{
     sourceEnvironmentId: string;
     sourceApiKey: string;
@@ -108,15 +108,15 @@ type MigrateContentExportCliParams =
   }>
   & LogOptions;
 
-const migrateContentExportCli = async (params: MigrateContentExportCliParams) => {
+const migrateContentSnapshotCli = async (params: MigrateContentSnapshotCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  await migrateContentExportInternal(resolvedParams, "migrate-content-export");
+  await migrateContentSnapshotInternal(resolvedParams, "migrate-content-snapshot");
 };
 
-const resolveParams = (params: MigrateContentExportCliParams): MigrateContentExportParams =>
+const resolveParams = (params: MigrateContentSnapshotCliParams): MigrateContentSnapshotParams =>
   match(params)
-    .returnType<MigrateContentExportParams>()
+    .returnType<MigrateContentSnapshotParams>()
     .with(
       { items: P.nonNullable, depth: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
       ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...params, items, depth, sourceDeliveryPreviewKey }),
