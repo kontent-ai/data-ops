@@ -22,7 +22,7 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
 }
 
 describe("Advanced diff", () => {
-  const outputFilePath = path.join(__dirname, "diffTest.html");
+  const outputFilePath = path.join(import.meta.dirname, "diffTest.html");
   const dateGeneratedRegex = /<div>state from <strong>.*<\/strong><\/div>/;
 
   it("matches the generated file with the baseline", async () => {
