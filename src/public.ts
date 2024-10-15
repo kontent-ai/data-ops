@@ -8,8 +8,8 @@ export { MigrationStatus, ReadStatus, SaveStatus, Status } from "./modules/migra
 export { RunMigrationFilterParams, runMigrations, RunMigrationsParams } from "./modules/migrations/run.js";
 
 export { syncDiff, SyncDiffParams } from "./modules/sync/diffEnvironments.js";
-export { syncExport, SyncExportParams } from "./modules/sync/syncModelExport.js";
 export { SyncEntities, syncRun, SyncRunParams } from "./modules/sync/syncRun.js";
+export { syncSnapshot, SyncSnapshotParams } from "./modules/sync/syncSnapshot.js";
 export {
   AssetFolderSyncModel,
   CollectionSyncModel,

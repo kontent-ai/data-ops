@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import * as fileNames from "../../../src/modules/sync/constants/filename.ts";
 import { syncRun } from "../../../src/public.ts";
-import { expectDifferentAllEnvData, expectSameAllEnvData, prepareReferences } from "../importExport/utils/compare.ts";
-import { AllEnvData, loadAllEnvData } from "../importExport/utils/envData.ts";
+import { expectDifferentAllEnvData, expectSameAllEnvData, prepareReferences } from "../backupRestore/utils/compare.ts";
+import { AllEnvData, loadAllEnvData } from "../backupRestore/utils/envData.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 
@@ -146,7 +146,7 @@ describe.concurrent("Sync environment from folder", () => {
 
   it.sequential("generate sync model test", async () => {
     const command =
-      `sync export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
+      `sync snapshot -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises.stat(folderPath)
@@ -188,7 +188,7 @@ describe.concurrent("Partial sync environment from folder", () => {
 
   it.sequential("generate  partial sync model test", async () => {
     const command =
-      `sync export -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies collections -k ${API_KEY} -f ${folderPath}`;
+      `sync snapshot -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies collections -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises.stat(folderPath)

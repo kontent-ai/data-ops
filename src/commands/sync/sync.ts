@@ -2,18 +2,18 @@ import { RegisterCommand } from "../../types/yargs.js";
 
 const commandName = "sync <command>";
 
-const runCommand = (await import("./run/run.js")).register;
-const exportCommand = (await import("./export/export.js")).register;
-const diffCommand = (await import("./diff/diff.js")).register;
+const commands = [
+  (await import("./run/run.js")).register,
+  (await import("./snapshot/snapshot.js")).register,
+  (await import("./diff/diff.js")).register,
+];
 
 export const register: RegisterCommand = yargs =>
   yargs.command({
     command: commandName,
     describe: "sync commands",
     builder: yargs => {
-      runCommand(yargs);
-      exportCommand(yargs);
-      diffCommand(yargs);
+      commands.forEach(register => register(yargs));
       return yargs;
     },
     handler: () => {},
