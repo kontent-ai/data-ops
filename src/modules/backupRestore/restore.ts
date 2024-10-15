@@ -5,32 +5,32 @@ import StreamZip from "node-stream-zip";
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { serially } from "../../utils/requests.js";
-import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "./importExportEntities/entities/assets.js";
-import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
+import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
+import { assetsEntity } from "./backupRestoreEntities/entities/assets.js";
+import { collectionsEntity } from "./backupRestoreEntities/entities/collections.js";
+import { contentItemsEntity } from "./backupRestoreEntities/entities/contentItems.js";
 import {
   contentTypesEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
-} from "./importExportEntities/entities/contentTypes.js";
+} from "./backupRestoreEntities/entities/contentTypes.js";
 import {
   contentTypesSnippetsEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
-} from "./importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./importExportEntities/entities/languages.js";
-import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
-import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
-import { spacesEntity } from "./importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { webhooksEntity } from "./importExportEntities/entities/webhooks.js";
-import { webSpotlightEntity } from "./importExportEntities/entities/webSpotlight.js";
-import { importWorkflowScopesEntity, workflowsEntity } from "./importExportEntities/entities/workflows.js";
-import { EntityDefinition, EntityImportDefinition, ImportContext } from "./importExportEntities/entityDefinition.js";
+} from "./backupRestoreEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
+import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
+import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
+import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
+import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
+import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
+import { importWorkflowScopesEntity, workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
+import { EntityDefinition, EntityRestoreDefinition, RestoreContext } from "./backupRestoreEntities/entityDefinition.js";
 import { IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
 
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.
-export const importEntityDefinitions = [
+export const restoreEntityDefinitions = [
   collectionsEntity,
   languagesEntity,
   taxonomiesEntity,
@@ -48,42 +48,42 @@ export const importEntityDefinitions = [
   languageVariantsEntity,
   importWorkflowScopesEntity,
   webhooksEntity,
-] as const satisfies ReadonlyArray<EntityImportDefinition<any>>;
+] as const satisfies ReadonlyArray<EntityRestoreDefinition<any>>;
 
-export const importEntityChoices = importEntityDefinitions.filter(e => !("isDependentOn" in e)).map(e => e.name);
+export const restoreEntityChoices = restoreEntityDefinitions.filter(e => !("isDependentOn" in e)).map(e => e.name);
 
-export type ImportEntityChoices = typeof importEntityChoices[number];
+export type RestoreEntityChoices = typeof restoreEntityChoices[number];
 
-export type ImportEnvironmentParams = Readonly<
+export type RestoreEnvironmentParams = Readonly<
   & {
     environmentId: string;
     fileName: string;
     apiKey: string;
   }
-  & IncludeExclude<ImportEntityChoices>
+  & IncludeExclude<RestoreEntityChoices>
   & LogOptions
 >;
 
-export const importEnvironment = async (params: ImportEnvironmentParams) => {
+export const restoreEnvironment = async (params: RestoreEnvironmentParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
-    commandName: "environment-import-API",
+    commandName: "environment-restore-API",
   });
 
-  await importEnvironmentInternal(client, params);
+  await restoreEnvironmentInternal(client, params);
 };
 
-export const importEnvironmentInternal = async (client: ManagementClient, params: ImportEnvironmentParams) => {
+export const restoreEnvironmentInternal = async (client: ManagementClient, params: RestoreEnvironmentParams) => {
   const root = new StreamZip.async({ file: params.fileName });
 
-  const definitionsToImport = importEntityDefinitions
+  const definitionsToImport = restoreEntityDefinitions
     .filter(includeExcludePredicate(params));
 
   logInfo(
     params,
     "standard",
-    `Importing entities from ${chalk.blue(params.fileName)} into environment id ${params.environmentId}\n`,
+    `Restoring entities from ${chalk.blue(params.fileName)} into environment id ${params.environmentId}\n`,
   );
 
   let context = createInitialContext();
@@ -106,7 +106,7 @@ export const importEnvironmentInternal = async (client: ManagementClient, params
   logInfo(params, "standard", chalk.green("All entities were successfully imported."));
 };
 
-const createInitialContext = (): ImportContext => ({
+const createInitialContext = (): RestoreContext => ({
   collectionIdsByOldIds: new Map(),
   languageIdsByOldIds: new Map(),
   taxonomyGroupIdsByOldIds: new Map(),

@@ -10,29 +10,29 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import { serially } from "../../utils/requests.js";
-import { assetFoldersEntity } from "./importExportEntities/entities/assetFolders.js";
-import { assetsEntity } from "./importExportEntities/entities/assets.js";
-import { collectionsEntity } from "./importExportEntities/entities/collections.js";
-import { contentItemsEntity } from "./importExportEntities/entities/contentItems.js";
-import { contentTypesEntity } from "./importExportEntities/entities/contentTypes.js";
-import { contentTypesSnippetsEntity } from "./importExportEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./importExportEntities/entities/languages.js";
-import { languageVariantsEntity } from "./importExportEntities/entities/languageVariants.js";
-import { previewUrlsEntity } from "./importExportEntities/entities/previewUrls.js";
-import { rolesExportEntity } from "./importExportEntities/entities/roles.js";
-import { spacesEntity } from "./importExportEntities/entities/spaces.js";
-import { taxonomiesEntity } from "./importExportEntities/entities/taxonomies.js";
-import { webhooksEntity } from "./importExportEntities/entities/webhooks.js";
-import { webSpotlightEntity } from "./importExportEntities/entities/webSpotlight.js";
-import { workflowsEntity } from "./importExportEntities/entities/workflows.js";
-import { EntityDefinition, EntityExportDefinition } from "./importExportEntities/entityDefinition.js";
+import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
+import { assetsEntity } from "./backupRestoreEntities/entities/assets.js";
+import { collectionsEntity } from "./backupRestoreEntities/entities/collections.js";
+import { contentItemsEntity } from "./backupRestoreEntities/entities/contentItems.js";
+import { contentTypesEntity } from "./backupRestoreEntities/entities/contentTypes.js";
+import { contentTypesSnippetsEntity } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
+import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
+import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
+import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
+import { rolesExportEntity } from "./backupRestoreEntities/entities/roles.js";
+import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
+import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
+import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
+import { workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
+import { EntityBackupDefinition, EntityDefinition } from "./backupRestoreEntities/entityDefinition.js";
 import { IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
 
 const {
   version,
 } = packageFile;
 
-export const exportEntityDefinitions = [
+export const backupEntityDefinitions = [
   collectionsEntity,
   spacesEntity,
   taxonomiesEntity,
@@ -48,37 +48,37 @@ export const exportEntityDefinitions = [
   assetsEntity,
   webhooksEntity,
   webSpotlightEntity,
-] as const satisfies ReadonlyArray<EntityExportDefinition<any>>;
+] as const satisfies ReadonlyArray<EntityBackupDefinition<any>>;
 
-export const exportEntityChoices = exportEntityDefinitions.map(e => e.name);
+export const backupEntityChoices = backupEntityDefinitions.map(e => e.name);
 
-export type ExportEntityChoices = typeof exportEntityChoices[number];
+export type BackupEntityChoices = typeof backupEntityChoices[number];
 
-export type ExportEnvironmentParams = Readonly<
+export type BackupEnvironmentParams = Readonly<
   & {
     environmentId: string;
     fileName?: string;
     apiKey: string;
   }
-  & IncludeExclude<ExportEntityChoices>
+  & IncludeExclude<BackupEntityChoices>
   & LogOptions
 >;
 
-export const exportEnvironment = async (params: ExportEnvironmentParams) => {
+export const backupEnvironment = async (params: BackupEnvironmentParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
-    commandName: "environment-export-API",
+    commandName: "environment-backup-API",
   });
 
-  await exportEnvironmentInternal(client, params);
+  await backupEnvironmentInternal(client, params);
 };
 
-export const exportEnvironmentInternal = async (
+export const backupEnvironmentInternal = async (
   client: ManagementClient,
-  params: ExportEnvironmentParams,
+  params: BackupEnvironmentParams,
 ): Promise<void> => {
-  const definitionsToExport = exportEntityDefinitions.filter(includeExcludePredicate(params));
+  const definitionsToBackup = backupEntityDefinitions.filter(includeExcludePredicate(params));
 
   logInfo(
     params,
@@ -88,13 +88,13 @@ export const exportEnvironmentInternal = async (
 
   const now = new Date();
   const fileName = params.fileName
-    ?? `${serializeDateForFileName(now)}-export-${params.environmentId}.zip`;
+    ?? `${serializeDateForFileName(now)}-backup-${params.environmentId}.zip`;
 
   const outputStream = fs.createWriteStream(fileName);
   const archive = archiver("zip");
   archive.pipe(outputStream);
 
-  await serially(definitionsToExport.map(def => async () => {
+  await serially(definitionsToBackup.map(def => async () => {
     logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.displayName)}`);
 
     try {
@@ -121,7 +121,7 @@ export const exportEnvironmentInternal = async (
     params,
     "standard",
     `\nEntities from environment ${chalk.yellow(params.environmentId)} were ${
-      chalk.green("successfully exported")
+      chalk.green("successfully backuped")
     } into ${chalk.blue(fileName)}.`,
   );
 };

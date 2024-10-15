@@ -11,12 +11,12 @@ import { createAssetExternalId, createItemExternalId } from "../../../../../util
 import { notNullOrUndefined } from "../../../../../utils/typeguards.js";
 import { Replace, ReplaceReferences, RequiredId } from "../../../../../utils/types.js";
 import { getRequired } from "../../../utils/utils.js";
-import { ImportContext } from "../../entityDefinition.js";
+import { RestoreContext } from "../../entityDefinition.js";
 import { createReference } from "./reference.js";
 import { replaceImportRichTextReferences } from "./richText.js";
 
 export type TransformTypeElementParams = Readonly<{
-  context: ImportContext;
+  context: RestoreContext;
   builder: ContentTypeSnippetElements | ContentTypeElementsBuilder;
   typeOrSnippetCodename: string;
   contentGroupExternalIdByOldId: ReadonlyMap<string, string>;
@@ -285,7 +285,7 @@ export const createTransformTypeElement =
   };
 
 export const createPatchItemAndTypeReferencesInTypeElement =
-  (context: ImportContext, elementsByOldIds: ReadonlyMap<string, string>, logOptions: LogOptions) =>
+  (context: RestoreContext, elementsByOldIds: ReadonlyMap<string, string>, logOptions: LogOptions) =>
   (
     fileElement: RequiredId<ElementContracts.IContentTypeElementContract>,
   ): ReadonlyArray<ContentTypeSnippetModels.IModifyContentTypeSnippetData> => {

@@ -6,7 +6,7 @@ import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { ReplaceReferences } from "../../../../utils/types.js";
 import { getRequired } from "../../utils/utils.js";
-import { EntityDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, RestoreContext } from "../entityDefinition.js";
 
 type Item = ReplaceReferences<ContentItemContracts.IContentItemModelContract>;
 
@@ -43,7 +43,7 @@ export const contentItemsEntity = {
 } as const satisfies EntityDefinition<ReadonlyArray<Item>>;
 
 const createImportItemFetcher =
-  (client: ManagementClient, context: ImportContext, logOptions: LogOptions) => (fileItem: Item) => () => {
+  (client: ManagementClient, context: RestoreContext, logOptions: LogOptions) => (fileItem: Item) => () => {
     logInfo(logOptions, "verbose", `Importing: item ${fileItem.id} (${chalk.yellow(fileItem.name)})`);
 
     return client

@@ -8,7 +8,7 @@ import { second } from "../../../../utils/function.js";
 import { serially } from "../../../../utils/requests.js";
 import { notNullOrUndefined } from "../../../../utils/typeguards.js";
 import { MapValues, ReplaceReferences } from "../../../../utils/types.js";
-import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, EntityRestoreDefinition, RestoreContext } from "../entityDefinition.js";
 
 const defaultWorkflowId = emptyId;
 
@@ -96,9 +96,9 @@ export const importWorkflowScopesEntity = {
         }),
     );
   },
-} as const satisfies EntityImportDefinition<ReadonlyArray<Workflow>>;
+} as const satisfies EntityRestoreDefinition<ReadonlyArray<Workflow>>;
 
-const createWorkflowData = (importWorkflow: Workflow, context: ImportContext) => ({
+const createWorkflowData = (importWorkflow: Workflow, context: RestoreContext) => ({
   ...importWorkflow,
   scopes: importWorkflow.scopes.map(scope => ({
     content_types: scope.content_types
@@ -139,7 +139,7 @@ const updateWorkflow = async (
   client: ManagementClient,
   projectWorkflow: WorkflowModels.Workflow,
   importWorkflow: Workflow,
-  context: ImportContext,
+  context: RestoreContext,
 ) =>
   client
     .updateWorkflow()
@@ -151,7 +151,7 @@ const updateWorkflow = async (
 const addWorkflows = async (
   client: ManagementClient,
   importWorkflows: ReadonlyArray<Workflow>,
-  context: ImportContext,
+  context: RestoreContext,
   logOptions: LogOptions,
 ) => {
   const responses = await serially(
@@ -177,7 +177,7 @@ const addWorkflows = async (
           throw new Error(`Found workflow "${importWorkflow.id}" without any steps. This should never happen.`);
         }
 
-        const workflowContext: MapValues<ImportContext["workflowIdsByOldIds"]> = {
+        const workflowContext: MapValues<RestoreContext["workflowIdsByOldIds"]> = {
           selfId: response.id,
           oldPublishedStepId: importWorkflow.published_step.id,
           oldArchivedStepId: importWorkflow.archived_step.id,
@@ -200,8 +200,8 @@ const addWorkflows = async (
 };
 
 type ContextWorkflowEntries = Readonly<{
-  workflows: ReadonlyArray<readonly [string, MapValues<ImportContext["workflowIdsByOldIds"]>]>;
-  workflowSteps: ReadonlyArray<readonly [string, MapValues<ImportContext["workflowStepsIdsWithTransitionsByOldIds"]>]>;
+  workflows: ReadonlyArray<readonly [string, MapValues<RestoreContext["workflowIdsByOldIds"]>]>;
+  workflowSteps: ReadonlyArray<readonly [string, MapValues<RestoreContext["workflowStepsIdsWithTransitionsByOldIds"]>]>;
 }>;
 
 const extractStepIdEntriesWithContext = (

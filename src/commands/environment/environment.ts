@@ -4,8 +4,8 @@ const commandName = "environment <command>";
 
 const commands = [
   (await import("./clean/clean.js")).register,
-  (await import("./importExport/import.js")).register,
-  (await import("./importExport/export.js")).register,
+  (await import("./backupRestore/restore.js")).register,
+  (await import("./backupRestore/backup.js")).register,
 ];
 
 export const register: RegisterCommand = yargs =>

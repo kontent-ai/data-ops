@@ -8,7 +8,7 @@ import { logInfo, LogOptions } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
 import { ReplaceReferences } from "../../../../utils/types.js";
 import { getRequired } from "../../utils/utils.js";
-import { EntityDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, RestoreContext } from "../entityDefinition.js";
 
 const assetsBinariesFolderName = "assets";
 const createFileName = (asset: AssetContracts.IAssetModelContract) =>
@@ -32,7 +32,7 @@ export const assetsEntity = {
     const fileAssetsWithElements = fileAssets.filter(a => !!a.elements.length);
     if (fileAssetsWithElements.length) {
       throw new Error(
-        `It is not possible to import assets with elements at the moment. Assets that contain elements are: ${
+        `It is not possible to restore assets with elements at the moment. Assets that contain elements are: ${
           fileAssetsWithElements.map(a => a.id).join(", ")
         }.`,
       );
@@ -76,7 +76,7 @@ const saveAsset = async (
 };
 
 const createImportAssetFetcher =
-  (zip: StreamZipAsync, client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>
+  (zip: StreamZipAsync, client: ManagementClient, context: RestoreContext, logOptions: LogOptions) =>
   (fileAsset: AssetWithElements) =>
   async (): Promise<readonly [string, string]> => {
     const binary = await zip.entryData(createFileName(fileAsset));

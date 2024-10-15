@@ -1,4 +1,4 @@
-import { ImportContext } from "../../entityDefinition.js";
+import { RestoreContext } from "../../entityDefinition.js";
 
 type Params = Readonly<{
   newId: string | undefined;
@@ -17,8 +17,8 @@ export const createReference = (params: Params) =>
  * @param keys keys to extract from `ImportContext` (defaults to all)
  * @returns map of all `oldId:newId` pairs for top level entities
  */
-export const simplifyContext = <K extends keyof ImportContext = keyof ImportContext>(
-  context: Partial<ImportContext>,
+export const simplifyContext = <K extends keyof RestoreContext = keyof RestoreContext>(
+  context: Partial<RestoreContext>,
   keys?: K[],
 ) => {
   const getSimplifiedMap = (map: ReadonlyMap<string, string | { selfId: string }>) =>
