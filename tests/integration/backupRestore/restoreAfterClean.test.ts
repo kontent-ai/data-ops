@@ -21,7 +21,7 @@ describe("restore command", () => {
     "Restore environment, clean environment, restore again",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const restoreCommand =
-        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
+        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --verbose`;
       const cleanCommand = `environment clean -e=${environmentId} -k=${API_KEY} -s`;
 
       await runCommand(restoreCommand);
