@@ -32,7 +32,7 @@ if (!API_KEY) {
 const runCommand = (command, props) => {
   return new Promise((resolve, reject) => {
     const { title, environmentId, path } = props;
-    console.log(`Exporting ${title} environment ${environmentId} to ${path}`);
+    console.log(`Backing up ${title} environment ${environmentId} to ${path}`);
     childProcess.exec(`node ./build/src/index.js ${command}`, (error, stdout, stderr) => {
       if (error) {
         reject({ error, stdout, stderr });
@@ -45,16 +45,16 @@ const runCommand = (command, props) => {
 };
 const syncSourcePath = "tests/integration/sync/data/sync_test_source.zip";
 const syncTargetPath = "tests/integration/sync/data/sync_test_target.zip";
-const importPath = "tests/integration/importExport/data/exportSnapshot.zip"
+const restorePath = "tests/integration/backupRestore/data/exportSnapshot.zip"
 
-const syncSourceExportCommand = `export -e=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -f=${syncSourcePath} -k=${API_KEY}`;
-const syncTargetExportCommand = `export -e=${SYNC_TARGET_TEST_ENVIRONMENT_ID} -f=${syncTargetPath} -k=${API_KEY}`;
-const importExportCommand = `export -e=${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -f=${importPath} -k=${API_KEY}`;
+const syncSourceBackupCommand = `environment backup -e=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -f=${syncSourcePath} -k=${API_KEY}`;
+const syncTargetBackupCommand = `environment backup -e=${SYNC_TARGET_TEST_ENVIRONMENT_ID} -f=${syncTargetPath} -k=${API_KEY}`;
+const restoreBackupCommand = `environment backup -e=${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -f=${restorePath} -k=${API_KEY}`;
 
 const exportCommands = [
-  ...s ? [runCommand(syncSourceExportCommand, { title: "Sync Source Template test environment", environmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID, path: syncSourcePath })] : [],
-  ...t ? [runCommand(syncTargetExportCommand, { title: "Sync Target Template test environment", environmentId: SYNC_TARGET_TEST_ENVIRONMENT_ID, path: syncTargetPath })] : [],
-  ...i ? [runCommand(importExportCommand, { title: "Import Export test environment", environmentId: EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, path: importPath })] : []
+  ...s ? [runCommand(syncSourceBackupCommand, { title: "Sync Source Template test environment", environmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID, path: syncSourcePath })] : [],
+  ...t ? [runCommand(syncTargetBackupCommand, { title: "Sync Target Template test environment", environmentId: SYNC_TARGET_TEST_ENVIRONMENT_ID, path: syncTargetPath })] : [],
+  ...i ? [runCommand(restoreBackupCommand, { title: "Restore Backup test environment", environmentId: EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, path: restorePath })] : []
 ]
 
 await Promise.all(exportCommands);

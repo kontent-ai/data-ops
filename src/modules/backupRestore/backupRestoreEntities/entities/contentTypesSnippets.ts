@@ -6,7 +6,7 @@ import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
 import { getRequired } from "../../utils/utils.js";
-import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, EntityRestoreDefinition, RestoreContext } from "../entityDefinition.js";
 import {
   createPatchItemAndTypeReferencesInTypeElement,
   createTransformTypeElement,
@@ -66,11 +66,11 @@ export const updateItemAndTypeReferencesInSnippetsImportEntity = {
   importEntities: async (client, fileSnippets, context, logOptions) => {
     await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context, logOptions })));
   },
-} as const satisfies EntityImportDefinition<ReadonlyArray<Snippet>>;
+} as const satisfies EntityRestoreDefinition<ReadonlyArray<Snippet>>;
 
 const makeSnippetContextByOldIdEntry = (
   [fileSnippet, projectSnippet]: readonly [Snippet, Snippet],
-): readonly [string, MapValues<ImportContext["contentTypeSnippetContextByOldIds"]>] => {
+): readonly [string, MapValues<RestoreContext["contentTypeSnippetContextByOldIds"]>] => {
   const elementIdEntries = zip(fileSnippet.elements, projectSnippet.elements)
     .map(([fileEl, projectEl]) => [fileEl.id, projectEl.id] as const);
 
@@ -99,7 +99,7 @@ const makeSnippetContextByOldIdEntry = (
 
 type InsertSnippetParams = Readonly<{
   client: ManagementClient;
-  context: ImportContext;
+  context: RestoreContext;
   logOptions: LogOptions;
 }>;
 
@@ -128,7 +128,7 @@ const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Sn
 
 type UpdateSnippetParams = Readonly<{
   client: ManagementClient;
-  context: ImportContext;
+  context: RestoreContext;
   logOptions: LogOptions;
 }>;
 

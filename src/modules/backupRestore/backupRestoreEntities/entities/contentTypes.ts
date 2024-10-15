@@ -12,7 +12,7 @@ import { zip } from "../../../../utils/array.js";
 import { serially } from "../../../../utils/requests.js";
 import { MapValues, Replace, ReplaceReferences, RequiredId } from "../../../../utils/types.js";
 import { getRequired } from "../../utils/utils.js";
-import { EntityDefinition, EntityImportDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, EntityRestoreDefinition, RestoreContext } from "../entityDefinition.js";
 import {
   createPatchItemAndTypeReferencesInTypeElement,
   createTransformTypeElement,
@@ -75,20 +75,20 @@ export const updateItemAndTypeReferencesInTypesImportEntity = {
   importEntities: async (client, fileTypes, context, logOptions) => {
     await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context, logOptions })));
   },
-} as const satisfies EntityImportDefinition<ReadonlyArray<Type>>;
+} as const satisfies EntityRestoreDefinition<ReadonlyArray<Type>>;
 
 type InsertTypeParams = Readonly<{
   client: ManagementClient;
-  context: ImportContext;
+  context: RestoreContext;
   logOptions: LogOptions;
 }>;
 
 type SnippetElement = ReplaceReferences<ContentTypeElements.ISnippetElement>;
 
-const createMakeTypeContextByOldIdEntry = (context: ImportContext) =>
+const createMakeTypeContextByOldIdEntry = (context: RestoreContext) =>
 (
   [fileType, projectType]: readonly [Type, Type],
-): readonly [string, MapValues<ImportContext["contentTypeContextByOldIds"]>] => {
+): readonly [string, MapValues<RestoreContext["contentTypeContextByOldIds"]>] => {
   const elementIdEntries = zip(fileType.elements, projectType.elements)
     .flatMap(([fileEl, projectEl]) => {
       if (fileEl.type === "snippet") {
@@ -193,7 +193,7 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => as
 
 type UpdateTypeParams = Readonly<{
   client: ManagementClient;
-  context: ImportContext;
+  context: RestoreContext;
   logOptions: LogOptions;
 }>;
 

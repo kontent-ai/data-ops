@@ -6,8 +6,8 @@ import {
   cleanEntityChoices,
   cleanEnvironmentInternal,
   CleanEnvironmentParams,
-} from "../../../modules/importExport/clean.js";
-import { resolveIncludeExcludeCliParams } from "../../../modules/importExport/utils/includeExclude.js";
+} from "../../../modules/backupRestore/clean.js";
+import { resolveIncludeExcludeCliParams } from "../../../modules/backupRestore/utils/includeExclude.js";
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
