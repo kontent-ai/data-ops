@@ -15,25 +15,25 @@ export const register: RegisterCommand = yargs =>
   yargs.command(
     {
       command: commandName,
-      describe: "Generates content json file used for migrate-content from Kontent.ai environment.",
+      describe: "Generates export .zip file for migrate-content from Kontent.ai environment.",
       builder: yargs =>
         yargs
           .option("sourceEnvironmentId", {
             type: "string",
-            describe: "Id of Kontent.ai environmnent containing source content model.",
+            describe: "Id of Kontent.ai environmnent containing source content.",
             demandOption: "You need to provide the environmentId for source Kontent.ai environment.",
             alias: "s",
           })
           .option("sourceApiKey", {
             type: "string",
-            describe: "Management Api key of Kontent.ai environmnent containing source content model.",
+            describe: "Management Api key of Kontent.ai environmnent containing source content.",
             demandOption: "You need to provide a Management API key for source Kontent.ai environment.",
             alias: "sk",
           })
           .option("sourceDeliveryPreviewKey", {
             type: "string",
             describe:
-              "Delivery Preview Api key of Kontent.ai environmnent containing source content model. Use only when you want obtain codenames via delivery client.",
+              "Delivery Preview Api key of Kontent.ai environmnent containing source content. Use only when you want obtain codenames via delivery client.",
             alias: "sd",
           })
           .option("language", {
@@ -79,7 +79,8 @@ export const register: RegisterCommand = yargs =>
           })
           .option("filter", {
             type: "string",
-            describe: "A filter to obtain a subset of items codenames. See Delivery sdk for more info",
+            describe:
+              "A filter to obtain a subset of items codenames. See Delivery API documentation for more information.",
             conflicts: itemsFilterParams.filter(p => p !== "filter"),
           })
           .option("skipConfirmation", {
