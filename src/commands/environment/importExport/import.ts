@@ -40,7 +40,7 @@ export const register: RegisterCommand = yargs =>
         .option("include", {
           type: "array",
           describe:
-            "Only import the specified entities. (Keep in mind that some entities depend on others and may fail if their dependencies are not included.)",
+            "Only import specified entities. (Keep in mind that some entities depend on others and may fail if their dependencies are not included.)",
           alias: "i",
           choices: importEntityChoices,
           conflicts: "exclude",

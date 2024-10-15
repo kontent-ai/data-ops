@@ -25,7 +25,7 @@ export const register: RegisterCommand = yargs =>
         })
         .option("targetApiKey", {
           type: "string",
-          describe: "Management API key of target Kontent.ai environment",
+          describe: "Management API key of target Kontent.ai environment.",
           demandOption: "You need to provide a Management API key for target Kontent.ai environment.",
           alias: "tk",
         })
@@ -39,7 +39,7 @@ export const register: RegisterCommand = yargs =>
         .option("sourceEnvironmentId", {
           type: "string",
           describe:
-            "Id of Kontent.ai environment containing source content model. Must be used with --sourceApiKey. Can't be used at the same time with option --folderName",
+            "Id of Kontent.ai environment containing source content model. Must be used with --sourceApiKey. Can't be used at the same time with option --folderName.",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
           alias: "s",
@@ -47,7 +47,7 @@ export const register: RegisterCommand = yargs =>
         .option("sourceApiKey", {
           type: "string",
           describe:
-            "Management API key of Kontent.ai environment containing source content model. Must be used with --sourceEnvironmentId. Can't be used at the same time with option --folderName",
+            "Management API key of Kontent.ai environment containing source content model. Must be used with --sourceEnvironmentId. Can't be used at the same time with option --folderName.",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
           alias: "sk",
@@ -56,7 +56,7 @@ export const register: RegisterCommand = yargs =>
           alias: "e",
           type: "array",
           choices: syncEntityChoices,
-          describe: `Sync specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+          describe: `Sync specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}.`,
           demandOption: "You need to provide the what entities to sync.",
           conflicts: "exclude",
         })
@@ -117,7 +117,7 @@ const resolveParams = (params: SyncModelRunCliParams): SyncRunParams => {
     .otherwise(() => {
       logError(
         params,
-        "You need to provide either 'folderName' or 'sourceEnvironmentId' with 'sourceApiKey' parameters",
+        "You need to provide either 'folderName' or 'sourceEnvironmentId' with 'sourceApiKey' parameters.",
       );
       process.exit(1);
     });
