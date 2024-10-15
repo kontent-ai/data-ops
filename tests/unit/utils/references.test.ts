@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   simplifyContext,
   transformReferences,
-} from "../../../src/modules/importExport/importExportEntities/entities/utils/reference.ts";
-import { ImportContext } from "../../../src/modules/importExport/importExportEntities/entityDefinition.ts";
+} from "../../../src/modules/backupRestore/backupRestoreEntities/entities/utils/reference.ts";
+import { RestoreContext } from "../../../src/modules/backupRestore/backupRestoreEntities/entityDefinition.ts";
 
 const emptyMap = new Map();
-const contextTemplate: Pick<ImportContext, "collectionIdsByOldIds" | "contentTypeSnippetContextByOldIds"> = {
+const contextTemplate: Pick<RestoreContext, "collectionIdsByOldIds" | "contentTypeSnippetContextByOldIds"> = {
   collectionIdsByOldIds: new Map([["oldId", "newId"]]),
   contentTypeSnippetContextByOldIds: new Map([
     [
@@ -24,7 +24,7 @@ const contextTemplate: Pick<ImportContext, "collectionIdsByOldIds" | "contentTyp
 
 describe("simplifyContext", () => {
   it("leaves string:string maps as-is", () => {
-    const context: Pick<ImportContext, "collectionIdsByOldIds"> = {
+    const context: Pick<RestoreContext, "collectionIdsByOldIds"> = {
       collectionIdsByOldIds: contextTemplate.collectionIdsByOldIds,
     };
     const actual = simplifyContext(context, ["collectionIdsByOldIds"]);
@@ -34,7 +34,7 @@ describe("simplifyContext", () => {
   });
 
   it("substitutes object in string:object pairs with selfId", () => {
-    const context: Pick<ImportContext, "contentTypeSnippetContextByOldIds"> = {
+    const context: Pick<RestoreContext, "contentTypeSnippetContextByOldIds"> = {
       contentTypeSnippetContextByOldIds: contextTemplate.contentTypeSnippetContextByOldIds,
     };
     const actual = simplifyContext(context, ["contentTypeSnippetContextByOldIds"]);

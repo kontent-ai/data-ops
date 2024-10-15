@@ -13,7 +13,7 @@ import { serially } from "../../../../utils/requests.js";
 import { notNull } from "../../../../utils/typeguards.js";
 import { ReplaceReferences } from "../../../../utils/types.js";
 import { getRequired } from "../../utils/utils.js";
-import { EntityDefinition, ImportContext } from "../entityDefinition.js";
+import { EntityDefinition, RestoreContext } from "../entityDefinition.js";
 import { createReference } from "./utils/reference.js";
 import { replaceImportRichTextReferences } from "./utils/richText.js";
 
@@ -45,7 +45,7 @@ export const languageVariantsEntity = {
 } as const satisfies Omit<EntityDefinition<ReadonlyArray<Variant>>, "cleanEntities">;
 
 const createImportVariant =
-  (client: ManagementClient, context: ImportContext, logOptions: LogOptions) =>
+  (client: ManagementClient, context: RestoreContext, logOptions: LogOptions) =>
   (fileVariant: Variant) =>
   async (): Promise<true> => {
     const typeContext = getRequired(
@@ -172,7 +172,7 @@ const publishVariant = (
 };
 
 type TransformElementParams = Readonly<{
-  context: ImportContext;
+  context: RestoreContext;
   builder: LanguageVariantElementsBuilder;
   elementTypeByOldId: ReadonlyMap<string, string>;
   elementIdByOldId: ReadonlyMap<string, string>;
@@ -351,7 +351,7 @@ type FindWfStepResult = Readonly<{
 }>;
 
 const findTargetWfStep = (
-  context: ImportContext,
+  context: RestoreContext,
   oldWf: Variant,
 ): FindWfStepResult => {
   const wfContext = getRequired(context.workflowIdsByOldIds, oldWf.workflow.workflow_identifier.id, "workflow");
@@ -387,5 +387,5 @@ const findTargetWfStep = (
   }
 };
 
-const createTranslateWfStepId = (context: ImportContext) => (stepId: string): string =>
+const createTranslateWfStepId = (context: RestoreContext) => (stepId: string): string =>
   getRequired(context.workflowStepsIdsWithTransitionsByOldIds, stepId, "workflow step").selfId;

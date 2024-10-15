@@ -18,7 +18,7 @@ import {
 import { config as dotenvConfig } from "dotenv";
 import { expect } from "vitest";
 
-import { replaceRichTextReferences } from "../../../../src/modules/importExport/importExportEntities/entities/utils/richText.ts";
+import { replaceRichTextReferences } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/utils/richText.ts";
 import { AllEnvData, loadAllEnvData } from "./envData.ts";
 
 dotenvConfig();

@@ -2,7 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import * as fsPromises from "fs/promises";
 import { describe, expect, it } from "vitest";
 
-import { exportEnvironment } from "../../../src/public.ts";
+import { backupEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
 import { CommandError, runCommand } from "../utils/runCommand.ts";
 import { expectSameAllEnvData } from "./utils/compare.ts";
@@ -19,11 +19,11 @@ if (!API_KEY) {
   throw new Error("API_KEY environment variable is not defined.");
 }
 
-describe("export command", () => {
-  it("Exports all entities properly into the specified file", async () => {
-    const filePath = "./tests/integration/importExport/data/exportedData.zip";
+describe("backup command", () => {
+  it("Backup all entities properly into the specified file", async () => {
+    const filePath = "./tests/integration/backupRestore/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
-    const command = `environment export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath}`;
+    const command = `environment backup -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath}`;
 
     await runCommand(command);
 
@@ -33,11 +33,11 @@ describe("export command", () => {
     expectSameAllEnvData(exportedData, sourceEnvData);
   });
 
-  it("Exports only entities specified in the include parameter", async () => {
-    const filePath = "./tests/integration/importExport/data/exportedData.zip";
+  it("Backup only entities specified in the include parameter", async () => {
+    const filePath = "./tests/integration/backupRestore/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
     const command =
-      `environment export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --include collections spaces taxonomies contentTypes`;
+      `environment backup -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --include collections spaces taxonomies contentTypes`;
 
     await runCommand(command);
 
@@ -56,11 +56,11 @@ describe("export command", () => {
     expect(exportedData.languages).toBeUndefined();
   });
 
-  it("Exports all entities except those specified in the exclude parameter", async () => {
-    const filePath = "./tests/integration/importExport/data/exportedData.zip";
+  it("Backup all entities except those specified in the exclude parameter", async () => {
+    const filePath = "./tests/integration/backupRestore/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
     const command =
-      `environment export -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --exclude collections spaces taxonomies contentTypes`;
+      `environment backup -e ${EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID} -k ${API_KEY} -f ${filePath} --exclude collections spaces taxonomies contentTypes`;
 
     await runCommand(command);
 
@@ -74,11 +74,11 @@ describe("export command", () => {
     expect(exportedData.types).toBeUndefined();
   });
 
-  it("Exports all entities except those specified in the exclude parameter using API", async () => {
-    const filePath = "./tests/integration/importExport/data/exportedData.zip";
+  it("Backup all entities except those specified in the exclude parameter using API", async () => {
+    const filePath = "./tests/integration/backupRestore/data/exportedData.zip";
     await fsPromises.rm(filePath, { force: true });
 
-    await exportEnvironment({
+    await backupEnvironment({
       environmentId: EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID,
       apiKey: API_KEY,
       fileName: filePath,
@@ -97,33 +97,33 @@ describe("export command", () => {
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
     const command =
-      "environment export --include collections contentTypes --exclude contentTypes -f test -k test -e test";
+      "environment backup --include collections contentTypes --exclude contentTypes -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "environment export");
+    await expectHelpText(result.stderr, "environment backup");
     expect(result.stderr).toContain("Arguments include and exclude are mutually exclusive");
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "environment export --include collections invalidEntity -f test -k test -e test";
+    const command = "environment backup --include collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "environment export");
+    await expectHelpText(result.stderr, "environment backup");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "environment export --exclude collections invalidEntity -f test -k test -e test";
+    const command = "environment backup --exclude collections invalidEntity -f test -k test -e test";
 
     const result = await runCommand(command).catch(err => err as CommandError);
 
     expect(result.stdout).toBe("");
-    await expectHelpText(result.stderr, "environment export");
+    await expectHelpText(result.stderr, "environment backup");
     expect(result.stderr).toContain("Invalid values");
     expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
   });

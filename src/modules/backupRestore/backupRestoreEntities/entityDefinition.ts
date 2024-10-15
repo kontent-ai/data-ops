@@ -4,9 +4,9 @@ import { StreamZipAsync } from "node-stream-zip";
 
 import { LogOptions } from "../../../log.js";
 
-export type EntityDefinition<T> = EntityExportDefinition<T> & EntityImportDefinition<T> & EntityCleanDefinition<T>;
+export type EntityDefinition<T> = EntityBackupDefinition<T> & EntityRestoreDefinition<T> & EntityCleanDefinition<T>;
 
-export type EntityExportDefinition<T> = Readonly<{
+export type EntityBackupDefinition<T> = Readonly<{
   name: string;
   displayName: string;
   fetchEntities: (client: ManagementClient) => Promise<T>;
@@ -14,17 +14,17 @@ export type EntityExportDefinition<T> = Readonly<{
   addOtherFiles?: (loadedEntities: T, archive: archiver.Archiver, logOptions: LogOptions) => Promise<void>;
 }>;
 
-export type EntityImportDefinition<T> = Readonly<{
+export type EntityRestoreDefinition<T> = Readonly<{
   name: string;
   displayName: string;
   deserializeEntities: (serialized: string) => T;
   importEntities: (
     client: ManagementClient,
     entities: T,
-    context: ImportContext,
+    context: RestoreContext,
     logOptions: LogOptions,
     zip: StreamZipAsync,
-  ) => Promise<void | undefined | ImportContext>;
+  ) => Promise<void | undefined | RestoreContext>;
 }>;
 
 export type EntityCleanDefinition<T> = Readonly<{
@@ -36,12 +36,12 @@ export type EntityCleanDefinition<T> = Readonly<{
   ) => Promise<void>;
 }>;
 
-export type DependentImportAction<T> = Readonly<{
+export type DependentRestoreAction<T> = Readonly<{
   dependentOnEntities: ReadonlyArray<EntityDefinition<any>>;
-  action: (client: ManagementClient, entities: T, context: ImportContext) => Promise<void>;
+  action: (client: ManagementClient, entities: T, context: RestoreContext) => Promise<void>;
 }>;
 
-export type ImportContext = Readonly<{
+export type RestoreContext = Readonly<{
   collectionIdsByOldIds: ReadonlyMap<string, string>;
   languageIdsByOldIds: ReadonlyMap<string, string>;
   taxonomyGroupIdsByOldIds: IdsMap;

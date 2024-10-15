@@ -11,7 +11,7 @@ import {
 } from "../../../../../constants/richText.js";
 import { LogOptions, logWarning } from "../../../../../log.js";
 import { createAssetExternalId, createItemExternalId } from "../../../../../utils/externalIds.js";
-import { ImportContext } from "../../entityDefinition.js";
+import { RestoreContext } from "../../entityDefinition.js";
 
 type ReferenceReplacer = <T extends string>(
   foundId: string,
@@ -43,7 +43,7 @@ export const replaceRichTextReferences = (params: ReplaceRichTextReferencesParam
 
 export const replaceImportRichTextReferences = (
   richText: string,
-  context: ImportContext,
+  context: RestoreContext,
   componentIds: ReadonlySet<string>,
   logOptions: LogOptions,
 ): string =>

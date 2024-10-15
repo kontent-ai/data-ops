@@ -1,6 +1,6 @@
-export { cleanEnvironment, CleanEnvironmentParams } from "./modules/importExport/clean.js";
-export { exportEnvironment, ExportEnvironmentParams } from "./modules/importExport/export.js";
-export { importEnvironment, ImportEnvironmentParams } from "./modules/importExport/import.js";
+export { backupEnvironment, BackupEnvironmentParams } from "./modules/backupRestore/backup.js";
+export { cleanEnvironment, CleanEnvironmentParams } from "./modules/backupRestore/clean.js";
+export { restoreEnvironment, RestoreEnvironmentParams } from "./modules/backupRestore/restore.js";
 
 export { addMigration, AddMigrationParams } from "./modules/migrations/add.js";
 export { MigrationModule, MigrationOrder } from "./modules/migrations/models/migration.js";
