@@ -2,7 +2,7 @@ import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { syncDiffInternal, syncDiffParams } from "../../../modules/sync/diffEnvironments.js";
+import { syncDiffInternal, SyncDiffParams } from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -99,7 +99,7 @@ const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
     : printDiff(diffModel, new Set(params.entities), params);
 };
 
-const resolveParams = (params: DiffEnvironmentsCliParams): syncDiffParams => ({
+const resolveParams = (params: DiffEnvironmentsCliParams): SyncDiffParams => ({
   ...match(params)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
