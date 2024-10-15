@@ -1,12 +1,12 @@
 import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { syncExportInternal } from "../../../modules/sync/syncModelExport.js";
+import { syncSnapshotInternal } from "../../../modules/sync/syncSnapshot.js";
 import { SyncEntities } from "../../../public.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
-const commandName = "export";
+const commandName = "snapshot";
 
 export const register: RegisterCommand = yargs =>
   yargs.command(
@@ -17,8 +17,8 @@ export const register: RegisterCommand = yargs =>
         yargs
           .option("environmentId", {
             type: "string",
-            describe: "The Id of the environment to export the content model from.",
-            demandOption: "You need to provide the environmentId of the Kontent.ai to export the content model from.",
+            describe: "The Id of the environment to snapshot the content model from.",
+            demandOption: "You need to provide the environmentId of the Kontent.ai to snapshot the content model from.",
             alias: "e",
           })
           .option("apiKey", {
@@ -31,19 +31,19 @@ export const register: RegisterCommand = yargs =>
             type: "array",
             string: true,
             choices: syncEntityChoices,
-            describe: `Export specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}.`,
-            demandOption: "You need to provide the what entities to export.",
+            describe: `Snapshot specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}.`,
+            demandOption: "You need to provide the what entities to snapshot.",
           })
           .option("folderName", {
             type: "string",
             describe: "Name of the folder to generate content model into.",
             alias: "f",
           }),
-      handler: args => syncModelExportCli(args).catch(simplifyErrors),
+      handler: args => syncSnapshotCli(args).catch(simplifyErrors),
     },
   );
 
-type SyncModelExportCliParams =
+type SyncSnapshotCliParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
@@ -52,9 +52,9 @@ type SyncModelExportCliParams =
   }>
   & LogOptions;
 
-const syncModelExportCli = async (params: SyncModelExportCliParams) => {
+const syncSnapshotCli = async (params: SyncSnapshotCliParams) => {
   try {
-    await syncExportInternal(
+    await syncSnapshotInternal(
       { ...params, entities: createSyncEntitiesParameter(params.entities) },
       createClient({
         environmentId: params.environmentId,
