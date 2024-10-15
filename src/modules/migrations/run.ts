@@ -46,7 +46,7 @@ export const runMigrations = async (params: RunMigrationsParams) => {
   const client = createClient({
     environmentId: params.environmentId,
     apiKey: params.apiKey,
-    commandName: "migrations-API",
+    commandName: "migrations-run-API",
   });
 
   await withMigrationsToRun(params, async migrations => {
