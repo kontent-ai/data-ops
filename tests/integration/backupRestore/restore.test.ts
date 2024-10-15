@@ -38,7 +38,7 @@ describe("restore command", () => {
     "Restores all entities properly into the target project",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/exportSnapshot.zip -k=${API_KEY} --verbose`;
+        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --verbose`;
 
       await runCommand(command);
 
@@ -50,7 +50,7 @@ describe("restore command", () => {
     "Restores only entities specified in the include parameter",
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       const command =
-        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/exportSnapshot.zip -k=${API_KEY} --include collections languages taxonomies`;
+        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --include collections languages taxonomies`;
 
       await runCommand(command);
 
@@ -75,7 +75,7 @@ describe("restore command", () => {
     withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
       await restoreEnvironment({
         environmentId: environmentId,
-        fileName: "tests/integration/backupRestore/data/exportSnapshot.zip",
+        fileName: "tests/integration/backupRestore/data/backup.zip",
         apiKey: API_KEY,
         exclude: [
           "assets",

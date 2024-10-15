@@ -45,7 +45,7 @@ const runCommand = (command, props) => {
 };
 const syncSourcePath = "tests/integration/sync/data/sync_test_source.zip";
 const syncTargetPath = "tests/integration/sync/data/sync_test_target.zip";
-const restorePath = "tests/integration/backupRestore/data/exportSnapshot.zip"
+const restorePath = "tests/integration/backupRestore/data/backup.zip"
 
 const syncSourceBackupCommand = `environment backup -e=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -f=${syncSourcePath} -k=${API_KEY}`;
 const syncTargetBackupCommand = `environment backup -e=${SYNC_TARGET_TEST_ENVIRONMENT_ID} -f=${syncTargetPath} -k=${API_KEY}`;
