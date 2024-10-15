@@ -15,7 +15,7 @@ const itemsFilterParams = ["items", "filter", "last", "byTypesCodenames"] as con
 export const register: RegisterCommand = yargs =>
   yargs.command({
     command: commandName,
-    describe: "Migrate specified (by codenames) content items between source and target environments",
+    describe: "Migrate specified (by codenames) content items between source and target environments.",
     builder: yargs =>
       yargs
         .option("targetEnvironmentId", {
@@ -32,13 +32,13 @@ export const register: RegisterCommand = yargs =>
         })
         .option("sourceEnvironmentId", {
           type: "string",
-          describe: "Id of Kontent.ai environmnent containing source content model.",
+          describe: "Id of Kontent.ai environmnent containing source content.",
           alias: "s",
           implies: ["sourceApiKey"],
         })
         .option("sourceApiKey", {
           type: "string",
-          describe: "Management Api key of Kontent.ai environmnent containing source content model.",
+          describe: "Management Api key of Kontent.ai environmnent containing source content.",
           alias: "sk",
           implies: ["sourceEnvironmentId"],
         })
@@ -95,7 +95,7 @@ export const register: RegisterCommand = yargs =>
         })
         .option("filter", {
           type: "string",
-          describe: "A filter to obtain a subset of items codenames. See Delivery sdk for more info.",
+          describe: "A filter to obtain a subset of items codenames. See Delivery API docs for more information.",
           conflicts: itemsFilterParams.filter(p => p !== "filter"),
         })
         .option("skipConfirmation", {

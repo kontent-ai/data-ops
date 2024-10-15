@@ -12,37 +12,37 @@ const commandName = "diff";
 export const register: RegisterCommand = yargs =>
   yargs.command({
     command: commandName,
-    describe: "Compares content models from two Kontent.ai environments",
+    describe: "Compares content models from two Kontent.ai environments.",
     builder: yargs =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
-          describe: "Id of the target Kontent.ai environment that should be diffed",
-          demandOption: "You need to provide the environmentId of your Kontent.ai environment",
+          describe: "Id of the target Kontent.ai environment that should be diffed.",
+          demandOption: "You need to provide the environmentId of target Kontent.ai environment.",
           alias: "t",
         })
         .option("targetApiKey", {
           type: "string",
-          describe: "Management API key of target Kontent.ai environment",
-          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
+          describe: "Management API key of target Kontent.ai environment.",
+          demandOption: "You need to provide a Management API key for target Kontent.ai environment.",
           alias: "tk",
         })
         .option("folderName", {
           type: "string",
-          describe: "Name of the folder containing source content model",
+          describe: "Name of the folder containing source content model.",
           alias: "f",
           conflicts: ["sourceApiKey", "sourceEnvironmentId"],
         })
         .option("sourceEnvironmentId", {
           type: "string",
-          describe: "Id of Kontent.ai environmnent containing source content model",
+          describe: "Id of Kontent.ai environmnent containing source content model.",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
           alias: "s",
         })
         .option("sourceApiKey", {
           type: "string",
-          describe: "Management API key of Kontent.ai environmnent containing source content model",
+          describe: "Management API key of Kontent.ai environmnent containing source content model.",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
           alias: "sk",
