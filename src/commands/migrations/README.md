@@ -1,18 +1,15 @@
 # Migrations
 
-The `migrations` command provides tools to write and execute migration scripts for managing Kontent.ai environments using the Management API. It consists of two subcommands:
+The `migrations` command provides tools to write and execute migration scripts for managing Kontent.ai environments using the Management API. There are two subcommands:
 
-- [`add`](#migrations-add): Create a new migration script.
-- [`run`](#migrations-run): Execute migration scripts against a Kontent.ai environment.
-
-> [!NOTE]
->
-> The data-ops migration tools support only JavaScript files. If you write your migrations in TypeScript or any other language, you must transpile your code before running them.
+- [`add`](#migrations-add-command): Create a new migration script.
+- [`run`](#migrations-run-command): Execute migration scripts against a Kontent.ai environment.
 
 
 > [!CAUTION]
 >
-> Data-ops can only work with ES Modules. Ensure you use ES `.js` scripts or transpile your `.ts` files into ES Modules.
+> The data-ops migration tools support only JavaScript files. If you write your migrations in TypeScript or any other language, you must transpile your code before running them.
+> Also, the tool can only work with ES Modules - ensure you use ES `.js` scripts or transpile your `.ts` files into ES Modules.
 
 ---
 
@@ -117,7 +114,8 @@ npx @kontent-ai/data-ops@latest migrations run --help
 | `--statusPlugins`        | (Optional) Path to a script that defines how to store and read status.                                           |
 | `--continueOnError`      | (Optional) Determines whether migrations should continue when an error is encoutered.                            |
 
-[!NOTE]: If none of `--name`, `--all`, `--next`, or `--range` is specified, the command will prompt you to select a migration to run.
+> [!NOTE]
+> If none of `--name`, `--all`, `--next`, or `--range` is specified, the command will prompt you to select a migration to run.
 
 ### Range Parameter Format
 
@@ -259,7 +257,7 @@ You might want to implement your own method for storing and retrieving migration
      --all
    ```
 
-> **Important Notes:**
+> [!Important]
 >
 > - Both `readStatus` and `saveStatus` functions must be implemented.
 > - Ensure your plugin script exports these functions correctly.

@@ -1,29 +1,29 @@
-# Sync-Model Run Command
+# Sync Run Command
 
 > [!CAUTION]
 >
-> Synchronizing the content model can lead to irreversible changes in the target environment, such as:
+> Synchronizing a content model & environment metadata can lead to irreversible changes in the target environment, such as:
 >
 > - **Deletion of content** by removing elements from content types.
 > - **Deletion of used taxonomies**.
 > - **Removal of role limitations** in workflows (see [Known Limitations](#known-limitations)).
 >
-> Proceed with caution and consider backing up your environment or testing in a non-production environment first.
+> Proceed with caution and consider testing in a non-production environment first!
 
-The `sync-model run` command synchronizes the **source content model** into the **target environment** using the [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). This command is essential for maintaining consistency across environments (e.g., Development, Staging, Production) by updating the content model in the target environment to match the source.
+The `sync run` command is capable of synchronizing the **source content model & environment metadata** into the **target environment** using the [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/). This command is essential for maintaining consistency across environments (e.g., Development, Staging, Production) by updating mainly the content model in the target environment to match the source.
 
-## Why Use `sync-model run`?
+## Why Use `sync run`?
 
-- **Environment Consistency**: Ensure that content models are identical across environments, preventing issues caused by discrepancies.
+- **Environment Consistency**: Ensure that your content model is identical across environments, preventing issues caused by discrepancies.
 - **Deployment Automation**: Automate content model updates as part of your CI/CD pipeline.
-- **Team Collaboration**: Allow multiple team members to work on content models in different environments and synchronize changes efficiently.
+- **Team Collaboration**: Allow multiple team members to work on a content model across different environments and synchronize changes efficiently.
 
-## Source Content Model Options
+## Source Data Options
 
-You can obtain the source content model in two ways:
+You can obtain the source data in two ways:
 
-1. **From an Existing Kontent.ai Environment**: Provide the source environment ID and Management API key to fetch the content model directly.
-2. **From a Local Folder**: Use a local folder containing the content model exported using the [`sync-model export`](../export/README.md) command.
+1. **From an Existing Kontent.ai Environment**: Provide the source environment ID and Management API key to fetch the content model & environment metadata directly.
+2. **From a Local Folder**: Use a local folder containing a created snapshot using the [`sync snapshot`](../snapshot/README.md) command.
 
 ## Key Features
 
@@ -77,37 +77,44 @@ Before running the synchronization, ensure:
 
 ## Usage
 
-### Synchronizing from Environments
+To see all supported parameters, run:
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model run \
+npx @kontent-ai/data-ops@latest sync run --help
+```
+
+### Synchronizing directly between Environments
+
+```bash
+npx @kontent-ai/data-ops@latest sync run \
   --targetEnvironmentId=<target-env-id> \
   --targetApiKey=<target-api-key> \
   --sourceEnvironmentId=<source-env-id> \
   --sourceApiKey=<source-api-key> \
   --entities contentTypes contentTypeSnippets taxonomies
 ```
+### Synchronizing from a Local Snapshot (Recommended)
 
-### Synchronizing from a Local Folder (Recommended)
-
-First, export the content model:
+First, create the snapshot:
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model export \
+npx @kontent-ai/data-ops@latest sync snapshot \
   --environmentId=<source-env-id> \
   --apiKey=<source-api-key> \
-  --outputFolder=./content-model
+  --outputFolder=./content-model \
+  --entities contentTypes contentTypeSnippets taxonomies
 ```
 
 Then, synchronize to the target environment:
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model run \
+npx @kontent-ai/data-ops@latest sync run \
   --targetEnvironmentId=<target-env-id> \
   --targetApiKey=<target-api-key> \
   --folderName=./content-model \
   --entities contentTypes contentTypeSnippets taxonomies
 ```
+
 
 ### Using a Configuration File
 
@@ -135,52 +142,33 @@ Create a `params.json` file:
 Run the command with the configuration file:
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model run --configFile params.json
+npx @kontent-ai/data-ops@latest sync run --configFile params.json
 ```
 
 ### Parameters
 
 | Parameter                | Description                                                                                                  |
 |--------------------------|--------------------------------------------------------------------------------------------------------------|
-| `--targetEnvironmentId`  | The ID of the target environment where the content model will be synchronized.                                |
+| `--targetEnvironmentId`  | The ID of the target environment where the content model will be synchronized.                               |
 | `--targetApiKey`         | The Management API key for the target environment.                                                           |
-| `--sourceEnvironmentId`  | (Optional) The ID of the source environment to fetch the content model from.                                  |
-| `--sourceApiKey`         | (Optional) The Management API key for the source environment.                                                 |
-| `--folderName`           | (Optional) Path to the folder containing the exported content model.                                          |
-| `--entities`             | List of entities to synchronize (e.g., `contentTypes`, `taxonomies`).     
-| `--skipConfirmation`     | (Optional) Skip confirmation message.                                      |                                    |
-| `--configFile`           | (Optional) Path to a JSON configuration file containing parameters.                                           |
+| `--sourceEnvironmentId`  | (Optional) The ID of the source environment to fetch the content model from.                                 |
+| `--sourceApiKey`         | (Optional) The Management API key for the source environment.                                                |
+| `--folderName`           | (Optional) Path to the folder containing the exported content model.                                         |
+| `--entities`             | List of entities to synchronize (`contentTypes`,`contentTypeSnippets`,`taxonomies`,`collections`,`assetFolders`,`spaces`,`languages`,`webSpotlight`,`workflows`).                                        |
+| `--skipConfirmation`     | (Optional) Skip confirmation message.                                                                        |
+| `--configFile`           | (Optional) Path to a JSON configuration file containing parameters.                                          |
 
-[!NOTE]: Use either `--sourceEnvironmentId` and `--sourceApiKey`, or `--folderName`, not both.
+> [!NOTE]
+> Use either `--sourceEnvironmentId` and `--sourceApiKey`, or `--folderName`, not both.
 
-### Examples
+## Sync Environments Programmatically
 
-**Synchronize Content Types and Taxonomies Only**
-
-```bash
-npx @kontent-ai/data-ops@latest sync-model run \
-  --targetEnvironmentId=<target-env-id> \
-  --targetApiKey=<target-api-key> \
-  --folderName=./content-model \
-  --entities contentTypes taxonomies
-```
-
-### Viewing Help
-
-To see all supported parameters, run:
-
-```bash
-npx @kontent-ai/data-ops@latest sync-model run --help
-```
-
-## Sync Model Programmatically
-
-You can synchronize the content model within your scripts using the `syncModelRun` function:
+You can synchronize your environments within your scripts using the `syncRun` function:
 
 ```typescript
-import { syncModelRun, SyncModelRunParams } from "@kontent-ai/data-ops";
+import { syncRun, SyncRunParams } from "@kontent-ai/data-ops";
 
-const params: SyncModelRunParams = {
+const params: SyncRunParams = {
   targetEnvironmentId: "<target-env-id>",
   targetApiKey: "<target-api-key>",
   // Use either sourceEnvironmentId and sourceApiKey, or folderName
@@ -194,7 +182,7 @@ const params: SyncModelRunParams = {
   }
 };
 
-await syncModelRun(params);
+await syncRun(params);
 ```
 
 ### Advanced Filtering
@@ -209,18 +197,12 @@ entities: {
 }
 ```
 
-## Additional Notes
+## Summary
 
 - **Review Changes**: Always review the diff generated before synchronization to understand the changes that will be applied.
 - **Backup**: Consider exporting the target environment's content model before synchronization as a backup.
 - **Testing**: Test the synchronization in a non-production environment to ensure it behaves as expected.
 - **Dependencies**: Ensure that all dependencies (e.g., referenced taxonomies, content types) are included or exist in the target environment.
-
-## Common Use Cases
-
-- **Promoting Changes**: Move content model changes from Development to Production environments.
-- **Environment Refresh**: Keep Staging and Development environments in sync with Production.
-- **Automation**: Integrate content model synchronization into CI/CD pipelines.
 
 ## Troubleshooting
 
