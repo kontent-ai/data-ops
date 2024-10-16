@@ -3,7 +3,8 @@ import { resolve } from "path";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
-import { syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
+import { Replace } from "../../utils/types.js";
+import { syncEntityChoices, syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
 import { diff } from "./diff.js";
 import { readHtmlFile } from "./utils/fileUtils.js";
 import {
@@ -18,7 +19,7 @@ export type SyncDiffParams = Readonly<
   & {
     targetEnvironmentId: string;
     targetApiKey: string;
-    entities: ReadonlyArray<SyncEntityName>;
+    entities?: ReadonlyArray<SyncEntityName>;
   }
   & (
     | { folderName: string }
@@ -26,6 +27,8 @@ export type SyncDiffParams = Readonly<
   )
   & LogOptions
 >;
+
+export type SyncDiffParamsIntenal = Replace<SyncDiffParams, { entities: ReadonlyArray<SyncEntityName> }>;
 
 /**
  * Compares two environments and generates an HTML representation of the differences.
@@ -35,13 +38,14 @@ export type SyncDiffParams = Readonly<
  * @returns {Promise<string>} HTML string containing the visual representation of the diff between the two environments.
  */
 export const syncDiff = async (params: SyncDiffParams) => {
-  const diffModel = await syncDiffInternal(params, "diff-API");
+  const resolvedParams = { ...params, entities: params.entities ?? syncEntityChoices };
+  const diffModel = await syncDiffInternal(resolvedParams, "diff-API");
   const templateString = readHtmlFile(resolve(import.meta.dirname, "./utils/diffTemplate.html"));
 
-  return resolveHtmlTemplate(templateString, { ...diffModel, ...params });
+  return resolveHtmlTemplate(templateString, { ...diffModel, ...resolvedParams });
 };
 
-export const syncDiffInternal = async (params: SyncDiffParams, commandName: string) => {
+export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandName: string) => {
   logInfo(
     params,
     "standard",
