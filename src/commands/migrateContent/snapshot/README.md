@@ -1,12 +1,12 @@
-# Sync-Content Export Command
+# Migrate-content Snapshot Command
 
-The `sync-content export` command allows you to export **selected content items** along with their assets from a **source Kontent.ai environment** into a file. It utilizes the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit). You can manually specify the codenames of content items you want to export, or leverage the [Kontent.ai Delivery API](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) to obtain content item codenames based on your own criteria.
+The `migrate-content snapshot` command allows you to export **selected content items** along with their assets from a **source Kontent.ai environment** into a local file creating a content snapshot. It utilizes the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit). You can manually specify the codenames of content items you want to export, or leverage the [Kontent.ai Delivery API](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) to obtain content item codenames based on your own criteria.
 
 > [!Note]
 >
 > For more information about the format of exported items, refer to the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit) repository.
 
-## Selecting Content Items Using the Delivery API
+## Selecting Content Items to be Migrated
 
 The command provides several parameters to cover various scenarios for selecting content items from the source environment:
 
@@ -15,7 +15,7 @@ The command provides several parameters to cover various scenarios for selecting
   **Example:**
 
   ```bash
-  npx @kontent-ai/data-ops@latest sync-content export \
+  npx @kontent-ai/data-ops@latest migrate-content snapshot \
     --sourceEnvironmentId=<source-environment-id> \
     --sourceApiKey=<source-api-key> \
     --language=<language-codename> \
@@ -27,7 +27,7 @@ The command provides several parameters to cover various scenarios for selecting
   **Example:**
 
   ```bash
-  npx @kontent-ai/data-ops@latest sync-content export \
+  npx @kontent-ai/data-ops@latest migrate-content snapshot \
     --sourceEnvironmentId=<source-environment-id> \
     --sourceApiKey=<source-api-key> \
     --language=<language-codename> \
@@ -40,7 +40,7 @@ The command provides several parameters to cover various scenarios for selecting
   **Example:**
 
   ```bash
-  npx @kontent-ai/data-ops@latest sync-content export \
+  npx @kontent-ai/data-ops@latest migrate-content snapshot \
     --sourceEnvironmentId=<source-environment-id> \
     --sourceApiKey=<source-api-key> \
     --sourceDeliveryPreviewKey=<delivery-preview-key> \
@@ -53,7 +53,7 @@ The command provides several parameters to cover various scenarios for selecting
   **Example:**
 
   ```bash
-  npx @kontent-ai/data-ops@latest sync-content export \
+  npx @kontent-ai/data-ops@latest migrate-content snapshot \
     --sourceEnvironmentId=<source-environment-id> \
     --sourceApiKey=<source-api-key> \
     --sourceDeliveryPreviewKey=<delivery-preview-key> \
@@ -66,7 +66,7 @@ The command provides several parameters to cover various scenarios for selecting
   **Example:**
 
   ```bash
-  npx @kontent-ai/data-ops@latest sync-content export \
+  npx @kontent-ai/data-ops@latest migrate-content snapshot \
     --sourceEnvironmentId=<source-environment-id> \
     --sourceApiKey=<source-api-key> \
     --sourceDeliveryPreviewKey=<delivery-preview-key> \
@@ -74,10 +74,10 @@ The command provides several parameters to cover various scenarios for selecting
     --filter "elements.category[contains]=news"
   ```
 
-> **Important Notes:**
+> [!Important]
 >
 > - The parameters above are **mutually exclusive**. Use only one of them at a time.
-> - When using parameters that utilize the Delivery API (`--last`, `--byTypeCodename`, `--filter`), you need to provide a valid Delivery Preview API Key using the `--sourceDeliveryPreviewKey` (or shorthand `--sd`) parameter.
+> - When using parameters that utilize the Delivery API (`--last`, `--byTypeCodename`, `--filter`, or when using `--items` with `--depth`), you need to provide a valid Delivery Preview API Key using the `--sourceDeliveryPreviewKey` (or shorthand `--sd`) parameter.
 > - All commands support optional `--depth` and `--limit` parameters that affect the depth of linked items and response size. When specifying the `--depth` parameter, we encourage you to use the `--limit` parameter appropriately to prevent hitting the upper limit for Delivery API response size. For more information, refer to the [Kontent.ai Delivery API documentation](https://kontent.ai/learn/docs/apis/openapi/delivery-api/#section/Response-size).
 
 ## Parameters
@@ -86,7 +86,7 @@ The command provides several parameters to cover various scenarios for selecting
 |------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | `--sourceEnvironmentId`            | The ID of the source environment from which to export content.                                                                                   |
 | `--sourceApiKey`                   | The Management API key for the source environment.                                                                                               |
-| `--language`                       | The codename of the language variant to export.                                                                                                  |
+| `--language`                       | Specifies language codename, for which content items will be exported.                                                                                                  |
 | `--items`                          | (Mutually exclusive) A list of content item codenames to export.                                                                                 |
 | `--last`                           | (Mutually exclusive) The number of last modified content items to export.                                                                         |
 | `--byTypeCodename`                 | (Mutually exclusive) A list of content type codenames to filter content items.                                                                    |
@@ -97,14 +97,14 @@ The command provides several parameters to cover various scenarios for selecting
 | `--configFile`                     | (Optional) Path to a JSON configuration file containing parameters.                                                                              |
 | `--fileName`                       | (Optional) The name of the output file. Default is `contentExport.zip`.                                                                           |
 
-## Exporting Data Programmatically
+## Exporting Content into a Local Snapshot Programmatically
 
-To export content data from your environment in your scripts, use the `syncContentExport` function:
+To export content data from your environment in your scripts, use the `migrateContentSnapshot` function:
 
 ```typescript
-import { syncContentExport, SyncContentExportParams } from "@kontent-ai/data-ops";
+import { migrateContentSnapshot, MigrateContentSnapshotParams } from "@kontent-ai/data-ops";
 
-const params: SyncContentExportParams = {
+const params: MigrateContentSnapshotParams = {
   sourceEnvironmentId: "<source-env-id>",
   sourceApiKey: "<source-api-key>",
   language: "en-US",
@@ -115,15 +115,9 @@ const params: SyncContentExportParams = {
   // sourceDeliveryPreviewKey: "<delivery-preview-key>",
 };
 
-await syncContentExport(params);
+await migrateContentSnapshot(params);
 ```
 
 ## Export from External Systems
 
 If you want to export content from external systems and make it importable by data-ops, you can follow the instructions in the [Kontent.ai Migration Toolkit](https://github.com/kontent-ai/kontent-ai-migration-toolkit/). This repository also provides a [sample script](https://github.com/kontent-ai/kontent-ai-migration-toolkit/blob/main/samples/migrate-from-external-system.ts) demonstrating how to migrate content from external systems.
-
-## Additional Notes
-
-- **Mutually Exclusive Parameters**: The content selection parameters (`--items`, `--last`, `--byTypeCodename`, `--filter`) are mutually exclusive. Use only one of these parameters per command.
-- **API Keys Security**: Ensure that you handle API keys securely. Do not expose them in version control systems or logs.
-- **Content Dependencies**: When exporting content items with linked items, ensure that the linked items are included in the export by setting the appropriate `--depth`.

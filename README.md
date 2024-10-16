@@ -1,4 +1,4 @@
-# Kontent.ai Data Ops: Control Your Infrastructure & Data (Import, Export, Sync)
+# Kontent.ai Data Ops: Control Your Infrastructure & Data (Backup, Restore, Sync, Migrate)
 
 [![NPM Version][npm-shield]][npm-url]
 [![Contributors][contributors-shield]][contributors-url]
@@ -9,10 +9,9 @@
 [![Discord][discord-shield]][discord-url]
 
 Kontent.ai Data Ops is a powerful CLI tool designed to streamline data management in your Kontent.ai projects. It supports a wide variety of complex operations, including:
-
-- **Importing Data**: Easily import content and content models into your projects.
-- **Exporting Data**: Export your project's data for backup or migration purposes.
-- **Synchronizing Data**: Keep content and content models in sync across different projects and environments.
+- **Environment Backup**: Export your project's data for backup or migration purposes.
+- **Environment Restore**: Easily recreate environments from your backups.
+- **Synchronizing and Migrating Data**: Keep content and content models in sync across different projects and environments.
 - **Executing Migration Scripts**: Apply changes incrementally using migration scripts and maintain a clear history of modifications.
 
 By automating these processes, Data Ops helps maintain consistency, reduce manual effort, and accelerate your deployment workflows.
@@ -25,8 +24,8 @@ By automating these processes, Data Ops helps maintain consistency, reduce manua
 - [Getting Started](#getting-started)
   - [Installation](#installation)
   - [Configuration](#configuration)
-  - [Examples](#examples)
 - [Commands](#commands)
+  - [Examples](#examples)
 - [Contributing](#contributing)
   - [How to Contribute](#how-to-contribute)
   - [Code of Conduct](#code-of-conduct)
@@ -34,7 +33,7 @@ By automating these processes, Data Ops helps maintain consistency, reduce manua
   - [Running Tests](#running-tests)
   - [Prepare Your Testing Project](#prepare-your-testing-project)
   - [Configuration for Testing](#configuration-for-testing)
-  - [Structure](#structure)
+  - [Structure](#repository-structure)
 - [License](#license)
 - [Support](#support)
 - [Additional Resources](#additional-resources)
@@ -107,74 +106,38 @@ npx @kontent-ai/data-ops@latest <command-name> <command-options>
 
 Below are the available commands:
 
-- **[import & export](./src/commands/importExport/README.md)**: Import or export data to and from a Kontent.ai project.
-- **[clean](./src/commands/clean/README.md)**: Delete data in your Kontent.ai environment.
-- **sync-model**:
-  - **[export](./src/commands/syncModel/export/README.md)**: Export the content model of an environment.
-  - **[diff](./src/commands/syncModel/diff/README.md)**: Compare content models between environments.
-  - **[run](./src/commands/syncModel/run/README.md)**: Synchronize content models between environments.
-- **sync-content**:
-  - **[export](./src/commands/syncContent/export/README.md)**: Export selected content items and assets.
-  - **[run](./src/commands/syncContent/run/README.md)**: Synchronize content items between environments.
+- **environment**:
+  - **[backup & restore](./src/commands/environment/backupRestore/README.md)**: Backup & restore your Kontent.ai environment.
+  - **[clean](./src/commands/environment/clean/README.md)**: Delete all data from your Kontent.ai environment.
+- **sync**:
+  - **[snapshot](./src/commands/sync/snapshot/README.md)**: Create a local snapshot from a Kontent.ai environment for the purpose of synchronization.
+  - **[diff](./src/commands/sync/diff/README.md)**: Compare two environments.
+  - **[run](./src/commands/sync/run/README.md)**: Synchronize content model and environment metadata changes between environments.
+- **migrate-content**:
+  - **[snapshot](./src/commands/migrateContent/snapshot/README.md)**: Create a local snapshot from selected content items and assets.
+  - **[run](./src/commands/migrateContent/run/README.md)**: Migrate content items across environments.
 - **[migrations](./src/commands/migrations/README.md)**:
   - **add**: Add new migration scripts.
   - **run**: Execute migration scripts.
 
-> [!NOTE]: All command functions are publicly exposed, making it easy to include them in your scripts. See the individual command readmes for more information.
+> [!NOTE]
+> All command functions are publicly exposed, making it easy to include them in your scripts. See the individual command readmes for more information.
 
-### Including and Excluding Entities in Commands
+### Examples
 
-Certain data-ops commands (import, export, clean) support the `--include` and `--exclude` options. These options allow you to specify which entities you want the command to process, giving you fine-grained control over the operation.
-
-#### Available Entities
-
-You can include or exclude the following entities using the `--include` and `--exclude` options:
-
-- **`collections`**: Collections in your project used to organize content items into logical groups.
-- **`spaces`**: Spaces within your project define different target (preview) applications.
-- **`taxonomies`**: Taxonomy groups used for categorizing and tagging content.
-- **`languages`**: Languages configured for your project to support localization.
-- **`previewUrls`**: Preview URLs set up for content types to enable content previews.
-- **`roles`**: User roles that define permissions and access levels within the project.
-- **`workflows`**: Workflows that outline the stages of content creation and publication.
-- **`contentTypeSnippets`**: Reusable groups of elements (snippets) that can be included in multiple content types.
-- **`contentTypes`**: Definitions of content types that specify the structure and elements of content items.
-- **`contentItems`**: Individual content items created in your project.
-- **`languageVariants`**: Variants of content items in different languages.
-- **`assetFolders`**: Folders used to organize assets within the asset library.
-- **`assets`**: Media files such as images, videos, and documents stored in your project.
-- **`webhooks`**: Webhooks configured to notify external services of events occurring in your project.
-- **`webSpotlight`**: Web Spotlight configurations for visual website content editing.
-
-#### Usage
-
-- **Including Specific Entities**: Use the `--include` option followed by a list of entities you want to include in the command's operation.
-- **Excluding Specific Entities**: Use the `--exclude` option followed by a list of entities you want to exclude from the command's operation.
-
-#### Examples
-
-**Including Only Content Items and Assets in an Export**
+**Creating an Environment Backup including Content Items and Assets**
 
 ```bash
-npx @kontent-ai/data-ops@latest export \
+npx @kontent-ai/data-ops@latest environment backup \
   --environmentId <environment-id> \
   --apiKey <Management-API-key> \
   --include contentItems assets
 ```
 
-**Excluding Roles and Workflows from an Export**
-
-```bash
-npx @kontent-ai/data-ops@latest export \
-  --environmentId <environment-id> \
-  --apiKey <Management-API-key> \
-  --exclude roles workflows
-```
-
 **Cleaning an Environment Excluding Taxonomies and Languages**
 
 ```bash
-npx @kontent-ai/data-ops@latest clean \
+npx @kontent-ai/data-ops@latest environment clean \
   --environmentId <environment-id> \
   --apiKey <Management-API-key> \
   --exclude taxonomies languages
@@ -183,7 +146,7 @@ npx @kontent-ai/data-ops@latest clean \
 **Synchronizing Content Types and Snippets Only**
 
 ```bash
-npx @kontent-ai/data-ops@latest sync-model run \
+npx @kontent-ai/data-ops@latest sync run \
   --sourceEnvironmentId <source-environment-id> \
   --sourceApiKey <source-api-key> \
   --targetEnvironmentId <target-environment-id> \
@@ -191,14 +154,10 @@ npx @kontent-ai/data-ops@latest sync-model run \
   --entities contentTypes contentTypeSnippets
 ```
 
-#### Tips
-
-- **Selective Operations**: Use the `--include` option when you want to operate on a limited set of entities.
-- **Configuration Files**: For complex commands with multiple entities, consider using a configuration file with the `--configFile` option to manage your parameters more easily.
-
----
-
-By understanding and utilizing the `--include` and `--exclude` options, you can tailor the data-ops tool commands to fit your specific needs, ensuring efficient and effective management of your Kontent.ai projects, however, you have to be aware of dependent entities when using these options. 
+>[!Tip]
+>
+> - **Selective Operations**: Use the `--include` option to operate on a limited set of entities.
+> - **Configuration Files**: For complex commands with multiple entities, consider using a configuration file with the `--configFile` option to manage your parameters more easily. 
 
 ---
 
@@ -232,19 +191,22 @@ We have comprehensive test suites to ensure the reliability of the Data Ops tool
 - **Unit Tests**: Run `npm run test:unit` to execute unit tests.
 - **Integration Tests**: Run `npm run test:integration` to execute integration tests.
 
-  > [!IMPORTANT]: Integration tests require access to a Kontent.ai project and may create temporary environments. Interrupting tests may lead to orphaned environments. Always allow tests to complete or clean up manually if necessary.
+> [!IMPORTANT]
+> Integration tests require access to a Kontent.ai project and may create temporary environments. Interrupting tests may lead to orphaned environments. Always allow tests to be completed or clean up manually if necessary.
 
-- > [!IMPORTANT]: Run `npm run test:advancedDiff` to compare generated advanced diffs with test baselines.
+> [!IMPORTANT]
+> Run `npm run test:advancedDiff` to compare generated advanced diffs with test baselines.
 
 ### Prepare Your Testing Project
 
-To successfully execute integration tests, you need to prepare a Kontent.ai project with corresponding environments. You can use the [import](./src/commands/importExport/README.md) command to import prepared zip files located at `tests/integration/<testName>/data/<zipName>.zip`.
+To successfully execute integration tests, you must prepare a Kontent.ai project with corresponding environments. You can use the [environment restore](./src/commands/backupRestore/README.md) command to import prepared zip files located at `tests/integration/<testName>/data/<zipName>.zip`.
 
 #### Exporting Test Environments
 
 All Kontent.ai test environments are exported in `tests/integration/<testName>/data/<zipName>.zip`. When you update any of these environments, you should also update the corresponding exported zip files. To streamline this process, we've provided a script called `exportTestEnvironments.js`. You can run it with the command `npm run export:testEnv`. If you need to export specific environments, you can use the following command parameters: `-i` for Import/Export test environment, `-s` for Sync Source Template environment, and `-t` for Sync Target Template environment. For instance, to export only the Sync Source and Sync Target environments, you would run `npm run export:testEnv -- -s -t`.
 
-> [!IMPORTANT]: Creation and removal of new environments takes some time; therefore, try to keep the number of environment-dependent tests to a minimum.
+> [!IMPORTANT]
+> Creation and removal of new environments takes some time; therefore, try to keep the number of environment-dependent tests to a minimum.
 
 ### Configuration for Testing
 
@@ -268,7 +230,7 @@ Tests can be found in `tests/integration` and `tests/unit` folders. Integration 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
 
 ---
 
