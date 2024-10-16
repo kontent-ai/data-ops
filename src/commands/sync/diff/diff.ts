@@ -2,7 +2,7 @@ import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { syncDiffInternal, SyncDiffParams } from "../../../modules/sync/diffEnvironments.js";
+import { syncDiffInternal, SyncDiffParamsIntenal } from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -58,7 +58,6 @@ export const register: RegisterCommand = yargs =>
           string: true,
           choices: syncEntityChoices,
           describe: `Diff specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
-          demandOption: "You need to provide the what entities to diff.",
         })
         .option("outPath", {
           type: "string",
@@ -72,45 +71,47 @@ export const register: RegisterCommand = yargs =>
           alias: "n",
           implies: ["advanced"],
         }),
-    handler: args => diffEnvironmentsCli(args).catch(simplifyErrors),
+    handler: args => syncDiffCli(args).catch(simplifyErrors),
   });
 
-type DiffEnvironmentsCliParams =
+type syncDiffCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
     folderName?: string;
     sourceEnvironmentId?: string;
     sourceApiKey?: string;
-    entities: ReadonlyArray<SyncEntityName>;
+    entities?: ReadonlyArray<SyncEntityName>;
     advanced?: boolean;
     outPath?: string;
     noOpen?: boolean;
   }>
   & LogOptions;
 
-const diffEnvironmentsCli = async (params: DiffEnvironmentsCliParams) => {
+const syncDiffCli = async (params: syncDiffCliParams) => {
   const resolvedParams = resolveParams(params);
 
   const diffModel = await syncDiffInternal(resolvedParams, commandName);
 
   return "advanced" in params
-    ? createAdvancedDiffFile({ ...diffModel, ...params })
+    ? createAdvancedDiffFile({ ...diffModel, ...resolvedParams })
     : printDiff(diffModel, new Set(params.entities), params);
 };
 
-const resolveParams = (params: DiffEnvironmentsCliParams): SyncDiffParams => ({
-  ...match(params)
+const resolveParams = (params: syncDiffCliParams): SyncDiffParamsIntenal => {
+  const updatedParams = { ...params, entities: params.entities ?? syncEntityChoices };
+
+  return match(updatedParams)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
-      ({ sourceEnvironmentId, sourceApiKey }) => ({ ...params, sourceEnvironmentId, sourceApiKey }),
+      ({ sourceEnvironmentId, sourceApiKey }) => ({ ...updatedParams, sourceEnvironmentId, sourceApiKey }),
     )
-    .with({ folderName: P.nonNullable }, ({ folderName }) => ({ ...params, folderName }))
+    .with({ folderName: P.nonNullable }, ({ folderName }) => ({ ...updatedParams, folderName }))
     .otherwise(() => {
       logError(
         params,
         "You need to provide either 'folderName' or 'sourceEnvironmentId' with 'sourceApiKey' parameters",
       );
       process.exit(1);
-    }),
-});
+    });
+};
