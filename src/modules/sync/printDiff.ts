@@ -1,19 +1,14 @@
 import chalk from "chalk";
 import { existsSync } from "fs";
-import { dirname, resolve } from "path";
+import { dirname } from "path";
 import { match } from "ts-pattern";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { SyncEntityName } from "./constants/entities.js";
 import { DiffModel, DiffObject } from "./types/diffModel.js";
 import { PatchOperation } from "./types/patchOperation.js";
-import {
-  createOutputDirectory,
-  createOutputFile,
-  openOutputFile,
-  readHtmlFile,
-  resolveOutputPath,
-} from "./utils/fileUtils.js";
+import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
+import { createOutputDirectory, createOutputFile, openOutputFile, resolveOutputPath } from "./utils/fileUtils.js";
 import { DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
 export const printDiff = (
@@ -130,8 +125,7 @@ const printDiffEntity = (
 export const createAdvancedDiffFile = (diffData: DiffData) => {
   const logOptions: LogOptions = diffData;
   const resolvedPath = diffData.outPath ? resolveOutputPath(diffData.outPath) : false;
-  const templateString = readHtmlFile(resolve(import.meta.dirname, "./utils/diffTemplate.html"));
-  const resolvedTemplate = resolveHtmlTemplate(templateString, diffData);
+  const resolvedTemplate = resolveHtmlTemplate(diffHtmlTemplate, diffData);
 
   if (!resolvedPath) {
     throw new Error(`Output path not specified.`);
