@@ -6,17 +6,7 @@ import * as path from "path";
 import { logError, logInfo, LogOptions } from "../../../log.js";
 
 const { resolve } = path;
-const { mkdirSync, readFileSync, writeFileSync } = fs;
-
-export const readHtmlFile = (templatePath: string): string => {
-  try {
-    return readFileSync(resolve(templatePath), "utf-8");
-  } catch (err) {
-    throw new Error(
-      `Failed reading a file at '${templatePath}': ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
-    );
-  }
-};
+const { mkdirSync, writeFileSync } = fs;
 
 export const resolveOutputPath = (outputPath: string) => {
   const hasExtension = resolve(outputPath).includes(".");

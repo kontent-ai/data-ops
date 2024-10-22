@@ -1,12 +1,11 @@
 import chalk from "chalk";
-import { resolve } from "path";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { Replace } from "../../utils/types.js";
 import { syncEntityChoices, syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
 import { diff } from "./diff.js";
-import { readHtmlFile } from "./utils/fileUtils.js";
+import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
 import {
   fetchSourceSyncModel,
   getSourceItemAndAssetCodenames,
@@ -40,9 +39,8 @@ export type SyncDiffParamsIntenal = Replace<SyncDiffParams, { entities: Readonly
 export const syncDiff = async (params: SyncDiffParams) => {
   const resolvedParams = { ...params, entities: params.entities ?? syncEntityChoices };
   const diffModel = await syncDiffInternal(resolvedParams, "diff-API");
-  const templateString = readHtmlFile(resolve(import.meta.dirname, "./utils/diffTemplate.html"));
 
-  return resolveHtmlTemplate(templateString, { ...diffModel, ...resolvedParams });
+  return resolveHtmlTemplate(diffHtmlTemplate, { ...diffModel, ...resolvedParams });
 };
 
 export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandName: string) => {

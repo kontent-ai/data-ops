@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "build": "tsc && cp ./src/modules/sync/utils/diffTemplate.html build/src/modules/sync/utils/diffTemplate.html",
+    "build": "tsc",
     "checkTests": "tsc --project tsconfig.tests.jsonc",
     "lint": "eslint . --ext ts,tsx",
     "fmt": "dprint fmt",
