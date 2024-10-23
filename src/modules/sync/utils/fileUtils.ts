@@ -5,15 +5,12 @@ import * as path from "path";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
 
-const { resolve } = path;
-const { mkdirSync, writeFileSync } = fs;
-
 export const resolveOutputPath = (outputPath: string) => {
-  const hasExtension = resolve(outputPath).includes(".");
+  const hasExtension = path.resolve(outputPath).includes(".");
 
   return hasExtension
-    ? resolve(outputPath)
-    : resolve(
+    ? path.resolve(outputPath)
+    : path.resolve(
       outputPath,
       `diff_${new Date().toISOString().replace(/[:.-]/g, "_")}.html`,
     );
@@ -26,7 +23,7 @@ export const createOutputFile = (path: string, content: string, logOptions: LogO
       "standard",
       chalk.yellow(`Generating a diff file at ${path}`),
     );
-    writeFileSync(path, content);
+    fs.writeFileSync(path, content);
   } catch (err) {
     throw new Error(`Failed writing a diff file: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`);
   }
@@ -53,7 +50,7 @@ export const createOutputDirectory = (path: string, logOptions: LogOptions) => {
       "standard",
       chalk.yellow(`Creating a directory '${path}'`),
     );
-    mkdirSync(path, { recursive: true });
+    fs.mkdirSync(path, { recursive: true });
   } catch (err) {
     throw new Error(
       `Failed to create directory '${path}': ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
