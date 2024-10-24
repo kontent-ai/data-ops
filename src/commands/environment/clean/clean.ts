@@ -51,6 +51,10 @@ export const register: RegisterCommand = (yargs) =>
           type: "boolean",
           describe: "Skip warning message.",
           alias: "s",
+        })
+        .option("managementApiUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai Management API calls",
         }),
     handler: (args) => cleanEnvironmentCli(args),
   });
@@ -62,6 +66,7 @@ type CleanEnvironmentCliParams =
     include?: ReadonlyArray<CleanEntityChoices>;
     exclude?: ReadonlyArray<CleanEntityChoices>;
     skipWarning?: boolean;
+    managementApiUrl?: string;
   }>
   & LogOptions;
 
@@ -83,6 +88,7 @@ const cleanEnvironmentCli = async (
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: `environment-${commandName}`,
+    baseUrl: params.managementApiUrl,
   });
 
   try {

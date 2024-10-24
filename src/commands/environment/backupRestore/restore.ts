@@ -52,6 +52,10 @@ export const register: RegisterCommand = yargs =>
           alias: "x",
           choices: restoreEntityChoices,
           conflicts: "include",
+        })
+        .option("managementApiUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai Management API calls",
         }),
     handler: args => restoreEnvironmentCli(args).catch(simplifyErrors),
   });
@@ -63,6 +67,7 @@ type RestoreEnvironmentCliParams =
     apiKey: string;
     include?: ReadonlyArray<RestoreEntityChoices>;
     exclude?: ReadonlyArray<RestoreEntityChoices>;
+    managementApiUrl?: string;
   }>
   & LogOptions;
 
@@ -71,6 +76,7 @@ const restoreEnvironmentCli = async (params: RestoreEnvironmentCliParams) => {
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: `environment-${commandName}`,
+    baseUrl: params.managementApiUrl,
   });
 
   try {

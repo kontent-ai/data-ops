@@ -9,6 +9,7 @@ type Params = Readonly<{
   environmentId: string;
   apiKey: string;
   commandName: string;
+  baseUrl: string | undefined;
 }>;
 
 type DeliveryParams = Readonly<{
@@ -27,7 +28,7 @@ const retryStrategy: IRetryStrategyOptions = {
     || (isAxiosError(error) && !!error.response?.status.toString().startsWith("5")),
 };
 
-export const createClient = ({ environmentId, apiKey, commandName }: Params): ManagementClient =>
+export const createClient = ({ environmentId, apiKey, commandName, baseUrl }: Params): ManagementClient =>
   // eslint-disable-next-line no-restricted-syntax
   new ManagementClient({
     environmentId,
@@ -35,6 +36,7 @@ export const createClient = ({ environmentId, apiKey, commandName }: Params): Ma
     retryStrategy,
     headers: [{ header: sourceTrackingHeaderName, value: `${packageJson.name};${packageJson.version};${commandName}` }],
     httpService: defaultHttpService,
+    baseUrl: baseUrl,
   });
 
 export const createClientDelivery = (
