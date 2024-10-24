@@ -1,7 +1,8 @@
 import { extractAsync, importAsync, migrateAsync } from "@kontent-ai/migration-toolkit";
 
 import { logInfo, LogOptions } from "../../log.js";
-import { createClientDelivery } from "../../utils/client.js";
+import { createClientDelivery, createManagementApiUrl } from "../../utils/client.js";
+import { apply } from "../../utils/function.js";
 import { getItemsCodenames } from "./migrateContent.js";
 
 export type MigrateContentRunParams = Readonly<
@@ -9,6 +10,7 @@ export type MigrateContentRunParams = Readonly<
     targetEnvironmentId: string;
     targetApiKey: string;
     skipFailedItems?: boolean;
+    kontentUrl?: string;
   }
   & (
     | {
@@ -65,6 +67,7 @@ export const migrateContentRunIntenal = async (params: MigrateContentRunParams, 
         previewApiKey: params.sourceDeliveryPreviewKey,
         usePreviewMode: true,
         commandName,
+        baseUrl: params.kontentUrl,
       }),
       params,
     );
@@ -83,11 +86,16 @@ export const migrateContentRunIntenal = async (params: MigrateContentRunParams, 
   );
 
   await migrateAsync({
-    targetEnvironment: { apiKey: params.targetApiKey, environmentId: params.targetEnvironmentId },
+    targetEnvironment: {
+      apiKey: params.targetApiKey,
+      environmentId: params.targetEnvironmentId,
+      baseUrl: apply(createManagementApiUrl, params.kontentUrl),
+    },
     sourceEnvironment: {
       environmentId: params.sourceEnvironmentId,
       apiKey: params.sourceApiKey,
       items: itemsCodenames.map(i => ({ itemCodename: i, languageCodename: params.language })),
+      baseUrl: apply(createManagementApiUrl, params.kontentUrl),
     },
   });
 

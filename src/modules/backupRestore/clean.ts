@@ -48,6 +48,7 @@ export type CleanEnvironmentParams = Readonly<
   & {
     environmentId: string;
     apiKey: string;
+    kontentUrl?: string;
   }
   & IncludeExclude<CleanEntityChoices>
   & LogOptions
@@ -58,6 +59,7 @@ export const cleanEnvironment = async (params: CleanEnvironmentParams) => {
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: "environment-clean-API",
+    baseUrl: params.kontentUrl,
   });
 
   await cleanEnvironmentInternal(params, client);

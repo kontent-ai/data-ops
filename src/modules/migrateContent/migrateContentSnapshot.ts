@@ -1,7 +1,8 @@
 import { exportAsync, getDefaultLogger, storeAsync } from "@kontent-ai/migration-toolkit";
 
 import { LogOptions } from "../../log.js";
-import { createClientDelivery } from "../../utils/client.js";
+import { createClientDelivery, createManagementApiUrl } from "../../utils/client.js";
+import { apply } from "../../utils/function.js";
 import { getItemsCodenames } from "./migrateContent.js";
 import { MigrateContentFilterParams } from "./migrateContentRun.js";
 
@@ -10,6 +11,7 @@ export type MigrateContentSnapshotParams = Readonly<
     sourceEnvironmentId: string;
     sourceApiKey: string;
     filename?: string;
+    kontentUrl?: string;
   }
   & MigrateContentFilterParams
   & LogOptions
@@ -28,6 +30,7 @@ export const migrateContentSnapshotInternal = async (params: MigrateContentSnaps
         previewApiKey: params.sourceDeliveryPreviewKey,
         usePreviewMode: true,
         commandName,
+        baseUrl: params.kontentUrl,
       }),
       params,
     );
@@ -37,6 +40,7 @@ export const migrateContentSnapshotInternal = async (params: MigrateContentSnaps
     apiKey: params.sourceApiKey,
     exportItems: itemsCodenames.map(i => ({ itemCodename: i, languageCodename: params.language })),
     logger: getDefaultLogger(),
+    baseUrl: apply(createManagementApiUrl, params.kontentUrl),
   });
 
   await storeAsync({

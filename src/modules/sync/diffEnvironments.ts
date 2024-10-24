@@ -19,6 +19,7 @@ export type SyncDiffParams = Readonly<
     targetEnvironmentId: string;
     targetApiKey: string;
     entities?: ReadonlyArray<SyncEntityName>;
+    kontentUrl?: string;
   }
   & (
     | { folderName: string }
@@ -71,6 +72,7 @@ export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandNam
         environmentId: params.sourceEnvironmentId,
         apiKey: params.sourceApiKey,
         commandName,
+        baseUrl: params.kontentUrl,
       }),
       fetchDependencies,
       params,
@@ -82,6 +84,7 @@ export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandNam
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
     commandName,
+    baseUrl: params.kontentUrl,
   });
 
   const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(

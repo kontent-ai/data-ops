@@ -70,6 +70,10 @@ export const register: RegisterCommand = yargs =>
           describe: "Don't open the diff file automatically upon creation.",
           alias: "n",
           implies: ["advanced"],
+        })
+        .option("kontentUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
         }),
     handler: args => syncDiffCli(args).catch(simplifyErrors),
   });
@@ -85,6 +89,7 @@ type syncDiffCliParams =
     advanced: boolean | undefined;
     outPath: string | undefined;
     noOpen: boolean | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 

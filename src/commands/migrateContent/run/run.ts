@@ -102,6 +102,10 @@ export const register: RegisterCommand = yargs =>
           type: "boolean",
           describe: "Skip confirmation message.",
         })
+        .option("kontentUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+        })
         .check((args) => {
           // when migrating by filename, whole file is migrated
           if (!args.filter && !args.items && !args.last && !args.byTypesCodenames && !args.filename) {
@@ -132,6 +136,7 @@ type MigrateContentRunCliParams =
     filter: string | undefined;
     skipFailedItems: boolean | undefined;
     skipConfirmation: boolean | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 

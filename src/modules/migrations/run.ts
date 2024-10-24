@@ -33,6 +33,7 @@ export type RunMigrationsParams = Readonly<
     statusPlugins?: string;
     continueOnError?: boolean;
     force?: boolean;
+    kontentUrl?: string;
   }
   & RunMigrationFilterParams
   & LogOptions
@@ -47,6 +48,7 @@ export const runMigrations = async (params: RunMigrationsParams) => {
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: "migrations-run-API",
+    baseUrl: params.kontentUrl,
   });
 
   await withMigrationsToRun(params, async migrations => {

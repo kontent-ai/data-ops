@@ -86,6 +86,10 @@ export const register: RegisterCommand = yargs =>
           .option("skipConfirmation", {
             type: "boolean",
             describe: "Skip confirmation message.",
+          })
+          .option("kontentUrl", {
+            type: "string",
+            describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
           }),
       handler: args => migrateContentSnapshotCli(args).catch(simplifyErrors),
     },
@@ -105,6 +109,7 @@ type MigrateContentSnapshotCliParams =
     byTypesCodenames: ReadonlyArray<string> | undefined;
     filter: string | undefined;
     skipConfirmation: boolean | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 

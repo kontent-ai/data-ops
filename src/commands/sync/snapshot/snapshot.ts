@@ -38,7 +38,12 @@ export const register: RegisterCommand = yargs =>
             type: "string",
             describe: "Name of the folder to generate content model into.",
             alias: "f",
+          })
+          .option("kontentUrl", {
+            type: "string",
+            describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
           }),
+
       handler: args => syncSnapshotCli(args).catch(simplifyErrors),
     },
   );
@@ -49,6 +54,7 @@ type SyncSnapshotCliParams =
     apiKey: string;
     entities: ReadonlyArray<SyncEntityName>;
     folderName: string | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 
@@ -60,6 +66,7 @@ const syncSnapshotCli = async (params: SyncSnapshotCliParams) => {
         environmentId: params.environmentId,
         apiKey: params.apiKey,
         commandName: `sync-${commandName}`,
+        baseUrl: params.kontentUrl,
       }),
     );
   } catch (e) {

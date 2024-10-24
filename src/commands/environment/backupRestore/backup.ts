@@ -49,6 +49,10 @@ export const register: RegisterCommand = yargs =>
           alias: "x",
           choices: backupEntityChoices,
           conflicts: "include",
+        })
+        .option("kontentUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
         }),
     handler: args => backupEnvironmentCli(args).catch(simplifyErrors),
   });
@@ -60,6 +64,7 @@ type BackupEnvironmentCliParams =
     apiKey: string;
     include: ReadonlyArray<BackupEntityChoices> | undefined;
     exclude: ReadonlyArray<BackupEntityChoices> | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 
@@ -68,6 +73,7 @@ const backupEnvironmentCli = async (params: BackupEnvironmentCliParams): Promise
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: `environment-${commandName}`,
+    baseUrl: params.kontentUrl,
   });
 
   try {
