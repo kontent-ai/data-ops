@@ -47,6 +47,7 @@ export type SyncRunParams = Readonly<
     targetEnvironmentId: string;
     targetApiKey: string;
     entities: SyncEntities;
+    kontentUrl?: string;
   }
   & (
     | { folderName: string }
@@ -83,6 +84,7 @@ export const syncRunInternal = async (
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
     commandName,
+    baseUrl: params.kontentUrl,
   });
 
   const diffModel = await getDiffModel(params, targetEnvironmentClient, commandName);
@@ -136,6 +138,7 @@ const getDiffModel = async (
         environmentId: params.sourceEnvironmentId,
         apiKey: params.sourceApiKey,
         commandName,
+        baseUrl: params.kontentUrl,
       }),
       fetchDependencies,
       params,

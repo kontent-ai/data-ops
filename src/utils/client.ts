@@ -4,11 +4,13 @@ import { ManagementClient } from "@kontent-ai/management-sdk";
 import { isAxiosError } from "axios";
 
 import packageJson from "../../package.json" with { type: "json" };
+import { apply } from "./function.js";
 
 type Params = Readonly<{
   environmentId: string;
   apiKey: string;
   commandName: string;
+  baseUrl: string | undefined;
 }>;
 
 type DeliveryParams = Readonly<{
@@ -16,6 +18,7 @@ type DeliveryParams = Readonly<{
   previewApiKey?: string;
   usePreviewMode?: boolean;
   commandName: string;
+  baseUrl: string | undefined;
 }>;
 
 const sourceTrackingHeaderName = "X-KC-SOURCE";
@@ -27,32 +30,43 @@ const retryStrategy: IRetryStrategyOptions = {
     || (isAxiosError(error) && !!error.response?.status.toString().startsWith("5")),
 };
 
-export const createClient = ({ environmentId, apiKey, commandName }: Params): ManagementClient =>
+export const createClient = (params: Params): ManagementClient =>
   // eslint-disable-next-line no-restricted-syntax
   new ManagementClient({
-    environmentId,
-    apiKey,
+    environmentId: params.environmentId,
+    apiKey: params.apiKey,
     retryStrategy,
-    headers: [{ header: sourceTrackingHeaderName, value: `${packageJson.name};${packageJson.version};${commandName}` }],
+    headers: [{
+      header: sourceTrackingHeaderName,
+      value: `${packageJson.name};${packageJson.version};${params.commandName}`,
+    }],
     httpService: defaultHttpService,
+    baseUrl: resolveUrlParam(params.baseUrl, createManagementApiUrl),
   });
 
-export const createClientDelivery = (
-  { environmentId, previewApiKey, usePreviewMode, commandName }: DeliveryParams,
-): DeliveryClient =>
+export const createClientDelivery = (params: DeliveryParams): DeliveryClient =>
   createDeliveryClient({
-    environmentId: environmentId,
-    previewApiKey: previewApiKey,
+    environmentId: params.environmentId,
+    previewApiKey: params.previewApiKey,
     defaultQueryConfig: {
-      usePreviewMode: usePreviewMode ?? false,
+      usePreviewMode: params.usePreviewMode ?? false,
       customHeaders: [{
         header: sourceTrackingHeaderName,
-        value: `${packageJson.name};${packageJson.version};${commandName}`,
+        value: `${packageJson.name};${packageJson.version};${params.commandName}`,
       }],
     },
     httpService: defaultHttpService,
+    proxy: {
+      baseUrl: resolveUrlParam(params.baseUrl, url => `https://deliver.${url}`),
+      basePreviewUrl: resolveUrlParam(params.baseUrl, url => `https://preview-deliver.${url}`),
+    },
   });
 
 const defaultHttpService = new HttpService({
   logErrorsToConsole: false,
 });
+
+const resolveUrlParam = (url: string | undefined, resolver: (url: string) => string): string | undefined =>
+  apply(u => resolver(u.replace(/^https:\/\//, "")), url);
+
+export const createManagementApiUrl = (baseUrl: string): string => `https://manage.${baseUrl}/v2`;

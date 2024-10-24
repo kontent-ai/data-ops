@@ -13,6 +13,7 @@ export type SyncSnapshotParams = Readonly<
     apiKey: string;
     entities: SyncEntities;
     folderName?: string;
+    kontentUrl?: string;
   }
   & LogOptions
 >;
@@ -20,7 +21,12 @@ export type SyncSnapshotParams = Readonly<
 export const syncSnapshot = async (params: SyncSnapshotParams) => {
   await syncSnapshotInternal(
     params,
-    createClient({ environmentId: params.environmentId, apiKey: params.apiKey, commandName: "sync-snapshot-API" }),
+    createClient({
+      environmentId: params.environmentId,
+      apiKey: params.apiKey,
+      commandName: "sync-snapshot-API",
+      baseUrl: params.kontentUrl,
+    }),
   );
 };
 

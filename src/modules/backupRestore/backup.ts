@@ -59,6 +59,7 @@ export type BackupEnvironmentParams = Readonly<
     environmentId: string;
     fileName?: string;
     apiKey: string;
+    kontentUrl?: string;
   }
   & IncludeExclude<BackupEntityChoices>
   & LogOptions
@@ -69,6 +70,7 @@ export const backupEnvironment = async (params: BackupEnvironmentParams) => {
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: "environment-backup-API",
+    baseUrl: params.kontentUrl,
   });
 
   await backupEnvironmentInternal(client, params);

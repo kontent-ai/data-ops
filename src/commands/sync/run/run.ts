@@ -63,6 +63,10 @@ export const register: RegisterCommand = yargs =>
         .option("skipConfirmation", {
           type: "boolean",
           describe: "Skip confirmation message.",
+        })
+        .option("kontentUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
         }),
     handler: args => syncRunCli(args).catch(simplifyErrors),
   });
@@ -76,6 +80,7 @@ type SyncModelRunCliParams =
     sourceEnvironmentId: string | undefined;
     sourceApiKey: string | undefined;
     skipConfirmation: boolean | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 

@@ -89,6 +89,10 @@ export const register: RegisterCommand = yargs =>
           type: "boolean",
           describe: "Skip the confirmation message.",
         })
+        .option("kontentUrl", {
+          type: "string",
+          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+        })
         .check((args) => {
           if (!args.all && !args.name && !args.range && !args.next) {
             throw new Error("Exactly one of the params --all --name --next --range must be set.");
@@ -127,6 +131,7 @@ type RunMigrationsCliParams =
     continueOnError: boolean | undefined;
     force: boolean | undefined;
     skipConfirmation: boolean | undefined;
+    kontentUrl: string | undefined;
   }>
   & LogOptions;
 
@@ -135,6 +140,7 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: `migrations-${commandName}`,
+    baseUrl: params.kontentUrl,
   });
 
   const resolvedParams = resolveParams(params);

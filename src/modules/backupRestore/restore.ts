@@ -59,6 +59,7 @@ export type RestoreEnvironmentParams = Readonly<
     environmentId: string;
     fileName: string;
     apiKey: string;
+    kontentUrl?: string;
   }
   & IncludeExclude<RestoreEntityChoices>
   & LogOptions
@@ -69,6 +70,7 @@ export const restoreEnvironment = async (params: RestoreEnvironmentParams) => {
     environmentId: params.environmentId,
     apiKey: params.apiKey,
     commandName: "environment-restore-API",
+    baseUrl: params.kontentUrl,
   });
 
   await restoreEnvironmentInternal(client, params);
