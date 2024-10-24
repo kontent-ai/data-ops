@@ -91,7 +91,7 @@ export const register: RegisterCommand = yargs =>
         })
         .option("managementApiUrl", {
           type: "string",
-          describe: "URL of the Kontent.ai Management API.",
+          describe: "Custom URL for Kontent.ai Management API calls",
         })
         .check((args) => {
           if (!args.all && !args.name && !args.range && !args.next) {
