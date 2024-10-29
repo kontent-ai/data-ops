@@ -11,6 +11,7 @@ import { resolveIncludeExcludeCliParams } from "../../../modules/backupRestore/u
 import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
+import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 
 export const commandName = "clean";
@@ -52,7 +53,7 @@ export const register: RegisterCommand = (yargs) =>
           describe: "Skip warning message.",
           alias: "s",
         }),
-    handler: (args) => cleanEnvironmentCli(args),
+    handler: (args) => cleanEnvironmentCli(args).catch(simplifyErrors),
   });
 
 type CleanEnvironmentCliParams =
