@@ -48,7 +48,7 @@ type SyncSnapshotCliParams =
     environmentId: string;
     apiKey: string;
     entities: ReadonlyArray<SyncEntityName>;
-    folderName?: string;
+    folderName: string | undefined;
   }>
   & LogOptions;
 

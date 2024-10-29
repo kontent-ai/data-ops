@@ -72,10 +72,10 @@ type SyncModelRunCliParams =
     targetEnvironmentId: string;
     targetApiKey: string;
     entities: ReadonlyArray<SyncEntityName>;
-    folderName?: string;
-    sourceEnvironmentId?: string;
-    sourceApiKey?: string;
-    skipConfirmation?: boolean;
+    folderName: string | undefined;
+    sourceEnvironmentId: string | undefined;
+    sourceApiKey: string | undefined;
+    skipConfirmation: boolean | undefined;
   }>
   & LogOptions;
 

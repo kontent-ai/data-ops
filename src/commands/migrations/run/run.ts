@@ -118,15 +118,15 @@ type RunMigrationsCliParams =
     environmentId: string;
     apiKey: string;
     migrationsFolder: string;
-    name?: string;
-    range?: string;
-    all?: boolean;
-    next?: number;
-    rollback?: boolean;
-    statusPlugins?: string;
-    continueOnError?: boolean;
-    force?: boolean;
-    skipConfirmation?: boolean;
+    name: string | undefined;
+    range: string | undefined;
+    all: boolean | undefined;
+    next: number | undefined;
+    rollback: boolean | undefined;
+    statusPlugins: string | undefined;
+    continueOnError: boolean | undefined;
+    force: boolean | undefined;
+    skipConfirmation: boolean | undefined;
   }>
   & LogOptions;
 
