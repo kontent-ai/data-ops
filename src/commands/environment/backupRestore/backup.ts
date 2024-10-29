@@ -56,10 +56,10 @@ export const register: RegisterCommand = yargs =>
 type BackupEnvironmentCliParams =
   & Readonly<{
     environmentId: string;
-    fileName?: string;
+    fileName: string | undefined;
     apiKey: string;
-    include?: ReadonlyArray<BackupEntityChoices>;
-    exclude?: ReadonlyArray<BackupEntityChoices>;
+    include: ReadonlyArray<BackupEntityChoices> | undefined;
+    exclude: ReadonlyArray<BackupEntityChoices> | undefined;
   }>
   & LogOptions;
 

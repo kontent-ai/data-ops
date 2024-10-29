@@ -59,9 +59,9 @@ type CleanEnvironmentCliParams =
   & Readonly<{
     environmentId: string;
     apiKey: string;
-    include?: ReadonlyArray<CleanEntityChoices>;
-    exclude?: ReadonlyArray<CleanEntityChoices>;
-    skipWarning?: boolean;
+    include: ReadonlyArray<CleanEntityChoices> | undefined;
+    exclude: ReadonlyArray<CleanEntityChoices> | undefined;
+    skipWarning: boolean | undefined;
   }>
   & LogOptions;
 

@@ -97,14 +97,14 @@ type MigrateContentSnapshotCliParams =
     sourceApiKey: string;
     sourceDeliveryPreviewKey?: string;
     language: string;
-    filename?: string;
-    items?: ReadonlyArray<string>;
-    last?: number;
-    depth?: number;
-    limit?: number;
-    byTypesCodenames?: ReadonlyArray<string>;
-    filter?: string;
-    skipConfirmation?: boolean;
+    filename: string | undefined;
+    items: ReadonlyArray<string> | undefined;
+    last: number | undefined;
+    depth: number | undefined;
+    limit: number | undefined;
+    byTypesCodenames: ReadonlyArray<string> | undefined;
+    filter: string | undefined;
+    skipConfirmation: boolean | undefined;
   }>
   & LogOptions;
 

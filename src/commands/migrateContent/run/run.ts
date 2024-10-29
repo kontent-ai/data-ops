@@ -119,19 +119,19 @@ type MigrateContentRunCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
-    sourceEnvironmentId?: string;
-    sourceApiKey?: string;
-    sourceDeliveryPreviewKey?: string;
-    filename?: string;
-    language?: string;
-    items?: ReadonlyArray<string>;
-    last?: number;
-    depth?: number;
-    limit?: number;
-    byTypesCodenames?: ReadonlyArray<string>;
-    filter?: string;
-    skipFailedItems?: boolean;
-    skipConfirmation?: boolean;
+    sourceEnvironmentId: string | undefined;
+    sourceApiKey: string | undefined;
+    sourceDeliveryPreviewKey: string | undefined;
+    filename: string | undefined;
+    language: string | undefined;
+    items: ReadonlyArray<string> | undefined;
+    last: number | undefined;
+    depth: number | undefined;
+    limit: number | undefined;
+    byTypesCodenames: ReadonlyArray<string> | undefined;
+    filter: string | undefined;
+    skipFailedItems: boolean | undefined;
+    skipConfirmation: boolean | undefined;
   }>
   & LogOptions;
 

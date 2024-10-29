@@ -61,8 +61,8 @@ type RestoreEnvironmentCliParams =
     environmentId: string;
     fileName: string;
     apiKey: string;
-    include?: ReadonlyArray<RestoreEntityChoices>;
-    exclude?: ReadonlyArray<RestoreEntityChoices>;
+    include: ReadonlyArray<RestoreEntityChoices> | undefined;
+    exclude: ReadonlyArray<RestoreEntityChoices> | undefined;
   }>
   & LogOptions;
 

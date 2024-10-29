@@ -78,13 +78,13 @@ type syncDiffCliParams =
   & Readonly<{
     targetEnvironmentId: string;
     targetApiKey: string;
-    folderName?: string;
-    sourceEnvironmentId?: string;
-    sourceApiKey?: string;
-    entities?: ReadonlyArray<SyncEntityName>;
-    advanced?: boolean;
-    outPath?: string;
-    noOpen?: boolean;
+    folderName: string | undefined;
+    sourceEnvironmentId: string | undefined;
+    sourceApiKey: string | undefined;
+    entities: ReadonlyArray<SyncEntityName> | undefined;
+    advanced: boolean | undefined;
+    outPath: string | undefined;
+    noOpen: boolean | undefined;
   }>
   & LogOptions;
 
@@ -93,7 +93,7 @@ const syncDiffCli = async (params: syncDiffCliParams) => {
 
   try {
     const diffModel = await syncDiffInternal(resolvedParams, commandName);
-    return "advanced" in params
+    return params.advanced !== undefined
       ? createAdvancedDiffFile({ ...diffModel, ...resolvedParams })
       : printDiff(diffModel, new Set(params.entities), params);
   } catch (e) {
