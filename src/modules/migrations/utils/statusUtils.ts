@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 import {
   MigrationOperation,
@@ -38,12 +38,12 @@ export const createDefaultWriteStatus = (folderPath: string) => async (data: Sta
   fs.writeFileSync(statusPath, JSON.stringify(data, null, 2), { flag: "w" });
 };
 
-export const loadStatusPlugin = async (path: string): Promise<WithErr<StatusPlugin>> => {
-  if (!fs.existsSync(path)) {
-    return { err: `Provided plugins path ${path} does not exists` };
+export const loadStatusPlugin = async (pluginsPath: string): Promise<WithErr<StatusPlugin>> => {
+  if (!fs.existsSync(pluginsPath)) {
+    return { err: `Provided plugins path ${pluginsPath} does not exist.` };
   }
 
-  const pluginModule = await import(path);
+  const pluginModule = await import(pluginsPath);
 
   return { value: statusPluginSchema.parse(pluginModule) };
 };

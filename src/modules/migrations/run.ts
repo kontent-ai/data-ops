@@ -3,6 +3,7 @@ import * as path from "path";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
+import { apply } from "../../utils/function.js";
 import { AnyOnePropertyOf } from "../../utils/types.js";
 import { Migration, MigrationOrder } from "./models/migration.js";
 import { MigrationOperation, MigrationStatus, SaveStatus, Status, StatusPlugin } from "./models/status.js";
@@ -75,15 +76,16 @@ export const withMigrationsToRun = async (
 ) => {
   const operation = params.rollback ? "rollback" : "run";
 
+  const absoluteDirectoryPath = path.resolve(params.migrationsFolder);
+  const absoluteStatusPath = apply(p => path.resolve(p), params.statusPlugins);
+
   const { readStatus, saveStatus } = handleErr(
-    await loadStatusFunctions(params.statusPlugins, params.migrationsFolder),
+    await loadStatusFunctions(absoluteStatusPath, absoluteDirectoryPath),
     params,
   );
 
   const status = handleErr(await loadStatus(readStatus), params);
   const environmentStatus = status[params.environmentId] ?? [];
-
-  const absoluteDirectoryPath = path.resolve(params.migrationsFolder);
 
   const migrations = handleErr(await loadMigrationFiles(absoluteDirectoryPath), params);
   const migrationsToRun = filterMigrationsToRun(migrations, environmentStatus, operation, params);
@@ -100,16 +102,15 @@ export const withMigrationsToRun = async (
 const loadStatusFunctions = async (
   pluginsPath: string | undefined,
   migrationsFolder: string,
-): Promise<WithErr<StatusPlugin>> => {
-  const absoluteDirectoryPath = path.resolve(migrationsFolder);
-
-  return pluginsPath ? await loadStatusPlugin(pluginsPath) : Promise.resolve({
-    value: {
-      readStatus: createDefaultReadStatus(absoluteDirectoryPath),
-      saveStatus: createDefaultWriteStatus(absoluteDirectoryPath),
-    },
-  });
-};
+): Promise<WithErr<StatusPlugin>> =>
+  pluginsPath
+    ? await loadStatusPlugin(pluginsPath)
+    : Promise.resolve({
+      value: {
+        readStatus: createDefaultReadStatus(migrationsFolder),
+        saveStatus: createDefaultWriteStatus(migrationsFolder),
+      },
+    });
 
 const filterMigrationsToRun = (
   migrations: ReadonlyArray<Migration>,
