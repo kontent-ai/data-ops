@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import {
   MigrationOperation,
@@ -43,7 +44,7 @@ export const loadStatusPlugin = async (pluginsPath: string): Promise<WithErr<Sta
     return { err: `Provided plugins path ${pluginsPath} does not exist.` };
   }
 
-  const pluginModule = await import(pluginsPath);
+  const pluginModule = await import(pathToFileURL(pluginsPath).href);
 
   return { value: statusPluginSchema.parse(pluginModule) };
 };

@@ -1,7 +1,9 @@
+import * as fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
-import * as fs from "fs";
-import path from "path";
 import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
@@ -92,7 +94,7 @@ export const loadMigrationFiles = async (folderPath: string): Promise<WithErr<Mi
       .filter(file => file.isFile() && file.name.endsWith("js"))
       .map(async file => {
         const migrationPath = path.join(folderPath, file.name);
-        const module = (await import(migrationPath)).default;
+        const module = (await import(pathToFileURL(migrationPath).href)).default;
 
         if (isMigrationModule(module)) {
           return { name: file.name, module };
