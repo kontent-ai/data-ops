@@ -29,7 +29,7 @@ export const updateContentTypesAndAddReferences = async (
 ) => {
   const typesReplaceReferencesOps = typeOps.added.map(createUpdateReferencesOps);
 
-  if (!typesReplaceReferencesOps.length) {
+  if (!typesReplaceReferencesOps.length && !typeOps.updated.size) {
     logInfo(logOptions, "standard", "No content types to update");
     return;
   }
