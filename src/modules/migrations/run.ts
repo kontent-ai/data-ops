@@ -158,7 +158,7 @@ const filterMigrationsToRun = (
   logInfo(
     params,
     "standard",
-    `${operation === "run" ? "Running" : "Rollbacking"} ${migrationsToRun.length} migrations:\n${
+    `${operation === "run" ? "Running" : "Rolling back"} ${migrationsToRun.length} migrations:\n${
       migrationsToRun.map(m => chalk.blue(m.name)).join("\n")
     }\n`,
   );
