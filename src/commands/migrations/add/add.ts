@@ -20,7 +20,8 @@ export const register: RegisterCommand = yargs =>
         .option("migrationsFolder", {
           alias: "m",
           type: "string",
-          describe: "Specifies the path to the folder where the migration should be stored.",
+          describe:
+            "Specifies the path to the folder where the migration should be stored. Defaults to the current working directory.",
         })
         .option("type", {
           alias: "t",
@@ -41,6 +42,12 @@ export const register: RegisterCommand = yargs =>
           describe: "Sets the order property to the provided value.",
           type: "number",
           conflicts: ["timestamp"],
+        })
+        .option("padWithLeadingZeros", {
+          describe: "Specifies the number of leading zeros for the order number in the migration file name.",
+          type: "number",
+          conflicts: ["timestamp"],
+          implies: "order",
         }),
     handler: args => addMigrationCli(args).catch(simplifyErrors),
   });
@@ -51,6 +58,7 @@ type AddMigrationCliParams =
     migrationsFolder: string | undefined;
     timestamp: boolean | undefined;
     order: number | undefined;
+    padWithLeadingZeros: number | undefined;
     type: string;
   }>
   & LogOptions;
@@ -69,8 +77,18 @@ const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
     throw new Error(`Invalid type '${args.type}'. Allowed values are 'ts' (TypeScript) or 'js' (JavaScript).`);
   }
 
+  const orderParams = {
+    timestamp: args.timestamp,
+    order: args.order,
+    padWithLeadingZeros: args.padWithLeadingZeros,
+  } as
+    | { timestamp: true }
+    | { timestamp: false | undefined; order: number }
+    | { timestamp: false | undefined; order: number; padWithLeadingZeros: number | undefined };
+
   return {
     ...args,
     type: args.type as "ts" | "js",
+    ...orderParams,
   };
 };
