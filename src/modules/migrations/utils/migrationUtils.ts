@@ -25,11 +25,11 @@ export const formatDateForFileName = (date: Date) =>
 
 export const getMigrationName = (name: string, type: "js" | "ts", prefix?: string) => `${prefix ?? ""}${name}.${type}`;
 
-export const generateTypescriptMigration = (orderDate?: Date): string =>
+export const generateTypescriptMigration = (order: Date | number | undefined): string =>
   `import { MigrationModule } from "@kontent-ai/data-ops";
 
 const migration: MigrationModule = {
-  order: ${orderDate ? `new Date('${orderDate.toISOString()}')` : "1"},
+  order: ${order === undefined ? "1" : createOrderPropertyValue(order)},
   run: async apiClient => {},
   rollback: async apiClient => {},
 };
@@ -37,15 +37,18 @@ const migration: MigrationModule = {
 export default migration;
 `;
 
-export const generateJavascriptMigration = (orderDate?: Date | null): string =>
+export const generateJavascriptMigration = (order: Date | number | undefined): string =>
   `const migration = {
-  order: ${orderDate ? `new Date('${orderDate.toISOString()}')` : "1"},
+  order: ${order === undefined ? "1" : createOrderPropertyValue(order)},
   run: async apiClient => {},
   rollback: asyncapiClient => {},
 };
 
 module.exports = migration;
 `;
+
+const createOrderPropertyValue = (order: Date | number) =>
+  typeof order === "number" ? order.toString() : `new Date('${order.toISOString()}')`;
 
 export const filterMigrations = (
   migrations: ReadonlyArray<Migration>,
