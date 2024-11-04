@@ -1,11 +1,10 @@
-import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
-import { logError, logInfo, LogOptions } from "../../../log.js";
+import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
 import { printDiff } from "../../../modules/sync/printDiff.js";
 import { SyncEntities, syncRunInternal, SyncRunParams } from "../../../modules/sync/syncRun.js";
-import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
+import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -91,18 +90,14 @@ const syncRunCli = async (params: SyncModelRunCliParams) => {
     await syncRunInternal(resolvedParams, `sync-${commandName}`, async (diffModel) => {
       printDiff(diffModel, new Set(params.entities), params);
 
-      const warningMessage = chalk.yellow(
-        `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
+      await checkConfirmation({
+        message:
+          `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
 - Removing content due to element deletion
 OK to proceed y/n? (suppress this message with --sw parameter)\n`,
-      );
-
-      const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
-
-      if (!confirmed) {
-        logInfo(params, "standard", chalk.red("Operation aborted."));
-        process.exit(1);
-      }
+        skipConfirmation: params.skipConfirmation,
+        logOptions: params,
+      });
     });
   } catch (e) {
     logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));

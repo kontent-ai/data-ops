@@ -1,5 +1,3 @@
-import chalk from "chalk";
-
 import { logError, LogOptions } from "../../../log.js";
 import {
   CleanEntityChoices,
@@ -8,7 +6,7 @@ import {
   CleanEnvironmentParams,
 } from "../../../modules/backupRestore/clean.js";
 import { resolveIncludeExcludeCliParams } from "../../../modules/backupRestore/utils/includeExclude.js";
-import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
+import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -74,16 +72,12 @@ type CleanEnvironmentCliParams =
 const cleanEnvironmentCli = async (
   params: CleanEnvironmentCliParams,
 ): Promise<void> => {
-  const warningMessage = chalk.yellow(
-    `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
-  );
-
-  const confirmed = !params.skipWarning ? await requestConfirmation(warningMessage) : true;
-
-  if (!confirmed) {
-    logError(params, chalk.red("Operation aborted."));
-    process.exit(1);
-  }
+  await checkConfirmation({
+    message:
+      `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
+    skipConfirmation: params.skipWarning,
+    logOptions: params,
+  });
 
   const client = createClient({
     environmentId: params.environmentId,
