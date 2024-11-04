@@ -16,7 +16,7 @@ export type AddMigrationParams = Readonly<
   & {
     name: string;
     migrationsFolder?: string;
-    timestamp: boolean;
+    timestamp?: boolean;
     type: "js" | "ts";
   }
   & LogOptions
