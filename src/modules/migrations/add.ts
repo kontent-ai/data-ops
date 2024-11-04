@@ -17,16 +17,12 @@ export type AddMigrationParams = Readonly<
     name: string;
     migrationsFolder?: string;
     timestamp: boolean;
-    type: string;
+    type: "js" | "ts";
   }
   & LogOptions
 >;
 
 export const addMigration = async (params: AddMigrationParams) => {
-  if (params.type !== "js" && params.type !== "ts") {
-    return Promise.reject("'type' parameter must be 'js' or 'ts");
-  }
-
   const folderPath = params.migrationsFolder ?? process.cwd();
 
   if (!existsSync(folderPath)) {
@@ -41,7 +37,7 @@ export const addMigration = async (params: AddMigrationParams) => {
 
   const migrationName = getMigrationName(
     params.name,
-    params.type as "js" | "ts",
+    params.type,
     params.timestamp ? formatDateForFileName(currentDate) : undefined,
   );
   const migrationData = params.type === "ts"

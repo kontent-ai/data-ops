@@ -1,5 +1,5 @@
 import { logError, LogOptions } from "../../../log.js";
-import { addMigration } from "../../../modules/migrations/add.js";
+import { addMigration, AddMigrationParams } from "../../../modules/migrations/add.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -50,9 +50,20 @@ type AddMigrationCliParams =
 
 const addMigrationCli = async (params: AddMigrationCliParams) => {
   try {
-    await addMigration(params);
+    await addMigration(resolveParams(params));
   } catch (e) {
     logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
     process.exit(1);
   }
+};
+
+const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
+  if (args.type !== "ts" && args.type !== "js") {
+    throw new Error(`Invalid type '${args.type}'. Allowed values are 'ts' (TypeScript) or 'js' (JavaScript).`);
+  }
+
+  return {
+    ...args,
+    type: args.type as "ts" | "js",
+  };
 };
