@@ -1,12 +1,11 @@
-import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
-import { logError, logInfo, LogOptions } from "../../../log.js";
+import { logError, LogOptions } from "../../../log.js";
 import {
   migrateContentRunInternal,
   MigrateContentRunParams,
 } from "../../../modules/migrateContent/migrateContentRun.js";
-import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
+import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
@@ -146,17 +145,13 @@ const migrateContentRunCli = async (params: MigrateContentRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
   migrateContentRunInternal(resolvedParams, "migrate-content-run", async () => {
-    const warningMessage = chalk.yellow(
-      `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. 
+    await checkConfirmation({
+      message:
+        `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. 
 OK to proceed y/n? (suppress this message with --sw parameter)\n`,
-    );
-
-    const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
-
-    if (!confirmed) {
-      logInfo(params, "standard", chalk.red("Operation aborted."));
-      process.exit(1);
-    }
+      skipConfirmation: params.skipConfirmation,
+      logOptions: params,
+    });
   });
 };
 

@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
@@ -6,7 +5,7 @@ import { RunMigrationsParams, withMigrationsToRun } from "../../../modules/migra
 import { WithErr } from "../../../modules/migrations/utils/errUtils.js";
 import { executeMigrations } from "../../../modules/migrations/utils/migrationUtils.js";
 import { parseRange } from "../../../modules/migrations/utils/rangeUtils.js";
-import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
+import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -153,15 +152,12 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
   await withMigrationsToRun(resolvedParams.value, async migrations => {
     const operation = resolvedParams.value.rollback ? "rollback" : "run";
 
-    const warningMessage = chalk.yellow(
-      `⚠ Running this operation may result in irreversible changes to your environment ${params.environmentId}.\nOK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
-    );
-
-    const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
-
-    if (!confirmed) {
-      process.exit(0);
-    }
+    await checkConfirmation({
+      message:
+        `⚠ Running this operation may result in irreversible changes to your environment ${params.environmentId}.\nOK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
+      skipConfirmation: params.skipConfirmation,
+      logOptions: params,
+    });
 
     const migrationsStatus = await executeMigrations(migrations, client, {
       operation,

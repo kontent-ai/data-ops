@@ -142,7 +142,7 @@ const resolveParams = (params: MigrateContentSnapshotCliParams): MigrateContentS
     .otherwise(() => {
       logError(
         params,
-        "You need to provide exactly one from parameters: --items or --items with --depth, --filter, --byTypesCodenames, --last with --sourceDeliveryPeviewKey",
+        "You need to provide exactly one from parameters: --items or --items with --depth, --filter, --byTypesCodenames, --last with --sourceDeliveryPreviewKey",
       );
       process.exit(1);
     });
