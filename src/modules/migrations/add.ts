@@ -16,9 +16,9 @@ export type AddMigrationParams = Readonly<
   & {
     name: string;
     migrationsFolder?: string;
-    timestamp?: boolean;
     type: "js" | "ts";
   }
+  & ({ timestamp: true } | { timestamp?: false; order?: number })
   & LogOptions
 >;
 
@@ -41,8 +41,8 @@ export const addMigration = async (params: AddMigrationParams) => {
     params.timestamp ? formatDateForFileName(currentDate) : undefined,
   );
   const migrationData = params.type === "ts"
-    ? generateTypescriptMigration(params.timestamp ? currentDate : undefined)
-    : generateJavascriptMigration(params.timestamp ? currentDate : undefined);
+    ? generateTypescriptMigration(params.timestamp ? currentDate : params.order)
+    : generateJavascriptMigration(params.timestamp ? currentDate : params.order);
 
   const migrationPath = path.join(folderPath, migrationName);
 

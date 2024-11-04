@@ -34,7 +34,13 @@ export const register: RegisterCommand = yargs =>
           alias: "d",
           describe: "Sets the current DateTime in the order property and prefixes the migration name with it.",
           type: "boolean",
-          default: false,
+          conflicts: ["order"],
+        })
+        .option("order", {
+          alias: "o",
+          describe: "Sets the order property to the provided value.",
+          type: "number",
+          conflicts: ["timestamp"],
         }),
     handler: args => addMigrationCli(args).catch(simplifyErrors),
   });
@@ -43,7 +49,8 @@ type AddMigrationCliParams =
   & Readonly<{
     name: string;
     migrationsFolder: string | undefined;
-    timestamp: boolean;
+    timestamp: boolean | undefined;
+    order: number | undefined;
     type: string;
   }>
   & LogOptions;
