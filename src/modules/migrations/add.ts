@@ -5,12 +5,7 @@ import * as path from "path";
 import { logInfo, LogOptions } from "../../log.js";
 import { handleErr } from "./utils/errUtils.js";
 import { createFolder, saveFile } from "./utils/fileUtils.js";
-import {
-  formatDateForFileName,
-  generateJavascriptMigration,
-  generateTypescriptMigration,
-  getMigrationName,
-} from "./utils/migrationUtils.js";
+import { generateJavascriptMigration, generateTypescriptMigration, getMigrationName } from "./utils/migrationUtils.js";
 
 export type AddMigrationParams = Readonly<
   & {
@@ -18,7 +13,7 @@ export type AddMigrationParams = Readonly<
     migrationsFolder?: string;
     type: "js" | "ts";
   }
-  & ({ timestamp: true } | { timestamp?: false; order?: number })
+  & TimestampOrOrderParams
   & LogOptions
 >;
 
@@ -38,7 +33,11 @@ export const addMigration = async (params: AddMigrationParams) => {
   const migrationName = getMigrationName(
     params.name,
     params.type,
-    params.timestamp ? formatDateForFileName(currentDate) : undefined,
+    params.timestamp
+      ? currentDate
+      : params.order === undefined
+      ? undefined
+      : padWithLeadingZeros(params.order, params.padWithLeadingZeros),
   );
   const migrationData = params.type === "ts"
     ? generateTypescriptMigration(params.timestamp ? currentDate : params.order)
@@ -55,3 +54,16 @@ export const addMigration = async (params: AddMigrationParams) => {
     `Migration ${migrationName} has been created sucessfully in ${chalk.blue(saveMigrationPath)}`,
   );
 };
+
+const padWithLeadingZeros = (order: number, numberOfZeros: number | undefined) =>
+  numberOfZeros
+    ? order.toString().padStart(numberOfZeros, "0")
+    : order.toString();
+
+type TimestampOrOrderParams =
+  | Readonly<{ timestamp: true }>
+  | Readonly<{ timestamp?: false } & OrderParams>;
+
+type OrderParams =
+  | Readonly<{ order: number; padWithLeadingZeros?: number }>
+  | Readonly<{ order?: never }>;
