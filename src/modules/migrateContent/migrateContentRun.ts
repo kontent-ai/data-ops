@@ -43,10 +43,14 @@ export type MigrateContentFilterParams = Readonly<
 >;
 
 export const migrateContentRun = async (params: MigrateContentRunParams) => {
-  await migrateContentRunIntenal(params, "migrate-content-run-API");
+  await migrateContentRunInternal(params, "migrate-content-run-API");
 };
 
-export const migrateContentRunIntenal = async (params: MigrateContentRunParams, commandName: string) => {
+export const migrateContentRunInternal = async (
+  params: MigrateContentRunParams,
+  commandName: string,
+  withItemCodenames: (itemsCodenames: ReadonlyArray<string>) => Promise<void> = () => Promise.resolve(),
+) => {
   if ("filename" in params) {
     const data = await extractAsync({ filename: params.filename });
 
@@ -84,6 +88,8 @@ export const migrateContentRunIntenal = async (params: MigrateContentRunParams, 
       itemsCodenames.length < 100 ? `with codenames:\n${itemsCodenames.join("\n")}` : ""
     }`,
   );
+
+  await withItemCodenames(itemsCodenames);
 
   await migrateAsync({
     targetEnvironment: {

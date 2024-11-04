@@ -1,10 +1,12 @@
+import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
-import { logError, LogOptions } from "../../../log.js";
+import { logError, logInfo, LogOptions } from "../../../log.js";
 import {
-  migrateContentRunIntenal,
+  migrateContentRunInternal,
   MigrateContentRunParams,
 } from "../../../modules/migrateContent/migrateContentRun.js";
+import { requestConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
@@ -143,7 +145,19 @@ type MigrateContentRunCliParams =
 const migrateContentRunCli = async (params: MigrateContentRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  migrateContentRunIntenal(resolvedParams, "migrate-content-run");
+  migrateContentRunInternal(resolvedParams, "migrate-content-run", async () => {
+    const warningMessage = chalk.yellow(
+      `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. 
+OK to proceed y/n? (suppress this message with --sw parameter)\n`,
+    );
+
+    const confirmed = !params.skipConfirmation ? await requestConfirmation(warningMessage) : true;
+
+    if (!confirmed) {
+      logInfo(params, "standard", chalk.red("Operation aborted."));
+      process.exit(1);
+    }
+  });
 };
 
 const resolveParams = (params: MigrateContentRunCliParams): MigrateContentRunParams => {
