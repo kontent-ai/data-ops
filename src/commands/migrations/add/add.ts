@@ -1,5 +1,6 @@
 import { logError, LogOptions } from "../../../log.js";
 import { addMigration, AddMigrationParams } from "../../../modules/migrations/add.js";
+import { MigrationModuleType } from "../../../modules/migrations/models/migration.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -88,7 +89,7 @@ const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
 
   return {
     ...args,
-    type: args.type as "ts" | "js",
+    type: args.type as MigrationModuleType,
     ...orderParams,
   };
 };

@@ -3,6 +3,7 @@ import { existsSync } from "fs";
 import * as path from "path";
 
 import { logInfo, LogOptions } from "../../log.js";
+import { MigrationModuleType } from "./models/migration.js";
 import { handleErr } from "./utils/errUtils.js";
 import { createFolder, saveFile } from "./utils/fileUtils.js";
 import { generateJavascriptMigration, generateTypescriptMigration, getMigrationName } from "./utils/migrationUtils.js";
@@ -11,7 +12,7 @@ export type AddMigrationParams = Readonly<
   & {
     name: string;
     migrationsFolder?: string;
-    type: "js" | "ts";
+    type: MigrationModuleType;
   }
   & TimestampOrOrderParams
   & LogOptions

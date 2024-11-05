@@ -8,7 +8,7 @@ import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
 import { seriallyReduce } from "../../../utils/requests.js";
-import { isMigrationModule, Migration, MigrationOrder } from "../models/migration.js";
+import { isMigrationModule, Migration, MigrationModuleType, MigrationOrder } from "../models/migration.js";
 import { MigrationOperation, MigrationStatus } from "../models/status.js";
 import { RunMigrationFilterParams } from "../run.js";
 import { WithErr } from "./errUtils.js";
@@ -23,7 +23,7 @@ export const formatDateForFileName = (date: Date) =>
   + `${("0" + date.getUTCMinutes()).slice(-2)}-`
   + `${("0" + date.getUTCSeconds()).slice(-2)}-`;
 
-export const getMigrationName = (name: string, type: "js" | "ts", prefix: Date | string | undefined) =>
+export const getMigrationName = (name: string, type: MigrationModuleType, prefix: Date | string | undefined) =>
   `${prefix instanceof Date ? formatDateForFileName(prefix) : prefix ?? ""}${name}.${type}`;
 
 export const generateTypescriptMigration = (order: Date | number | undefined): string =>
