@@ -3,6 +3,8 @@ import { z } from "zod";
 
 export type MigrationOrder = number | Date;
 
+export type MigrationModuleType = "js" | "ts";
+
 export type MigrationModule = Readonly<{
   order: MigrationOrder;
   run(apiClient: ManagementClient): Promise<void>;
