@@ -38,7 +38,7 @@ export const addMigration = async (params: AddMigrationParams) => {
       ? currentDate
       : params.order === undefined
       ? undefined
-      : padWithLeadingZeros(params.order, params.padWithLeadingZeros),
+      : padWithLeadingZeros(params.order, params.padWithLeadingZeros) + "-",
   );
   const migrationData = params.type === "ts"
     ? generateTypescriptMigration(params.timestamp ? currentDate : params.order)
