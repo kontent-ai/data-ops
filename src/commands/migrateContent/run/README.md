@@ -63,7 +63,7 @@ The command provides several parameters to cover various scenarios for selecting
     --last 500
   ```
 
-- **Migrate by Content Type**: Use the `--byTypeCodename` parameter to migrate content items filtered by the specified content types.
+- **Migrate by Content Type**: Use the `--byTypesCodenames` parameter to migrate content items filtered by the specified content types.
 
   **Example:**
 
@@ -75,7 +75,7 @@ The command provides several parameters to cover various scenarios for selecting
     --targetEnvironmentId=<target-env-id> \
     --targetApiKey=<target-api-key> \
     --language=<language-codename> \
-    --byTypeCodename article blog_post
+    --byTypesCodenames article blog_post
   ```
 
 - **Custom Query Filtering**: Use the `--filter` parameter to apply a custom query string for filtering content items. Refer to the [Kontent.ai Delivery API documentation](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) for query options.
@@ -95,7 +95,7 @@ The command provides several parameters to cover various scenarios for selecting
 > [!Important]
 >
 > - The parameters above are **mutually exclusive**. Use only one of them at a time.
-> - When using parameters that utilize the Delivery API (`--last`, `--byTypeCodename`, `--filter`, or when using `--items` with `--depth`), you need to provide a valid Delivery Preview API Key using the `--sourceDeliveryPreviewKey` (or shorthand `--sd`) parameter.
+> - When using parameters that utilize the Delivery API (`--last`, `--byTypesCodenames`, `--filter`, or when using `--items` with `--depth`), you need to provide a valid Delivery Preview API Key using the `--sourceDeliveryPreviewKey` (or shorthand `--sd`) parameter.
 > - All commands support optional `--depth` and `--limit` parameters affecting the depth of linked items selection and response size. When specifying the `--depth` parameter, we encourage you to use the `--limit` parameter appropriately to prevent hitting the upper limit for Delivery API response size. For more information, refer to the [Kontent.ai Delivery API documentation](https://kontent.ai/learn/docs/apis/openapi/delivery-api/#section/Response-size).
 
 ## Parameters
@@ -110,7 +110,7 @@ The command provides several parameters to cover various scenarios for selecting
 | `--language`                         | Specifies language codename, for which content items will be migrated.                                                                      |
 | `--items`                            | (Mutually exclusive) A list of content item codenames to migrate.                                                            |
 | `--last`                             | (Mutually exclusive) The number of last modified content items to migrate.                                                   |
-| `--byTypeCodename`                   | (Mutually exclusive) A list of content type codenames to filter content items.                                                   |
+| `--byTypesCodenames`                 | (Mutually exclusive) A list of content type codenames to filter content items.                                                   |
 | `--filter`                           | (Mutually exclusive) A custom query string for filtering content items via the Delivery API.                                     |
 | `--depth`                            | (Optional) The depth of linked items to include in the migration.                                                          |
 | `--limit`                            | (Optional) The maximum number of content items to retrieve per API call (default is 100, maximum is 100).                        |
