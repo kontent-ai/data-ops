@@ -20,9 +20,9 @@ const initialYargs = emptyYargs
   .wrap(emptyYargs.terminalWidth())
   .env("DATA_OPS")
   .scriptName("data-ops")
-  .example("$0 environment export --apiKey=xxx --environmentId=xxx", "Creates a zip backup of a Kontent.ai environment")
+  .example("$0 environment backup --apiKey=xxx --environmentId=xxx", "Creates a zip backup of a Kontent.ai environment")
   .example(
-    "$0 environment import --apiKey=xxx --environmentId=xxx --fileName=backupFile",
+    "$0 environment restore --apiKey=xxx --environmentId=xxx --fileName=backupFile",
     "Populates the target Kontent.ai environment with data from the provided zip file.",
   )
   .epilogue("If you have any questions, contact us at devrel@kontent.ai.")
