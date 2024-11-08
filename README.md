@@ -199,7 +199,7 @@ We have comprehensive test suites to ensure the reliability of the Data Ops tool
 
 ### Prepare Your Testing Project
 
-To successfully execute integration tests, you must prepare a Kontent.ai project with corresponding environments. You can use the [environment restore](./src/commands/backupRestore/README.md) command to import prepared zip files located at `tests/integration/<testName>/data/<zipName>.zip`.
+To successfully execute integration tests, you must prepare a Kontent.ai project with corresponding environments. You can use the [environment restore](./src/commands/environment/backupRestore/README.md) command to import prepared zip files located at `tests/integration/<testName>/data/<zipName>.zip`.
 
 #### Exporting Test Environments
 
