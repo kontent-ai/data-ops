@@ -107,6 +107,7 @@ To compare environments in your scripts, use the `syncDiff` function:
 
 ```typescript
 import { syncDiff, SyncDiffParams } from "@kontent-ai/data-ops";
+import * as fs from "fs";
 
 const params: SyncDiffParams = {
   targetEnvironmentId: "<target-env-id>",
@@ -115,10 +116,10 @@ const params: SyncDiffParams = {
   sourceEnvironmentId: "<source-env-id>",
   sourceApiKey: "<source-api-key>",
   // folderName: "./source-model",
-  advancedMode: true, // Set to true for advanced HTML output
-  outFile: "./diff-report.html",
-  noOpen: false, // Set to true to prevent automatic opening of the HTML file
 };
 
-await syncDiff(params);
+const syncDiffHtml = await syncDiff(params);
+
+// (optional) save html
+fs.writeFileSync("path-to-store-html", syncDiffHtml);
 ```
