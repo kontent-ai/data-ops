@@ -17,18 +17,24 @@ export const syncWorkflows = async (
     logInfo(logOptions, "standard", "No workflows to add");
   }
 
-  if ([...operations.updated].flatMap(([, arr]) => arr).length) {
+  const workflowCodenamesToUpdate = [...operations.updated.entries()]
+    .filter(([, arr]) => arr.length)
+    .map(([codename]) => codename);
+
+  if (workflowCodenamesToUpdate.length) {
     logInfo(logOptions, "standard", "Updating workflows");
 
     await serially(
-      [...operations.updated.keys()].map(codename => () =>
-        modifyWorkflow(
+      workflowCodenamesToUpdate.map(codename => () => {
+        const sourceWorkflow = operations.sourceWorkflows.find(w => w.codename === codename)
+          ?? throwError(`Workflow { codename: ${codename} } not found.`);
+
+        return modifyWorkflow(
           client,
           codename,
-          operations.sourceWorkflows.find(w => w.codename === codename)
-            ?? throwError(`Workflow { codename: ${codename} } not found.`),
-        )
-      ),
+          sourceWorkflow,
+        );
+      }),
     );
   } else {
     logInfo(logOptions, "standard", "No workflows to update");
