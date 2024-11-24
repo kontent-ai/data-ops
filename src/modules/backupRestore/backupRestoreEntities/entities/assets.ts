@@ -24,9 +24,13 @@ export const assetsEntity = {
   fetchEntities: client =>
     client.listAssets().toAllPromise().then(res => res.data.items.map(a => a._raw as AssetWithElements)),
   serializeEntities: JSON.stringify,
-  addOtherFiles: async (assets, archive, logOptions, secureAssetDeliveryKey) => {
-    await serially(assets.map(a => () => saveAsset(archive, logOptions, a, secureAssetDeliveryKey)));
-  },
+  addOtherFiles: async (assets, archive, logOptions, secureAssetDeliveryKey) =>
+    // CONSIDER: Throw an error here if the size of any asset does not match expectations instead of giving a warning on a per asset basis in `saveAsset`.
+    (await serially(assets.map(a => () => saveAsset(archive, logOptions, a, secureAssetDeliveryKey))))
+      .reduce(
+        (prev, curr) => curr.warning ? { warnings: prev.warnings + 1 } : prev,
+        { warnings: 0 },
+      ),
   deserializeEntities: JSON.parse,
   importEntities: async (client, fileAssets, context, logOptions, zip) => {
     const fileAssetsWithElements = fileAssets.filter(a => !!a.elements.length);
@@ -71,13 +75,33 @@ const saveAsset = async (
   asset: AssetContracts.IAssetModelContract,
   secureAssetDeliveryKey: string | undefined,
 ) => {
+  let warning = false;
   logInfo(logOptions, "verbose", `Exporting: file ${chalk.yellow(asset.file_name)}.`);
   const defaultOptions: RequestInit = {
     headers: secureAssetDeliveryKey ? { Authorization: `Bearer ${secureAssetDeliveryKey}` } : undefined,
   };
   const file = await fetch(asset.url, defaultOptions)
-    .then(res => res.blob()).then(res => res.stream());
+    .then(res => res.blob()).then(res => {
+      if (res.size !== asset.size) {
+        warning = true;
+        logInfo(
+          logOptions,
+          "standard",
+          chalk.red(`${
+            chalk.bold(
+              `Size mismatch: expected ${asset.size} bytes, got ${res.size} bytes`,
+            )
+          }${
+            (!logOptions.verbose && logOptions.logLevel !== "none" && logOptions.logLevel !== "verbose")
+              ? ` (${createFileName(asset)})`
+              : ""
+          }.`),
+        );
+      }
+      return res.stream();
+    });
   archive.append(stream.Readable.fromWeb(file), { name: createFileName(asset) });
+  return { warning };
 };
 
 const createImportAssetFetcher =
