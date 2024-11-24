@@ -97,17 +97,21 @@ export const backupEnvironmentInternal = async (
   const archive = archiver("zip");
   archive.pipe(outputStream);
 
+  const warnings: { assetWarnings: number } = { assetWarnings: 0 };
   await serially(definitionsToBackup.map(def => async () => {
     logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.displayName)}`);
 
     try {
       const entities = await def.fetchEntities(client);
-      await (def as EntityDefinition<unknown>).addOtherFiles?.(
+      const warning = (await (def as EntityDefinition<unknown>).addOtherFiles?.(
         entities,
         archive,
         params,
         params.secureAssetDeliveryKey,
-      );
+      ))?.warnings;
+      if (warning) {
+        warnings.assetWarnings += warning;
+      }
       const result = def.serializeEntities(entities);
 
       archive.append(result, { name: `${def.name}.json` });
@@ -129,7 +133,9 @@ export const backupEnvironmentInternal = async (
     params,
     "standard",
     `\nEntities from environment ${chalk.yellow(params.environmentId)} were ${
-      chalk.green("successfully backuped")
+      warnings.assetWarnings
+        ? chalk.red(`backed up with ${warnings.assetWarnings} warning(s)`)
+        : chalk.green("successfully backed up")
     } into ${chalk.blue(fileName)}.`,
   );
 };

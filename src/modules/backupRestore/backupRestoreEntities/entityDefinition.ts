@@ -16,7 +16,7 @@ export type EntityBackupDefinition<T> = Readonly<{
     archive: archiver.Archiver,
     logOptions: LogOptions,
     secureAssetDeliveryKey: string | undefined,
-  ) => Promise<void>;
+  ) => Promise<{ warnings: number }>;
 }>;
 
 export type EntityRestoreDefinition<T> = Readonly<{
