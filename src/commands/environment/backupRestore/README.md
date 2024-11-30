@@ -53,7 +53,7 @@ npx @kontent-ai/data-ops@latest environment backup --help
 | -------------------------- | ----------------------------------------------------------------------- |
 | `--environmentId`          | The ID of the environment you want to backup.                           |
 | `--apiKey`                 | The Management API key for the environment.                             |
-| `--secureAssetDeliveryKey` | (Optional) The secure asset delivery API key for the environment.       |
+| `--secureAssetDeliveryKey` | (Optional) The secure asset delivery API key for the environment.<br />Read more about enabling secure asset delivery in the [Kontent.ai documentation](https://kontent.ai/learn/docs/security/secure-access/javascript#a-retrieve-assets-securely).       |
 | `--fileName`               | (Optional) The name of the output `.zip` file. Default is `backup.zip`. |
 | `--include`                | (Optional) Specify entities to include in the backup.                   |
 | `--exclude`                | (Optional) Specify entities to exclude from the backup.                 |
@@ -76,6 +76,15 @@ npx @kontent-ai/data-ops@latest environment backup \
   --environmentId=<environment-id> \
   --apiKey=<Management-API-key> \
   --exclude roles
+```
+
+**Backing up All Data from an Environment with Secure Asset Delivery Enabled**
+
+```bash
+npx @kontent-ai/data-ops@latest environment backup \
+  --environmentId=<environment-id> \
+  --apiKey=<Management-API-key> \
+  --secureAssetDeliveryKey=<Secure-Asset-Delivery-API-key>
 ```
 
 ### Backup Programmatically
