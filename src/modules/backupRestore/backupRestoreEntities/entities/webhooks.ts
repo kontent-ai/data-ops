@@ -31,6 +31,7 @@ export const webhooksEntity = {
             secret: webhook.secret,
             url: webhook.url,
             enabled: webhook.enabled,
+            headers: webhook.headers,
             delivery_triggers: transformReferences(
               webhook.delivery_triggers,
               simplifyContext(context, [
