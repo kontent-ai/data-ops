@@ -16,7 +16,7 @@ import * as path from "path";
 
 import packageJson from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
-import { serializeDateForFileName } from "../../utils/files.js";
+import { DateLevel, serializeDateForFileName } from "../../utils/files.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { syncEntityChoices, SyncEntityName } from "./constants/entities.js";
 import {
@@ -168,7 +168,7 @@ export const saveSyncModel = async (params: SaveModelParams) => {
       generatedFromEnvironmentId: params.environmentId,
     },
   };
-  const folderName = params.folderName ?? `${serializeDateForFileName(now)}-${params.environmentId}`;
+  const folderName = params.folderName ?? `${serializeDateForFileName(now, DateLevel.Minute)}-${params.environmentId}`;
 
   logInfo(params, "standard", `Saving the model into a folder "${chalk.yellow(folderName)}".`);
 

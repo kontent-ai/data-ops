@@ -8,7 +8,7 @@ import * as fs from "fs";
 import packageFile from "../../../package.json" with { type: "json" };
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
-import { serializeDateForFileName } from "../../utils/files.js";
+import { DateLevel, serializeDateForFileName } from "../../utils/files.js";
 import { serially } from "../../utils/requests.js";
 import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
 import { assetsEntity } from "./backupRestoreEntities/entities/assets.js";
@@ -90,7 +90,7 @@ export const backupEnvironmentInternal = async (
 
   const now = new Date();
   const fileName = params.fileName
-    ?? `${serializeDateForFileName(now)}-backup-${params.environmentId}.zip`;
+    ?? `${serializeDateForFileName(now, DateLevel.Minute)}-backup-${params.environmentId}.zip`;
 
   const outputStream = fs.createWriteStream(fileName);
   const archive = archiver("zip");

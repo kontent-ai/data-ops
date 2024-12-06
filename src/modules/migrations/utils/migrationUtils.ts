@@ -7,6 +7,7 @@ import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
 import { logError, logInfo, LogOptions } from "../../../log.js";
+import { DateLevel, serializeDateForFileName } from "../../../utils/files.js";
 import { seriallyReduce } from "../../../utils/requests.js";
 import { isMigrationModule, Migration, MigrationModuleType, MigrationOrder } from "../models/migration.js";
 import { MigrationOperation, MigrationStatus } from "../models/status.js";
@@ -15,16 +16,8 @@ import { WithErr } from "./errUtils.js";
 import { orderComparator } from "./orderUtils.js";
 import { createMigrationStatus } from "./statusUtils.js";
 
-export const formatDateForFileName = (date: Date) =>
-  `${date.getUTCFullYear()}-`
-  + `${("0" + (date.getUTCMonth() + 1)).slice(-2)}-`
-  + `${("0" + date.getUTCDate()).slice(-2)}-`
-  + `${("0" + date.getUTCHours()).slice(-2)}-`
-  + `${("0" + date.getUTCMinutes()).slice(-2)}-`
-  + `${("0" + date.getUTCSeconds()).slice(-2)}-`;
-
 export const getMigrationName = (name: string, type: MigrationModuleType, prefix: Date | string | undefined) =>
-  `${prefix instanceof Date ? formatDateForFileName(prefix) : prefix ?? ""}${name}.${type}`;
+  `${prefix instanceof Date ? `${serializeDateForFileName(prefix, DateLevel.Second)}-` : prefix ?? ""}${name}.${type}`;
 
 export const generateTypescriptMigration = (order: Date | number | undefined): string =>
   `import { MigrationModule } from "@kontent-ai/data-ops";
