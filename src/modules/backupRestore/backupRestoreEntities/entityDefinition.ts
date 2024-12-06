@@ -11,7 +11,12 @@ export type EntityBackupDefinition<T> = Readonly<{
   displayName: string;
   fetchEntities: (client: ManagementClient) => Promise<T>;
   serializeEntities: (entities: T) => string;
-  addOtherFiles?: (loadedEntities: T, archive: archiver.Archiver, logOptions: LogOptions) => Promise<void>;
+  addOtherFiles?: (
+    loadedEntities: T,
+    archive: archiver.Archiver,
+    logOptions: LogOptions,
+    secureAssetDeliveryKey: string | undefined,
+  ) => Promise<void>;
 }>;
 
 export type EntityRestoreDefinition<T> = Readonly<{
@@ -29,11 +34,7 @@ export type EntityRestoreDefinition<T> = Readonly<{
 
 export type EntityCleanDefinition<T> = Readonly<{
   name: string;
-  cleanEntities: (
-    client: ManagementClient,
-    entities: T,
-    logOptions: LogOptions,
-  ) => Promise<void>;
+  cleanEntities: (client: ManagementClient, entities: T, logOptions: LogOptions) => Promise<void>;
 }>;
 
 export type DependentRestoreAction<T> = Readonly<{

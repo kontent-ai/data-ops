@@ -49,14 +49,15 @@ npx @kontent-ai/data-ops@latest environment backup --help
 
 ### Parameters
 
-| Parameter         | Description                                                                       |
-|-------------------|-----------------------------------------------------------------------------------|
-| `--environmentId` | The ID of the environment you want to backup.                           |
-| `--apiKey`        | The Management API key for the environment.                                       |
-| `--fileName`      | (Optional) The name of the output `.zip` file. Default is `backup.zip`.           |
-| `--include`       | (Optional) Specify entities to include in the backup.                             |
-| `--exclude`       | (Optional) Specify entities to exclude from the backup.                           |
-| `--configFile`    | (Optional) Path to a JSON configuration file containing parameters.               |
+| Parameter                  | Description                                                             |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `--environmentId`          | The ID of the environment you want to backup.                           |
+| `--apiKey`                 | The Management API key for the environment.                             |
+| `--secureAssetDeliveryKey` | (Optional) The secure asset delivery API key for the environment.<br />Read more about enabling secure asset delivery in the [Kontent.ai documentation](https://kontent.ai/learn/docs/security/secure-access/javascript#a-retrieve-assets-securely).       |
+| `--fileName`               | (Optional) The name of the output `.zip` file. Default is `backup.zip`. |
+| `--include`                | (Optional) Specify entities to include in the backup.                   |
+| `--exclude`                | (Optional) Specify entities to exclude from the backup.                 |
+| `--configFile`             | (Optional) Path to a JSON configuration file containing parameters.     |
 
 ### Examples
 
@@ -77,6 +78,15 @@ npx @kontent-ai/data-ops@latest environment backup \
   --exclude roles
 ```
 
+**Backing up All Data from an Environment with Secure Asset Delivery Enabled**
+
+```bash
+npx @kontent-ai/data-ops@latest environment backup \
+  --environmentId=<environment-id> \
+  --apiKey=<Management-API-key> \
+  --secureAssetDeliveryKey=<Secure-Asset-Delivery-API-key>
+```
+
 ### Backup Programmatically
 
 To backup data from an environment in your scripts, use the `backupEnvironment` function:
@@ -89,6 +99,8 @@ const params: BackupEnvironmentParams = {
   apiKey: "<mapi-key>",
   // Optional: specify output file name
   // fileName: "backup.zip",
+  // Optional: specify secure asset delivery API key
+  // secureAssetDeliveryKey: "<secure-asset-delivery-api-key>",
   // Optional: include or exclude specific entities
   // include: ["contentItems", "assets"],
   // exclude: ["roles"],
@@ -154,14 +166,14 @@ npx @kontent-ai/data-ops@latest environment restore --fileName <file-to-restore>
 
 ### Parameters
 
-| Parameter         | Description                                                                |
-|-------------------|----------------------------------------------------------------------------|
-| `--fileName`      | The path to the `.zip` file containing the data to restore.                 |
-| `--environmentId` | The ID of the target environment where you want to restore data to.            |
-| `--apiKey`        | The Management API key for the target environment.                         |
-| `--include`       | (Optional) Specify entities to restore.                      |
-| `--exclude`       | (Optional) Specify entities to exclude from the restore.                    |
-| `--configFile`    | (Optional) Path to a JSON configuration file containing parameters.        |
+| Parameter         | Description                                                         |
+| ----------------- | ------------------------------------------------------------------- |
+| `--fileName`      | The path to the `.zip` file containing the data to restore.         |
+| `--environmentId` | The ID of the target environment where you want to restore data to. |
+| `--apiKey`        | The Management API key for the target environment.                  |
+| `--include`       | (Optional) Specify entities to restore.                             |
+| `--exclude`       | (Optional) Specify entities to exclude from the restore.            |
+| `--configFile`    | (Optional) Path to a JSON configuration file containing parameters. |
 
 ### Examples
 
@@ -216,9 +228,10 @@ await restoreEnvironment(params);
 
 - **Scheduled Publishing Times**: The current API format doesn't support inclusion of the publishing time for variants scheduled to be published. The tool instead places scheduled variants into the draft step (the first step in the workflow).
 
-### Asset Size
+### Asset Limitations
 
 - **Asset Size Limit**: The Management API accepts only assets smaller than 100 MB. If your backup file contains assets larger than that (they can be uploaded through the UI), the tool won't be able to import them.
+- **Asset Quality**: Assets fetched by the tool may be compressed and metadata can be missing. You may find more information about asset compression in the [quality](https://kontent.ai/learn/docs/apis/image-transformation-api#a-quality-parameter) and [lossles](https://kontent.ai/learn/docs/apis/image-transformation-api#a-lossless-parameter) parameter documentation.
 
 ### Performance
 

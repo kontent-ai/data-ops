@@ -59,6 +59,7 @@ export type BackupEnvironmentParams = Readonly<
     environmentId: string;
     fileName?: string;
     apiKey: string;
+    secureAssetDeliveryKey?: string;
     kontentUrl?: string;
   }
   & IncludeExclude<BackupEntityChoices>
@@ -101,7 +102,12 @@ export const backupEnvironmentInternal = async (
 
     try {
       const entities = await def.fetchEntities(client);
-      await (def as EntityDefinition<unknown>).addOtherFiles?.(entities, archive, params);
+      await (def as EntityDefinition<unknown>).addOtherFiles?.(
+        entities,
+        archive,
+        params,
+        params.secureAssetDeliveryKey,
+      );
       const result = def.serializeEntities(entities);
 
       archive.append(result, { name: `${def.name}.json` });

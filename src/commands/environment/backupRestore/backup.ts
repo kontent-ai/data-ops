@@ -36,6 +36,11 @@ export const register: RegisterCommand = yargs =>
           demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
+        .option("secureAssetDeliveryKey", {
+          type: "string",
+          describe:
+            "You need to provide a asset delivery key when secure asset delivery is enabled for the given Kontent.ai environment.",
+        })
         .option("include", {
           type: "array",
           describe: "Only back up specified entities.",
@@ -62,6 +67,7 @@ type BackupEnvironmentCliParams =
     environmentId: string;
     fileName: string | undefined;
     apiKey: string;
+    secureAssetDeliveryKey: string | undefined;
     include: ReadonlyArray<BackupEntityChoices> | undefined;
     exclude: ReadonlyArray<BackupEntityChoices> | undefined;
     kontentUrl: string | undefined;
