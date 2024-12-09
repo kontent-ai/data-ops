@@ -24,7 +24,7 @@ export const assetsEntity = {
   fetchEntities: client =>
     client.listAssets().toAllPromise().then(res => res.data.items.map(a => a._raw as AssetWithElements)),
   serializeEntities: JSON.stringify,
-  addOtherFiles: async (assets, archive, logOptions, secureAssetDeliveryKey) => {
+  addOtherFiles: async (assets, archive, secureAssetDeliveryKey, logOptions) => {
     await serially(assets.map(a => () => saveAsset(archive, logOptions, a, secureAssetDeliveryKey)));
   },
   deserializeEntities: JSON.parse,
@@ -72,11 +72,12 @@ const saveAsset = async (
   secureAssetDeliveryKey: string | undefined,
 ) => {
   logInfo(logOptions, "verbose", `Exporting: file ${chalk.yellow(asset.file_name)}.`);
-  const defaultOptions: RequestInit = {
+  const options: RequestInit = {
     headers: secureAssetDeliveryKey ? { Authorization: `Bearer ${secureAssetDeliveryKey}` } : undefined,
   };
-  const file = await fetch(asset.url, defaultOptions)
-    .then(res => res.blob()).then(res => res.stream());
+  const file = await fetch(`${asset.url}?q=100`, options)
+    .then(res => res.blob())
+    .then(res => res.stream());
   archive.append(stream.Readable.fromWeb(file), { name: createFileName(asset) });
 };
 

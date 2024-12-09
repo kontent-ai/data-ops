@@ -14,8 +14,8 @@ export type EntityBackupDefinition<T> = Readonly<{
   addOtherFiles?: (
     loadedEntities: T,
     archive: archiver.Archiver,
-    logOptions: LogOptions,
     secureAssetDeliveryKey: string | undefined,
+    logOptions: LogOptions,
   ) => Promise<void>;
 }>;
 

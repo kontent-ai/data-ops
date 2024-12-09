@@ -105,8 +105,8 @@ export const backupEnvironmentInternal = async (
       await (def as EntityDefinition<unknown>).addOtherFiles?.(
         entities,
         archive,
-        params,
         params.secureAssetDeliveryKey,
+        params,
       );
       const result = def.serializeEntities(entities);
 

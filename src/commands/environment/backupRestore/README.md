@@ -53,10 +53,10 @@ npx @kontent-ai/data-ops@latest environment backup --help
 | -------------------------- | ----------------------------------------------------------------------- |
 | `--environmentId`          | The ID of the environment you want to backup.                           |
 | `--apiKey`                 | The Management API key for the environment.                             |
-| `--secureAssetDeliveryKey` | (Optional) The secure asset delivery API key for the environment.<br />Read more about enabling secure asset delivery in the [Kontent.ai documentation](https://kontent.ai/learn/docs/security/secure-access/javascript#a-retrieve-assets-securely).       |
 | `--fileName`               | (Optional) The name of the output `.zip` file. Default is `backup.zip`. |
 | `--include`                | (Optional) Specify entities to include in the backup.                   |
 | `--exclude`                | (Optional) Specify entities to exclude from the backup.                 |
+| `--secureAssetDeliveryKey` | (Optional) The secure asset delivery API key for the environment.<br />Read more about enabling secure asset delivery in the [Kontent.ai documentation](https://kontent.ai/learn/docs/security/secure-access/javascript#a-retrieve-assets-securely).       |
 | `--configFile`             | (Optional) Path to a JSON configuration file containing parameters.     |
 
 ### Examples
@@ -99,11 +99,11 @@ const params: BackupEnvironmentParams = {
   apiKey: "<mapi-key>",
   // Optional: specify output file name
   // fileName: "backup.zip",
-  // Optional: specify secure asset delivery API key
-  // secureAssetDeliveryKey: "<secure-asset-delivery-api-key>",
   // Optional: include or exclude specific entities
   // include: ["contentItems", "assets"],
   // exclude: ["roles"],
+  // Optional: specify secure asset delivery API key
+  // secureAssetDeliveryKey: "<secure-asset-delivery-api-key>",
 };
 
 await backupEnvironment(params);
@@ -231,7 +231,7 @@ await restoreEnvironment(params);
 ### Asset Limitations
 
 - **Asset Size Limit**: The Management API accepts only assets smaller than 100 MB. If your backup file contains assets larger than that (they can be uploaded through the UI), the tool won't be able to import them.
-- **Asset Quality**: Assets fetched by the tool may be compressed and metadata can be missing. You may find more information about asset compression in the [quality](https://kontent.ai/learn/docs/apis/image-transformation-api#a-quality-parameter) and [lossles](https://kontent.ai/learn/docs/apis/image-transformation-api#a-lossless-parameter) parameter documentation.
+- **Asset Quality**: Assets fetched by the tool may be compressed and metadata can be missing. You may find more information about asset compression in the [quality parameter](https://kontent.ai/learn/docs/apis/image-transformation-api#a-quality-parameter) documentation.
 
 ### Performance
 

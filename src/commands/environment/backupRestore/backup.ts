@@ -39,7 +39,7 @@ export const register: RegisterCommand = yargs =>
         .option("secureAssetDeliveryKey", {
           type: "string",
           describe:
-            "You need to provide a asset delivery key when secure asset delivery is enabled for the given Kontent.ai environment.",
+            "You need to provide a secure asset delivery key when secure asset delivery is enabled for the given Kontent.ai environment.",
         })
         .option("include", {
           type: "array",

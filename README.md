@@ -125,15 +125,6 @@ Below are the available commands:
 
 ### Examples
 
-**Backing up All Data from an Environment with Secure Asset Delivery Enabled**
-
-```bash
-npx @kontent-ai/data-ops@latest environment backup \
-  --environmentId <environment-id> \
-  --apiKey <Management-API-key> \
-  --secureAssetDeliveryKey=<Secure-Asset-Delivery-API-key>
-```
-
 **Creating an Environment Backup including Content Items and Assets**
 
 ```bash
