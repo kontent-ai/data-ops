@@ -5,6 +5,8 @@ import { RunMigrationsParams, withMigrationsToRun } from "../../../modules/migra
 import { WithErr } from "../../../modules/migrations/utils/errUtils.js";
 import { executeMigrations } from "../../../modules/migrations/utils/migrationUtils.js";
 import { parseRange } from "../../../modules/migrations/utils/rangeUtils.js";
+import { formatEnvironmentInformation } from "../../../modules/shared/cli.js";
+import { getEnvironmentInformation } from "../../../modules/shared/mapiUtils.js";
 import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
@@ -143,6 +145,12 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
   });
 
   const resolvedParams = resolveParams(params);
+
+  logInfo(
+    params,
+    "standard",
+    `Migrating to the environmnent ${formatEnvironmentInformation(await getEnvironmentInformation(client))}\n`,
+  );
 
   if ("err" in resolvedParams) {
     logError(params, JSON.stringify(resolvedParams.err));

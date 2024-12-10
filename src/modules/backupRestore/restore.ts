@@ -5,6 +5,8 @@ import StreamZip from "node-stream-zip";
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { serially } from "../../utils/requests.js";
+import { formatEnvironmentInformation } from "../shared/cli.js";
+import { getEnvironmentInformation } from "../shared/mapiUtils.js";
 import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
 import { assetsEntity } from "./backupRestoreEntities/entities/assets.js";
 import { collectionsEntity } from "./backupRestoreEntities/entities/collections.js";
@@ -78,6 +80,7 @@ export const restoreEnvironment = async (params: RestoreEnvironmentParams) => {
 
 export const restoreEnvironmentInternal = async (client: ManagementClient, params: RestoreEnvironmentParams) => {
   const root = new StreamZip.async({ file: params.fileName });
+  const envInfo = await getEnvironmentInformation(client);
 
   const definitionsToImport = restoreEntityDefinitions
     .filter(includeExcludePredicate(params));
@@ -85,7 +88,9 @@ export const restoreEnvironmentInternal = async (client: ManagementClient, param
   logInfo(
     params,
     "standard",
-    `Restoring entities from ${chalk.blue(params.fileName)} into environment id ${params.environmentId}\n`,
+    `Restoring entities from ${chalk.blue(params.fileName)} into environment ${
+      formatEnvironmentInformation(envInfo)
+    }\n`,
   );
 
   let context = createInitialContext();

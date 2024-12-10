@@ -10,6 +10,8 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { serializeDateForFileName } from "../../utils/files.js";
 import { serially } from "../../utils/requests.js";
+import { formatEnvironmentInformation } from "../shared/cli.js";
+import { getEnvironmentInformation } from "../shared/mapiUtils.js";
 import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
 import { assetsEntity } from "./backupRestoreEntities/entities/assets.js";
 import { collectionsEntity } from "./backupRestoreEntities/entities/collections.js";
@@ -83,10 +85,12 @@ export const backupEnvironmentInternal = async (
 ): Promise<void> => {
   const definitionsToBackup = backupEntityDefinitions.filter(includeExcludePredicate(params));
 
+  const environmentInfo = await getEnvironmentInformation(client);
+
   logInfo(
     params,
     "standard",
-    `\nExporting entities from environment id ${chalk.bold.yellow(params.environmentId)}\n`,
+    `\nExporting entities from environment ${formatEnvironmentInformation(environmentInfo)}\n`,
   );
 
   const now = new Date();

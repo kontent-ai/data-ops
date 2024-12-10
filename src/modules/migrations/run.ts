@@ -5,6 +5,8 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { apply } from "../../utils/function.js";
 import { AnyOnePropertyOf } from "../../utils/types.js";
+import { formatEnvironmentInformation } from "../shared/cli.js";
+import { getEnvironmentInformation } from "../shared/mapiUtils.js";
 import { Migration, MigrationOrder } from "./models/migration.js";
 import { MigrationOperation, MigrationStatus, SaveStatus, Status, StatusPlugin } from "./models/status.js";
 import { handleErr, WithErr } from "./utils/errUtils.js";
@@ -51,6 +53,12 @@ export const runMigrations = async (params: RunMigrationsParams) => {
     commandName: "migrations-run-API",
     baseUrl: params.kontentUrl,
   });
+
+  logInfo(
+    params,
+    "standard",
+    `Migrating to the environmnent ${formatEnvironmentInformation(await getEnvironmentInformation(client))}\n`,
+  );
 
   await withMigrationsToRun(params, async migrations => {
     const operation = params.rollback ? "rollback" : "run";

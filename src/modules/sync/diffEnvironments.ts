@@ -1,10 +1,14 @@
+import { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { Replace } from "../../utils/types.js";
+import { formatEnvironmentInformation } from "../shared/cli.js";
+import { getEnvironmentInformation } from "../shared/mapiUtils.js";
 import { syncEntityChoices, syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
 import { diff } from "./diff.js";
+import { DiffModel } from "./types/diffModel.js";
 import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
 import {
   fetchSourceSyncModel,
@@ -45,41 +49,6 @@ export const syncDiff = async (params: SyncDiffParams) => {
 };
 
 export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandName: string) => {
-  logInfo(
-    params,
-    "standard",
-    `Diff content model between source environment ${
-      chalk.blue("folderName" in params ? `in ${params.folderName}` : params.sourceEnvironmentId)
-    } and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
-  );
-
-  const fetchDependencies = new Set(
-    params.entities.flatMap(e => syncEntityDependencies[e as SyncEntityName]),
-  );
-
-  const sourceModel = "folderName" in params && params.folderName !== undefined
-    ? await getSourceSyncModelFromFolder(
-      params.folderName,
-      new Set(params.entities) as ReadonlySet<SyncEntityName>,
-    ).catch(e => {
-      if (e instanceof AggregateError) {
-        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
-      }
-      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
-    })
-    : await fetchSourceSyncModel(
-      createClient({
-        environmentId: params.sourceEnvironmentId,
-        apiKey: params.sourceApiKey,
-        commandName,
-        baseUrl: params.kontentUrl,
-      }),
-      fetchDependencies,
-      params,
-    );
-
-  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
-
   const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
@@ -87,10 +56,95 @@ export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandNam
     baseUrl: params.kontentUrl,
   });
 
+  return "folderName" in params && params.folderName !== undefined
+    ? diffSourceFolder(params.folderName, targetEnvironmentClient, params.entities, params)
+    : diffSourceRemote(
+      createClient({
+        environmentId: params.sourceEnvironmentId,
+        apiKey: params.sourceApiKey,
+        commandName,
+        baseUrl: params.kontentUrl,
+      }),
+      targetEnvironmentClient,
+      params.entities,
+      params,
+    );
+};
+
+const diffSourceFolder = async (
+  folderName: string,
+  targetEnvironmentClient: ManagementClient,
+  entities: ReadonlyArray<SyncEntityName>,
+  logOptions: LogOptions,
+): Promise<DiffModel> => {
+  const formattedTargetEnvInfo = formatEnvironmentInformation(await getEnvironmentInformation(targetEnvironmentClient));
+
+  logInfo(
+    logOptions,
+    "standard",
+    `Diff content model between source environment ${
+      chalk.blue(folderName)
+    } and target environment ${formattedTargetEnvInfo}\n`,
+  );
+
+  const fetchDependencies = new Set(
+    entities.flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+  );
+
+  const sourceModel = await getSourceSyncModelFromFolder(folderName, new Set(entities) as ReadonlySet<SyncEntityName>)
+    .catch(e => {
+      if (e instanceof AggregateError) {
+        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
+      }
+      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+    });
+
+  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
+
   const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
     targetEnvironmentClient,
     allCodenames,
-    params,
+    logOptions,
+    fetchDependencies,
+  );
+
+  return diff({
+    targetAssetsReferencedFromSourceByCodenames: assetsReferences,
+    targetItemsReferencedFromSourceByCodenames: itemReferences,
+    targetEnvModel: transformedTargetModel,
+    sourceEnvModel: sourceModel,
+  });
+};
+
+const diffSourceRemote = async (
+  sourceEnviromentClient: ManagementClient,
+  targetEnvironmentClient: ManagementClient,
+  entities: ReadonlyArray<SyncEntityName>,
+  logOptions: LogOptions,
+): Promise<DiffModel> => {
+  const formattedSourceEnvInfo = formatEnvironmentInformation(await getEnvironmentInformation(sourceEnviromentClient));
+  const formattedTargetEnvInfo = formatEnvironmentInformation(await getEnvironmentInformation(targetEnvironmentClient));
+
+  logInfo(
+    logOptions,
+    "standard",
+    `Diff:
+Source environment: ${formattedSourceEnvInfo}
+Target environment: ${formattedTargetEnvInfo}\n`,
+  );
+
+  const fetchDependencies = new Set(
+    entities.flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+  );
+
+  const sourceModel = await fetchSourceSyncModel(sourceEnviromentClient, fetchDependencies, logOptions);
+
+  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
+
+  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
+    targetEnvironmentClient,
+    allCodenames,
+    logOptions,
     fetchDependencies,
   );
 

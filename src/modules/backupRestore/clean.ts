@@ -5,6 +5,8 @@ import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { serially } from "../../utils/requests.js";
 import { SuperiorOmit } from "../../utils/types.js";
+import { formatEnvironmentInformation } from "../shared/cli.js";
+import { getEnvironmentInformation } from "../shared/mapiUtils.js";
 import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
 import { assetsEntity } from "./backupRestoreEntities/entities/assets.js";
 import { collectionsEntity } from "./backupRestoreEntities/entities/collections.js";
@@ -70,11 +72,12 @@ export const cleanEnvironmentInternal = async (
   client: ManagementClient,
 ): Promise<void> => {
   const entitiesToClean = cleanEntityDefinitions.filter(includeExcludePredicate(params));
+  const envInfo = await getEnvironmentInformation(client);
 
   logInfo(
     params,
     "standard",
-    `Cleaning entities from ${chalk.blue(params.environmentId)}.`,
+    `Cleaning entities from ${formatEnvironmentInformation(envInfo)}.`,
   );
 
   await serially(

@@ -3,6 +3,8 @@ import chalk from "chalk";
 
 import { logInfo, LogOptions } from "../../log.js";
 import { createClient } from "../../utils/client.js";
+import { formatEnvironmentInformation } from "../shared/cli.js";
+import { getEnvironmentInformation } from "../shared/mapiUtils.js";
 import { SyncEntityName } from "./constants/entities.js";
 import { fetchModel, filterModel, saveSyncModel, transformSyncModel } from "./generateSyncModel.js";
 import { SyncEntities } from "./syncRun.js";
@@ -31,7 +33,8 @@ export const syncSnapshot = async (params: SyncSnapshotParams) => {
 };
 
 export const syncSnapshotInternal = async (params: SyncSnapshotParams, client: ManagementClient) => {
-  logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
+  const envInfo = await getEnvironmentInformation(client);
+  logInfo(params, "standard", "Fetching the model from ", formatEnvironmentInformation(envInfo), ".");
   const environmentModel = await logOnError(
     chalk.red("Failed to fetch the model."),
     () => fetchModel(client, new Set(Object.keys(params.entities) as ReadonlyArray<SyncEntityName>)),
