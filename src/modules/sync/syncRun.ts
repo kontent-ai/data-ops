@@ -8,6 +8,7 @@ import { diff } from "./diff.js";
 import { filterModel } from "./generateSyncModel.js";
 import { sync } from "./sync.js";
 import { DiffModel } from "./types/diffModel.js";
+import { FileContentModel } from "./types/fileContentModel.js";
 import {
   AssetFolderSyncModel,
   CollectionSyncModel,
@@ -87,84 +88,165 @@ export const syncRunInternal = async (
     baseUrl: params.kontentUrl,
   });
 
-  const diffModel = await getDiffModel(params, targetEnvironmentClient, commandName);
-
-  logInfo(params, "standard", "Validating patch operations...\n");
-
-  try {
-    await validateTargetEnvironment(diffModel, targetEnvironmentClient);
-  } catch (e) {
-    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+  if ("folderName" in params) {
+    return await syncFromFolder(params, targetEnvironmentClient, withDiffModel);
   }
-
-  await withDiffModel(diffModel);
-
-  await sync(
-    targetEnvironmentClient,
-    diffModel,
-    new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-    params,
-  );
+  return await syncFromRemote(params, targetEnvironmentClient, commandName, withDiffModel);
 };
 
-const getDiffModel = async (
-  params: SyncRunParams,
+const syncFromFolder = async (
+  params: Extract<SyncRunParams, { folderName: string }>,
   targetClient: ManagementClient,
-  commandName: string,
+  withDiffModel: (diffModel: DiffModel) => Promise<void>,
 ) => {
-  if ("folderName" in params) {
-    const folderErrors = await validateSyncModelFolder(params.folderName);
-    if (folderErrors.length) {
-      return Promise.reject(folderErrors);
-    }
-  }
+  const sourceModel = await getSourceModelFromFolder(params.folderName, params.entities);
 
   const fetchDependencies = new Set(
     Object.keys(params.entities).flatMap(e => syncEntityDependencies[e as SyncEntityName]),
   );
 
-  const sourceModel = "folderName" in params
-    ? await getSourceSyncModelFromFolder(
-      params.folderName,
-      new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-    ).catch(e => {
-      if (e instanceof AggregateError) {
-        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
-      }
-      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
-    })
-    : await fetchSourceSyncModel(
-      createClient({
-        environmentId: params.sourceEnvironmentId,
-        apiKey: params.sourceApiKey,
-        commandName,
-        baseUrl: params.kontentUrl,
-      }),
-      fetchDependencies,
-      params,
-    );
-
-  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
-
-  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetContentModel(
+  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetModel(
     targetClient,
-    allCodenames,
-    params,
+    sourceModel,
     fetchDependencies,
+    params,
   );
 
-  const filteredSourceModel = filterModel(sourceModel, params.entities);
-  const filteredTargetModel = filterModel(transformedTargetModel, params.entities);
+  const [filteredSourceModel, filteredTargetModel] = filterEnvModels(
+    sourceModel,
+    transformedTargetModel,
+    params.entities,
+  );
 
-  return diff({
+  const diffOperations = diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,
     targetItemsReferencedFromSourceByCodenames: itemReferences,
     targetEnvModel: filteredTargetModel,
     sourceEnvModel: filteredSourceModel,
   });
+
+  logInfo(params, "standard", "Validating patch operations...\n");
+
+  try {
+    await validateTargetEnvironment(diffOperations, targetClient);
+  } catch (e) {
+    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+  }
+
+  await withDiffModel(diffOperations);
+
+  await sync(
+    targetClient,
+    diffOperations,
+    new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+    params,
+  );
 };
 
-export const validateTargetEnvironment = async (
+const syncFromRemote = async (
+  params: Extract<SyncRunParams, { sourceEnvironmentId: string }>,
+  targetClient: ManagementClient,
+  commandName: string,
+  withDiffModel: (diffModel: DiffModel) => Promise<void>,
+) => {
+  const fetchDependencies = new Set(
+    Object.keys(params.entities).flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+  );
+
+  const sourceClient = createClient({
+    environmentId: params.sourceEnvironmentId,
+    apiKey: params.sourceApiKey,
+    commandName,
+    baseUrl: params.kontentUrl,
+  });
+
+  const sourceModel = await getSourceModelFromRemote(sourceClient, fetchDependencies, params);
+
+  const { assetsReferences, itemReferences, transformedTargetModel } = await getTargetModel(
+    targetClient,
+    sourceModel,
+    fetchDependencies,
+    params,
+  );
+
+  const [filteredSourceModel, filteredTargetModel] = filterEnvModels(
+    sourceModel,
+    transformedTargetModel,
+    params.entities,
+  );
+
+  const diffOperations = diff({
+    targetAssetsReferencedFromSourceByCodenames: assetsReferences,
+    targetItemsReferencedFromSourceByCodenames: itemReferences,
+    targetEnvModel: filteredTargetModel,
+    sourceEnvModel: filteredSourceModel,
+  });
+
+  logInfo(params, "standard", "Validating patch operations...\n");
+
+  try {
+    await validateTargetEnvironment(diffOperations, targetClient);
+  } catch (e) {
+    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+  }
+
+  await withDiffModel(diffOperations);
+
+  await sync(
+    targetClient,
+    diffOperations,
+    new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+    params,
+  );
+};
+const getSourceModelFromRemote = (
+  client: ManagementClient,
+  fetchDependencies: Set<SyncEntityName>,
+  logOptions: LogOptions,
+) =>
+  fetchSourceSyncModel(
+    client,
+    fetchDependencies,
+    logOptions,
+  );
+
+const getSourceModelFromFolder = async (folderName: string, entities: SyncEntities): Promise<FileContentModel> => {
+  const folderErrors = await validateSyncModelFolder(folderName);
+  if (folderErrors.length) {
+    return Promise.reject(folderErrors);
+  }
+
+  return await getSourceSyncModelFromFolder(
+    folderName,
+    new Set(Object.keys(entities)) as ReadonlySet<SyncEntityName>,
+  ).catch(e => {
+    if (e instanceof AggregateError) {
+      throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
+    }
+    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+  });
+};
+
+const getTargetModel = async (
+  targetClient: ManagementClient,
+  sourceModel: FileContentModel,
+  fetchDependencies: Set<SyncEntityName>,
+  logOptions: LogOptions,
+) => {
+  const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
+
+  return await getTargetContentModel(
+    targetClient,
+    allCodenames,
+    logOptions,
+    fetchDependencies,
+  );
+};
+
+const filterEnvModels = (sourceModel: FileContentModel, targetModel: FileContentModel, entities: SyncEntities) =>
+  [filterModel(sourceModel, entities), filterModel(targetModel, entities)] as const;
+
+const validateTargetEnvironment = async (
   diffModel: DiffModel,
   targetClient: ManagementClient,
 ) => {
