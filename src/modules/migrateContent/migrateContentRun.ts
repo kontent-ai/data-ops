@@ -105,5 +105,5 @@ export const migrateContentRunInternal = async (
     },
   });
 
-  logInfo(params, "standard", `All items sucessfuly migrated`);
+  logInfo(params, "standard", `All items successfully migrated`);
 };
