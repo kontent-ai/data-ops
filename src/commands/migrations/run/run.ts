@@ -54,7 +54,7 @@ export const register: RegisterCommand = yargs =>
         })
         .option("all", {
           alias: "a",
-          describe: "Executes all migations.",
+          describe: "Executes all migrations.",
           type: "boolean",
           conflicts: migrationSelectionOptions.filter(o => o !== "all"),
         })
@@ -76,7 +76,7 @@ export const register: RegisterCommand = yargs =>
           type: "string",
         })
         .option("continueOnError", {
-          describe: "Determines whether migrations should continue when an error is encoutered.",
+          describe: "Determines whether migrations should continue when an error is encountered.",
           type: "boolean",
         })
         .option("force", {
@@ -168,7 +168,7 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
       return Promise.reject(migrationsStatus.status);
     }
 
-    logInfo(params, "standard", "Sucessfully migrated.\n");
+    logInfo(params, "standard", "Successfully migrated.\n");
 
     return migrationsStatus.status;
   });

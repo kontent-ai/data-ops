@@ -28,7 +28,7 @@ export type SyncDiffParams = Readonly<
   & LogOptions
 >;
 
-export type SyncDiffParamsIntenal = Replace<SyncDiffParams, { entities: ReadonlyArray<SyncEntityName> }>;
+export type SyncDiffParamsInternal = Replace<SyncDiffParams, { entities: ReadonlyArray<SyncEntityName> }>;
 
 /**
  * Compares two environments and generates an HTML representation of the differences.
@@ -44,7 +44,7 @@ export const syncDiff = async (params: SyncDiffParams) => {
   return resolveHtmlTemplate(diffHtmlTemplate, { ...diffModel, ...resolvedParams });
 };
 
-export const syncDiffInternal = async (params: SyncDiffParamsIntenal, commandName: string) => {
+export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandName: string) => {
   logInfo(
     params,
     "standard",

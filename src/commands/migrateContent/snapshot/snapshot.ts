@@ -20,20 +20,20 @@ export const register: RegisterCommand = yargs =>
         yargs
           .option("sourceEnvironmentId", {
             type: "string",
-            describe: "Id of Kontent.ai environmnent containing source content.",
+            describe: "Id of Kontent.ai environment containing source content.",
             demandOption: "You need to provide the environmentId for source Kontent.ai environment.",
             alias: "s",
           })
           .option("sourceApiKey", {
             type: "string",
-            describe: "Management Api key of Kontent.ai environmnent containing source content.",
+            describe: "Management Api key of Kontent.ai environment containing source content.",
             demandOption: "You need to provide a Management API key for source Kontent.ai environment.",
             alias: "sk",
           })
           .option("sourceDeliveryPreviewKey", {
             type: "string",
             describe:
-              "Delivery Preview Api key of Kontent.ai environmnent containing source content. Use only when you want obtain codenames via delivery client.",
+              "Delivery Preview Api key of Kontent.ai environment containing source content. Use only when you want obtain codenames via delivery client.",
             alias: "sd",
           })
           .option("language", {
@@ -68,7 +68,7 @@ export const register: RegisterCommand = yargs =>
           .option("depth", {
             type: "number",
             describe:
-              "Determines the level of linked items in Delivery API response. We encourage using with --limit to prevent hiting upper response limit.",
+              "Determines the level of linked items in Delivery API response. We encourage using with --limit to prevent hitting upper response limit.",
             conflicts: ["filter"],
           })
           .option("limit", {

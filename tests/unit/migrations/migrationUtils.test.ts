@@ -54,33 +54,33 @@ describe("filterMigrations", () => {
 });
 
 describe("getMigrationsToSkip", () => {
-  it("Correctly return skipped sucesfully migrated migrations", () => {
-    const enviromnentStatus: ReadonlyArray<MigrationStatus> = [
+  it("Correctly return skipped successfully migrated migrations", () => {
+    const environmentStatus: ReadonlyArray<MigrationStatus> = [
       createMigrationStatus(migrations[0].name, migrations[0].module.order, true, "run"),
       createMigrationStatus(migrations[2].name, migrations[2].module.order, true, "run"),
     ];
 
-    const skippedMigrations = getMigrationsToSkip(enviromnentStatus, migrations, "run");
+    const skippedMigrations = getMigrationsToSkip(environmentStatus, migrations, "run");
 
     expect(skippedMigrations).toStrictEqual([migrations[0], migrations[2]]);
   });
 
-  it("Correctly return skipped sucesfully migrated migrations and does not return not sucessfull migration", () => {
-    const enviromnentStatus: ReadonlyArray<MigrationStatus> = [
+  it("Correctly return skipped successfully migrated migrations and does not return not successful migration", () => {
+    const environmentStatus: ReadonlyArray<MigrationStatus> = [
       createMigrationStatus(migrations[0].name, migrations[0].module.order, true, "run"),
       createMigrationStatus(migrations[2].name, migrations[2].module.order, false, "run"),
     ];
-    const skippedMigrations = getMigrationsToSkip(enviromnentStatus, migrations, "run");
+    const skippedMigrations = getMigrationsToSkip(environmentStatus, migrations, "run");
 
     expect(skippedMigrations).toStrictEqual([migrations[0]]);
   });
 
-  it("Correctly return does not return any migration when operation is oposite", () => {
-    const enviromnentStatus: ReadonlyArray<MigrationStatus> = [
+  it("Correctly return does not return any migration when operation is opposite", () => {
+    const environmentStatus: ReadonlyArray<MigrationStatus> = [
       createMigrationStatus(migrations[0].name, migrations[0].module.order, true, "run"),
       createMigrationStatus(migrations[1].name, migrations[1].module.order, false, "run"),
     ];
-    const skippedMigrations = getMigrationsToSkip(enviromnentStatus, migrations, "rollback");
+    const skippedMigrations = getMigrationsToSkip(environmentStatus, migrations, "rollback");
 
     expect(skippedMigrations).toStrictEqual([migrations[2], migrations[3], migrations[4]]);
   });

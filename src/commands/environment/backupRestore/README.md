@@ -1,6 +1,6 @@
 # Environment Backup & Restore
 
-The `environment backup` and `enviroment restore` environment commands let you easily backup and then restore your Kontent.ai environment.
+The `environment backup` and `environment restore` environment commands let you easily backup and then restore your Kontent.ai environment.
 
 ## Including and Excluding Entities in Environment commands
 

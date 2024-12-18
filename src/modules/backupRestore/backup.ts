@@ -129,7 +129,7 @@ export const backupEnvironmentInternal = async (
     params,
     "standard",
     `\nEntities from environment ${chalk.yellow(params.environmentId)} were ${
-      chalk.green("successfully backuped")
+      chalk.green("successfully backed up")
     } into ${chalk.blue(fileName)}.`,
   );
 };

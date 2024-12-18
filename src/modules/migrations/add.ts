@@ -52,7 +52,7 @@ export const addMigration = async (params: AddMigrationParams) => {
   logInfo(
     params,
     "standard",
-    `Migration ${migrationName} has been created sucessfully in ${chalk.blue(saveMigrationPath)}`,
+    `Migration ${migrationName} has been created successfully in ${chalk.blue(saveMigrationPath)}`,
   );
 };
 

@@ -64,7 +64,7 @@ export const runMigrations = async (params: RunMigrationsParams) => {
       return Promise.reject(migrationsStatus.status);
     }
 
-    logInfo(params, "standard", "Sucessfully migrated.\n");
+    logInfo(params, "standard", "Successfully migrated.\n");
 
     return migrationsStatus.status;
   });
@@ -183,7 +183,7 @@ const updateStatus = async (
   logInfo(
     params,
     "standard",
-    `Status sucessfully stored${
+    `Status successfully stored${
       !params.statusPlugins ? ` in ${chalk.green(path.resolve(params.migrationsFolder, "status.json"))}` : ""
     }.`,
   );

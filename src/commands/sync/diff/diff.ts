@@ -2,7 +2,7 @@ import { match, P } from "ts-pattern";
 
 import { logError, LogOptions } from "../../../log.js";
 import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { syncDiffInternal, SyncDiffParamsIntenal } from "../../../modules/sync/diffEnvironments.js";
+import { syncDiffInternal, SyncDiffParamsInternal } from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
@@ -35,14 +35,14 @@ export const register: RegisterCommand = yargs =>
         })
         .option("sourceEnvironmentId", {
           type: "string",
-          describe: "Id of Kontent.ai environmnent containing source content model.",
+          describe: "Id of Kontent.ai environment containing source content model.",
           conflicts: "folderName",
           implies: ["sourceApiKey"],
           alias: "s",
         })
         .option("sourceApiKey", {
           type: "string",
-          describe: "Management API key of Kontent.ai environmnent containing source content model.",
+          describe: "Management API key of Kontent.ai environment containing source content model.",
           conflicts: "folderName",
           implies: ["sourceEnvironmentId"],
           alias: "sk",
@@ -57,7 +57,7 @@ export const register: RegisterCommand = yargs =>
           type: "array",
           string: true,
           choices: syncEntityChoices,
-          describe: `Diff specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+          describe: `Diff specified entities. Allowed entities are: ${syncEntityChoices.join(", ")}`,
         })
         .option("outPath", {
           type: "string",
@@ -108,7 +108,7 @@ const syncDiffCli = async (params: syncDiffCliParams) => {
   }
 };
 
-const resolveParams = (params: syncDiffCliParams): SyncDiffParamsIntenal => {
+const resolveParams = (params: syncDiffCliParams): SyncDiffParamsInternal => {
   const updatedParams = { ...params, entities: params.entities ?? syncEntityChoices };
 
   return match(updatedParams)

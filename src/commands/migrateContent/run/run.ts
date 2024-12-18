@@ -33,20 +33,20 @@ export const register: RegisterCommand = yargs =>
         })
         .option("sourceEnvironmentId", {
           type: "string",
-          describe: "Id of Kontent.ai environmnent containing source content.",
+          describe: "Id of Kontent.ai environment containing source content.",
           alias: "s",
           implies: ["sourceApiKey"],
         })
         .option("sourceApiKey", {
           type: "string",
-          describe: "Management Api key of Kontent.ai environmnent containing source content.",
+          describe: "Management Api key of Kontent.ai environment containing source content.",
           alias: "sk",
           implies: ["sourceEnvironmentId"],
         })
         .option("sourceDeliveryPreviewKey", {
           type: "string",
           describe:
-            "Delivery Api key of Kontent.ai environmnent containing source content model. Use only when you want obtain codenames via delivery client.",
+            "Delivery Api key of Kontent.ai environment containing source content model. Use only when you want obtain codenames via delivery client.",
           alias: "sd",
         })
         .option("filename", {
@@ -156,32 +156,32 @@ OK to proceed y/n? (suppress this message with --sw parameter)\n`,
 };
 
 const resolveParams = (params: MigrateContentRunCliParams): MigrateContentRunParams => {
-  const ommited = omit(params, ["sourceEnvironmentId", "sourceApiKey", "items", "filter", "last", "byTypesCodenames"]);
+  const omitted = omit(params, ["sourceEnvironmentId", "sourceApiKey", "items", "filter", "last", "byTypesCodenames"]);
 
   if (params.filename) {
-    return { ...ommited, filename: params.filename };
+    return { ...omitted, filename: params.filename };
   }
 
   const filterParams = match(params)
     .with(
       { items: P.nonNullable, depth: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
-      ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...ommited, items, depth, sourceDeliveryPreviewKey }),
+      ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...omitted, items, depth, sourceDeliveryPreviewKey }),
     )
     .with(
       { items: P.nonNullable },
-      ({ items }) => ({ ...ommited, items }),
+      ({ items }) => ({ ...omitted, items }),
     )
     .with(
       { byTypesCodenames: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
-      ({ byTypesCodenames, sourceDeliveryPreviewKey }) => ({ ...ommited, byTypesCodenames, sourceDeliveryPreviewKey }),
+      ({ byTypesCodenames, sourceDeliveryPreviewKey }) => ({ ...omitted, byTypesCodenames, sourceDeliveryPreviewKey }),
     )
     .with(
       { filter: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
-      ({ filter, sourceDeliveryPreviewKey }) => ({ ...ommited, filter, sourceDeliveryPreviewKey }),
+      ({ filter, sourceDeliveryPreviewKey }) => ({ ...omitted, filter, sourceDeliveryPreviewKey }),
     )
     .with(
       { last: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
-      ({ last, sourceDeliveryPreviewKey }) => ({ ...ommited, last, sourceDeliveryPreviewKey }),
+      ({ last, sourceDeliveryPreviewKey }) => ({ ...omitted, last, sourceDeliveryPreviewKey }),
     )
     .otherwise(() => {
       logError(
@@ -193,7 +193,7 @@ const resolveParams = (params: MigrateContentRunCliParams): MigrateContentRunPar
 
   if (params.sourceEnvironmentId && params.sourceApiKey && params.language) {
     return {
-      ...ommited,
+      ...omitted,
       ...filterParams,
       sourceEnvironmentId: params.sourceEnvironmentId,
       sourceApiKey: params.sourceApiKey,

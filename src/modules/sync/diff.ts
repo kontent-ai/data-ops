@@ -212,5 +212,5 @@ const adjustSourceDefaultLanguageCodename = (
 const getDefaultLang = (languages: ReadonlyArray<LanguageSyncModel>) => {
   const defaultLang = languages.find(l => l.is_default);
 
-  return defaultLang ?? throwError(`Language enviroment model does not contain default language`);
+  return defaultLang ?? throwError(`Language environment model does not contain default language`);
 };
