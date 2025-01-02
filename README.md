@@ -238,7 +238,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) f
 
 If you have any questions or need assistance, please reach out:
 
-- **Kontent.ai Support**: [Contact Support](https://kontent.ai/support/)
+- **Kontent.ai Support**: [Contact Support](https://kontent.ai/contact/)
 
 ---
 
