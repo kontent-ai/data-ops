@@ -1,3 +1,5 @@
+import { padWithLeadingZeros } from "./number.js";
+
 export enum DateLevel {
   Year = 0,
   Month = 1,
@@ -8,11 +10,18 @@ export enum DateLevel {
 }
 
 export const serializeDateForFileName = (date: Date, level: DateLevel) =>
-  [
-    date.getUTCFullYear(),
-    ...level >= DateLevel.Month ? [("0" + (date.getUTCMonth() + 1)).slice(-2)] : [],
-    ...level >= DateLevel.Day ? [("0" + date.getUTCDate()).slice(-2)] : [],
-    ...level >= DateLevel.Hour ? [("0" + date.getUTCHours()).slice(-2)] : [],
-    ...level >= DateLevel.Minute ? [("0" + date.getUTCMinutes()).slice(-2)] : [],
-    ...level >= DateLevel.Second ? [("0" + date.getUTCSeconds()).slice(-2)] : [],
-  ].join("-");
+  createDateParts(date)
+    .slice(0, level + 1)
+    .join("-");
+
+const createDateParts = (date: Date) =>
+  Object.values(
+    {
+      [DateLevel.Year]: date.getUTCFullYear().toString(),
+      [DateLevel.Month]: padWithLeadingZeros(date.getUTCMonth() + 1, 2),
+      [DateLevel.Day]: padWithLeadingZeros(date.getUTCDate(), 2),
+      [DateLevel.Hour]: padWithLeadingZeros(date.getUTCHours(), 2),
+      [DateLevel.Minute]: padWithLeadingZeros(date.getUTCMinutes(), 2),
+      [DateLevel.Second]: padWithLeadingZeros(date.getUTCSeconds(), 2),
+    } as const satisfies Record<DateLevel, string>,
+  );
