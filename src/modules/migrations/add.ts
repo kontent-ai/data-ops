@@ -3,6 +3,7 @@ import { existsSync } from "fs";
 import * as path from "path";
 
 import { logInfo, LogOptions } from "../../log.js";
+import { padWithLeadingZeros } from "../../utils/number.js";
 import { MigrationModuleType } from "./models/migration.js";
 import { handleErr } from "./utils/errUtils.js";
 import { createFolder, saveFile } from "./utils/fileUtils.js";
@@ -55,11 +56,6 @@ export const addMigration = async (params: AddMigrationParams) => {
     `Migration ${migrationName} has been created sucessfully in ${chalk.blue(saveMigrationPath)}`,
   );
 };
-
-const padWithLeadingZeros = (order: number, numberOfZeros: number | undefined) =>
-  numberOfZeros
-    ? order.toString().padStart(numberOfZeros, "0")
-    : order.toString();
 
 type TimestampOrOrderParams =
   | Readonly<{ timestamp: true }>
