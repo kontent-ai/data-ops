@@ -10,7 +10,9 @@ export const syncAddAndReplaceCollections = (
   collections: DiffModel["collections"],
   logOptions: LogOptions,
 ) => {
-  if (!collections.length) {
+  const collectionAddAndReplaceOps = collections.filter(op => op.op !== "remove");
+
+  if (!collectionAddAndReplaceOps.length) {
     logInfo(logOptions, "standard", "No collections to add or update");
     return Promise.resolve();
   }
@@ -19,7 +21,7 @@ export const syncAddAndReplaceCollections = (
 
   return client
     .setCollections()
-    .withData(collections.filter(op => op.op !== "remove").map(transformCollectionsReferences))
+    .withData(collectionAddAndReplaceOps.map(transformCollectionsReferences))
     .toPromise();
 };
 
