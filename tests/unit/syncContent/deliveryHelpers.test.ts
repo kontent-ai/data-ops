@@ -91,6 +91,19 @@ describe("getDeliveryUrlParams", () => {
       new Filters.InFilter("system.codename", items),
     ]);
   });
+
+  it("should return correct deliver url parameters for custom filter", () => {
+    const filter = "system.codename=123";
+
+    const parameters = getDeliveryUrlParams({ language: "default", limit: 100, filter });
+
+    expect(parameters).toStrictEqual([
+      new Parameters.DepthParameter(0),
+      new Parameters.LanguageParameter("default"),
+      new Parameters.LimitParameter(100),
+      new Parameters.CustomParameter(filter),
+    ]);
+  });
 });
 
 const defaultItemProps = {
