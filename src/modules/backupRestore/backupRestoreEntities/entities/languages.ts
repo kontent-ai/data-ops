@@ -45,25 +45,34 @@ export const languagesEntity = {
     };
   },
   cleanEntities: async (client, languages) => {
+    const defaultLangCodename = languages.find(l => l.is_default)?.codename ?? defaultLanguageCodename;
+
     await serially(
       languages
+        .filter(l => !l.is_default && l.is_active)
         .map((lang) => () =>
           client
             .modifyLanguage()
             .byLanguageId(lang.id)
-            .withData(createPatchToCleanLanguage(lang))
+            .withData([createReplaceFallbackLanguageOperation(defaultLangCodename)])
             .toPromise()
         ),
     );
 
     await serially(
       languages
-        .filter(l => !l.is_default)
+        .toSorted((l1, l2) => {
+          if (l1.is_active === l2.is_active) {
+            return 0;
+          }
+
+          return l1.is_active ? -1 : 1;
+        })
         .map((lang) => () =>
           client
             .modifyLanguage()
             .byLanguageId(lang.id)
-            .withData([createReplaceIsActiveOperation(false)])
+            .withData(createPatchToCleanLanguage(lang))
             .toPromise()
         ),
     );
@@ -114,6 +123,7 @@ const createPatchToCleanLanguage = (
       createReplaceFallbackLanguageOperation(defaultLanguageCodename),
       createReplaceCodenameOperation(language.id.slice(0, 7)),
       createReplaceNameOperation(language.id.slice(0, 7)),
+      createReplaceIsActiveOperation(false),
     ];
 
 const updateProjectLanguage = async (
