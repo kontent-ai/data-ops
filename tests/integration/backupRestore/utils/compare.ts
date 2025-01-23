@@ -146,14 +146,16 @@ const sortTypesElements = (elements: ElementContracts.IContentTypeElementContrac
 export const prepareReferences = (data: AllEnvData): AllEnvData => ({
   collections: data.collections.map(c => ({ ...c, id: "-", external_id: "-" })),
   spaces: data.spaces.map(createPrepareSpaceReferences(data)),
-  languages: data.languages.map((l, _, allLanguages) => ({
-    ...l,
-    id: "-",
-    external_id: "-",
-    fallback_language: l.fallback_language
-      ? { id: allLanguages.find(e => e.id === l.fallback_language?.id)?.codename ?? "non-existing-language" }
-      : undefined,
-  })),
+  languages: data.languages
+    .filter(l => l.is_active)
+    .map((l, _, allLanguages) => ({
+      ...l,
+      id: "-",
+      external_id: "-",
+      fallback_language: l.fallback_language
+        ? { id: allLanguages.find(e => e.id === l.fallback_language?.id)?.codename ?? "non-existing-language" }
+        : undefined,
+    })),
   previewUrls: createPreparePreviewUrlReferences(data)(data.previewUrls),
   taxonomies: data.taxonomies.map(prepareTaxonomyReferences),
   assetFolders: data.assetFolders.map(prepareFolderReferences),
