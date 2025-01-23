@@ -187,7 +187,7 @@ const importLanguagesToProject = async (
 
   await serially(
     importLanguages
-      .filter(l => l.id !== defaultLanguageId)
+      .filter(l => l.id !== defaultLanguageId && l.is_active)
       .map(importLanguage => () => {
         const languageByExternalId = projectLanguages.find(l => l.externalId === getLanguageExternalId(importLanguage));
 
