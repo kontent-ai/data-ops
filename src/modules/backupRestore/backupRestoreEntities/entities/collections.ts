@@ -13,7 +13,7 @@ export const collectionsEntity = {
   displayName: "collections",
   fetchEntities: client => client.listCollections().toPromise().then(res => res.rawData.collections),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: async (client, fileCollections, context) => {
+  importEntities: async (client, { entities: fileCollections, context }) => {
     const existingCollections = await client.listCollections().toPromise().then(res => res.rawData.collections);
     const matchResults = findCollectionMatches(fileCollections, existingCollections);
     const matchErrors = matchResults.filter(isMatchError);

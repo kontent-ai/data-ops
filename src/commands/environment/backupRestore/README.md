@@ -166,14 +166,15 @@ npx @kontent-ai/data-ops@latest environment restore --fileName <file-to-restore>
 
 ### Parameters
 
-| Parameter         | Description                                                         |
-| ----------------- | ------------------------------------------------------------------- |
-| `--fileName`      | The path to the `.zip` file containing the data to restore.         |
-| `--environmentId` | The ID of the target environment where you want to restore data to. |
-| `--apiKey`        | The Management API key for the target environment.                  |
-| `--include`       | (Optional) Specify entities to restore.                             |
-| `--exclude`       | (Optional) Specify entities to exclude from the restore.            |
-| `--configFile`    | (Optional) Path to a JSON configuration file containing parameters. |
+| Parameter                    | Description                                                         |
+| ---------------------------- | ------------------------------------------------------------------- |
+| `--fileName`                 | The path to the `.zip` file containing the data to restore.         |
+| `--environmentId`            | The ID of the target environment where you want to restore data to. |
+| `--apiKey`                   | The Management API key for the target environment.                  |
+| `--include`                  | (Optional) Specify entities to restore.                             |
+| `--exclude`                  | (Optional) Specify entities to exclude from the restore.            |
+| `--excludeInactiveLanguages` | (Optional) Do not restore inactive languages.                       |
+| `--configFile`               | (Optional) Path to a JSON configuration file containing parameters. |
 
 ### Examples
 

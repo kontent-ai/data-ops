@@ -9,7 +9,7 @@ export const assetFoldersEntity = {
   fetchEntities: client => client.listAssetFolders().toPromise().then(res => res.rawData.folders),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileFolders, context) => {
+  importEntities: async (client, { entities: fileFolders, context }) => {
     if (!fileFolders.length) {
       return;
     }

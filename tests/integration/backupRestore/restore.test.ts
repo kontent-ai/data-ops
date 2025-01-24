@@ -121,6 +121,36 @@ describe("restore command", () => {
     }),
   );
 
+  it.concurrent(
+    "Restores only active languages when excludeInactiveLanguages is set to true",
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
+      await restoreEnvironment({
+        environmentId: environmentId,
+        fileName: "tests/integration/backupRestore/data/backup.zip",
+        apiKey: API_KEY,
+        include: ["languages"],
+        options: { excludeInactiveLanguages: true },
+      });
+
+      await expectSameEnvironments(
+        environmentId,
+        EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID,
+        { include: ["languages"] },
+        { excludeInactiveLanguages: true },
+      );
+
+      await expectNoAssets(environmentId);
+      await expectNoTypes(environmentId);
+      await expectNoSnippets(environmentId);
+      await expectNoSpaces(environmentId);
+      await expectNoTaxonomies(environmentId);
+      await expectNoItems(environmentId);
+      await expectNoWorkflows(environmentId);
+      await expectNoPreviewUrls(environmentId);
+      await expectNoWebhooks(environmentId);
+    }),
+  );
+
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
     const command =
       "environment restore --include collections contentTypes --exclude contentTypes -f test -k test -e test";

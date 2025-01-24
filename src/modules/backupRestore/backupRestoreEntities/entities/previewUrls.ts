@@ -9,7 +9,7 @@ export const previewUrlsEntity = {
   fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
   serializeEntities: previewUrls => JSON.stringify(previewUrls),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, previews, context) => {
+  importEntities: async (client, { entities: previews, context }) => {
     await client
       .modifyPreviewConfiguration()
       .withData({

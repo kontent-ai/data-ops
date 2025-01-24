@@ -20,7 +20,7 @@ export const workflowsEntity = {
   fetchEntities: client => client.listWorkflows().toPromise().then(res => res.rawData as ReadonlyArray<Workflow>),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, importWfs, context, logOptions) => {
+  importEntities: async (client, { entities: importWfs, context, logOptions }) => {
     const importWfsWithoutScopes = importWfs.map(wf => ({ ...wf, scopes: [] }));
 
     const oldProjectDefaultWf = await client.listWorkflows().toPromise()
@@ -81,7 +81,7 @@ export const importWorkflowScopesEntity = {
   name: workflowsEntity.name,
   displayName: "workflow scopes",
   deserializeEntities: JSON.parse,
-  importEntities: async (client, importWfs, context, logOptions) => {
+  importEntities: async (client, { entities: importWfs, context, logOptions }) => {
     const oldProjectWfs = await client.listWorkflows().toPromise().then(res => res.data);
 
     await serially(

@@ -28,7 +28,7 @@ export const assetsEntity = {
     await serially(assets.map(a => () => saveAsset(archive, logOptions, a, secureAssetDeliveryKey)));
   },
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileAssets, context, logOptions, zip) => {
+  importEntities: async (client, { entities: fileAssets, context, logOptions, zip }) => {
     const fileAssetsWithElements = fileAssets.filter(a => !!a.elements.length);
     if (fileAssetsWithElements.length) {
       throw new Error(
