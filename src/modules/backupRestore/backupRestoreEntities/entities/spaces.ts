@@ -12,7 +12,7 @@ export const spacesEntity = {
   fetchEntities: client => client.listSpaces().toPromise().then(res => res.rawData),
   serializeEntities: spaces => JSON.stringify(spaces),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, entities, context, logOptions) => {
+  importEntities: async (client, { entities, context, logOptions }) => {
     const newSpaces = await serially(entities.map(importSpace => () => {
       logInfo(logOptions, "verbose", `Importing: space ${importSpace.id} (${chalk.yellow(importSpace.name)})`);
 

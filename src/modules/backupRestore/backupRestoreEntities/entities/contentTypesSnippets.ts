@@ -29,7 +29,7 @@ export const contentTypesSnippetsEntity = {
       .then(res => res.data.items.map(s => s._raw as Snippet)),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileSnippets, context, logOptions) => {
+  importEntities: async (client, { entities: fileSnippets, context, logOptions }) => {
     const projectSnippets = await serially(
       fileSnippets.map(createInsertSnippetFetcher({ context, client, logOptions })),
     );
@@ -63,7 +63,7 @@ export const updateItemAndTypeReferencesInSnippetsImportEntity = {
   name: contentTypesSnippetsEntity.name,
   displayName: "references in contentTypeSnippets",
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileSnippets, context, logOptions) => {
+  importEntities: async (client, { entities: fileSnippets, context, logOptions }) => {
     await serially(fileSnippets.map(createUpdateSnippetItemAndTypeReferencesFetcher({ client, context, logOptions })));
   },
 } as const satisfies EntityRestoreDefinition<ReadonlyArray<Snippet>>;

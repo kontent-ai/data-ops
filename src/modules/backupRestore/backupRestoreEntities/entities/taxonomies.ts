@@ -11,7 +11,7 @@ export const taxonomiesEntity = {
   displayName: "taxonomies",
   fetchEntities: client => client.listTaxonomies().toAllPromise().then(res => res.data.items.map(t => t._raw)),
   serializeEntities: taxonomies => JSON.stringify(taxonomies),
-  importEntities: async (client, fileTaxonomies, context, logOptions) => {
+  importEntities: async (client, { entities: fileTaxonomies, context, logOptions }) => {
     const projectTaxonomies = await serially<ReadonlyArray<() => Promise<TaxonomyContracts.ITaxonomyContract>>>(
       fileTaxonomies.map(taxonomy => () => {
         logInfo(logOptions, "verbose", `Importing: taxonomy group ${taxonomy.id} (${chalk.yellow(taxonomy.name)})`);

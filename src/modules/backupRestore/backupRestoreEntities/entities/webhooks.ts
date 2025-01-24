@@ -15,7 +15,7 @@ export const webhooksEntity = {
   fetchEntities: client => client.listWebhooks().toPromise().then(res => res.rawData as ReadonlyArray<Webhook>),
   serializeEntities: webhooks => JSON.stringify(webhooks),
   deserializeEntities: JSON.parse,
-  importEntities: async (client, entities, context, logOptions) => {
+  importEntities: async (client, { entities, context, logOptions }) => {
     await serially(
       entities.map((webhook) => () => {
         logInfo(

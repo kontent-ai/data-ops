@@ -39,7 +39,7 @@ export const languageVariantsEntity = {
   },
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileVariants, context, logOptions) => {
+  importEntities: async (client, { entities: fileVariants, context, logOptions }) => {
     await serially(fileVariants.map(createImportVariant(client, context, logOptions)));
   },
 } as const satisfies Omit<EntityDefinition<ReadonlyArray<Variant>>, "cleanEntities">;

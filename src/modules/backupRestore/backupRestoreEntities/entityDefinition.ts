@@ -19,16 +19,25 @@ export type EntityBackupDefinition<T> = Readonly<{
   ) => Promise<void>;
 }>;
 
+export type RestoreOptions = {
+  excludeInactiveLanguages?: boolean;
+};
+
+type EntityRestoreParams<T> = {
+  entities: T;
+  context: RestoreContext;
+  logOptions: LogOptions;
+  zip: StreamZipAsync;
+  options?: RestoreOptions;
+};
+
 export type EntityRestoreDefinition<T> = Readonly<{
   name: string;
   displayName: string;
   deserializeEntities: (serialized: string) => T;
   importEntities: (
     client: ManagementClient,
-    entities: T,
-    context: RestoreContext,
-    logOptions: LogOptions,
-    zip: StreamZipAsync,
+    params: EntityRestoreParams<T>,
   ) => Promise<void | undefined | RestoreContext>;
 }>;
 

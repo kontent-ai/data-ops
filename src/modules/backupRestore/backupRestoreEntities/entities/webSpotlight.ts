@@ -8,7 +8,7 @@ export const webSpotlightEntity = {
   displayName: "webSpotlight",
   fetchEntities: client => client.checkWebSpotlightStatus().toPromise().then(res => res.rawData),
   serializeEntities: JSON.stringify,
-  importEntities: async (client, fileWebSpotlight, context) => {
+  importEntities: async (client, { entities: fileWebSpotlight, context }) => {
     if (fileWebSpotlight.enabled) {
       const rootTypeId = getRequired(
         context.contentTypeContextByOldIds,

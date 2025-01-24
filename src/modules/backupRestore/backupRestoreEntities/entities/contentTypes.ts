@@ -38,7 +38,7 @@ export const contentTypesEntity = {
       .toAllPromise()
       .then(res => res.data.items.map(t => t._raw as Type)),
   serializeEntities: collections => JSON.stringify(collections),
-  importEntities: async (client, fileTypes, context, logOptions) => {
+  importEntities: async (client, { entities: fileTypes, context, logOptions }) => {
     const projectTypes = await serially(fileTypes.map(createInsertTypeFetcher({ context, client, logOptions })));
 
     return {
@@ -72,7 +72,7 @@ export const updateItemAndTypeReferencesInTypesImportEntity = {
   name: contentTypesEntity.name,
   displayName: "references in contentTypes",
   deserializeEntities: JSON.parse,
-  importEntities: async (client, fileTypes, context, logOptions) => {
+  importEntities: async (client, { entities: fileTypes, context, logOptions }) => {
     await serially(fileTypes.map(createUpdateTypeItemReferencesFetcher({ client, context, logOptions })));
   },
 } as const satisfies EntityRestoreDefinition<ReadonlyArray<Type>>;

@@ -53,6 +53,10 @@ export const register: RegisterCommand = yargs =>
           choices: restoreEntityChoices,
           conflicts: "include",
         })
+        .option("excludeInactiveLanguages", {
+          type: "boolean",
+          describe: "Do not restore inactive languages.",
+        })
         .option("kontentUrl", {
           type: "string",
           describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
@@ -67,6 +71,7 @@ type RestoreEnvironmentCliParams =
     apiKey: string;
     include: ReadonlyArray<RestoreEntityChoices> | undefined;
     exclude: ReadonlyArray<RestoreEntityChoices> | undefined;
+    excludeInactiveLanguages?: boolean;
     kontentUrl: string | undefined;
   }>
   & LogOptions;
@@ -88,6 +93,7 @@ const restoreEnvironmentCli = async (params: RestoreEnvironmentCliParams) => {
 };
 
 const resolveParams = (params: RestoreEnvironmentCliParams): RestoreEnvironmentParams => ({
-  ...omit(params, ["include", "exclude"]),
+  ...omit(params, ["include", "exclude", "excludeInactiveLanguages"]),
   ...resolveIncludeExcludeCliParams(params),
+  options: { excludeInactiveLanguages: params.excludeInactiveLanguages },
 });

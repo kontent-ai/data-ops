@@ -25,7 +25,12 @@ import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js
 import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
 import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import { importWorkflowScopesEntity, workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
-import { EntityDefinition, EntityRestoreDefinition, RestoreContext } from "./backupRestoreEntities/entityDefinition.js";
+import {
+  EntityDefinition,
+  EntityRestoreDefinition,
+  RestoreContext,
+  RestoreOptions,
+} from "./backupRestoreEntities/entityDefinition.js";
 import { IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
 
 // The entities will be imported in the order specified here.
@@ -60,6 +65,7 @@ export type RestoreEnvironmentParams = Readonly<
     fileName: string;
     apiKey: string;
     kontentUrl?: string;
+    options?: RestoreOptions;
   }
   & IncludeExclude<RestoreEntityChoices>
   & LogOptions
@@ -97,7 +103,15 @@ export const restoreEnvironmentInternal = async (client: ManagementClient, param
       context = await root.entryData(`${def.name}.json`)
         .then(b => b.toString("utf8"))
         .then(def.deserializeEntities)
-        .then(e => (def as EntityDefinition<unknown>).importEntities(client, e, context, params, root))
+        .then(e =>
+          (def as EntityDefinition<unknown>).importEntities(client, {
+            entities: e,
+            context,
+            logOptions: params,
+            zip: root,
+            options: params.options,
+          })
+        )
         ?? context;
     } catch (err) {
       throw new Error(`Failed to import entity ${chalk.red(def.displayName)}.
