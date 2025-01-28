@@ -25,6 +25,7 @@ const sourceTrackingHeaderName = "X-KC-SOURCE";
 
 const retryStrategy: IRetryStrategyOptions = {
   ...retryHelper.defaultRetryStrategy,
+  deltaBackoffMs: 10000,
   canRetryError: (error: any) =>
     retryHelper.defaultRetryStrategy.canRetryError(error)
     || (isAxiosError(error) && !!error.response?.status.toString().startsWith("5")),
