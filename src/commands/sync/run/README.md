@@ -45,6 +45,11 @@ The following entities can be synchronized:
 - **Languages**
 - **Workflows**
 
+To successfully sync your environments, ensure your MAPI keys have the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
+
+> [!NOTE]
+> To sync Web Spotlight settings, your MAPI keys must have the Manage Environments permission enabled.
+
 ## Important Considerations
 
 - **Entity Matching**: Entities are matched by their `codename`.
