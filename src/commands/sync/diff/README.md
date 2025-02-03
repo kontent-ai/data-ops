@@ -2,6 +2,11 @@
 
 The `sync diff` command compares two environments and outputs the differences either to the command line interface (CLI) or to a standalone HTML file for improved visual representation and sharing purposes. You can compare two environments directly by providing parameters for both the source and target (environment IDs and Management API keys). Alternatively, you can compare an environment with a local snapshot created by the [`sync snapshot`](../snapshot/README.md) command.
 
+To successfully diff your environments, ensure your MAPI keys have the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
+
+> [!NOTE]
+> To diff Web Spotlight settings, your MAPI keys must have the Manage Environments permission enabled.
+
 ## Default Output
 
 By default, the `sync diff` command outputs the differences to the CLI in a format similar to [Kontent.ai Management API](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) operations for each modified entity. This is suitable for smaller diffs or when you want to inspect individual operations in detail.

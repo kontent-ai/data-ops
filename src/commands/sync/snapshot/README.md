@@ -24,6 +24,11 @@ The snapshot is cabable of containing following entities:
 - **Languages**
 - **Workflows**
 
+To successfully snapshot your environment, ensure your MAPI key has the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
+
+> [!NOTE]
+> To snapshot Web Spotlight settings, your MAPI key needs to have the Manage Environments permission enabled.
+
 ## How It Works
 
 The generated snapshot follows the [Management API (MAPI)](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/) format and is processed to remove IDs and other non-essential fields like `last_modified`. References to other entities (e.g., a snippet within a snippet element) are updated to use `codename` instead of `id`. Additionally:
