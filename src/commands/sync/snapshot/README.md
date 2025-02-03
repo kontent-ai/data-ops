@@ -24,8 +24,10 @@ The snapshot is cabable of containing following entities:
 - **Languages**
 - **Workflows**
 
-> [!IMPORTANT]
-> To successfully snapshot your environment, ensure your MAPI key has the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
+To successfully snapshot your environment, ensure your MAPI key has the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
+
+> [!NOTE]
+> To snapshot Web Spotlight settings, your MAPI key needs to have the Manage Environments permission enabled.
 
 ## How It Works
 
