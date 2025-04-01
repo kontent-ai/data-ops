@@ -557,6 +557,7 @@ const createPrepareVariantReferences: PrepareReferencesCreator<LanguageVariantCo
             ?? "non-existing-step",
       },
     },
+    contributors: [],
     elements: variant.elements.map(createPrepareVariantElementReferences(data)),
     due_date: variant.due_date,
     schedule: { // TODO: use variant.schedule once we schedule variants when importing
