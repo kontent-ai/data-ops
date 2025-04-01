@@ -47,7 +47,7 @@ export const makeObjectHandler = <Entity extends object>(
 export const makeLeafObjectHandler = <Entity extends object>(
   customComparers: Omit<
     { readonly [k in keyof Entity]?: (source: Entity[k], target: Entity[k]) => boolean },
-    "id" | "codename" | "external_id"
+    "id" | "external_id"
   >,
   transformBeforeReplace: (v: Entity) => unknown = x => x,
 ): Handler<Entity> =>
