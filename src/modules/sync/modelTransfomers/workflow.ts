@@ -22,18 +22,22 @@ export const transformWorkflowModel = (
       role_ids: [], // all role references must be empty as roles cannot be synced yet
     })),
     scopes: workflow.scopes.map(scope => ({
-      content_types: scope.content_types.map(scopeType => ({
-        codename: environmentModel.contentTypes.find(type => type.id === scopeType.id)?.codename
-          ?? throwError(
-            `Cannot find content type { id: ${scopeType.id} } for the scope of workflow { codename: ${workflow.codename} }.`,
-          ),
-      })),
-      collections: scope.collections.map(scopeCollection => ({
-        codename: environmentModel.collections.find(collection => collection.id === scopeCollection.id)?.codename
-          ?? throwError(
-            `Cannot find collection { id: ${scopeCollection.id} } for the scope of workflow { codename: ${workflow.codename} }.`,
-          ),
-      })),
+      content_types: scope.content_types
+        .filter(t => environmentModel.contentTypes.find(type => t.id === type.id))
+        .map(scopeType => ({
+          codename: environmentModel.contentTypes.find(type => type.id === scopeType.id)?.codename
+            ?? throwError(
+              `Cannot find content type { id: ${scopeType.id} } for the scope of workflow { codename: ${workflow.codename} }.`,
+            ),
+        })),
+      collections: scope.collections
+        .filter(c => environmentModel.collections.find(collection => collection.id === c.id))
+        .map(scopeCollection => ({
+          codename: environmentModel.collections.find(collection => collection.id === scopeCollection.id)?.codename
+            ?? throwError(
+              `Cannot find collection { id: ${scopeCollection.id} } for the scope of workflow { codename: ${workflow.codename} }.`,
+            ),
+        })),
     })),
     published_step: {
       ...omit(workflow.published_step, ["id"]),
