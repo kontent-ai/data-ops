@@ -63,7 +63,7 @@ export const extractItemsCodenamesFromResponse = (
 ): ReadonlySet<string> =>
   new Set([
     ...Object.entries(data.linkedItems)
-      .map(([codename, item]) => item.system.workflow ? codename : undefined) // filter out components.
+      .map(([codename, item]) => item?.system.workflow ? codename : undefined) // filter out components.
       .filter(notNullOrUndefined),
     ...data.items.map(i => i.system.codename),
   ]);
