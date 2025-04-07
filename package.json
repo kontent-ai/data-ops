@@ -53,6 +53,7 @@
     "open": "^10.1.0",
     "ts-pattern": "^5.7.0",
     "yargs": "^17.7.2",
+    "uuid": "^11.1.0",
     "zod": "^3.24.2",
     "zod-validation-error": "^3.4.0"
   },
@@ -67,7 +68,6 @@
     "eslint": "^8.56.0",
     "minimist": "^1.2.8",
     "typescript": "^5.8.2",
-    "uuid": "^11.1.0",
     "vitest": "^3.1.1"
   }
 }
