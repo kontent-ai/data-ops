@@ -1,41 +1,45 @@
 import { ContentTypeElements } from "@kontent-ai/management-sdk";
-import {
-  DomHtmlNode,
-  DomNode,
-  nodeParse,
-  ParseResult,
-  ResolveDomHtmlNodeType,
-  ResolveDomTextNodeType,
-  transformToJson,
-} from "@kontent-ai/rich-text-resolver";
+import { PortableTextItemLink, PortableTextObject, transformToPortableText } from "@kontent-ai/rich-text-resolver";
 
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
 import { getAssetReferences, getItemReferences, OriginalReference } from "../diff/guidelinesRichText.js";
 import { SyncAssetElement, SyncLinkedItemsElement, SyncTypeElement } from "../types/syncModel.js";
 
-const resolveAssetIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
-  switch (node.tagName) {
-    case "figure":
-      return node.attributes["data-asset-id"];
-    case "a":
-      return node.attributes["data-asset-id"];
-    default: {
-      return node.children.map(traverse);
-    }
+const resolveAssetIdsDomHtmlNode = (node: PortableTextObject): ReadonlyArray<string> => {
+  if (node._type === "image") {
+    return node.asset.referenceType === "id" ? [node.asset._ref] : [];
   }
+
+  if (node._type === "block") {
+    return node.markDefs
+      ?.filter(a => a._type === "link" && "data-asset-id" in a)
+      .map(a => (a as any)["data-asset-id"])
+      ?? [];
+  }
+
+  if (node.children && Array.isArray(node.children)) {
+    return node.children.flatMap(resolveAssetIdsDomHtmlNode);
+  }
+
+  return [];
 };
 
-const resolveItemIdsDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
-  switch (node.tagName) {
-    case "a":
-      return node.attributes["data-item-id"];
-    default: {
-      return node.children.flatMap(traverse);
-    }
+const resolveItemIdsDomHtmlNode = (node: PortableTextObject): ReadonlyArray<string> => {
+  if (node._type === "componentOrItem") {
+    return node.dataType === "item" ? [node.componentOrItem._ref] : [];
   }
-};
+  if (node._type === "block") {
+    return node.markDefs?.filter(a => a._type === "contentItemLink").map(a =>
+      (a as PortableTextItemLink).contentItemLink._ref
+    ) ?? [];
+  }
 
-const customResolveDomTextNode: ResolveDomTextNodeType = () => null;
+  if (node.children && Array.isArray(node.children)) {
+    return node.children.flatMap(resolveItemIdsDomHtmlNode);
+  }
+
+  return [];
+};
 
 export const getRequiredIds = (
   elements: ReadonlyArray<ContentTypeElements.Element>,
@@ -53,7 +57,7 @@ export const getRequiredIds = (
     element.type === "modular_content" || element.type === "subpages"
   );
 
-  const parsedGuidelines = guidelinesElements.map(g => nodeParse(g.guidelines));
+  const parsedGuidelines = guidelinesElements.map(g => transformToPortableText(g.guidelines));
 
   const assetIds = getRequiredItemOrAssetIds(assetElements, parsedGuidelines, resolveAssetIdsDomHtmlNode);
   const itemIds = getRequiredItemOrAssetIds(linkedItemElements, parsedGuidelines, resolveItemIdsDomHtmlNode);
@@ -63,19 +67,11 @@ export const getRequiredIds = (
 
 const getRequiredItemOrAssetIds = (
   elements: ContentTypeElements.ILinkedItemsElement[] | ContentTypeElements.IAssetElement[],
-  parsedGuidelines: ParseResult[],
-  resolveDomTextNode: (node: DomHtmlNode, traverse: (node: DomNode) => unknown) => unknown,
+  parsedGuidelines: PortableTextObject[][],
+  resolveDomTextNode: (node: PortableTextObject) => ReadonlyArray<string>,
 ) => {
   const elementsIds = new Set(elements.flatMap(el => el.default?.global.value.map(ref => ref.id as string) ?? []));
-
-  const idsFromGuidelines = parsedGuidelines.reduce<string[]>((prev, guideline) =>
-    [
-      ...prev,
-      transformToJson(guideline, {
-        resolveDomTextNode: customResolveDomTextNode,
-        resolveDomHtmlNode: resolveDomTextNode,
-      }),
-    ] as string[], []).flat(Infinity).filter(g => g);
+  const idsFromGuidelines = parsedGuidelines.flatMap(guideline => guideline.flatMap(resolveDomTextNode));
 
   return new Set([...elementsIds, ...idsFromGuidelines]);
 };
