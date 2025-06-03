@@ -134,7 +134,7 @@ The created `.zip` package contains a `.json` file for each exported entity and 
   |- webSpotlight.json          # https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/Web-spotlight
 ```
 
-You can check out a backup of an example environment in [the data for integration tests](https://github.com/kontent-ai/data-ops/blob/main/tests/integration/environment/backupRestore/data/backup.zip).
+You can check out a backup of an example environment in [the data for integration tests](https://github.com/kontent-ai/data-ops/blob/main/tests/integration/backupRestore/data/backup.zip).
 
 > [!CAUTION]
 >
