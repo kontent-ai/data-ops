@@ -172,7 +172,9 @@ const sortByCodename = <T extends { readonly codename: string }>(
 ): ReadonlyArray<T> => sortBy(entities, (e) => e.codename);
 
 const sortTypesElements = (elements: ElementContracts.IContentTypeElementContract[]) =>
-  elements.toSorted((e1, e2) => (e1.content_group.id < e2.content_group.id ? -2 : 0));
+  elements.toSorted((e1, e2) =>
+    (e1?.content_group?.id ?? "0") < (e2?.content_group?.id ?? "0") ? -2 : 0,
+  );
 
 export const prepareReferences = (data: AllEnvData, options?: EnvironmentsOptions): AllEnvData => ({
   collections: data.collections.map((c) => ({ ...c, id: "-", external_id: "-" })),
