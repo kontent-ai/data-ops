@@ -1,8 +1,12 @@
-import * as fs from "fs";
-import { describe, expect, it, MockedObject, vitest } from "vitest";
+import * as fsPromises from "node:fs/promises";
+import { type MockedObject, describe, expect, it, vitest } from "vitest";
 
-import { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
-import { createDefaultReadStatus, updateEnvironmentStatus } from "../../../src/modules/migrations/utils/statusUtils.ts";
+import type { Stats } from "node:fs";
+import type { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
+import {
+  createDefaultReadStatus,
+  updateEnvironmentStatus,
+} from "../../../src/modules/migrations/utils/statusUtils.ts";
 
 const createMigrationStatus = (
   name: string,
@@ -11,8 +15,8 @@ const createMigrationStatus = (
   lastOperation: "run" | "rollback",
 ): MigrationStatus => ({ name, order, time: new Date(), success, lastOperation });
 
-vitest.mock("fs");
-const mockFS: MockedObject<typeof fs> = vitest.mocked(fs);
+vitest.mock("node:fs/promises");
+const mockFS: MockedObject<typeof fsPromises> = vitest.mocked(fsPromises);
 
 describe("updateEnvironmentStatus", () => {
   it("correctly updateEnvironmentStatus to contain data from new status", () => {
@@ -28,10 +32,17 @@ describe("updateEnvironmentStatus", () => {
       createMigrationStatus("migration4", 4, true, "rollback"),
     ] as const satisfies ReadonlyArray<MigrationStatus>;
 
-    const result = updateEnvironmentStatus(originalEnvStatus, updateEnvStatus).map(s => ({ ...s, time: undefined }));
+    const result = updateEnvironmentStatus(originalEnvStatus, updateEnvStatus).map((s) => ({
+      ...s,
+      time: undefined,
+    }));
 
-    const expectedResult = [originalEnvStatus[0], updateEnvStatus[0], originalEnvStatus[2], updateEnvStatus[1]]
-      .map(s => ({ ...s, time: undefined }));
+    const expectedResult = [
+      originalEnvStatus[0],
+      updateEnvStatus[0],
+      originalEnvStatus[2],
+      updateEnvStatus[1],
+    ].map((s) => ({ ...s, time: undefined }));
 
     expect(result).toStrictEqual(expectedResult);
   });
@@ -42,19 +53,19 @@ describe("defaultReadStatus", () => {
     const migrationStatus: MigrationStatus = createMigrationStatus("migration1", 1, true, "run");
     const inputStatus = { testStatus: [migrationStatus] };
 
-    mockFS.existsSync.mockReturnValue(true);
-    mockFS.readFileSync.mockReturnValue(Buffer.from(JSON.stringify(inputStatus)));
+    mockFS.stat.mockResolvedValue({} as Stats);
+    mockFS.readFile.mockResolvedValue(Buffer.from(JSON.stringify(inputStatus)));
 
     const readStatus = await createDefaultReadStatus("testPath")();
 
     expect(readStatus).toStrictEqual(inputStatus);
   });
 
-  it("should throw when format of input file is incorrect", async () => {
+  it("should throw when format of input file is incorrect", () => {
     const inputStatus = { testStatus: [{ a: "incorrect" }] };
 
-    mockFS.existsSync.mockReturnValue(true);
-    mockFS.readFileSync.mockReturnValue(Buffer.from(JSON.stringify(inputStatus)));
+    mockFS.stat.mockResolvedValue({} as Stats);
+    mockFS.readFile.mockResolvedValue(Buffer.from(JSON.stringify(inputStatus)));
 
     expect(createDefaultReadStatus("testPath")()).rejects.toThrowError();
   });

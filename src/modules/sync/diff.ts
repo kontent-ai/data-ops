@@ -1,12 +1,15 @@
-import { WorkflowModels } from "@kontent-ai/management-sdk";
+import type { WorkflowModels } from "@kontent-ai/management-sdk";
 
 import { throwError } from "../../utils/error.js";
-import { RequiredCodename } from "../../utils/types.js";
+import type { RequiredCodename } from "../../utils/types.js";
 import { assetFoldersHandler } from "./diff/assetFolder.js";
 import { collectionsHandler } from "./diff/collection.js";
-import { Handler } from "./diff/combinators.js";
+import type { Handler } from "./diff/combinators.js";
 import { makeContentTypeHandler, wholeContentTypesHandler } from "./diff/contentType.js";
-import { makeContentTypeSnippetHandler, wholeContentTypeSnippetsHandler } from "./diff/contentTypeSnippet.js";
+import {
+  makeContentTypeSnippetHandler,
+  wholeContentTypeSnippetsHandler,
+} from "./diff/contentTypeSnippet.js";
 import { languageHandler, wholeLanguageHandler } from "./diff/language.js";
 import { spaceHandler, wholeSpacesHandler } from "./diff/space.js";
 import { taxonomyGroupHandler, wholeTaxonomyGroupsHandler } from "./diff/taxonomy.js";
@@ -17,10 +20,10 @@ import {
 } from "./diff/transformToAddModel.js";
 import { webSpotlightHandler } from "./diff/webSpotlight.js";
 import { wholeWorkflowsHandler, workflowHandler } from "./diff/workflow.js";
-import { DiffModel, DiffObject } from "./types/diffModel.js";
-import { FileContentModel } from "./types/fileContentModel.js";
-import { PatchOperation } from "./types/patchOperation.js";
-import { LanguageSyncModel, WorkflowSyncModel } from "./types/syncModel.js";
+import type { DiffModel, DiffObject } from "./types/diffModel.js";
+import type { FileContentModel } from "./types/fileContentModel.js";
+import type { PatchOperation } from "./types/patchOperation.js";
+import type { LanguageSyncModel, WorkflowSyncModel } from "./types/syncModel.js";
 
 type TargetReference = { id: string; codename: string };
 
@@ -83,7 +86,10 @@ export const diff = (params: DiffParams): DiffModel => {
     spaceHandler,
   );
 
-  const languageDiffModel = getLanguageDiffModel(params.sourceEnvModel.languages, params.targetEnvModel.languages);
+  const languageDiffModel = getLanguageDiffModel(
+    params.sourceEnvModel.languages,
+    params.targetEnvModel.languages,
+  );
 
   const workflowsDiffModel: DiffObject<RequiredCodename<WorkflowModels.IAddWorkflowData>> & {
     sourceWorkflows: ReadonlyArray<WorkflowSyncModel>;
@@ -121,37 +127,42 @@ const createDiffModel = <Entity extends Readonly<{ codename: string }>>(
   ops: ReadonlyArray<PatchOperation>,
   diffHandler: Handler<Entity>,
 ) =>
-  ops
-    .reduce<Readonly<{ added: Entity[]; updated: Map<string, ReadonlyArray<PatchOperation>>; deleted: Set<string> }>>(
-      (prev, op) => {
-        switch (op.op) {
-          case "replace": {
-            const typedValue = op.value as Entity;
-            prev.updated.set(typedValue.codename, diffHandler(typedValue, op.oldValue as Entity));
+  ops.reduce<
+    Readonly<{
+      added: Entity[];
+      updated: Map<string, ReadonlyArray<PatchOperation>>;
+      deleted: Set<string>;
+    }>
+  >(
+    (prev, op) => {
+      switch (op.op) {
+        case "replace": {
+          const typedValue = op.value as Entity;
+          prev.updated.set(typedValue.codename, diffHandler(typedValue, op.oldValue as Entity));
 
-            return prev;
-          }
-          case "move": {
-            return prev; // we can't order top-level models
-          }
-          case "remove": {
-            const typedOldValue = op.oldValue as Entity;
-            prev.deleted.add(typedOldValue.codename);
-
-            return prev;
-          }
-          case "addInto": {
-            const typedValue = op.value as Entity;
-            prev.added.push(typedValue);
-
-            return prev;
-          }
-          default:
-            return prev;
+          return prev;
         }
-      },
-      { added: [], updated: new Map(), deleted: new Set() },
-    );
+        case "move": {
+          return prev; // we can't order top-level models
+        }
+        case "remove": {
+          const typedOldValue = op.oldValue as Entity;
+          prev.deleted.add(typedOldValue.codename);
+
+          return prev;
+        }
+        case "addInto": {
+          const typedValue = op.value as Entity;
+          prev.added.push(typedValue);
+
+          return prev;
+        }
+        default:
+          return prev;
+      }
+    },
+    { added: [], updated: new Map(), deleted: new Set() },
+  );
 
 const getLanguageDiffModel = (
   sourceLanguages: ReadonlyArray<LanguageSyncModel>,
@@ -185,15 +196,17 @@ const getLanguageDiffModel = (
    */
 
   languageDiffModel.updated.set(targetDefaultLanguageCodename, [
-    ...languageDiffModel.updated.get(targetDefaultLanguageCodename) ?? [],
-    ...sourceDefaultLanguageCodename === targetDefaultLanguageCodename ? [] : [
-      {
-        op: "replace",
-        path: "/codename",
-        value: sourceDefaultLanguageCodename,
-        oldValue: targetDefaultLanguageCodename,
-      } as const,
-    ],
+    ...(languageDiffModel.updated.get(targetDefaultLanguageCodename) ?? []),
+    ...(sourceDefaultLanguageCodename === targetDefaultLanguageCodename
+      ? []
+      : [
+          {
+            op: "replace",
+            path: "/codename",
+            value: sourceDefaultLanguageCodename,
+            oldValue: targetDefaultLanguageCodename,
+          } as const,
+        ]),
   ]);
 
   return languageDiffModel;
@@ -204,13 +217,13 @@ const adjustSourceDefaultLanguageCodename = (
   codename: string,
 ): ReadonlyArray<LanguageSyncModel> => {
   const sourceDefaultLang = getDefaultLang(source);
-  const newSource = source.filter(l => l.codename !== sourceDefaultLang.codename);
+  const newSource = source.filter((l) => l.codename !== sourceDefaultLang.codename);
 
   return [{ ...sourceDefaultLang, codename }, ...newSource];
 };
 
 const getDefaultLang = (languages: ReadonlyArray<LanguageSyncModel>) => {
-  const defaultLang = languages.find(l => l.is_default);
+  const defaultLang = languages.find((l) => l.is_default);
 
-  return defaultLang ?? throwError(`Language environment model does not contain default language`);
+  return defaultLang ?? throwError("Language environment model does not contain default language");
 };

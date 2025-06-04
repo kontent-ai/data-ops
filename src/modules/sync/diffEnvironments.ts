@@ -1,9 +1,13 @@
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../../log.js";
+import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
-import { Replace } from "../../utils/types.js";
-import { syncEntityChoices, syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
+import type { Replace } from "../../utils/types.js";
+import {
+  type SyncEntityName,
+  syncEntityChoices,
+  syncEntityDependencies,
+} from "./constants/entities.js";
 import { diff } from "./diff.js";
 import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
 import {
@@ -15,20 +19,22 @@ import {
 import { resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
 export type SyncDiffParams = Readonly<
-  & {
+  {
     targetEnvironmentId: string;
     targetApiKey: string;
     entities?: ReadonlyArray<SyncEntityName>;
     kontentUrl?: string;
-  }
-  & (
+  } & (
     | { folderName: string }
     | { folderName?: undefined; sourceEnvironmentId: string; sourceApiKey: string }
-  )
-  & LogOptions
+  ) &
+    LogOptions
 >;
 
-export type SyncDiffParamsInternal = Replace<SyncDiffParams, { entities: ReadonlyArray<SyncEntityName> }>;
+export type SyncDiffParamsInternal = Replace<
+  SyncDiffParams,
+  { entities: ReadonlyArray<SyncEntityName> }
+>;
 
 /**
  * Compares two environments and generates an HTML representation of the differences.
@@ -48,35 +54,38 @@ export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandNa
   logInfo(
     params,
     "standard",
-    `Diff content model between source environment ${
-      chalk.blue("folderName" in params ? `in ${params.folderName}` : params.sourceEnvironmentId)
-    } and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
+    `Diff content model between source environment ${chalk.blue(
+      "folderName" in params ? `in ${params.folderName}` : params.sourceEnvironmentId,
+    )} and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
   );
 
   const fetchDependencies = new Set(
-    params.entities.flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+    params.entities.flatMap((e) => syncEntityDependencies[e as SyncEntityName]),
   );
 
-  const sourceModel = "folderName" in params && params.folderName !== undefined
-    ? await getSourceSyncModelFromFolder(
-      params.folderName,
-      new Set(params.entities) as ReadonlySet<SyncEntityName>,
-    ).catch(e => {
-      if (e instanceof AggregateError) {
-        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
-      }
-      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
-    })
-    : await fetchSourceSyncModel(
-      createClient({
-        environmentId: params.sourceEnvironmentId,
-        apiKey: params.sourceApiKey,
-        commandName,
-        baseUrl: params.kontentUrl,
-      }),
-      fetchDependencies,
-      params,
-    );
+  const sourceModel =
+    "folderName" in params && params.folderName !== undefined
+      ? await getSourceSyncModelFromFolder(
+          params.folderName,
+          new Set(params.entities) as ReadonlySet<SyncEntityName>,
+        ).catch((e) => {
+          if (e instanceof AggregateError) {
+            throw new Error(
+              `Parsing model validation errors:\n${e.errors.map((e) => e.message).join("\n")}`,
+            );
+          }
+          throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+        })
+      : await fetchSourceSyncModel(
+          createClient({
+            environmentId: params.sourceEnvironmentId,
+            apiKey: params.sourceApiKey,
+            commandName,
+            baseUrl: params.kontentUrl,
+          }),
+          fetchDependencies,
+          params,
+        );
 
   const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
 

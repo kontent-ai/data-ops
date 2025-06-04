@@ -1,9 +1,14 @@
-import { LanguageContracts, LanguageModels, LanguageResponses, ManagementClient } from "@kontent-ai/management-sdk";
+import type {
+  LanguageContracts,
+  LanguageModels,
+  LanguageResponses,
+  ManagementClient,
+} from "@kontent-ai/management-sdk";
 
 import { defaultCodename, defaultName, emptyId } from "../../../../constants/ids.js";
 import { serially } from "../../../../utils/requests.js";
 import { notNull } from "../../../../utils/typeguards.js";
-import { EntityDefinition } from "../entityDefinition.js";
+import type { EntityDefinition } from "../entityDefinition.js";
 
 const defaultLanguageId = emptyId;
 const defaultLanguageName = defaultName;
@@ -12,19 +17,27 @@ const defaultLanguageCodename = defaultCodename;
 export const languagesEntity = {
   name: "languages",
   displayName: "languages",
-  fetchEntities: client => client.listLanguages().toAllPromise().then(res => res.data.items.map(l => l._raw)),
-  serializeEntities: languages => JSON.stringify(languages),
-  deserializeEntities: serialized => JSON.parse(serialized),
+  fetchEntities: (client) =>
+    client
+      .listLanguages()
+      .toAllPromise()
+      .then((res) => res.data.items.map((l) => l._raw)),
+  serializeEntities: (languages) => JSON.stringify(languages),
+  deserializeEntities: (serialized) => JSON.parse(serialized),
   importEntities: async (client, { entities, context, options }) => {
-    const importDefaultLanguage = entities.find(l =>
-      l.id === defaultLanguageId
+    const importDefaultLanguage = entities.find(
+      (l) => l.id === defaultLanguageId,
     ) as LanguageContracts.ILanguageModelContract;
-    const projectDefaultLangauge = await client.viewLanguage().byLanguageId(defaultLanguageId).toPromise().then(res =>
-      res.data
-    );
+    const projectDefaultLangauge = await client
+      .viewLanguage()
+      .byLanguageId(defaultLanguageId)
+      .toPromise()
+      .then((res) => res.data);
 
     const importLanguages = entities
-      .filter(l => l.id !== defaultLanguageId && (!options?.excludeInactiveLanguages || l.is_active))
+      .filter(
+        (l) => l.id !== defaultLanguageId && (!options?.excludeInactiveLanguages || l.is_active),
+      )
       .sort((l1, l2) => {
         if (l1.is_active === l2.is_active) {
           return 0;
@@ -34,10 +47,18 @@ export const languagesEntity = {
       });
 
     // Order is important
-    await updateProjectLanguage(client, projectDefaultLangauge, importDefaultLanguage, modifyByCodename);
+    await updateProjectLanguage(
+      client,
+      projectDefaultLangauge,
+      importDefaultLanguage,
+      modifyByCodename,
+    );
     await importLanguagesToProject(client, importLanguages);
 
-    const projectLanguages = await client.listLanguages().toAllPromise().then(res => res.data.items);
+    const projectLanguages = await client
+      .listLanguages()
+      .toAllPromise()
+      .then((res) => res.data.items);
 
     await updateFallbackLanguages(client, projectLanguages, importLanguages);
 
@@ -45,27 +66,31 @@ export const languagesEntity = {
       ...context,
       languageIdsByOldIds: new Map(
         entities
-          .map(importLanguage => {
-            const projectLanguage = projectLanguages.find(lang => lang.codename === importLanguage.codename);
+          .map((importLanguage) => {
+            const projectLanguage = projectLanguages.find(
+              (lang) => lang.codename === importLanguage.codename,
+            );
 
-            return projectLanguage ? [importLanguage.id, projectLanguage.id] as const : null;
+            return projectLanguage ? ([importLanguage.id, projectLanguage.id] as const) : null;
           })
           .filter(notNull),
       ),
     };
   },
   cleanEntities: async (client, languages) => {
-    const defaultLangCodename = languages.find(l => l.is_default)?.codename ?? defaultLanguageCodename;
+    const defaultLangCodename =
+      languages.find((l) => l.is_default)?.codename ?? defaultLanguageCodename;
 
     await serially(
       languages
-        .filter(l => !l.is_default && l.is_active)
-        .map((lang) => () =>
-          client
-            .modifyLanguage()
-            .byLanguageId(lang.id)
-            .withData([createReplaceFallbackLanguageOperation(defaultLangCodename)])
-            .toPromise()
+        .filter((l) => !l.is_default && l.is_active)
+        .map(
+          (lang) => () =>
+            client
+              .modifyLanguage()
+              .byLanguageId(lang.id)
+              .withData([createReplaceFallbackLanguageOperation(defaultLangCodename)])
+              .toPromise(),
         ),
     );
 
@@ -78,12 +103,13 @@ export const languagesEntity = {
 
           return l1.is_active ? -1 : 1;
         })
-        .map((lang) => () =>
-          client
-            .modifyLanguage()
-            .byLanguageId(lang.id)
-            .withData(createPatchToCleanLanguage(lang))
-            .toPromise()
+        .map(
+          (lang) => () =>
+            client
+              .modifyLanguage()
+              .byLanguageId(lang.id)
+              .withData(createPatchToCleanLanguage(lang))
+              .toPromise(),
         ),
     );
   },
@@ -101,7 +127,9 @@ const createReplaceNameOperation = (name: string): LanguageModels.IModifyLanguag
   value: name,
 });
 
-const createReplaceFallbackLanguageOperation = (codename: string): LanguageModels.IModifyLanguageData => ({
+const createReplaceFallbackLanguageOperation = (
+  codename: string,
+): LanguageModels.IModifyLanguageData => ({
   op: "replace",
   property_name: "fallback_language",
   value: { codename },
@@ -118,23 +146,23 @@ const createPatchToCleanLanguage = (
 ): LanguageModels.IModifyLanguageData[] =>
   language.is_default
     ? [
-      createReplaceCodenameOperation(defaultLanguageCodename),
-      createReplaceNameOperation(defaultLanguageName),
-    ]
+        createReplaceCodenameOperation(defaultLanguageCodename),
+        createReplaceNameOperation(defaultLanguageName),
+      ]
     : [
-      /**
-       * languages cannot be deleted, instead they are deactivated
-       * and their name and codename are both populated with first 8 chars of their ID
-       * (name and codename have a limit of 25 characters).
-       *
-       * only active languages can be modified.
-       */
-      createReplaceIsActiveOperation(true),
-      createReplaceFallbackLanguageOperation(defaultLanguageCodename),
-      createReplaceCodenameOperation(language.id.slice(0, 7)),
-      createReplaceNameOperation(language.id.slice(0, 7)),
-      createReplaceIsActiveOperation(false),
-    ];
+        /**
+         * languages cannot be deleted, instead they are deactivated
+         * and their name and codename are both populated with first 8 chars of their ID
+         * (name and codename have a limit of 25 characters).
+         *
+         * only active languages can be modified.
+         */
+        createReplaceIsActiveOperation(true),
+        createReplaceFallbackLanguageOperation(defaultLanguageCodename),
+        createReplaceCodenameOperation(language.id.slice(0, 7)),
+        createReplaceNameOperation(language.id.slice(0, 7)),
+        createReplaceIsActiveOperation(false),
+      ];
 
 const updateProjectLanguage = async (
   client: ManagementClient,
@@ -165,10 +193,10 @@ const updateProjectLanguage = async (
   }
 
   if (operations.length > 0) {
-    return modifyLanguage(client, projectLanguage, operations);
+    return await modifyLanguage(client, projectLanguage, operations);
   }
 
-  return Promise.resolve();
+  return;
 };
 
 const modifyByCodename = (
@@ -197,38 +225,57 @@ const importLanguagesToProject = async (
   client: ManagementClient,
   importLanguages: ReadonlyArray<LanguageContracts.ILanguageModelContract>,
 ) => {
-  const projectLanguages = await client.listLanguages().toAllPromise().then(res => res.data.items);
+  const projectLanguages = await client
+    .listLanguages()
+    .toAllPromise()
+    .then((res) => res.data.items);
 
   await serially(
-    importLanguages
-      .map(importLanguage => () => {
-        const languageByExternalId = projectLanguages.find(l => l.externalId === getLanguageExternalId(importLanguage));
+    importLanguages.map((importLanguage) => () => {
+      const languageByExternalId = projectLanguages.find(
+        (l) => l.externalId === getLanguageExternalId(importLanguage),
+      );
 
-        const languageByCodename = projectLanguages.find(l => l.codename === importLanguage.codename);
+      const languageByCodename = projectLanguages.find(
+        (l) => l.codename === importLanguage.codename,
+      );
 
-        const languageByName = projectLanguages.find(l => l.name === importLanguage.name);
+      const languageByName = projectLanguages.find((l) => l.name === importLanguage.name);
 
-        const operation = handleDifferentLanguagesOnEnvironment(
-          { importLanguage, languageByExternalId, languageByCodename, languageByName },
-        );
+      const operation = handleDifferentLanguagesOnEnvironment({
+        importLanguage,
+        languageByExternalId,
+        languageByCodename,
+        languageByName,
+      });
 
-        switch (operation.operation) {
-          case "add":
-            return client
-              .addLanguage()
-              .withData({
-                name: importLanguage.name,
-                codename: importLanguage.codename,
-                is_active: importLanguage.is_active,
-                external_id: importLanguage.external_id ?? `${importLanguage.codename}`.slice(0, 50),
-              })
-              .toPromise();
-          case "updateByCodename":
-            return updateProjectLanguage(client, operation.projectLanguage, importLanguage, modifyByCodename);
-          case "updateByExternalId":
-            return updateProjectLanguage(client, operation.projectLanguage, importLanguage, modifyByExternalId);
-        }
-      }),
+      switch (operation.operation) {
+        case "add":
+          return client
+            .addLanguage()
+            .withData({
+              name: importLanguage.name,
+              codename: importLanguage.codename,
+              is_active: importLanguage.is_active,
+              external_id: importLanguage.external_id ?? `${importLanguage.codename}`.slice(0, 50),
+            })
+            .toPromise();
+        case "updateByCodename":
+          return updateProjectLanguage(
+            client,
+            operation.projectLanguage,
+            importLanguage,
+            modifyByCodename,
+          );
+        case "updateByExternalId":
+          return updateProjectLanguage(
+            client,
+            operation.projectLanguage,
+            importLanguage,
+            modifyByExternalId,
+          );
+      }
+    }),
   );
 };
 
@@ -239,28 +286,35 @@ const updateFallbackLanguages = async (
 ) => {
   await serially(
     importLanguages
-      .filter(lang => lang.id !== defaultLanguageId)
-      .map(importLanguage => {
-        const projectLanguage = projectLanguages.find(l => l.codename === importLanguage.codename);
+      .filter((lang) => lang.id !== defaultLanguageId)
+      .map((importLanguage) => {
+        const projectLanguage = projectLanguages.find(
+          (l) => l.codename === importLanguage.codename,
+        );
         if (!projectLanguage) {
-          throw new Error(`Could not find the language with codename ${importLanguage.codename} in the project.`);
+          throw new Error(
+            `Could not find the language with codename ${importLanguage.codename} in the project.`,
+          );
         }
         return [importLanguage, projectLanguage] as const;
       })
       .map(([importLanguage, projectLanguage]) => () => {
-        const projectFallbackLanguage = projectLanguages.find(l => l.id === projectLanguage.fallbackLanguage?.id);
-        const importFallbackLanguage = importLanguages.find(l => l.id === importLanguage.fallback_language?.id);
+        const projectFallbackLanguage = projectLanguages.find(
+          (l) => l.id === projectLanguage.fallbackLanguage?.id,
+        );
+        const importFallbackLanguage = importLanguages.find(
+          (l) => l.id === importLanguage.fallback_language?.id,
+        );
 
         if (
-          projectFallbackLanguage && importFallbackLanguage
-          && projectFallbackLanguage.codename !== importFallbackLanguage.codename
+          projectFallbackLanguage &&
+          importFallbackLanguage &&
+          projectFallbackLanguage.codename !== importFallbackLanguage.codename
         ) {
           return client
             .modifyLanguage()
             .byLanguageCodename(importLanguage.codename)
-            .withData([
-              createReplaceFallbackLanguageOperation(importFallbackLanguage.codename),
-            ])
+            .withData([createReplaceFallbackLanguageOperation(importFallbackLanguage.codename)])
             .toPromise();
         }
 
@@ -269,26 +323,26 @@ const updateFallbackLanguages = async (
   );
 };
 
-const handleDifferentLanguagesOnEnvironment = (
-  langauages: {
-    importLanguage: LanguageContracts.ILanguageModelContract;
-    languageByExternalId: LanguageModels.LanguageModel | undefined;
-    languageByCodename: LanguageModels.LanguageModel | undefined;
-    languageByName: LanguageModels.LanguageModel | undefined;
-  },
-): { operation: "add" } | {
-  operation: "updateByCodename" | "updateByExternalId";
-  projectLanguage: LanguageModels.LanguageModel;
-} => {
-  const {
-    importLanguage,
-    languageByExternalId,
-    languageByCodename,
-    languageByName,
-  } = langauages;
+const handleDifferentLanguagesOnEnvironment = (langauages: {
+  importLanguage: LanguageContracts.ILanguageModelContract;
+  languageByExternalId: LanguageModels.LanguageModel | undefined;
+  languageByCodename: LanguageModels.LanguageModel | undefined;
+  languageByName: LanguageModels.LanguageModel | undefined;
+}):
+  | { operation: "add" }
+  | {
+      operation: "updateByCodename" | "updateByExternalId";
+      projectLanguage: LanguageModels.LanguageModel;
+    } => {
+  const { importLanguage, languageByExternalId, languageByCodename, languageByName } = langauages;
 
   if (languageByExternalId) {
-    assertAreLanguagesDifferent(importLanguage, languageByExternalId, languageByCodename, "codename");
+    assertAreLanguagesDifferent(
+      importLanguage,
+      languageByExternalId,
+      languageByCodename,
+      "codename",
+    );
     assertAreLanguagesDifferent(importLanguage, languageByExternalId, languageByName, "name");
 
     return { operation: "updateByExternalId", projectLanguage: languageByExternalId };
@@ -326,7 +380,9 @@ const assertAreLanguagesDifferent = (
   }
 };
 
-const getLanguageExternalId = (language: LanguageModels.LanguageModel | LanguageContracts.ILanguageModelContract) => {
+const getLanguageExternalId = (
+  language: LanguageModels.LanguageModel | LanguageContracts.ILanguageModelContract,
+) => {
   if ("externalId" in language) {
     return language.externalId ?? makeLangCodenameExternalId(language.codename);
   }

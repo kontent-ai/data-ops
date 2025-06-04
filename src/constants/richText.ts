@@ -4,7 +4,10 @@ export const itemOrComponentAttributeName = "data-id";
 export const itemLinkAttributeName = "data-item-id";
 
 export const assetRegex = new RegExp(`${assetAttributeName}="(${uuidRegex})"`, "gi");
-export const itemOrComponentRegex = new RegExp(`${itemOrComponentAttributeName}="(${uuidRegex})"`, "gi");
+export const itemOrComponentRegex = new RegExp(
+  `${itemOrComponentAttributeName}="(${uuidRegex})"`,
+  "gi",
+);
 export const itemLinkRegex = new RegExp(`${itemLinkAttributeName}="(${uuidRegex})"`, "gi");
 
 export const assetExternalIdAttributeName = "data-asset-external-id";

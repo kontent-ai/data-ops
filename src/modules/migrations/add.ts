@@ -1,33 +1,40 @@
+import * as fsPromises from "node:fs/promises";
+import * as path from "node:path";
 import chalk from "chalk";
-import { existsSync } from "fs";
-import * as path from "path";
 
-import { logInfo, LogOptions } from "../../log.js";
+import { type LogOptions, logInfo } from "../../log.js";
 import { padWithLeadingZeros } from "../../utils/number.js";
-import { MigrationModuleType } from "./models/migration.js";
+import type { MigrationModuleType } from "./models/migration.js";
 import { handleErr } from "./utils/errUtils.js";
 import { createFolder, saveFile } from "./utils/fileUtils.js";
-import { generateJavascriptMigration, generateTypescriptMigration, getMigrationName } from "./utils/migrationUtils.js";
+import {
+  generateJavascriptMigration,
+  generateTypescriptMigration,
+  getMigrationName,
+} from "./utils/migrationUtils.js";
 
 export type AddMigrationParams = Readonly<
-  & {
+  {
     name: string;
     migrationsFolder?: string;
     type: MigrationModuleType;
-  }
-  & TimestampOrOrderParams
-  & LogOptions
+  } & TimestampOrOrderParams &
+    LogOptions
 >;
 
 export const addMigration = async (params: AddMigrationParams) => {
   const folderPath = params.migrationsFolder ?? process.cwd();
 
-  if (!existsSync(folderPath)) {
+  if (!(await fsPromises.stat(folderPath).catch(() => false))) {
     logInfo(params, "standard", `Creating folder ${folderPath}.`);
 
     const resultFolderPath = handleErr(createFolder(folderPath), params);
 
-    logInfo(params, "standard", `Folder ${chalk.blue(resultFolderPath)} has been created successfully.`);
+    logInfo(
+      params,
+      "standard",
+      `Folder ${chalk.blue(resultFolderPath)} has been created successfully.`,
+    );
   }
 
   const currentDate = new Date();
@@ -38,12 +45,13 @@ export const addMigration = async (params: AddMigrationParams) => {
     params.timestamp
       ? currentDate
       : params.order === undefined
-      ? undefined
-      : padWithLeadingZeros(params.order, params.padWithLeadingZeros) + "-",
+        ? undefined
+        : `${padWithLeadingZeros(params.order, params.padWithLeadingZeros)}-`,
   );
-  const migrationData = params.type === "ts"
-    ? generateTypescriptMigration(params.timestamp ? currentDate : params.order)
-    : generateJavascriptMigration(params.timestamp ? currentDate : params.order);
+  const migrationData =
+    params.type === "ts"
+      ? generateTypescriptMigration(params.timestamp ? currentDate : params.order)
+      : generateJavascriptMigration(params.timestamp ? currentDate : params.order);
 
   const migrationPath = path.join(folderPath, migrationName);
 

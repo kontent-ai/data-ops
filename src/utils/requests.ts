@@ -27,6 +27,6 @@ export const seriallyReduce = async <ReturnType>(
 
 type PromiseValue<T extends Promise<unknown>> = T extends Promise<infer Res> ? Res : never;
 
-type FetchersReturn<Fetchers extends ReadonlyArray<() => Promise<unknown>>> = Readonly<
-  { [key in keyof Fetchers]: PromiseValue<ReturnType<Fetchers[key]>> }
->;
+type FetchersReturn<Fetchers extends ReadonlyArray<() => Promise<unknown>>> = Readonly<{
+  [key in keyof Fetchers]: PromiseValue<ReturnType<Fetchers[key]>>;
+}>;

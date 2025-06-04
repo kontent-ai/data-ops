@@ -1,9 +1,9 @@
-import { ContentTypeContracts } from "@kontent-ai/management-sdk";
+import type { ContentTypeContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
-import { LogOptions } from "../../../src/log.ts";
+import type { LogOptions } from "../../../src/log.ts";
 import { transformContentTypeModel } from "../../../src/modules/sync/modelTransfomers/contentTypes.ts";
-import { ContentTypeWithUnionElements } from "../../../src/modules/sync/types/contractModels.ts";
+import type { ContentTypeWithUnionElements } from "../../../src/modules/sync/types/contractModels.ts";
 
 const logOptions: LogOptions = {
   logLevel: "none",

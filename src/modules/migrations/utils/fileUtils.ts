@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs from "node:fs";
 
-import { WithErr } from "./errUtils.js";
+import type { WithErr } from "./errUtils.js";
 
 export const createFolder = (folderPath: string): WithErr<string> => {
   try {
@@ -18,7 +18,9 @@ export const saveFile = (path: string, data: string): WithErr<string> => {
   try {
     fs.writeFileSync(path, data);
   } catch (e) {
-    return { err: `Couldn't save the file ${path}. ${e instanceof Error ? e.message : "Unknown error occurred."}` };
+    return {
+      err: `Couldn't save the file ${path}. ${e instanceof Error ? e.message : "Unknown error occurred."}`,
+    };
   }
 
   return { value: path };

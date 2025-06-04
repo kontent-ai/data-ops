@@ -1,10 +1,10 @@
-import { ContentTypeElements } from "@kontent-ai/management-sdk";
+import type { ContentTypeElements } from "@kontent-ai/management-sdk";
 
 import { zip } from "../../../utils/array.js";
 import { apply, not } from "../../../utils/function.js";
-import { CodenameReference } from "../../../utils/types.js";
-import { PatchOperation } from "../types/patchOperation.js";
-import {
+import type { CodenameReference } from "../../../utils/types.js";
+import type { PatchOperation } from "../types/patchOperation.js";
+import type {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   SyncAssetElement,
@@ -23,9 +23,9 @@ import {
   SyncUrlSlugElement,
 } from "../types/syncModel.js";
 import {
+  type Handler,
   baseHandler,
   constantHandler,
-  Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
   makeBaseArrayHandler,
@@ -35,22 +35,22 @@ import {
   optionalHandler,
 } from "./combinators.js";
 import {
+  type OriginalReference,
   getAssetReferences,
   getItemReferences,
-  OriginalReference,
   replaceAssetReferences,
   replaceItemReferences,
 } from "./guidelinesRichText.js";
 
-type HandleAssetElementContext =
-  & CommonPropsHandlersContext
-  & Readonly<{
+type HandleAssetElementContext = CommonPropsHandlersContext &
+  Readonly<{
     targetAssetCodenames: ReadonlySet<string>;
   }>;
 
-export const makeAssetElementHandler = (
-  { targetAssetCodenames, ...restCtx }: HandleAssetElementContext,
-): Handler<SyncAssetElement> =>
+export const makeAssetElementHandler = ({
+  targetAssetCodenames,
+  ...restCtx
+}: HandleAssetElementContext): Handler<SyncAssetElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(restCtx),
     asset_count_limit: optionalHandler(makeLeafObjectHandler({})),
@@ -68,17 +68,19 @@ export const makeCustomElementHandler = (
     ...makeCommonPropsHandlers(ctx),
     source_url: baseHandler,
     json_parameters: optionalHandler(baseHandler),
-    allowed_elements: optionalHandler(makeArrayHandler(
-      ref => ref.codename,
-      () => [],
-    )),
+    allowed_elements: optionalHandler(
+      makeArrayHandler(
+        (ref) => ref.codename,
+        () => [],
+      ),
+    ),
   });
 
 export const makeMultiChoiceElementHandler = (
   ctx: CommonPropsHandlersContext,
 ): Handler<SyncMultipleChoiceElement> =>
   makeAdjustOperationHandler(
-    ops => [...ops.filter(not(isSetModeSingleOp)), ...ops.filter(isSetModeSingleOp)],
+    (ops) => [...ops.filter(not(isSetModeSingleOp)), ...ops.filter(isSetModeSingleOp)],
     makeObjectHandler({
       ...makeCommonPropsHandlers(ctx),
       // order of the properties is important
@@ -86,12 +88,12 @@ export const makeMultiChoiceElementHandler = (
       default: makeDefaultReferencesHandler(),
       options: makeOrderingHandler(
         makeArrayHandler(
-          o => o.codename,
+          (o) => o.codename,
           makeObjectHandler({
             name: baseHandler,
           }),
         ),
-        e => e.codename,
+        (e) => e.codename,
       ),
     }),
   );
@@ -104,23 +106,65 @@ export const makeRichTextElementHandler = (
 ): Handler<SyncRichTextElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
-    allowed_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
+    allowed_blocks: optionalHandler(
+      makeBaseArrayHandler(
+        (b) => b,
+        () => [],
+      ),
+    ),
     image_width_limit: optionalHandler(makeLeafObjectHandler({})),
     allowed_formatting: optionalHandler(
-      makeAdjustOperationHandler(adjustFormattingOps, makeBaseArrayHandler(f => f, () => [])),
+      makeAdjustOperationHandler(
+        adjustFormattingOps,
+        makeBaseArrayHandler(
+          (f) => f,
+          () => [],
+        ),
+      ),
     ),
     image_height_limit: optionalHandler(makeLeafObjectHandler({})),
     maximum_image_size: optionalHandler(baseHandler),
     allowed_image_types: optionalHandler(baseHandler),
-    allowed_text_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
-    maximum_text_length: optionalHandler(makeLeafObjectHandler({})),
-    allowed_table_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
-    allowed_content_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
-    allowed_item_link_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
-    allowed_table_formatting: optionalHandler(
-      makeAdjustOperationHandler(adjustFormattingOps, makeBaseArrayHandler(f => f, () => [])),
+    allowed_text_blocks: optionalHandler(
+      makeBaseArrayHandler(
+        (b) => b,
+        () => [],
+      ),
     ),
-    allowed_table_text_blocks: optionalHandler(makeBaseArrayHandler(b => b, () => [])),
+    maximum_text_length: optionalHandler(makeLeafObjectHandler({})),
+    allowed_table_blocks: optionalHandler(
+      makeBaseArrayHandler(
+        (b) => b,
+        () => [],
+      ),
+    ),
+    allowed_content_types: optionalHandler(
+      makeArrayHandler(
+        (ref) => ref.codename,
+        () => [],
+      ),
+    ),
+    allowed_item_link_types: optionalHandler(
+      makeArrayHandler(
+        (ref) => ref.codename,
+        () => [],
+      ),
+    ),
+    allowed_table_formatting: optionalHandler(
+      makeAdjustOperationHandler(
+        adjustFormattingOps,
+        makeBaseArrayHandler(
+          (f) => f,
+          () => [],
+        ),
+      ),
+    ),
+    allowed_table_text_blocks: optionalHandler(
+      makeBaseArrayHandler(
+        (b) => b,
+        () => [],
+      ),
+    ),
   });
 
 const adjustFormattingOps = (ops: readonly PatchOperation[]): readonly PatchOperation[] => {
@@ -152,9 +196,8 @@ export const makeTaxonomyElementHandler = (
     default: makeDefaultReferencesHandler(),
   });
 
-type HandleLinkedItemsElementContext =
-  & CommonPropsHandlersContext
-  & Readonly<{
+type HandleLinkedItemsElementContext = CommonPropsHandlersContext &
+  Readonly<{
     targetItemCodenames: ReadonlySet<string>;
   }>;
 
@@ -163,7 +206,12 @@ export const makeLinkedItemsElementHandler = (
 ): Handler<SyncLinkedItemsElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
-    allowed_content_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
+    allowed_content_types: optionalHandler(
+      makeArrayHandler(
+        (ref) => ref.codename,
+        () => [],
+      ),
+    ),
     item_count_limit: optionalHandler(makeLeafObjectHandler({})),
     default: makeDefaultReferencesHandler(ctx.targetItemCodenames),
   });
@@ -173,7 +221,12 @@ export const makeSubpagesElementHandler = (
 ): Handler<SyncSubpagesElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
-    allowed_content_types: optionalHandler(makeArrayHandler(ref => ref.codename, () => [])),
+    allowed_content_types: optionalHandler(
+      makeArrayHandler(
+        (ref) => ref.codename,
+        () => [],
+      ),
+    ),
     item_count_limit: optionalHandler(makeLeafObjectHandler({})),
     default: makeDefaultReferencesHandler(ctx.targetItemCodenames),
   });
@@ -183,9 +236,11 @@ export const makeTextElementHandler = (ctx: CommonPropsHandlersContext): Handler
     ...makeCommonPropsHandlers(ctx),
     maximum_text_length: optionalHandler(makeLeafObjectHandler({})),
     validation_regex: optionalHandler(makeLeafObjectHandler({})),
-    default: optionalHandler(makeLeafObjectHandler({
-      global: simpleDefaultValueComparator,
-    })),
+    default: optionalHandler(
+      makeLeafObjectHandler({
+        global: simpleDefaultValueComparator,
+      }),
+    ),
   });
 
 export const makeDateTimeElementHandler = (
@@ -193,9 +248,11 @@ export const makeDateTimeElementHandler = (
 ): Handler<SyncDateTimeElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
-    default: optionalHandler(makeLeafObjectHandler({
-      global: simpleDefaultValueComparator,
-    })),
+    default: optionalHandler(
+      makeLeafObjectHandler({
+        global: simpleDefaultValueComparator,
+      }),
+    ),
   });
 
 export const makeNumberElementHandler = (
@@ -203,9 +260,11 @@ export const makeNumberElementHandler = (
 ): Handler<SyncNumberElement> =>
   makeObjectHandler({
     ...makeCommonPropsHandlers(ctx),
-    default: optionalHandler(makeLeafObjectHandler({
-      global: simpleDefaultValueComparator,
-    })),
+    default: optionalHandler(
+      makeLeafObjectHandler({
+        global: simpleDefaultValueComparator,
+      }),
+    ),
   });
 
 export const makeSnippetElementHandler = (
@@ -229,9 +288,8 @@ export const makeUrlSlugElementHandler = (
     }),
   });
 
-type HandleGuidelinesElementContext =
-  & CommonPropsHandlersContext
-  & Readonly<{
+type HandleGuidelinesElementContext = CommonPropsHandlersContext &
+  Readonly<{
     targetItemsByCodenames: ReadonlyMap<string, Readonly<{ id: string; codename: string }>>;
     targetAssetsByCodenames: ReadonlyMap<string, Readonly<{ id: string; codename: string }>>;
   }>;
@@ -247,7 +305,7 @@ export const makeGuidelinesElementHandler = (
       const targetRefs = [...getItemReferences(target), ...getAssetReferences(target)];
 
       // This makes the comparison pass for the most common case of one vs two attributes separated by one space
-      const replaceRef = (ref: OriginalReference) => ref.codename && ref.externalId ? "" : " ";
+      const replaceRef = (ref: OriginalReference) => (ref.codename && ref.externalId ? "" : " ");
       const sourceWithoutRefs = replaceItemReferences(
         replaceAssetReferences(source, replaceRef),
         replaceRef,
@@ -257,27 +315,28 @@ export const makeGuidelinesElementHandler = (
         replaceRef,
       );
 
-      const areRefsSame = sourceRefs.length === targetRefs.length && zip(sourceRefs, targetRefs).every(([s, t]) =>
-        (s.codename && s.codename === t.codename) || (s.externalId && s.externalId === t.externalId)
-      );
+      const areRefsSame =
+        sourceRefs.length === targetRefs.length &&
+        zip(sourceRefs, targetRefs).every(
+          ([s, t]) =>
+            (s.codename && s.codename === t.codename) ||
+            (s.externalId && s.externalId === t.externalId),
+        );
 
       if (areRefsSame && sourceWithoutRefs === targetWithoutRefs) {
         return [];
       }
 
-      const guidelinesWithTransformedAssetReferences = replaceAssetReferences(source, ref => {
+      const guidelinesWithTransformedAssetReferences = replaceAssetReferences(source, (ref) => {
         const targetAsset = ctx.targetAssetsByCodenames.get(ref.codename ?? "");
 
         return targetAsset ? { internalId: targetAsset.id } : { externalId: ref.externalId ?? "" };
       });
-      const sourceToUse = replaceItemReferences(
-        guidelinesWithTransformedAssetReferences,
-        ref => {
-          const targetItem = ctx.targetItemsByCodenames.get(ref.codename ?? "");
+      const sourceToUse = replaceItemReferences(guidelinesWithTransformedAssetReferences, (ref) => {
+        const targetItem = ctx.targetItemsByCodenames.get(ref.codename ?? "");
 
-          return targetItem ? { internalId: targetItem.id } : { externalId: ref.externalId ?? "" };
-        },
-      );
+        return targetItem ? { internalId: targetItem.id } : { externalId: ref.externalId ?? "" };
+      });
 
       return [{ op: "replace", path: "", value: sourceToUse, oldValue: target }];
     },
@@ -306,57 +365,62 @@ const makeCommonPropsHandlers = (ctx: CommonPropsHandlersContext): CommonPropsHa
   is_non_localizable: optionalHandler(baseHandler),
 });
 
-const makeContentGroupHandler = (
-  { sourceTypeOrSnippet }: CommonPropsHandlersContext,
-): Handler<CodenameReference | undefined> =>
-(source, target) => {
-  if (!("content_groups" in sourceTypeOrSnippet)) {
-    return []; // elements in snippets can never have content_group defined
-  }
-  const defaultGroup = apply(g => ({ codename: g.codename }), sourceTypeOrSnippet.content_groups?.[0]) ?? null;
+const makeContentGroupHandler =
+  ({ sourceTypeOrSnippet }: CommonPropsHandlersContext): Handler<CodenameReference | undefined> =>
+  (source, target) => {
+    if (!("content_groups" in sourceTypeOrSnippet)) {
+      return []; // elements in snippets can never have content_group defined
+    }
+    const defaultGroup =
+      apply((g) => ({ codename: g.codename }), sourceTypeOrSnippet.content_groups?.[0]) ?? null;
 
-  return source?.codename === target?.codename
-    ? []
-    : [{
-      op: "replace",
-      path: "",
-      value: sourceTypeOrSnippet.content_groups?.some(g => g.codename === source?.codename) ? source : defaultGroup,
-      oldValue: target,
-    }];
-};
+    return source?.codename === target?.codename
+      ? []
+      : [
+          {
+            op: "replace",
+            path: "",
+            value: sourceTypeOrSnippet.content_groups?.some((g) => g.codename === source?.codename)
+              ? source
+              : defaultGroup,
+            oldValue: target,
+          },
+        ];
+  };
 
 type DefaultValue<Value> = { readonly global: { readonly value: Value } };
 
-type ReferencesDefault = DefaultValue<ReadonlyArray<Readonly<{ codename: string; external_id?: string }>>>;
+type ReferencesDefault = DefaultValue<
+  ReadonlyArray<Readonly<{ codename: string; external_id?: string }>>
+>;
 
-const makeDefaultReferencesHandler = (
-  targetCodenames?: { has: (codename: string) => boolean },
-): Handler<ReferencesDefault | undefined> =>
+const makeDefaultReferencesHandler = (targetCodenames?: {
+  has: (codename: string) => boolean;
+}): Handler<ReferencesDefault | undefined> =>
   optionalHandler(
     makeLeafObjectHandler(
       {
         global: ({ value: source }, { value: target }) =>
-          source.length === target.length && zip(source, target).every(([s, t]) => s.codename === t.codename),
+          source.length === target.length &&
+          zip(source, target).every(([s, t]) => s.codename === t.codename),
       },
-      source => ({
+      (source) => ({
         global: {
-          value: source.global.value
-            .map(ref =>
-              !targetCodenames || targetCodenames.has(ref.codename)
-                ? { codename: ref.codename }
-                : { external_id: ref.external_id }
-            ),
+          value: source.global.value.map((ref) =>
+            !targetCodenames || targetCodenames.has(ref.codename)
+              ? { codename: ref.codename }
+              : { external_id: ref.external_id },
+          ),
         },
       }),
     ),
     (entity) => ({
       global: {
-        value: entity.global.value
-          .map(ref =>
-            !targetCodenames || targetCodenames.has(ref.codename)
-              ? { codename: ref.codename }
-              : { external_id: ref.external_id }
-          ),
+        value: entity.global.value.map((ref) =>
+          !targetCodenames || targetCodenames.has(ref.codename)
+            ? { codename: ref.codename }
+            : { external_id: ref.external_id },
+        ),
       },
     }),
   );

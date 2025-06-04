@@ -1,4 +1,4 @@
-import {
+import type {
   AssetFolderContracts,
   CollectionContracts,
   ContentTypeContracts,
@@ -11,43 +11,50 @@ import {
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 
-import { CodenameReference, Replace } from "../../../utils/types.js";
+import type { CodenameReference, Replace } from "../../../utils/types.js";
 
-type ReplaceReferences<T, Reference extends CodenameReference = CodenameReference> = T extends ReadonlyArray<infer R>
+type ReplaceReferences<
+  T,
+  Reference extends CodenameReference = CodenameReference,
+> = T extends ReadonlyArray<infer R>
   ? ReadonlyArray<ReplaceReferences<R>>
-  : T extends object ?
-      & (T extends { id?: string; codename?: string; external_id?: string } ? Reference
-        : object)
-      & {
+  : T extends object
+    ? (T extends { id?: string; codename?: string; external_id?: string } ? Reference : object) & {
         [K in keyof Omit<T, "id" | "codename" | "external_id">]: ReplaceReferences<T[K]>;
       }
-  : T;
+    : T;
 
 type SnippetElement<E> = Omit<E, "content_group">;
 // content item or asset reference
 export type ContentReference = {
-  readonly global: { readonly value: ReadonlyArray<Readonly<{ codename: string; external_id: string }>> };
+  readonly global: {
+    readonly value: ReadonlyArray<Readonly<{ codename: string; external_id: string }>>;
+  };
 };
 
 export type SyncCustomElement = ReplaceReferences<ContentTypeElements.ICustomElement>;
-export type SyncMultipleChoiceElement = ReplaceReferences<ContentTypeElements.IMultipleChoiceElement>;
+export type SyncMultipleChoiceElement =
+  ReplaceReferences<ContentTypeElements.IMultipleChoiceElement>;
 export type SyncAssetElement = Replace<
   ReplaceReferences<ContentTypeElements.IAssetElement>,
   { default?: ContentReference }
 >;
 
-type OnePropRequired<T, K extends keyof T = keyof T> = K extends any
+type OnePropRequired<T, K extends keyof T = keyof T> = K extends unknown
   ? { [P in Exclude<keyof T, K>]?: T[P] } & { [P in K]: T[K] }
   : never;
 
 export type SyncRichTextElement = ReplaceReferences<ContentTypeElements.IRichTextElement>;
-export type SyncTaxonomyElement = Replace<ReplaceReferences<ContentTypeElements.ITaxonomyElement>, {
-  name: string;
-  taxonomy_group: OnePropRequired<{
-    codename: string;
-    external_id: string;
-  }>;
-}>;
+export type SyncTaxonomyElement = Replace<
+  ReplaceReferences<ContentTypeElements.ITaxonomyElement>,
+  {
+    name: string;
+    taxonomy_group: OnePropRequired<{
+      codename: string;
+      external_id: string;
+    }>;
+  }
+>;
 
 export type SyncLinkedItemsElement = Replace<
   ReplaceReferences<ContentTypeElements.ILinkedItemsElement>,
@@ -59,9 +66,8 @@ export type SyncDateTimeElement = ReplaceReferences<ContentTypeElements.IDateTim
 export type SyncNumberElement = ReplaceReferences<ContentTypeElements.INumberElement>;
 export type SyncTypeSnippetElement = ReplaceReferences<ContentTypeElements.ISnippetElement>;
 export type SyncUrlSlugElement = ReplaceReferences<ContentTypeElements.IUrlSlugElement>;
-export type SyncSubpagesElement =
-  & ReplaceReferences<ContentTypeElements.ISubpagesElement>
-  & Pick<SyncLinkedItemsElement, "default">; // The property is missing in the SDK type
+export type SyncSubpagesElement = ReplaceReferences<ContentTypeElements.ISubpagesElement> &
+  Pick<SyncLinkedItemsElement, "default">; // The property is missing in the SDK type
 
 export type SyncSnippetCustomElement = SnippetElement<SyncCustomElement>;
 export type SyncSnippetMultipleChoiceElement = SnippetElement<SyncMultipleChoiceElement>;
@@ -107,7 +113,10 @@ export type TaxonomySyncModel = Replace<
 >;
 
 export type ContentTypeSnippetsSyncModel = Replace<
-  Omit<ContentTypeSnippetContracts.IContentTypeSnippetContract, "id" | "last_modified" | "external_id">,
+  Omit<
+    ContentTypeSnippetContracts.IContentTypeSnippetContract,
+    "id" | "last_modified" | "external_id"
+  >,
   Readonly<{
     codename: string;
     elements: ReadonlyArray<SyncSnippetElement>;
@@ -119,7 +128,9 @@ export type ContentTypeSyncModel = Replace<
   Readonly<{
     codename: string;
     elements: ReadonlyArray<Replace<SyncTypeElement, { codename: string }>>;
-    content_groups?: ReadonlyArray<Replace<ContentTypeContracts.IContentTypeGroup, { codename: string }>>;
+    content_groups?: ReadonlyArray<
+      Replace<ContentTypeContracts.IContentTypeGroup, { codename: string }>
+    >;
   }>
 >;
 

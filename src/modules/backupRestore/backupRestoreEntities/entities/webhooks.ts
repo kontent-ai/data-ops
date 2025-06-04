@@ -1,10 +1,10 @@
-import { WebhookContracts } from "@kontent-ai/management-sdk";
+import type { WebhookContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
-import { ReplaceReferences } from "../../../../utils/types.js";
-import { EntityDefinition } from "../entityDefinition.js";
+import type { ReplaceReferences } from "../../../../utils/types.js";
+import type { EntityDefinition } from "../entityDefinition.js";
 import { simplifyContext, transformReferences } from "./utils/reference.js";
 
 type Webhook = ReplaceReferences<WebhookContracts.IWebhookContract>;
@@ -12,8 +12,12 @@ type Webhook = ReplaceReferences<WebhookContracts.IWebhookContract>;
 export const webhooksEntity = {
   name: "webhooks",
   displayName: "webhooks",
-  fetchEntities: client => client.listWebhooks().toPromise().then(res => res.rawData as ReadonlyArray<Webhook>),
-  serializeEntities: webhooks => JSON.stringify(webhooks),
+  fetchEntities: (client) =>
+    client
+      .listWebhooks()
+      .toPromise()
+      .then((res) => res.rawData as ReadonlyArray<Webhook>),
+  serializeEntities: (webhooks) => JSON.stringify(webhooks),
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities, context, logOptions }) => {
     await serially(
@@ -59,7 +63,7 @@ export const webhooksEntity = {
     }
 
     await serially(
-      webhooks.map(webhook => () => client.deleteWebhook().byId(webhook.id).toPromise()),
+      webhooks.map((webhook) => () => client.deleteWebhook().byId(webhook.id).toPromise()),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<Webhook>>;

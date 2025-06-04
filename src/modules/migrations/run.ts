@@ -1,13 +1,19 @@
+import * as path from "node:path";
 import chalk from "chalk";
-import * as path from "path";
 
-import { logInfo, LogOptions } from "../../log.js";
+import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { apply } from "../../utils/function.js";
-import { AnyOnePropertyOf } from "../../utils/types.js";
-import { Migration, MigrationOrder } from "./models/migration.js";
-import { MigrationOperation, MigrationStatus, SaveStatus, Status, StatusPlugin } from "./models/status.js";
-import { handleErr, WithErr } from "./utils/errUtils.js";
+import type { AnyOnePropertyOf } from "../../utils/types.js";
+import type { Migration, MigrationOrder } from "./models/migration.js";
+import type {
+  MigrationOperation,
+  MigrationStatus,
+  SaveStatus,
+  Status,
+  StatusPlugin,
+} from "./models/status.js";
+import { type WithErr, handleErr } from "./utils/errUtils.js";
 import {
   executeMigrations,
   filterMigrations,
@@ -26,7 +32,7 @@ import {
 } from "./utils/statusUtils.js";
 
 export type RunMigrationsParams = Readonly<
-  & {
+  {
     environmentId: string;
     apiKey: string;
     migrationsFolder: string;
@@ -35,14 +41,16 @@ export type RunMigrationsParams = Readonly<
     continueOnError?: boolean;
     force?: boolean;
     kontentUrl?: string;
-  }
-  & RunMigrationFilterParams
-  & LogOptions
+  } & RunMigrationFilterParams &
+    LogOptions
 >;
 
-export type RunMigrationFilterParams = AnyOnePropertyOf<
-  { name: string; range: { from: MigrationOrder; to: MigrationOrder }; all: boolean; next: number }
->;
+export type RunMigrationFilterParams = AnyOnePropertyOf<{
+  name: string;
+  range: { from: MigrationOrder; to: MigrationOrder };
+  all: boolean;
+  next: number;
+}>;
 
 export const runMigrations = async (params: RunMigrationsParams) => {
   const client = createClient({
@@ -52,13 +60,18 @@ export const runMigrations = async (params: RunMigrationsParams) => {
     baseUrl: params.kontentUrl,
   });
 
-  await withMigrationsToRun(params, async migrations => {
+  await withMigrationsToRun(params, async (migrations) => {
     const operation = params.rollback ? "rollback" : "run";
 
-    const migrationsStatus = await executeMigrations(migrations, client, {
-      operation,
-      continueOnError: params.continueOnError ?? false,
-    }, params);
+    const migrationsStatus = await executeMigrations(
+      migrations,
+      client,
+      {
+        operation,
+        continueOnError: params.continueOnError ?? false,
+      },
+      params,
+    );
 
     if (migrationsStatus.error) {
       return Promise.reject(migrationsStatus.status);
@@ -77,7 +90,7 @@ export const withMigrationsToRun = async (
   const operation = params.rollback ? "rollback" : "run";
 
   const absoluteDirectoryPath = path.resolve(params.migrationsFolder);
-  const absoluteStatusPath = apply(p => path.resolve(p), params.statusPlugins);
+  const absoluteStatusPath = apply((p) => path.resolve(p), params.statusPlugins);
 
   const { readStatus, saveStatus } = handleErr(
     await loadStatusFunctions(absoluteStatusPath, absoluteDirectoryPath),
@@ -94,7 +107,9 @@ export const withMigrationsToRun = async (
     return;
   }
 
-  const newStatus = await callback(migrationsToRun).catch(status => status as ReadonlyArray<MigrationStatus>);
+  const newStatus = await callback(migrationsToRun).catch(
+    (status) => status as ReadonlyArray<MigrationStatus>,
+  );
 
   await updateStatus(status, environmentStatus, newStatus, saveStatus, params);
 };
@@ -106,11 +121,11 @@ const loadStatusFunctions = async (
   pluginsPath
     ? await loadStatusPlugin(pluginsPath)
     : Promise.resolve({
-      value: {
-        readStatus: createDefaultReadStatus(migrationsFolder),
-        saveStatus: createDefaultWriteStatus(migrationsFolder),
-      },
-    });
+        value: {
+          readStatus: createDefaultReadStatus(migrationsFolder),
+          saveStatus: createDefaultWriteStatus(migrationsFolder),
+        },
+      });
 
 const filterMigrationsToRun = (
   migrations: ReadonlyArray<Migration>,
@@ -119,35 +134,39 @@ const filterMigrationsToRun = (
   params: RunMigrationsParams,
 ) => {
   const filteredMigrations = filterMigrations(migrations, params);
-  const skippedMigrations = params.force ? [] : getMigrationsToSkip(environmentStatus, filteredMigrations, operation);
+  const skippedMigrations = params.force
+    ? []
+    : getMigrationsToSkip(environmentStatus, filteredMigrations, operation);
 
   if (skippedMigrations.length) {
     logInfo(
       params,
       "standard",
-      `Skipping ${skippedMigrations.length} migrations:\n${
-        skippedMigrations.map(m => chalk.blue(m.name)).join("\n")
-      }\n`,
+      `Skipping ${skippedMigrations.length} migrations:\n${skippedMigrations
+        .map((m) => chalk.blue(m.name))
+        .join("\n")}\n`,
     );
   }
 
   const migrationComparator = createOrderComparator<Migration>(
     operation === "run" ? "asc" : "desc",
-    e => e.module.order,
+    (e) => e.module.order,
   );
 
-  const migrationsWithoutSkipped = filteredMigrations.filter(m => !skippedMigrations.includes(m)).toSorted(
-    migrationComparator,
-  );
-  const migrationsToRun = "next" in params ? migrationsWithoutSkipped.slice(0, params.next) : migrationsWithoutSkipped;
+  const migrationsWithoutSkipped = filteredMigrations
+    .filter((m) => !skippedMigrations.includes(m))
+    .toSorted(migrationComparator);
+  const migrationsToRun =
+    "next" in params ? migrationsWithoutSkipped.slice(0, params.next) : migrationsWithoutSkipped;
 
   const migrationsDuplicates = getMigrationsWithDuplicateOrders(migrationsToRun);
 
   if (migrationsDuplicates.size) {
-    throw new Error(`Found multiple migrations having the same order: \n${
-      [...migrationsDuplicates.entries()]
-        .map(([order, migrations]) => `Order ${order}: ${migrations.map(m => m.name).join(", ")}`)
-    }`);
+    throw new Error(
+      `Found multiple migrations having the same order: \n${[...migrationsDuplicates.entries()].map(
+        ([order, migrations]) => `Order ${order}: ${migrations.map((m) => m.name).join(", ")}`,
+      )}`,
+    );
   }
 
   if (migrationsToRun.length === 0) {
@@ -158,9 +177,9 @@ const filterMigrationsToRun = (
   logInfo(
     params,
     "standard",
-    `${operation === "run" ? "Running" : "Rolling back"} ${migrationsToRun.length} migrations:\n${
-      migrationsToRun.map(m => chalk.blue(m.name)).join("\n")
-    }\n`,
+    `${operation === "run" ? "Running" : "Rolling back"} ${migrationsToRun.length} migrations:\n${migrationsToRun
+      .map((m) => chalk.blue(m.name))
+      .join("\n")}\n`,
   );
 
   return migrationsToRun;
@@ -179,12 +198,14 @@ const updateStatus = async (
   };
 
   logInfo(params, "standard", "Storing status...");
-  handleErr(await writeStatus(saveStatus, newStatus), params, `Could not store status.`);
+  handleErr(await writeStatus(saveStatus, newStatus), params, "Could not store status.");
   logInfo(
     params,
     "standard",
     `Status successfully stored${
-      !params.statusPlugins ? ` in ${chalk.green(path.resolve(params.migrationsFolder, "status.json"))}` : ""
+      !params.statusPlugins
+        ? ` in ${chalk.green(path.resolve(params.migrationsFolder, "status.json"))}`
+        : ""
     }.`,
   );
 };

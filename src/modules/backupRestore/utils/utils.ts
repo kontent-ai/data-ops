@@ -9,7 +9,10 @@ export const compareExternalIds = (
   projectEntityExternalId: string | undefined,
   fileEntityExternalId: string | undefined,
 ): CompareExternalIdsResult => {
-  if (typeof projectEntityExternalId === "undefined" && typeof fileEntityExternalId === "undefined") {
+  if (
+    typeof projectEntityExternalId === "undefined" &&
+    typeof fileEntityExternalId === "undefined"
+  ) {
     return "BothUndefined";
   }
   if (typeof projectEntityExternalId === "undefined") {
@@ -30,7 +33,9 @@ export const getRequired = <Value>(
   const result = map.get(oldId);
 
   if (!result) {
-    throw new Error(`Failed to find new id for ${entityName} by old id "${oldId}". This should never happen.`);
+    throw new Error(
+      `Failed to find new id for ${entityName} by old id "${oldId}". This should never happen.`,
+    );
   }
 
   return result;

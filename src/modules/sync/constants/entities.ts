@@ -1,4 +1,4 @@
-import { SyncEntities } from "../syncRun.js";
+import type { SyncEntities } from "../syncRun.js";
 
 export const syncEntityChoices = [
   "contentTypes",
@@ -15,7 +15,10 @@ export const syncEntityChoices = [
 export type SyncEntityName = (typeof syncEntityChoices)[number];
 
 // includes transitive dependencies
-export const syncEntityDependencies: Record<keyof SyncEntities, ReadonlyArray<keyof SyncEntities>> = {
+export const syncEntityDependencies: Record<
+  keyof SyncEntities,
+  ReadonlyArray<keyof SyncEntities>
+> = {
   contentTypes: ["contentTypes", "contentTypeSnippets", "taxonomies"],
   contentTypeSnippets: ["contentTypeSnippets", "taxonomies", "contentTypes"],
   collections: ["collections"],

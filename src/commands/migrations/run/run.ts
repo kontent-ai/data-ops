@@ -1,12 +1,12 @@
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
-import { logError, logInfo, LogOptions } from "../../../log.js";
-import { RunMigrationsParams, withMigrationsToRun } from "../../../modules/migrations/run.js";
-import { WithErr } from "../../../modules/migrations/utils/errUtils.js";
+import { type LogOptions, logError, logInfo } from "../../../log.js";
+import { type RunMigrationsParams, withMigrationsToRun } from "../../../modules/migrations/run.js";
+import type { WithErr } from "../../../modules/migrations/utils/errUtils.js";
 import { executeMigrations } from "../../../modules/migrations/utils/migrationUtils.js";
 import { parseRange } from "../../../modules/migrations/utils/rangeUtils.js";
 import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -14,11 +14,11 @@ const commandName = "run";
 const migrationSelectionOptions = ["name", "range", "all", "next"] as const;
 const exampleMessagePrefix = "$0 migrations run -e xxx -k xxx -p xxx";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "run",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("environmentId", {
           alias: "e",
@@ -43,27 +43,27 @@ export const register: RegisterCommand = yargs =>
           describe:
             "Specifies the name of the migration to be executed. Conflicts with --range --all and --next options.",
           type: "string",
-          conflicts: migrationSelectionOptions.filter(o => o !== "name"),
+          conflicts: migrationSelectionOptions.filter((o) => o !== "name"),
         })
         .option("range", {
           alias: "r",
           describe:
             "Specifies the range of migrations to be executed. The format is number:number or date:date. Conflicts with --all, --name and --next options.",
           type: "string",
-          conflicts: migrationSelectionOptions.filter(o => o !== "range"),
+          conflicts: migrationSelectionOptions.filter((o) => o !== "range"),
         })
         .option("all", {
           alias: "a",
           describe: "Executes all migrations.",
           type: "boolean",
-          conflicts: migrationSelectionOptions.filter(o => o !== "all"),
+          conflicts: migrationSelectionOptions.filter((o) => o !== "all"),
         })
         .option("next", {
           alias: "x",
           describe:
             "Specifies the number of how many next migrations (not already executed) should be executed. Conflicts with --all,--name and --range options.",
           type: "number",
-          conflicts: migrationSelectionOptions.filter(o => o !== "next"),
+          conflicts: migrationSelectionOptions.filter((o) => o !== "next"),
         })
         .option("rollback", {
           alias: "b",
@@ -81,7 +81,8 @@ export const register: RegisterCommand = yargs =>
         })
         .option("force", {
           alias: "f",
-          describe: "Runs the specified migrations without checking the status file for previous runs.",
+          describe:
+            "Runs the specified migrations without checking the status file for previous runs.",
           type: "boolean",
         })
         .option("skipConfirmation", {
@@ -90,19 +91,25 @@ export const register: RegisterCommand = yargs =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         })
         .check((args) => {
-          if (!args.all && !args.name && !args.range && !args.next) {
+          if (!(args.all || args.name || args.range || args.next)) {
             throw new Error("Exactly one of the params --all --name --next --range must be set.");
           }
 
           return true;
         })
         .example(`${exampleMessagePrefix} --all (-a)`, "Run all migrations")
-        .example(`${exampleMessagePrefix} --name (-n) myMigration.js`, "Run migration with the specified name.")
+        .example(
+          `${exampleMessagePrefix} --name (-n) myMigration.js`,
+          "Run migration with the specified name.",
+        )
         .example(`${exampleMessagePrefix} --next (-x) 10`, "Run next 10 migrations.")
-        .example(`${exampleMessagePrefix} --range 1:5`, "Run migrations with order between 1 and 5 included.")
+        .example(
+          `${exampleMessagePrefix} --range 1:5`,
+          "Run migrations with order between 1 and 5 included.",
+        )
         .example(
           `${exampleMessagePrefix} --range 1:T2025`,
           "Run migrations with order between 1 and before year 2025 included.",
@@ -111,28 +118,33 @@ export const register: RegisterCommand = yargs =>
           `${exampleMessagePrefix} --range T2024-06:T2025-02`,
           "Run migrations with order between the June of 2024 and February 2025",
         )
-        .example(`${exampleMessagePrefix} --range :5`, "Run migrations with order up to 5 included.")
-        .example(`${exampleMessagePrefix} --range 2:`, "Run all migrations with order from 2 (included)."),
+        .example(
+          `${exampleMessagePrefix} --range :5`,
+          "Run migrations with order up to 5 included.",
+        )
+        .example(
+          `${exampleMessagePrefix} --range 2:`,
+          "Run all migrations with order from 2 (included).",
+        ),
     handler: (args) => runMigrationsCli(args).catch(simplifyErrors),
   });
 
-type RunMigrationsCliParams =
-  & Readonly<{
-    environmentId: string;
-    apiKey: string;
-    migrationsFolder: string;
-    name: string | undefined;
-    range: string | undefined;
-    all: boolean | undefined;
-    next: number | undefined;
-    rollback: boolean | undefined;
-    statusPlugins: string | undefined;
-    continueOnError: boolean | undefined;
-    force: boolean | undefined;
-    skipConfirmation: boolean | undefined;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type RunMigrationsCliParams = Readonly<{
+  environmentId: string;
+  apiKey: string;
+  migrationsFolder: string;
+  name: string | undefined;
+  range: string | undefined;
+  all: boolean | undefined;
+  next: number | undefined;
+  rollback: boolean | undefined;
+  statusPlugins: string | undefined;
+  continueOnError: boolean | undefined;
+  force: boolean | undefined;
+  skipConfirmation: boolean | undefined;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
 const runMigrationsCli = async (params: RunMigrationsCliParams) => {
   const client = createClient({
@@ -149,20 +161,24 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
     process.exit(1);
   }
 
-  await withMigrationsToRun(resolvedParams.value, async migrations => {
+  await withMigrationsToRun(resolvedParams.value, async (migrations) => {
     const operation = resolvedParams.value.rollback ? "rollback" : "run";
 
     await checkConfirmation({
-      message:
-        `⚠ Running this operation may result in irreversible changes to your environment ${params.environmentId}.\nOK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
+      message: `⚠ Running this operation may result in irreversible changes to your environment ${params.environmentId}.\nOK to proceed y/n? (suppress this message with --skipConfirmation parameter)\n`,
       skipConfirmation: params.skipConfirmation,
       logOptions: params,
     });
 
-    const migrationsStatus = await executeMigrations(migrations, client, {
-      operation,
-      continueOnError: params.continueOnError ?? false,
-    }, params);
+    const migrationsStatus = await executeMigrations(
+      migrations,
+      client,
+      {
+        operation,
+        continueOnError: params.continueOnError ?? false,
+      },
+      params,
+    );
 
     if (migrationsStatus.error) {
       return Promise.reject(migrationsStatus.status);
@@ -174,9 +190,7 @@ const runMigrationsCli = async (params: RunMigrationsCliParams) => {
   });
 };
 
-const resolveParams = (
-  params: RunMigrationsCliParams,
-): WithErr<RunMigrationsParams> => {
+const resolveParams = (params: RunMigrationsCliParams): WithErr<RunMigrationsParams> => {
   const emptyParams = { next: undefined, name: undefined, range: undefined, all: undefined };
 
   return match(params)

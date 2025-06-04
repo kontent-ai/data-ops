@@ -1,4 +1,4 @@
-import { ContentTypeContracts } from "@kontent-ai/management-sdk";
+import type { ContentTypeContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
 import { transformWebSpotlightModel } from "../../../src/modules/sync/modelTransfomers/webSpotlight.ts";

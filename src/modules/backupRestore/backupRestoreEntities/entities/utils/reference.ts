@@ -1,4 +1,4 @@
-import { RestoreContext } from "../../entityDefinition.js";
+import type { RestoreContext } from "../../entityDefinition.js";
 
 type Params = Readonly<{
   newId: string | undefined;
@@ -7,7 +7,9 @@ type Params = Readonly<{
 }>;
 
 export const createReference = (params: Params) =>
-  params.newId ? { id: params.newId } : { external_id: `non-existent-${params.entityName}-${params.oldId}` };
+  params.newId
+    ? { id: params.newId }
+    : { external_id: `non-existent-${params.entityName}-${params.oldId}` };
 
 /**
  * extracts specified `keys` from `ImportContext`, simplifies `string:object`
@@ -24,7 +26,7 @@ export const simplifyContext = <K extends keyof RestoreContext = keyof RestoreCo
   const getSimplifiedMap = (map: ReadonlyMap<string, string | { selfId: string }>) =>
     new Map([...map].map(([k, v]) => [k, typeof v === "string" ? v : v.selfId]));
 
-  const keysToExtract = keys ?? Object.keys(context) as K[];
+  const keysToExtract = keys ?? (Object.keys(context) as K[]);
 
   return new Map(
     Object.entries(context)
@@ -47,7 +49,9 @@ export const transformReferences = <T extends object>(
     }
 
     if (value !== null && typeof value === "object") {
-      return Object.fromEntries(Object.entries(value).map(([key, value]) => [key, traverseAndReplace(value)]));
+      return Object.fromEntries(
+        Object.entries(value).map(([key, value]) => [key, traverseAndReplace(value)]),
+      );
     }
 
     return value;

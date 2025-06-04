@@ -1,8 +1,8 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
+import type { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import StreamZip from "node-stream-zip";
 
-import { logInfo, LogOptions } from "../../log.js";
+import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { serially } from "../../utils/requests.js";
 import { assetFoldersEntity } from "./backupRestoreEntities/entities/assetFolders.js";
@@ -17,21 +17,24 @@ import {
   contentTypesSnippetsEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
 } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
 import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
+import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
-import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
 import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
-import { importWorkflowScopesEntity, workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
+import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
 import {
+  importWorkflowScopesEntity,
+  workflowsEntity,
+} from "./backupRestoreEntities/entities/workflows.js";
+import type {
+  AnyEntityRestoreDefinition,
   EntityDefinition,
-  EntityRestoreDefinition,
   RestoreContext,
   RestoreOptions,
 } from "./backupRestoreEntities/entityDefinition.js";
-import { IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
+import { type IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
 
 // The entities will be imported in the order specified here.
 // Keep in mind that there are dependencies between entities so the order is important.
@@ -53,22 +56,23 @@ export const restoreEntityDefinitions = [
   languageVariantsEntity,
   importWorkflowScopesEntity,
   webhooksEntity,
-] as const satisfies ReadonlyArray<EntityRestoreDefinition<any>>;
+] as const satisfies ReadonlyArray<AnyEntityRestoreDefinition>;
 
-export const restoreEntityChoices = restoreEntityDefinitions.filter(e => !("isDependentOn" in e)).map(e => e.name);
+export const restoreEntityChoices = restoreEntityDefinitions
+  .filter((e) => !("isDependentOn" in e))
+  .map((e) => e.name);
 
-export type RestoreEntityChoices = typeof restoreEntityChoices[number];
+export type RestoreEntityChoices = (typeof restoreEntityChoices)[number];
 
 export type RestoreEnvironmentParams = Readonly<
-  & {
+  {
     environmentId: string;
     fileName: string;
     apiKey: string;
     kontentUrl?: string;
     options?: RestoreOptions;
-  }
-  & IncludeExclude<RestoreEntityChoices>
-  & LogOptions
+  } & IncludeExclude<RestoreEntityChoices> &
+    LogOptions
 >;
 
 export const restoreEnvironment = async (params: RestoreEnvironmentParams) => {
@@ -82,11 +86,13 @@ export const restoreEnvironment = async (params: RestoreEnvironmentParams) => {
   await restoreEnvironmentInternal(client, params);
 };
 
-export const restoreEnvironmentInternal = async (client: ManagementClient, params: RestoreEnvironmentParams) => {
+export const restoreEnvironmentInternal = async (
+  client: ManagementClient,
+  params: RestoreEnvironmentParams,
+) => {
   const root = new StreamZip.async({ file: params.fileName });
 
-  const definitionsToImport = restoreEntityDefinitions
-    .filter(includeExcludePredicate(params));
+  const definitionsToImport = restoreEntityDefinitions.filter(includeExcludePredicate(params));
 
   logInfo(
     params,
@@ -96,28 +102,31 @@ export const restoreEnvironmentInternal = async (client: ManagementClient, param
 
   let context = createInitialContext();
 
-  await serially(definitionsToImport.map(def => async () => {
-    logInfo(params, "standard", `Importing: ${chalk.yellow(def.displayName)}`);
+  await serially(
+    definitionsToImport.map((def) => async () => {
+      logInfo(params, "standard", `Importing: ${chalk.yellow(def.displayName)}`);
 
-    try {
-      context = await root.entryData(`${def.name}.json`)
-        .then(b => b.toString("utf8"))
-        .then(def.deserializeEntities)
-        .then(e =>
-          (def as EntityDefinition<unknown>).importEntities(client, {
-            entities: e,
-            context,
-            logOptions: params,
-            zip: root,
-            options: params.options,
-          })
-        )
-        ?? context;
-    } catch (err) {
-      throw new Error(`Failed to import entity ${chalk.red(def.displayName)}.
+      try {
+        context =
+          (await root
+            .entryData(`${def.name}.json`)
+            .then((b) => b.toString("utf8"))
+            .then(def.deserializeEntities)
+            .then((e) =>
+              (def as EntityDefinition<unknown>).importEntities(client, {
+                entities: e,
+                context,
+                logOptions: params,
+                zip: root,
+                options: params.options,
+              }),
+            )) ?? context;
+      } catch (err) {
+        throw new Error(`Failed to import entity ${chalk.red(def.displayName)}.
         ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`);
-    }
-  }));
+      }
+    }),
+  );
 
   logInfo(params, "standard", chalk.green("All entities were successfully imported."));
 };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
+import type { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
 import { transformSpacesModel } from "../../../src/modules/sync/modelTransfomers/spaceTransformers.ts";
 
 describe("transformSpacesModel", () => {
@@ -15,16 +15,20 @@ describe("transformSpacesModel", () => {
           collections: [{ id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc" }],
         },
       ],
-      items: [{
-        id: "cbf1bdb1-9399-47cf-8ab1-b6afab184f9c",
-        name: "root item",
-        codename: "rootItem",
-        type: { id: "ad2d7314-19d8-43ca-a015-8b82e6f6f152" },
-        collection: { id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc" },
-        spaces: [],
-        last_modified: new Date(),
-      }],
-      collections: [{ id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc", name: "collection", codename: "collection" }],
+      items: [
+        {
+          id: "cbf1bdb1-9399-47cf-8ab1-b6afab184f9c",
+          name: "root item",
+          codename: "rootItem",
+          type: { id: "ad2d7314-19d8-43ca-a015-8b82e6f6f152" },
+          collection: { id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc" },
+          spaces: [],
+          last_modified: new Date(),
+        },
+      ],
+      collections: [
+        { id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc", name: "collection", codename: "collection" },
+      ],
       webSpotlight: { enabled: false, root_type: null },
       taxonomyGroups: [],
       contentTypes: [],

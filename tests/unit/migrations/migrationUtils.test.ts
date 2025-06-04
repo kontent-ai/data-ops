@@ -1,8 +1,8 @@
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import { describe, expect, it, vitest } from "vitest";
 
-import { Migration } from "../../../src/modules/migrations/models/migration.ts";
-import { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
+import type { Migration } from "../../../src/modules/migrations/models/migration.ts";
+import type { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
 import {
   executeMigrations,
   filterMigrations,
@@ -19,7 +19,7 @@ const migrations = [
     name: "Migration5",
     module: {
       order: new Date("2024-04-07"),
-      run: async () => {
+      run: () => {
         throw new Error("Test fail");
       },
     },
@@ -41,7 +41,9 @@ describe("filterMigrations", () => {
   });
 
   it("Correctly filters migrations for range parameter", () => {
-    const filteredMigrations = filterMigrations(migrations, { range: { from: 2, to: new Date("2024-03-07") } });
+    const filteredMigrations = filterMigrations(migrations, {
+      range: { from: 2, to: new Date("2024-03-07") },
+    });
 
     expect(filteredMigrations).toStrictEqual([migrations[1], migrations[2], migrations[3]]);
   });
@@ -117,11 +119,14 @@ describe("executeMigrations", () => {
     expect(migration1Run).toHaveBeenCalledTimes(1);
     expect(migration1Run).toHaveBeenCalledWith(client);
 
-    const migrationStatusWithoutDate = migrationStatus.status.map(s => ({ ...s, time: undefined }));
+    const migrationStatusWithoutDate = migrationStatus.status.map((s) => ({
+      ...s,
+      time: undefined,
+    }));
     const expectedResult = [
       createMigrationStatus(migrations[0].name, migrations[0].module.order, true, "run"),
       createMigrationStatus(migrations[1].name, migrations[1].module.order, true, "run"),
-    ].map(s => ({ ...s, time: undefined }));
+    ].map((s) => ({ ...s, time: undefined }));
 
     expect(migrationStatusWithoutDate).toStrictEqual(expectedResult);
   });
@@ -136,9 +141,13 @@ describe("executeMigrations", () => {
       { logLevel: "none" },
     );
 
-    const migrationStatusWithoutDate = migrationStatus.status.map(s => ({ ...s, time: undefined }));
-    const expectedStatusResult = [createMigrationStatus(migrations[4].name, migrations[4].module.order, false, "run")]
-      .map(s => ({ ...s, time: undefined }));
+    const migrationStatusWithoutDate = migrationStatus.status.map((s) => ({
+      ...s,
+      time: undefined,
+    }));
+    const expectedStatusResult = [
+      createMigrationStatus(migrations[4].name, migrations[4].module.order, false, "run"),
+    ].map((s) => ({ ...s, time: undefined }));
 
     expect(migrationStatusWithoutDate).toStrictEqual(expectedStatusResult);
     expect(migrationStatus.error).toBeTruthy();
@@ -154,11 +163,14 @@ describe("executeMigrations", () => {
       { logLevel: "none" },
     );
 
-    const migrationStatusWithoutDate = migrationStatus.status.map(s => ({ ...s, time: undefined }));
+    const migrationStatusWithoutDate = migrationStatus.status.map((s) => ({
+      ...s,
+      time: undefined,
+    }));
     const expectedStatusResult = [
       createMigrationStatus(migrations[4].name, migrations[4].module.order, false, "run"),
       createMigrationStatus(migrations[0].name, migrations[0].module.order, true, "run"),
-    ].map(s => ({ ...s, time: undefined }));
+    ].map((s) => ({ ...s, time: undefined }));
 
     expect(migrationStatusWithoutDate).toStrictEqual(expectedStatusResult);
   });

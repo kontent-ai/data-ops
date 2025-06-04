@@ -2,7 +2,7 @@ import readline from "node:readline";
 
 import chalk from "chalk";
 
-import { logInfo, LogOptions } from "../../../log.js";
+import { type LogOptions, logInfo } from "../../../log.js";
 
 const requestConfirmation = async (message: string) => {
   const rl = readline.createInterface({
@@ -10,8 +10,8 @@ const requestConfirmation = async (message: string) => {
     output: process.stdout,
   });
 
-  return new Promise<boolean>(resolve => {
-    rl.question(message, answer => {
+  return new Promise<boolean>((resolve) => {
+    rl.question(message, (answer) => {
       rl.close();
       resolve(answer.trim().toLowerCase() === "y");
     });

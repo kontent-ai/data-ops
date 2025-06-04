@@ -12,7 +12,8 @@ if (!API_KEY) {
 }
 
 export const withTestEnvironment =
-  (cloneEnvironmentId: string, testFnc: (environmentId: string) => Promise<void>) => async (): Promise<void> => {
+  (cloneEnvironmentId: string, testFnc: (environmentId: string) => Promise<void>) =>
+  async (): Promise<void> => {
     const envName = `${testsRunPrefix}-test-${createUuid()}`;
     console.log(`Creating test environment "${envName}".`);
 
@@ -40,7 +41,7 @@ const createTestEnvironment = async (name: string, cloneEnvironmentId: string) =
       name: name,
     })
     .toPromise()
-    .then(res => res.data.id);
+    .then((res) => res.data.id);
 
   const testEnvironmentClient = new ManagementClient({
     apiKey: API_KEY,
@@ -51,8 +52,10 @@ const createTestEnvironment = async (name: string, cloneEnvironmentId: string) =
     testEnvironmentClient
       .getEnvironmentCloningState()
       .toPromise()
-      .then(res =>
-        res.data.cloningInfo.cloningState === "done" ? undefined : delay(100).then(() => waitUntilCloned(environmentId))
+      .then((res) =>
+        res.data.cloningInfo.cloningState === "done"
+          ? undefined
+          : delay(100).then(() => waitUntilCloned(environmentId)),
       );
 
   await waitUntilCloned(testEnvironmentId);
@@ -66,9 +69,7 @@ const removeTestEnvironment = (environmentId: string) => {
     environmentId,
   });
 
-  return testEnvironmentClient
-    .deleteEnvironment()
-    .toPromise();
+  return testEnvironmentClient.deleteEnvironment().toPromise();
 };
 
-const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));

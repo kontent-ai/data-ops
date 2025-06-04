@@ -14,7 +14,7 @@ const validElementWithGroup = {
 };
 
 describe("TypeSchema", () => {
-  it("should validate successfully when content_groups is empty and elements have no content_group (groups_number \"zero\")", () => {
+  it('should validate successfully when content_groups is empty and elements have no content_group (groups_number "zero")', () => {
     const input = {
       name: "Type Without Groups",
       codename: "type_without_groups",
@@ -34,7 +34,7 @@ describe("TypeSchema", () => {
     }
   });
 
-  it("should validate successfully when content_groups is non-empty and elements have content_group (groups_number \"multiple\")", () => {
+  it('should validate successfully when content_groups is non-empty and elements have content_group (groups_number "multiple")', () => {
     const input = {
       name: "Type With Groups",
       codename: "type_with_groups",
