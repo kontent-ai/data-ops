@@ -1,10 +1,15 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
-import archiver from "archiver";
-import { StreamZipAsync } from "node-stream-zip";
+import type { ManagementClient } from "@kontent-ai/management-sdk";
+import type archiver from "archiver";
+import type { StreamZipAsync } from "node-stream-zip";
 
-import { LogOptions } from "../../../log.js";
+import type { LogOptions } from "../../../log.js";
 
-export type EntityDefinition<T> = EntityBackupDefinition<T> & EntityRestoreDefinition<T> & EntityCleanDefinition<T>;
+export type EntityDefinition<T> = EntityBackupDefinition<T> &
+  EntityRestoreDefinition<T> &
+  EntityCleanDefinition<T>;
+
+// biome-ignore lint/suspicious/noExplicitAny: As the argument is in both covariant and contravariant position, it cannot be typed as unknown and as we want to allow all possible types, any is the only option
+export type AnyEntityDefinition = EntityDefinition<any>;
 
 export type EntityBackupDefinition<T> = Readonly<{
   name: string;
@@ -18,6 +23,9 @@ export type EntityBackupDefinition<T> = Readonly<{
     logOptions: LogOptions,
   ) => Promise<void>;
 }>;
+
+// biome-ignore lint/suspicious/noExplicitAny: As the argument is in both covariant and contravariant position, it cannot be typed as unknown and as we want to allow all possible types, any is the only option
+export type AnyEntityBackupDefinition = EntityBackupDefinition<any>;
 
 export type RestoreOptions = {
   excludeInactiveLanguages?: boolean;
@@ -38,16 +46,22 @@ export type EntityRestoreDefinition<T> = Readonly<{
   importEntities: (
     client: ManagementClient,
     params: EntityRestoreParams<T>,
-  ) => Promise<void | undefined | RestoreContext>;
+  ) => Promise<undefined | RestoreContext>;
 }>;
+
+// biome-ignore lint/suspicious/noExplicitAny: As the argument is in both covariant and contravariant position, it cannot be typed as unknown and as we want to allow all possible types, any is the only option
+export type AnyEntityRestoreDefinition = EntityRestoreDefinition<any>;
 
 export type EntityCleanDefinition<T> = Readonly<{
   name: string;
   cleanEntities: (client: ManagementClient, entities: T, logOptions: LogOptions) => Promise<void>;
 }>;
 
+// biome-ignore lint/suspicious/noExplicitAny: As the argument is in both covariant and contravariant position, it cannot be typed as unknown and as we want to allow all possible types, any is the only option
+export type AnyEntityCleanDefinition = EntityCleanDefinition<any>;
+
 export type DependentRestoreAction<T> = Readonly<{
-  dependentOnEntities: ReadonlyArray<EntityDefinition<any>>;
+  dependentOnEntities: ReadonlyArray<AnyEntityDefinition>;
   action: (client: ManagementClient, entities: T, context: RestoreContext) => Promise<void>;
 }>;
 

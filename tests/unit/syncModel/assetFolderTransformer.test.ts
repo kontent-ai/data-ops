@@ -1,8 +1,8 @@
-import { AssetFolderContracts } from "@kontent-ai/management-sdk";
+import type { AssetFolderContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
 import { transformAssetFolderModel } from "../../../src/modules/sync/modelTransfomers/assetFolder.js";
-import { AssetFolderSyncModel } from "../../../src/modules/sync/types/syncModel.js";
+import type { AssetFolderSyncModel } from "../../../src/modules/sync/types/syncModel.js";
 
 describe("transformAssetFolderModel", () => {
   it("correctly transforms asset folder model to sync model with nested folders", () => {

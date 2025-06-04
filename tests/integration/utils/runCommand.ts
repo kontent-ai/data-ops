@@ -1,4 +1,4 @@
-import * as childProcess from "child_process";
+import * as childProcess from "node:child_process";
 
 export const runCommand = (command: string): Promise<CommandResult> => {
   return new Promise((resolve, reject: (err: CommandError) => void) => {

@@ -7,4 +7,4 @@ export default defineConfig({
     dir: "tests/integration",
     testTimeout: 7 * minute,
   },
-})
+});

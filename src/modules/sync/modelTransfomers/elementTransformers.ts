@@ -1,4 +1,4 @@
-import {
+import type {
   AssetContracts,
   ContentItemContracts,
   ContentTypeElements,
@@ -13,15 +13,21 @@ import {
   itemExternalIdLinkAttributeName,
   itemLinkRegex,
 } from "../../../constants/richText.js";
-import { LogOptions, logWarning } from "../../../log.js";
+import { type LogOptions, logWarning } from "../../../log.js";
 import { throwError } from "../../../utils/error.js";
 import { createAssetExternalId, createItemExternalId } from "../../../utils/externalIds.js";
 import { omit } from "../../../utils/object.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
-import { CodenameReference, Replace } from "../../../utils/types.js";
-import { customAssetCodenameAttributeName, customItemLinkCodenameAttributeName } from "../../constants/syncRichText.js";
-import { ContentTypeSnippetsWithUnionElements, ContentTypeWithUnionElements } from "../types/contractModels.js";
+import type { CodenameReference, Replace } from "../../../utils/types.js";
 import {
+  customAssetCodenameAttributeName,
+  customItemLinkCodenameAttributeName,
+} from "../../constants/syncRichText.js";
+import type {
+  ContentTypeSnippetsWithUnionElements,
+  ContentTypeWithUnionElements,
+} from "../types/contractModels.js";
+import type {
   SyncAssetElement,
   SyncCustomElement,
   SyncGuidelinesElement,
@@ -45,14 +51,10 @@ const handleContentType = (
   warnMessage: string,
   logOptions: LogOptions,
 ) => {
-  const foundType = contentTypes.find(t => typeReference.id == t.id);
+  const foundType = contentTypes.find((t) => typeReference.id === t.id);
 
   if (!foundType) {
-    logWarning(
-      logOptions,
-      "standard",
-      warnMessage,
-    );
+    logWarning(logOptions, "standard", warnMessage);
     return null;
   }
 
@@ -67,9 +69,13 @@ const replaceRichTextReferences = (
 ): string =>
   richText
     .replaceAll(assetRegex, (_, oldAssetId /* from the regex capture group*/) => {
-      const asset = assets.find(a => a.id === oldAssetId);
+      const asset = assets.find((a) => a.id === oldAssetId);
       if (!asset) {
-        logWarning(logOptions, "standard", `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`);
+        logWarning(
+          logOptions,
+          "standard",
+          `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`,
+        );
         return `${assetExternalIdAttributeName}="${oldAssetId}"`;
       }
 
@@ -78,9 +84,13 @@ const replaceRichTextReferences = (
       }"`;
     })
     .replaceAll(itemLinkRegex, (_, oldItemId /* from the regex capture group*/) => {
-      const item = items.find(i => i.id === oldItemId);
+      const item = items.find((i) => i.id === oldItemId);
       if (!item) {
-        logWarning(logOptions, "standard", `Found asset id "${oldItemId}" of a non-existent asset in the rich text.`);
+        logWarning(
+          logOptions,
+          "standard",
+          `Found asset id "${oldItemId}" of a non-existent asset in the rich text.`,
+        );
         return `${itemExternalIdAttributeName}="${oldItemId}"`;
       }
 
@@ -93,15 +103,18 @@ export const transformCustomElement = (
   element: ContentTypeElements.ICustomElement,
   type: ContentTypeWithUnionElements | ContentTypeSnippetsWithUnionElements,
 ): ElementWithOldContentGroup<SyncCustomElement> => {
-  const syncAllowedElements = element.allowed_elements?.map(element => {
-    const el = type.elements.find(el => el.id === element.id);
-    return el
-      ? {
-        codename: el.codename
-          ?? throwError(`Could not find codename of element ${el.id}. This should never happen`),
-      }
-      : undefined;
-  }).filter(notNullOrUndefined);
+  const syncAllowedElements = element.allowed_elements
+    ?.map((element) => {
+      const el = type.elements.find((el) => el.id === element.id);
+      return el
+        ? {
+            codename:
+              el.codename ??
+              throwError(`Could not find codename of element ${el.id}. This should never happen`),
+          }
+        : undefined;
+    })
+    .filter(notNullOrUndefined);
 
   return {
     ...omit(element, ["id", "external_id"]),
@@ -113,18 +126,21 @@ export const transformCustomElement = (
 export const transformMultipleChoiceElement = (
   element: ContentTypeElements.IMultipleChoiceElement,
 ): ElementWithOldContentGroup<SyncMultipleChoiceElement> => {
-  const defaultOptionId = element.default?.global.value.map(o => o.id);
+  const defaultOptionId = element.default?.global.value.map((o) => o.id);
 
-  const defaultOptionsCodenames = defaultOptionId?.map(id => ({
-    codename: element.options.find(option => option.id === id)?.codename
-      ?? throwError(`Could not find the codename of option with id ${id} in element ${element.codename}`),
+  const defaultOptionsCodenames = defaultOptionId?.map((id) => ({
+    codename:
+      element.options.find((option) => option.id === id)?.codename ??
+      throwError(
+        `Could not find the codename of option with id ${id} in element ${element.codename}`,
+      ),
   }));
 
   const defaultOptions = defaultOptionsCodenames?.length
     ? { global: { value: defaultOptionsCodenames } }
     : undefined;
 
-  const options = element.options.map(option => ({
+  const options = element.options.map((option) => ({
     ...omit(option, ["id", "external_id"]),
     codename: option.codename as string,
   }));
@@ -142,27 +158,32 @@ export const transformAssetElement = (
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncAssetElement> => {
-  const defaultAssetsIds = element.default?.global.value.map(a => a.id);
-  const defaultAssetsReferences = defaultAssetsIds?.map(id => {
-    const asset = assets.find(asset => asset.id === id);
+  const defaultAssetsIds = element.default?.global.value.map((a) => a.id);
+  const defaultAssetsReferences = defaultAssetsIds
+    ?.map((id) => {
+      const asset = assets.find((asset) => asset.id === id);
 
-    if (!asset) {
-      logWarning(
-        logOptions,
-        "standard",
-        `could not find asset with id ${id} on element with codename ${element.codename}`,
-      );
-      return null;
-    }
+      if (!asset) {
+        logWarning(
+          logOptions,
+          "standard",
+          `could not find asset with id ${id} on element with codename ${element.codename}`,
+        );
+        return null;
+      }
 
-    return {
-      codename: asset.codename,
-      // external id should be optional in sdks.
-      external_id: (asset.external_id as string | undefined) ?? createAssetExternalId(asset.codename),
-    };
-  }).filter(notNullOrUndefined);
+      return {
+        codename: asset.codename,
+        // external id should be optional in sdks.
+        external_id:
+          (asset.external_id as string | undefined) ?? createAssetExternalId(asset.codename),
+      };
+    })
+    .filter(notNullOrUndefined);
 
-  const defaultAssets = defaultAssetsReferences?.length ? { global: { value: defaultAssetsReferences } } : undefined;
+  const defaultAssets = defaultAssetsReferences?.length
+    ? { global: { value: defaultAssetsReferences } }
+    : undefined;
 
   return {
     ...omit(element, ["id", "external_id"]),
@@ -176,22 +197,26 @@ export const transformRichTextElement = (
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncRichTextElement> => {
-  const allowedContentTypes = element.allowed_content_types?.map(type =>
-    handleContentType(
-      type,
-      contentTypes,
-      `could not find type with id ${type.id} to be used in allowed_content_types in element with codename ${element.codename}. Skipping it`,
-      logOptions,
+  const allowedContentTypes = element.allowed_content_types
+    ?.map((type) =>
+      handleContentType(
+        type,
+        contentTypes,
+        `could not find type with id ${type.id} to be used in allowed_content_types in element with codename ${element.codename}. Skipping it`,
+        logOptions,
+      ),
     )
-  ).filter(notNullOrUndefined);
-  const allowedItemLinkTypes = element.allowed_item_link_types?.map(type =>
-    handleContentType(
-      type,
-      contentTypes,
-      `could not find type with id ${type.id} to be used in allowed_item_link_types in element with codename ${element.codename}. Skipping it`,
-      logOptions,
+    .filter(notNullOrUndefined);
+  const allowedItemLinkTypes = element.allowed_item_link_types
+    ?.map((type) =>
+      handleContentType(
+        type,
+        contentTypes,
+        `could not find type with id ${type.id} to be used in allowed_item_link_types in element with codename ${element.codename}. Skipping it`,
+        logOptions,
+      ),
     )
-  ).filter(notNullOrUndefined);
+    .filter(notNullOrUndefined);
 
   return {
     ...omit(element, ["id", "external_id"]),
@@ -206,7 +231,7 @@ export const transformTaxonomyElement = (
   taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncTaxonomyElement> => {
-  const taxonomyGroup = taxonomies.find(t => t.id === element.taxonomy_group.id);
+  const taxonomyGroup = taxonomies.find((t) => t.id === element.taxonomy_group.id);
   if (!taxonomyGroup) {
     throw new Error(
       `Could not find taxonomy group (id: ${element.taxonomy_group.id}) in element(codename: ${element.codename})`,
@@ -217,25 +242,33 @@ export const transformTaxonomyElement = (
     term: TaxonomyContracts.ITaxonomyContract,
     id: string,
   ): TaxonomyContracts.ITaxonomyContract | null =>
-    term.id === id ? term : term.terms
-      .reduce<TaxonomyContracts.ITaxonomyContract | null>((res, term) => res || findTerm(term, id), null);
+    term.id === id
+      ? term
+      : term.terms.reduce<TaxonomyContracts.ITaxonomyContract | null>(
+          (res, term) => res || findTerm(term, id),
+          null,
+        );
 
-  const defaultTermsReferences = element.default?.global.value.map(t => {
-    const term = findTerm(taxonomyGroup, t.id as string);
+  const defaultTermsReferences = element.default?.global.value
+    .map((t) => {
+      const term = findTerm(taxonomyGroup, t.id as string);
 
-    if (!term) {
-      logWarning(
-        logOptions,
-        "standard",
-        `Could not find term with id ${t.id} in element with codename ${element.codename}`,
-      );
-      return null;
-    }
+      if (!term) {
+        logWarning(
+          logOptions,
+          "standard",
+          `Could not find term with id ${t.id} in element with codename ${element.codename}`,
+        );
+        return null;
+      }
 
-    return { codename: term.codename };
-  }).filter(notNullOrUndefined);
+      return { codename: term.codename };
+    })
+    .filter(notNullOrUndefined);
 
-  const defaultTerms = defaultTermsReferences ? { global: { value: defaultTermsReferences } } : undefined;
+  const defaultTerms = defaultTermsReferences
+    ? { global: { value: defaultTermsReferences } }
+    : undefined;
 
   return {
     ...omit(element, ["id", "external_id"]),
@@ -252,28 +285,36 @@ export const transformLinkedItemsElement = (
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncLinkedItemsElement> => {
-  const allowedContentTypes = element.allowed_content_types?.map(type =>
-    handleContentType(
-      type,
-      contentTypes,
-      `could not find type with id ${type.id} to be used in allowed_content_types in element with codename ${element.codename}. Skipping it`,
-      logOptions,
+  const allowedContentTypes = element.allowed_content_types
+    ?.map((type) =>
+      handleContentType(
+        type,
+        contentTypes,
+        `could not find type with id ${type.id} to be used in allowed_content_types in element with codename ${element.codename}. Skipping it`,
+        logOptions,
+      ),
     )
-  ).filter(notNullOrUndefined);
+    .filter(notNullOrUndefined);
 
-  const defaultValues = element.default?.global.value.map(itemReference => {
-    const item = items.find(i => i.id === itemReference.id);
+  const defaultValues = element.default?.global.value
+    .map((itemReference) => {
+      const item = items.find((i) => i.id === itemReference.id);
 
-    if (!item) {
-      logWarning(logOptions, "standard", `could not find item with id ${itemReference.id}. Skipping it`);
-      return null;
-    }
+      if (!item) {
+        logWarning(
+          logOptions,
+          "standard",
+          `could not find item with id ${itemReference.id}. Skipping it`,
+        );
+        return null;
+      }
 
-    return {
-      codename: item.codename,
-      external_id: item.external_id ?? createItemExternalId(item.codename),
-    };
-  }).filter(notNullOrUndefined);
+      return {
+        codename: item.codename,
+        external_id: item.external_id ?? createItemExternalId(item.codename),
+      };
+    })
+    .filter(notNullOrUndefined);
 
   const defaultReference = defaultValues?.length ? { global: { value: defaultValues } } : undefined;
 
@@ -297,7 +338,10 @@ export const transformGuidelinesElement = (
 });
 
 export const transformDefaultElement = (
-  element: ContentTypeElements.ITextElement | ContentTypeElements.INumberElement | ContentTypeElements.IDateTimeElement,
+  element:
+    | ContentTypeElements.ITextElement
+    | ContentTypeElements.INumberElement
+    | ContentTypeElements.IDateTimeElement,
 ) => ({
   ...omit(element, ["id", "external_id"]),
   codename: element.codename as string,
@@ -308,7 +352,7 @@ export const transformUrlSlugElement = (
   type: ContentTypeWithUnionElements,
   snippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>,
 ): ElementWithOldContentGroup<SyncUrlSlugElement> => {
-  const snippet = snippets.find(s => s.id === element.depends_on.snippet?.id);
+  const snippet = snippets.find((s) => s.id === element.depends_on.snippet?.id);
 
   if (element.depends_on.snippet && !snippet) {
     throwError(
@@ -319,19 +363,19 @@ export const transformUrlSlugElement = (
   const depends_on = {
     element: {
       codename: element.depends_on.snippet
-        ? snippet?.elements.find(el => el.id === element.depends_on.element.id)?.codename
-          ?? throwError(
+        ? (snippet?.elements.find((el) => el.id === element.depends_on.element.id)?.codename ??
+          throwError(
             `Could not find element in type with codename ${type.codename} with element id ${element.depends_on.element.id}`,
-          )
-        : type.elements.find(el => el.id === element.depends_on.element.id)?.codename
-          ?? throwError(
+          ))
+        : (type.elements.find((el) => el.id === element.depends_on.element.id)?.codename ??
+          throwError(
             `Could not find element in type with codename ${type.codename} with element id ${element.depends_on.element.id}`,
-          ),
+          )),
     },
     snippet: snippet
       ? {
-        codename: snippet.codename,
-      }
+          codename: snippet.codename,
+        }
       : undefined,
   };
 
@@ -346,8 +390,9 @@ export const transformSnippetElement = (
   element: ContentTypeElements.ISnippetElement,
   snippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>,
 ): ElementWithOldContentGroup<SyncTypeSnippetElement> => {
-  const snippet = snippets.find(s => s.id === element.snippet.id)
-    ?? throwError(`snippet with id ${element.snippet.id} not found`);
+  const snippet =
+    snippets.find((s) => s.id === element.snippet.id) ??
+    throwError(`snippet with id ${element.snippet.id} not found`);
 
   return {
     ...omit(element, ["id", "external_id"]),
@@ -362,6 +407,11 @@ export const transformSubpagesElement = (
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>,
   logOptions: LogOptions,
 ): ElementWithOldContentGroup<SyncSubpagesElement> => ({
-  ...transformLinkedItemsElement({ ...element, type: "modular_content" }, contentTypes, items, logOptions),
+  ...transformLinkedItemsElement(
+    { ...element, type: "modular_content" },
+    contentTypes,
+    items,
+    logOptions,
+  ),
   type: "subpages",
 });

@@ -1,17 +1,18 @@
-import { CommandModule } from "yargs";
+import type { CommandModule } from "yargs";
 
-import { LogOptions } from "../log.js";
+import type { LogOptions } from "../log.js";
 
-export type StandaloneCommandModule<T = {}, U = {}> = MakeRequired<CommandModule<T, U>, "command" | "describe">;
+export type StandaloneCommandModule<T = unknown, U = unknown> = MakeRequired<
+  CommandModule<T, U>,
+  "command" | "describe"
+>;
 
 type MakeRequired<T, Keys extends keyof T> = Omit<T, Keys> & Required<Pick<T, Keys>>;
 
 export type RegisterCommand = <Result, InitialParams extends LogOptions = LogOptions>(
-  obj: Readonly<
-    {
-      command: <CommandParams extends InitialParams = InitialParams>(
-        cmdModule: StandaloneCommandModule<InitialParams, CommandParams>,
-      ) => Result;
-    }
-  >,
+  obj: Readonly<{
+    command: <CommandParams extends InitialParams = InitialParams>(
+      cmdModule: StandaloneCommandModule<InitialParams, CommandParams>,
+    ) => Result;
+  }>,
 ) => Result;

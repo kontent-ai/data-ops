@@ -1,10 +1,8 @@
+/* eslint-disable no-restricted-syntax */
 import chalk from "chalk";
-import { Argv } from "yargs";
+import type { Argv } from "yargs";
 
-export type LogLevel =
-  | "none"
-  | "standard"
-  | "verbose";
+export type LogLevel = "none" | "standard" | "verbose";
 
 const logLevelsPriority: Readonly<Record<LogLevel, number>> = {
   none: 0,
@@ -17,7 +15,12 @@ export const allLogLevels = Object.keys(logLevelsPriority);
 type LoggableLogLevel = Exclude<LogLevel, "none">;
 
 export const logError = (options: LogOptions, ...messages: ReadonlyArray<string>) =>
-  logInternal(options, "standard", console.error, ...messages.map(m => `${chalk.red("Error:")} ${m}\n`));
+  logInternal(
+    options,
+    "standard",
+    console.error,
+    ...messages.map((m) => `${chalk.red("Error:")} ${m}\n`),
+  );
 
 export const logWarning = (
   options: LogOptions,
@@ -66,7 +69,9 @@ export type LogOptions = Readonly<{
 
 const defaultLogLevel: LogLevel = "standard";
 
-export const addLogLevelOptions = <PreviousOptions>(inputYargs: Argv<PreviousOptions>): Argv<LogOptions> =>
+export const addLogLevelOptions = <PreviousOptions>(
+  inputYargs: Argv<PreviousOptions>,
+): Argv<LogOptions> =>
   inputYargs
     .option("logLevel", {
       type: "string",

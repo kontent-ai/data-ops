@@ -1,11 +1,21 @@
+// biome-ignore lint/performance/noBarrelFile: One barrel for the public API is fine
 export { backupEnvironment, BackupEnvironmentParams } from "./modules/backupRestore/backup.js";
 export { cleanEnvironment, CleanEnvironmentParams } from "./modules/backupRestore/clean.js";
 export { restoreEnvironment, RestoreEnvironmentParams } from "./modules/backupRestore/restore.js";
 
 export { addMigration, AddMigrationParams } from "./modules/migrations/add.js";
 export { MigrationModule, MigrationOrder } from "./modules/migrations/models/migration.js";
-export { MigrationStatus, ReadStatus, SaveStatus, Status } from "./modules/migrations/models/status.js";
-export { RunMigrationFilterParams, runMigrations, RunMigrationsParams } from "./modules/migrations/run.js";
+export {
+  MigrationStatus,
+  ReadStatus,
+  SaveStatus,
+  Status,
+} from "./modules/migrations/models/status.js";
+export {
+  RunMigrationFilterParams,
+  runMigrations,
+  RunMigrationsParams,
+} from "./modules/migrations/run.js";
 
 export { syncDiff, SyncDiffParams } from "./modules/sync/diffEnvironments.js";
 export { SyncEntities, syncRun, SyncRunParams } from "./modules/sync/syncRun.js";

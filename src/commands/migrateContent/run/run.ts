@@ -1,23 +1,24 @@
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
-import { logError, LogOptions } from "../../../log.js";
+import { type LogOptions, logError } from "../../../log.js";
 import {
+  type MigrateContentRunParams,
   migrateContentRunInternal,
-  MigrateContentRunParams,
 } from "../../../modules/migrateContent/migrateContentRun.js";
 import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 
 const commandName = "run";
 const itemsFilterParams = ["items", "filter", "last", "byTypesCodenames"] as const;
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
-    describe: "Migrate specified (by codenames) content items between source and target environments.",
-    builder: yargs =>
+    describe:
+      "Migrate specified (by codenames) content items between source and target environments.",
+    builder: (yargs) =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
@@ -28,7 +29,8 @@ export const register: RegisterCommand = yargs =>
         .option("targetApiKey", {
           type: "string",
           describe: "Management API key of target Kontent.ai environment",
-          demandOption: "You need to provide a Management API key for target Kontent.ai environment.",
+          demandOption:
+            "You need to provide a Management API key for target Kontent.ai environment.",
           alias: "tk",
         })
         .option("sourceEnvironmentId", {
@@ -65,18 +67,18 @@ export const register: RegisterCommand = yargs =>
           string: true,
           describe: "Array of content items codenames to be migrated.",
           alias: "i",
-          conflicts: itemsFilterParams.filter(p => p !== "items"),
+          conflicts: itemsFilterParams.filter((p) => p !== "items"),
         })
         .option("last", {
           type: "number",
           describe: "Migrate x lastly modified items",
-          conflicts: itemsFilterParams.filter(p => p !== "last"),
+          conflicts: itemsFilterParams.filter((p) => p !== "last"),
         })
         .option("byTypesCodenames", {
           type: "array",
           string: true,
           describe: "Migrate items of specified content types",
-          conflicts: itemsFilterParams.filter(p => p !== "byTypesCodenames"),
+          conflicts: itemsFilterParams.filter((p) => p !== "byTypesCodenames"),
         })
         .option("depth", {
           type: "number",
@@ -96,8 +98,9 @@ export const register: RegisterCommand = yargs =>
         })
         .option("filter", {
           type: "string",
-          describe: "A filter to obtain a subset of items codenames. See Delivery API docs for more information.",
-          conflicts: itemsFilterParams.filter(p => p !== "filter"),
+          describe:
+            "A filter to obtain a subset of items codenames. See Delivery API docs for more information.",
+          conflicts: itemsFilterParams.filter((p) => p !== "filter"),
         })
         .option("skipConfirmation", {
           type: "boolean",
@@ -105,49 +108,47 @@ export const register: RegisterCommand = yargs =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         })
         .check((args) => {
           // when migrating by filename, whole file is migrated
-          if (!args.filter && !args.items && !args.last && !args.byTypesCodenames && !args.filename) {
+          if (!(args.filter || args.items || args.last || args.byTypesCodenames || args.filename)) {
             return "You need to provide exactly one of the 'items', 'last', 'byTypesCodenames' or 'filter' parameters.";
           }
-          if (!args.sourceEnvironmentId && !args.sourceApiKey && !args.filename) {
+          if (!(args.sourceEnvironmentId || args.sourceApiKey || args.filename)) {
             return "You need to provide 'sourceEnvironmentId' with 'sourceApiKey' or 'filename' parameters.";
           }
           return true;
         }),
-    handler: args => migrateContentRunCli(args).catch(simplifyErrors),
+    handler: (args) => migrateContentRunCli(args).catch(simplifyErrors),
   });
 
-type MigrateContentRunCliParams =
-  & Readonly<{
-    targetEnvironmentId: string;
-    targetApiKey: string;
-    sourceEnvironmentId: string | undefined;
-    sourceApiKey: string | undefined;
-    sourceDeliveryPreviewKey: string | undefined;
-    filename: string | undefined;
-    language: string | undefined;
-    items: ReadonlyArray<string> | undefined;
-    last: number | undefined;
-    depth: number | undefined;
-    limit: number | undefined;
-    byTypesCodenames: ReadonlyArray<string> | undefined;
-    filter: string | undefined;
-    skipFailedItems: boolean | undefined;
-    skipConfirmation: boolean | undefined;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type MigrateContentRunCliParams = Readonly<{
+  targetEnvironmentId: string;
+  targetApiKey: string;
+  sourceEnvironmentId: string | undefined;
+  sourceApiKey: string | undefined;
+  sourceDeliveryPreviewKey: string | undefined;
+  filename: string | undefined;
+  language: string | undefined;
+  items: ReadonlyArray<string> | undefined;
+  last: number | undefined;
+  depth: number | undefined;
+  limit: number | undefined;
+  byTypesCodenames: ReadonlyArray<string> | undefined;
+  filter: string | undefined;
+  skipFailedItems: boolean | undefined;
+  skipConfirmation: boolean | undefined;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
 const migrateContentRunCli = async (params: MigrateContentRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
-  migrateContentRunInternal(resolvedParams, "migrate-content-run", async () => {
+  await migrateContentRunInternal(resolvedParams, "migrate-content-run", async () => {
     await checkConfirmation({
-      message:
-        `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. 
+      message: `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. 
 OK to proceed y/n? (suppress this message with --sw parameter)\n`,
       skipConfirmation: params.skipConfirmation,
       logOptions: params,
@@ -156,7 +157,14 @@ OK to proceed y/n? (suppress this message with --sw parameter)\n`,
 };
 
 const resolveParams = (params: MigrateContentRunCliParams): MigrateContentRunParams => {
-  const omitted = omit(params, ["sourceEnvironmentId", "sourceApiKey", "items", "filter", "last", "byTypesCodenames"]);
+  const omitted = omit(params, [
+    "sourceEnvironmentId",
+    "sourceApiKey",
+    "items",
+    "filter",
+    "last",
+    "byTypesCodenames",
+  ]);
 
   if (params.filename) {
     return { ...omitted, filename: params.filename };
@@ -165,15 +173,21 @@ const resolveParams = (params: MigrateContentRunCliParams): MigrateContentRunPar
   const filterParams = match(params)
     .with(
       { items: P.nonNullable, depth: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
-      ({ items, depth, sourceDeliveryPreviewKey }) => ({ ...omitted, items, depth, sourceDeliveryPreviewKey }),
+      ({ items, depth, sourceDeliveryPreviewKey }) => ({
+        ...omitted,
+        items,
+        depth,
+        sourceDeliveryPreviewKey,
+      }),
     )
-    .with(
-      { items: P.nonNullable },
-      ({ items }) => ({ ...omitted, items }),
-    )
+    .with({ items: P.nonNullable }, ({ items }) => ({ ...omitted, items }))
     .with(
       { byTypesCodenames: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },
-      ({ byTypesCodenames, sourceDeliveryPreviewKey }) => ({ ...omitted, byTypesCodenames, sourceDeliveryPreviewKey }),
+      ({ byTypesCodenames, sourceDeliveryPreviewKey }) => ({
+        ...omitted,
+        byTypesCodenames,
+        sourceDeliveryPreviewKey,
+      }),
     )
     .with(
       { filter: P.nonNullable, sourceDeliveryPreviewKey: P.nonNullable },

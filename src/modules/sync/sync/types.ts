@@ -1,9 +1,9 @@
-import { ContentTypeModels, ManagementClient } from "@kontent-ai/management-sdk";
+import type { ContentTypeModels, ManagementClient } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../../log.js";
+import { type LogOptions, logInfo } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
-import { DiffModel } from "../types/diffModel.js";
+import type { DiffModel } from "../types/diffModel.js";
 import { createUpdateReferencesOps, removeReferencesFromAddOp } from "./utils.js";
 
 export const addTypesWithoutReferences = async (
@@ -19,7 +19,7 @@ export const addTypesWithoutReferences = async (
   }
 
   logInfo(logOptions, "standard", "Adding content types");
-  await serially(addTypesWithoutReferences.map(t => () => addContentType(client, t)));
+  await serially(addTypesWithoutReferences.map((t) => () => addContentType(client, t)));
 };
 
 export const updateContentTypesAndAddReferences = async (
@@ -29,25 +29,27 @@ export const updateContentTypesAndAddReferences = async (
 ) => {
   const typesReplaceReferencesOps = typeOps.added.map(createUpdateReferencesOps);
 
-  if (!typesReplaceReferencesOps.length && !typeOps.updated.size) {
+  if (!(typesReplaceReferencesOps.length || typeOps.updated.size)) {
     logInfo(logOptions, "standard", "No content types to update");
     return;
   }
 
   logInfo(logOptions, "standard", "Updating content types and adding their references");
   await serially(
-    [...typeOps.updated.entries(), ...typesReplaceReferencesOps].map(([codename, operations]) => () =>
-      operations.length
-        ? updateContentType(
-          client,
-          codename,
-          operations.map(o =>
-            o.op === "replace" || o.op === "remove"
-              ? omit(o, ["oldValue"])
-              : o as unknown as ContentTypeModels.IModifyContentTypeData
-          ),
-        )
-        : Promise.resolve()
+    [...typeOps.updated.entries(), ...typesReplaceReferencesOps].map(
+      ([codename, operations]) =>
+        () =>
+          operations.length
+            ? updateContentType(
+                client,
+                codename,
+                operations.map((o) =>
+                  o.op === "replace" || o.op === "remove"
+                    ? omit(o, ["oldValue"])
+                    : (o as unknown as ContentTypeModels.IModifyContentTypeData),
+                ),
+              )
+            : Promise.resolve(),
     ),
   );
 };
@@ -59,7 +61,7 @@ export const deleteContentTypes = async (
 ) => {
   if (typeOps.deleted.size) {
     logInfo(logOptions, "standard", "Deleting content types");
-    await serially(Array.from(typeOps.deleted).map(c => () => deleteContentType(client, c)));
+    await serially(Array.from(typeOps.deleted).map((c) => () => deleteContentType(client, c)));
   } else {
     logInfo(logOptions, "standard", "No content types to delete");
   }
@@ -75,18 +77,7 @@ const updateContentType = (
   client: ManagementClient,
   codename: string,
   typeData: ContentTypeModels.IModifyContentTypeData[],
-) =>
-  client
-    .modifyContentType()
-    .byTypeCodename(codename)
-    .withData(typeData)
-    .toPromise();
+) => client.modifyContentType().byTypeCodename(codename).withData(typeData).toPromise();
 
-const deleteContentType = (
-  client: ManagementClient,
-  codename: string,
-) =>
-  client
-    .deleteContentType()
-    .byTypeCodename(codename)
-    .toPromise();
+const deleteContentType = (client: ManagementClient, codename: string) =>
+  client.deleteContentType().byTypeCodename(codename).toPromise();

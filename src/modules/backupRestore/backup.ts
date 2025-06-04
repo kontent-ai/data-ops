@@ -1,12 +1,12 @@
 import { finished } from "node:stream/promises";
 
-import { ManagementClient } from "@kontent-ai/management-sdk";
+import * as fs from "node:fs";
+import type { ManagementClient } from "@kontent-ai/management-sdk";
 import archiver from "archiver";
 import chalk from "chalk";
-import * as fs from "fs";
 
 import packageFile from "../../../package.json" with { type: "json" };
-import { logInfo, LogOptions } from "../../log.js";
+import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import { DateLevel, serializeDateForFileName } from "../../utils/files.js";
 import { serially } from "../../utils/requests.js";
@@ -16,21 +16,22 @@ import { collectionsEntity } from "./backupRestoreEntities/entities/collections.
 import { contentItemsEntity } from "./backupRestoreEntities/entities/contentItems.js";
 import { contentTypesEntity } from "./backupRestoreEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
-import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
 import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
+import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { rolesExportEntity } from "./backupRestoreEntities/entities/roles.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
-import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
 import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
+import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
 import { workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
-import { EntityBackupDefinition, EntityDefinition } from "./backupRestoreEntities/entityDefinition.js";
-import { IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
+import type {
+  AnyEntityBackupDefinition,
+  EntityDefinition,
+} from "./backupRestoreEntities/entityDefinition.js";
+import { type IncludeExclude, includeExcludePredicate } from "./utils/includeExclude.js";
 
-const {
-  version,
-} = packageFile;
+const { version } = packageFile;
 
 export const backupEntityDefinitions = [
   collectionsEntity,
@@ -48,22 +49,21 @@ export const backupEntityDefinitions = [
   assetsEntity,
   webhooksEntity,
   webSpotlightEntity,
-] as const satisfies ReadonlyArray<EntityBackupDefinition<any>>;
+] as const satisfies ReadonlyArray<AnyEntityBackupDefinition>;
 
-export const backupEntityChoices = backupEntityDefinitions.map(e => e.name);
+export const backupEntityChoices = backupEntityDefinitions.map((e) => e.name);
 
-export type BackupEntityChoices = typeof backupEntityChoices[number];
+export type BackupEntityChoices = (typeof backupEntityChoices)[number];
 
 export type BackupEnvironmentParams = Readonly<
-  & {
+  {
     environmentId: string;
     fileName?: string;
     apiKey: string;
     secureAssetDeliveryKey?: string;
     kontentUrl?: string;
-  }
-  & IncludeExclude<BackupEntityChoices>
-  & LogOptions
+  } & IncludeExclude<BackupEntityChoices> &
+    LogOptions
 >;
 
 export const backupEnvironment = async (params: BackupEnvironmentParams) => {
@@ -90,35 +90,39 @@ export const backupEnvironmentInternal = async (
   );
 
   const now = new Date();
-  const fileName = params.fileName
-    ?? `${serializeDateForFileName(now, DateLevel.Minute)}-backup-${params.environmentId}.zip`;
+  const fileName =
+    params.fileName ??
+    `${serializeDateForFileName(now, DateLevel.Minute)}-backup-${params.environmentId}.zip`;
 
   const outputStream = fs.createWriteStream(fileName);
   const archive = archiver("zip");
   archive.pipe(outputStream);
 
-  await serially(definitionsToBackup.map(def => async () => {
-    logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.displayName)}`);
+  await serially(
+    definitionsToBackup.map((def) => async () => {
+      logInfo(params, "standard", `Exporting: ${chalk.bold.yellow(def.displayName)}`);
 
-    try {
-      const entities = await def.fetchEntities(client);
-      await (def as EntityDefinition<unknown>).addOtherFiles?.(
-        entities,
-        archive,
-        params.secureAssetDeliveryKey,
-        params,
-      );
-      const result = def.serializeEntities(entities);
+      try {
+        const entities = await def.fetchEntities(client);
+        await (def as EntityDefinition<unknown>).addOtherFiles?.(
+          entities,
+          archive,
+          params.secureAssetDeliveryKey,
+          params,
+        );
+        const result = def.serializeEntities(entities);
 
-      archive.append(result, { name: `${def.name}.json` });
-    } catch (err) {
-      throw new Error(
-        `Failed to export an entity ${def.displayName} due to error ${
-          JSON.stringify(err, Object.getOwnPropertyNames(err))
-        }`,
-      );
-    }
-  }));
+        archive.append(result, { name: `${def.name}.json` });
+      } catch (err) {
+        throw new Error(
+          `Failed to export an entity ${def.displayName} due to error ${JSON.stringify(
+            err,
+            Object.getOwnPropertyNames(err),
+          )}`,
+        );
+      }
+    }),
+  );
 
   exportMetadata(archive, params.environmentId);
 
@@ -128,13 +132,13 @@ export const backupEnvironmentInternal = async (
   logInfo(
     params,
     "standard",
-    `\nEntities from environment ${chalk.yellow(params.environmentId)} were ${
-      chalk.green("successfully backed up")
-    } into ${chalk.blue(fileName)}.`,
+    `\nEntities from environment ${chalk.yellow(params.environmentId)} were ${chalk.green(
+      "successfully backed up",
+    )} into ${chalk.blue(fileName)}.`,
   );
 };
 
-const exportMetadata = async (archive: archiver.Archiver, environmentId: string) => {
+const exportMetadata = (archive: archiver.Archiver, environmentId: string) => {
   const metadata = {
     version: version,
     timestamp: new Date(),

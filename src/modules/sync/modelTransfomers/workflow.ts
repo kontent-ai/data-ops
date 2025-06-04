@@ -1,40 +1,45 @@
 import { throwError } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
-import { EnvironmentModel } from "../generateSyncModel.js";
-import { WorkflowSyncModel } from "../types/syncModel.js";
+import type { EnvironmentModel } from "../generateSyncModel.js";
+import type { WorkflowSyncModel } from "../types/syncModel.js";
 
 export const transformWorkflowModel = (
   environmentModel: EnvironmentModel,
 ): ReadonlyArray<WorkflowSyncModel> =>
-  environmentModel.workflows.map(workflow => ({
+  environmentModel.workflows.map((workflow) => ({
     ...omit(workflow, ["id", "scheduled_step"]),
-    steps: workflow.steps.map(step => ({
+    steps: workflow.steps.map((step) => ({
       ...omit(step, ["id"]),
-      transitions_to: step.transitions_to.map(t => ({
+      transitions_to: step.transitions_to.map((t) => ({
         step: {
           codename:
-            [...workflow.steps, workflow.published_step, workflow.archived_step].find(s => s.id === t.step.id)?.codename
-              ?? throwError(
-                `Cannot find workflow step { id: ${t.step.id} } for workflow { codename: ${workflow.codename} }.`,
-              ),
+            [...workflow.steps, workflow.published_step, workflow.archived_step].find(
+              (s) => s.id === t.step.id,
+            )?.codename ??
+            throwError(
+              `Cannot find workflow step { id: ${t.step.id} } for workflow { codename: ${workflow.codename} }.`,
+            ),
         },
       })),
       role_ids: [], // all role references must be empty as roles cannot be synced yet
     })),
-    scopes: workflow.scopes.map(scope => ({
+    scopes: workflow.scopes.map((scope) => ({
       content_types: scope.content_types
-        .filter(t => environmentModel.contentTypes.find(type => t.id === type.id))
-        .map(scopeType => ({
-          codename: environmentModel.contentTypes.find(type => type.id === scopeType.id)?.codename
-            ?? throwError(
+        .filter((t) => environmentModel.contentTypes.find((type) => t.id === type.id))
+        .map((scopeType) => ({
+          codename:
+            environmentModel.contentTypes.find((type) => type.id === scopeType.id)?.codename ??
+            throwError(
               `Cannot find content type { id: ${scopeType.id} } for the scope of workflow { codename: ${workflow.codename} }.`,
             ),
         })),
       collections: scope.collections
-        .filter(c => environmentModel.collections.find(collection => collection.id === c.id))
-        .map(scopeCollection => ({
-          codename: environmentModel.collections.find(collection => collection.id === scopeCollection.id)?.codename
-            ?? throwError(
+        .filter((c) => environmentModel.collections.find((collection) => collection.id === c.id))
+        .map((scopeCollection) => ({
+          codename:
+            environmentModel.collections.find((collection) => collection.id === scopeCollection.id)
+              ?.codename ??
+            throwError(
               `Cannot find collection { id: ${scopeCollection.id} } for the scope of workflow { codename: ${workflow.codename} }.`,
             ),
         })),

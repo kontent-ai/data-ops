@@ -1,23 +1,23 @@
-import { logError, LogOptions } from "../../../log.js";
+import { type LogOptions, logError } from "../../../log.js";
 import {
-  RestoreEntityChoices,
+  type RestoreEntityChoices,
+  type RestoreEnvironmentParams,
   restoreEntityChoices,
   restoreEnvironmentInternal,
-  RestoreEnvironmentParams,
 } from "../../../modules/backupRestore/restore.js";
 import { resolveIncludeExcludeCliParams } from "../../../modules/backupRestore/utils/includeExclude.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 
 const commandName = "restore";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "Restores data into the specified Kontent.ai project.",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("fileName", {
           type: "string",
@@ -34,7 +34,8 @@ export const register: RegisterCommand = yargs =>
         .option("apiKey", {
           type: "string",
           describe: "Kontent.ai Management API key",
-          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
+          demandOption:
+            "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
         .option("include", {
@@ -59,22 +60,21 @@ export const register: RegisterCommand = yargs =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: args => restoreEnvironmentCli(args).catch(simplifyErrors),
+    handler: (args) => restoreEnvironmentCli(args).catch(simplifyErrors),
   });
 
-type RestoreEnvironmentCliParams =
-  & Readonly<{
-    environmentId: string;
-    fileName: string;
-    apiKey: string;
-    include: ReadonlyArray<RestoreEntityChoices> | undefined;
-    exclude: ReadonlyArray<RestoreEntityChoices> | undefined;
-    excludeInactiveLanguages?: boolean;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type RestoreEnvironmentCliParams = Readonly<{
+  environmentId: string;
+  fileName: string;
+  apiKey: string;
+  include: ReadonlyArray<RestoreEntityChoices> | undefined;
+  exclude: ReadonlyArray<RestoreEntityChoices> | undefined;
+  excludeInactiveLanguages?: boolean;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
 const restoreEnvironmentCli = async (params: RestoreEnvironmentCliParams) => {
   const client = createClient({
@@ -87,7 +87,10 @@ const restoreEnvironmentCli = async (params: RestoreEnvironmentCliParams) => {
   try {
     await restoreEnvironmentInternal(client, resolveParams(params));
   } catch (e: unknown) {
-    logError(params, `${JSON.stringify(e, Object.getOwnPropertyNames(e))}\nStopping restoration...`);
+    logError(
+      params,
+      `${JSON.stringify(e, Object.getOwnPropertyNames(e))}\nStopping restoration...`,
+    );
     process.exit(1);
   }
 };

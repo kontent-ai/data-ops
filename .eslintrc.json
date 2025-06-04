@@ -1,33 +1,50 @@
 {
-  "extends": [
-    "@kontent-ai"
-  ],
-
-  "overrides": [
-    {
-      "files": ["src/**/*.ts"],
-      "excludedFiles": ["src/log.ts"],
-      "rules": {
-        "no-restricted-syntax": [
-          "error",
-          {
-            "selector": "MemberExpression[object.name='console'][property.name=/^(log|warn|error|info|trace)$/]",
-            "message": "Don't log into the console directly. Use one of the functions from the log.ts file (logInfo, logWarning, logError) to ensure provided --logLevel is respected."
-          }, 
-          {
-            "selector": "CallExpression[callee.name='createManagementClient']",
-            "message": "Use the createClient function from src/utils/client.ts instead."
-          },
-          {
-            "selector": "NewExpression[callee.name='ManagementClient']",
-            "message": "Use the createClient function from src/utils/client.ts instead."
-          }
-        ]
-      }
-    }
-  ],
-
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": ["tsconfig.json", "tsconfig.tests.jsonc", "tsconfig.configs.jsonc"]
+    "project": ["./tsconfig.json", "./tsconfig.tests.jsonc"],
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "sourceType": "module"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/eslint-recommended"],
+  "rules": {
+    "no-loop-func": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-loop-func": "error",
+    "@typescript-eslint/no-redundant-type-constituents": "error",
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
+    "@typescript-eslint/no-unnecessary-qualifier": "error",
+    "@typescript-eslint/no-unnecessary-condition": "error",
+    "@typescript-eslint/prefer-includes": "error",
+    "@typescript-eslint/prefer-return-this-type": "error",
+    "@typescript-eslint/prefer-string-starts-ends-with": "error",
+    "@typescript-eslint/prefer-for-of": "error",
+    "@typescript-eslint/prefer-function-type": "error",
+    "@typescript-eslint/prefer-optional-chain": "error",
+    "@typescript-eslint/prefer-reduce-type-parameter": "error",
+    "@typescript-eslint/prefer-ts-expect-error": "error",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "MemberExpression[object.name='console'][property.name=/^(log|warn|error|info|trace)$/]",
+        "message": "Don't log into the console directly. Use one of the functions from the log.ts file (logInfo, logWarning, logError) to ensure provided --logLevel is respected."
+      },
+      {
+        "selector": "CallExpression[callee.name='createManagementClient']",
+        "message": "Use the createClient function from src/utils/client.ts instead."
+      },
+      {
+        "selector": "NewExpression[callee.name='ManagementClient']",
+        "message": "Use the createClient function from src/utils/client.ts instead."
+      }
+    ]
   }
 }

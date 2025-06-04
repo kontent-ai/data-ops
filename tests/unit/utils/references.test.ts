@@ -4,10 +4,13 @@ import {
   simplifyContext,
   transformReferences,
 } from "../../../src/modules/backupRestore/backupRestoreEntities/entities/utils/reference.ts";
-import { RestoreContext } from "../../../src/modules/backupRestore/backupRestoreEntities/entityDefinition.ts";
+import type { RestoreContext } from "../../../src/modules/backupRestore/backupRestoreEntities/entityDefinition.ts";
 
 const emptyMap = new Map();
-const contextTemplate: Pick<RestoreContext, "collectionIdsByOldIds" | "contentTypeSnippetContextByOldIds"> = {
+const contextTemplate: Pick<
+  RestoreContext,
+  "collectionIdsByOldIds" | "contentTypeSnippetContextByOldIds"
+> = {
   collectionIdsByOldIds: new Map([["oldId", "newId"]]),
   contentTypeSnippetContextByOldIds: new Map([
     [

@@ -1,12 +1,16 @@
-import { WebSpotlightContracts } from "@kontent-ai/management-sdk";
+import type { WebSpotlightContracts } from "@kontent-ai/management-sdk";
 
 import { getRequired } from "../../utils/utils.js";
-import { EntityDefinition } from "../entityDefinition.js";
+import type { EntityDefinition } from "../entityDefinition.js";
 
 export const webSpotlightEntity = {
   name: "webSpotlight",
   displayName: "webSpotlight",
-  fetchEntities: client => client.checkWebSpotlightStatus().toPromise().then(res => res.rawData),
+  fetchEntities: (client) =>
+    client
+      .checkWebSpotlightStatus()
+      .toPromise()
+      .then((res) => res.rawData),
   serializeEntities: JSON.stringify,
   importEntities: async (client, { entities: fileWebSpotlight, context }) => {
     if (fileWebSpotlight.enabled) {
@@ -16,7 +20,10 @@ export const webSpotlightEntity = {
         "content type",
       ).selfId;
 
-      await client.activateWebSpotlight().withData({ root_type: { id: rootTypeId } }).toPromise();
+      await client
+        .activateWebSpotlight()
+        .withData({ root_type: { id: rootTypeId } })
+        .toPromise();
     } else {
       await client.deactivateWebSpotlight().toPromise();
     }
@@ -24,7 +31,7 @@ export const webSpotlightEntity = {
     return context;
   },
   deserializeEntities: JSON.parse,
-  cleanEntities: async client => {
+  cleanEntities: async (client) => {
     await client.deactivateWebSpotlight().toPromise();
   },
 } as const satisfies EntityDefinition<WebSpotlightContracts.IWebSpotlightStatus>;

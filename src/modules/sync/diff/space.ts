@@ -1,8 +1,8 @@
 import { zip } from "../../../utils/array.js";
-import { SpaceSyncModel } from "../types/syncModel.js";
+import type { SpaceSyncModel } from "../types/syncModel.js";
 import {
+  type Handler,
   baseHandler,
-  Handler,
   makeLeafObjectHandler,
   makeObjectHandler,
   makeWholeObjectsHandler,
@@ -13,7 +13,8 @@ export const spaceHandler: Handler<SpaceSyncModel> = makeObjectHandler({
   name: baseHandler,
   web_spotlight_root_item: optionalHandler(makeLeafObjectHandler({})),
   collections: (source, target) =>
-    source.length !== target.length || zip(source, target).some(([s, t]) => s.codename !== t.codename)
+    source.length !== target.length ||
+    zip(source, target).some(([s, t]) => s.codename !== t.codename)
       ? [{ op: "replace", path: "", value: source, oldValue: target }]
       : [],
 });

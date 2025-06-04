@@ -1,9 +1,9 @@
 import { describe, expect, it, vitest } from "vitest";
 
 import {
+  type Handler,
   baseHandler,
   constantHandler,
-  Handler,
   makeAdjustEntityHandler,
   makeAdjustOperationHandler,
   makeArrayHandler,
@@ -17,7 +17,7 @@ import {
   makeWholeObjectsHandler,
   optionalHandler,
 } from "../../../../src/modules/sync/diff/combinators.ts";
-import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
+import type { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
 
 describe("makeObjectHandler", () => {
   it("concatenates results of all property handlers and prepends property names to paths", () => {
@@ -60,7 +60,8 @@ describe("makeObjectHandler", () => {
     const result = makeObjectHandler<TestedType>({
       a: {
         contextfulHandler:
-          ({ source, target }) => (s, t) => [{ op: "replace", path: `/${s}/${t}`, value: source, oldValue: target }],
+          ({ source, target }) =>
+          (s, t) => [{ op: "replace", path: `/${s}/${t}`, value: source, oldValue: target }],
       },
       b: () => [],
     })(source, target);
@@ -90,9 +91,7 @@ describe("makeLeafObjectHandler", () => {
 
     const result = makeLeafObjectHandler<TestedType>({})(source, target);
 
-    expect(result).toStrictEqual([
-      { op: "replace", path: "", value: source, oldValue: target },
-    ]);
+    expect(result).toStrictEqual([{ op: "replace", path: "", value: source, oldValue: target }]);
   });
 
   it("Leverages provided comparers to compare properties", () => {
@@ -107,9 +106,7 @@ describe("makeLeafObjectHandler", () => {
       a: () => false,
     })(source, target);
 
-    expect(result).toStrictEqual([
-      { op: "replace", path: "", value: source, oldValue: target },
-    ]);
+    expect(result).toStrictEqual([{ op: "replace", path: "", value: source, oldValue: target }]);
   });
 
   it("Doesn't create any operations for the same objects", () => {
@@ -127,7 +124,7 @@ describe("makeLeafObjectHandler", () => {
     const source: TestedType = { a: "aaa" };
     const target: TestedType = { a: "bbb" };
 
-    const result = makeLeafObjectHandler<TestedType>({}, s => ({ ...s, b: 42 }))(source, target);
+    const result = makeLeafObjectHandler<TestedType>({}, (s) => ({ ...s, b: 42 }))(source, target);
 
     expect(result).toStrictEqual([
       { op: "replace", path: "", value: { a: "aaa", b: 42 }, oldValue: target },
@@ -141,19 +138,30 @@ describe("makeArrayHandler", () => {
     const source: ReadonlyArray<TestedElement> = [{ a: "first" }, { a: "second" }, { a: "third" }];
     const target: ReadonlyArray<TestedElement> = [{ a: "third" }, { a: "first" }, { a: "second" }];
 
-    const result = makeArrayHandler<TestedElement>(el => el.a, () => [])(source, target);
+    const result = makeArrayHandler<TestedElement>(
+      (el) => el.a,
+      () => [],
+    )(source, target);
 
     expect(result).toStrictEqual([]);
   });
 
   it("Creates update operations", () => {
     type TestedElement = Readonly<{ a: string; b: number }>;
-    const source: ReadonlyArray<TestedElement> = [{ a: "first", b: 42 }, { a: "second", b: 69 }, { a: "third", b: 32 }];
-    const target: ReadonlyArray<TestedElement> = [{ a: "second", b: 32 }, { a: "first", b: 42 }, { a: "third", b: 69 }];
+    const source: ReadonlyArray<TestedElement> = [
+      { a: "first", b: 42 },
+      { a: "second", b: 69 },
+      { a: "third", b: 32 },
+    ];
+    const target: ReadonlyArray<TestedElement> = [
+      { a: "second", b: 32 },
+      { a: "first", b: 42 },
+      { a: "third", b: 69 },
+    ];
 
     const result = makeArrayHandler<TestedElement>(
-      el => el.a,
-      (s, t) => s.b !== t.b ? [{ op: "replace", path: "/test", value: s, oldValue: t }] : [],
+      (el) => el.a,
+      (s, t) => (s.b !== t.b ? [{ op: "replace", path: "/test", value: s, oldValue: t }] : []),
     )(source, target);
 
     expect(result).toStrictEqual([
@@ -175,10 +183,14 @@ describe("makeArrayHandler", () => {
   it("Creates remove operations for removed elements", () => {
     type TestedElement = Readonly<{ a: string }>;
     const source: ReadonlyArray<TestedElement> = [{ a: "first" }, { a: "second" }];
-    const target: ReadonlyArray<TestedElement> = [{ a: "second" }, { a: "toDelete" }, { a: "first" }];
+    const target: ReadonlyArray<TestedElement> = [
+      { a: "second" },
+      { a: "toDelete" },
+      { a: "first" },
+    ];
 
     const result = makeArrayHandler<TestedElement>(
-      el => el.a,
+      (el) => el.a,
       () => [],
     )(source, target);
 
@@ -202,7 +214,7 @@ describe("makeArrayHandler", () => {
     const target: ReadonlyArray<TestedElement> = [{ a: "first" }, { a: "second" }];
 
     const result = makeArrayHandler<TestedElement>(
-      el => el.a,
+      (el) => el.a,
       () => [],
     )(source, target);
 
@@ -222,13 +234,17 @@ describe("makeArrayHandler", () => {
 
   it("Transforms values for addInto operations when the transformer is provided", () => {
     type TestedElement = Readonly<{ a: string; b: number }>;
-    const source: ReadonlyArray<TestedElement> = [{ a: "1", b: 1 }, { a: "2", b: 2 }];
+    const source: ReadonlyArray<TestedElement> = [
+      { a: "1", b: 1 },
+      { a: "2", b: 2 },
+    ];
     const target: ReadonlyArray<TestedElement> = [];
 
-    const result = makeArrayHandler<TestedElement>(el => el.a, () => [], el => ({ ...el, b: el.b * 2 }))(
-      source,
-      target,
-    );
+    const result = makeArrayHandler<TestedElement>(
+      (el) => el.a,
+      () => [],
+      (el) => ({ ...el, b: el.b * 2 }),
+    )(source, target);
 
     expect(result).toStrictEqual([
       {
@@ -248,13 +264,20 @@ describe("makeArrayHandler", () => {
 describe("makeBaseArrayHandler", () => {
   it("Create same ops as makeArrayHandler, but without the 'codename:' prefix", () => {
     type TestedElement = Readonly<{ a: string; b: number }>;
-    const source: ReadonlyArray<TestedElement> = [{ a: "1", b: 1 }, { a: "2", b: 2 }];
-    const target: ReadonlyArray<TestedElement> = [{ a: "1", b: 2 }, { a: "3", b: 2 }];
+    const source: ReadonlyArray<TestedElement> = [
+      { a: "1", b: 1 },
+      { a: "2", b: 2 },
+    ];
+    const target: ReadonlyArray<TestedElement> = [
+      { a: "1", b: 2 },
+      { a: "3", b: 2 },
+    ];
 
     const result = makeBaseArrayHandler<TestedElement>(
-      e => e.a,
-      (e1, e2) => e1.b === e2.b ? [] : [{ op: "replace", path: "/b", value: e1.b, oldValue: e2.b }],
-      el => ({ ...el, b: 666 }),
+      (e) => e.a,
+      (e1, e2) =>
+        e1.b === e2.b ? [] : [{ op: "replace", path: "/b", value: e1.b, oldValue: e2.b }],
+      (el) => ({ ...el, b: 666 }),
     )(source, target);
 
     expect(result).toStrictEqual([
@@ -275,7 +298,7 @@ describe("makeAdjustOperationHandler", () => {
     ];
 
     const result = makeAdjustOperationHandler<string>(
-      (ops) => ops.map(op => ({ ...op, path: "/newTest" })),
+      (ops) => ops.map((op) => ({ ...op, path: "/newTest" })),
       handler,
     )(source, target);
 
@@ -287,12 +310,14 @@ describe("makeAdjustOperationHandler", () => {
 
 describe("makeAdjustEntityHandler", () => {
   it("Adjusts entities and pass them to the handler", () => {
-    const adjustEntity = (entity: number) => entity.toString() + " adjusted";
+    const adjustEntity = (entity: number) => `${entity.toString()} adjusted`;
     const handler: Handler<string> = (s, t) => [{ op: "replace", path: "", value: s, oldValue: t }];
 
     const result = makeAdjustEntityHandler<number, string>(adjustEntity, handler)(42, 69);
 
-    expect(result).toStrictEqual([{ op: "replace", path: "", value: "42 adjusted", oldValue: "69 adjusted" }]);
+    expect(result).toStrictEqual([
+      { op: "replace", path: "", value: "42 adjusted", oldValue: "69 adjusted" },
+    ]);
   });
 });
 
@@ -322,7 +347,10 @@ describe("makeOrderingHandler", () => {
     const source = ["a", "b", "c"];
     const target = ["a", "b", "c"];
 
-    const result = makeOrderingHandler<string>(() => [], entity => entity)(source, target);
+    const result = makeOrderingHandler<string>(
+      () => [],
+      (entity) => entity,
+    )(source, target);
 
     expect(result).toStrictEqual([]);
   });
@@ -331,7 +359,10 @@ describe("makeOrderingHandler", () => {
     const source = ["a", "b", "c"];
     const target = ["b", "a", "c"];
 
-    const result = makeOrderingHandler<string>(() => [], entity => entity)(source, target);
+    const result = makeOrderingHandler<string>(
+      () => [],
+      (entity) => entity,
+    )(source, target);
 
     expect(result).toStrictEqual([createMoveOp("b", "a"), createMoveOp("c", "b")]);
   });
@@ -354,12 +385,13 @@ describe("makeOrderingHandler", () => {
       { codename: "c", content_group: "2" },
     ];
 
-    const result = makeOrderingHandler<TestType>(() => [], entity => entity.codename, {
-      groupBy: entity => entity.content_group,
-    })(
-      source,
-      target,
-    );
+    const result = makeOrderingHandler<TestType>(
+      () => [],
+      (entity) => entity.codename,
+      {
+        groupBy: (entity) => entity.content_group,
+      },
+    )(source, target);
 
     expect(result).toStrictEqual([createMoveOp("b", "a"), createMoveOp("d", "c")]);
   });
@@ -376,12 +408,13 @@ describe("makeOrderingHandler", () => {
       { codename: "c", content_group: "2" },
     ];
 
-    const result = makeOrderingHandler<TestType>(() => [], entity => entity.codename, {
-      groupBy: entity => entity.content_group,
-    })(
-      source,
-      target,
-    );
+    const result = makeOrderingHandler<TestType>(
+      () => [],
+      (entity) => entity.codename,
+      {
+        groupBy: (entity) => entity.content_group,
+      },
+    )(source, target);
 
     expect(result).toStrictEqual([]);
   });
@@ -394,7 +427,7 @@ describe("makeOrderingHandler", () => {
 
     const result = makeOrderingHandler<string>(
       () => [removeOp],
-      x => x,
+      (x) => x,
     )(source, target);
 
     expect(result).toStrictEqual([removeOp]);
@@ -408,7 +441,7 @@ describe("makeOrderingHandler", () => {
 
     const result = makeOrderingHandler<string>(
       () => [removeOp],
-      x => x,
+      (x) => x,
     )(source, target);
 
     expect(result).toStrictEqual([removeOp, createMoveOp("b", "a")]);
@@ -418,24 +451,24 @@ describe("makeOrderingHandler", () => {
     const source = ["a", "b", "c"];
     const target = ["c", "b"];
 
-    const result = makeOrderingHandler<string>(() => [], el => el, { filter: el => el !== "a" })(
-      source,
-      target,
-    );
+    const result = makeOrderingHandler<string>(
+      () => [],
+      (el) => el,
+      { filter: (el) => el !== "a" },
+    )(source, target);
 
-    expect(result).toStrictEqual([
-      createMoveOp("c", "b"),
-    ]);
+    expect(result).toStrictEqual([createMoveOp("c", "b")]);
   });
 
   it("should return empty array when there is only one entity after filtering", () => {
     const source = ["a", "b", "c"];
     const target = ["c", "b"];
 
-    const result = makeOrderingHandler<string>(() => [], el => el, { filter: el => el === "b" })(
-      source,
-      target,
-    );
+    const result = makeOrderingHandler<string>(
+      () => [],
+      (el) => el,
+      { filter: (el) => el === "b" },
+    )(source, target);
 
     expect(result).toStrictEqual([]);
   });
@@ -505,7 +538,14 @@ describe("baseHandler", () => {
 
 describe("constantHandler", () => {
   it("Returns an empty array for any values", () => {
-    const entries: [unknown, unknown][] = [[4, 4], [4, 2], ["r", "g"], [3, "j"], [{ a: 8 }, { b: "f" }], [[], [9]]];
+    const entries: [unknown, unknown][] = [
+      [4, 4],
+      [4, 2],
+      ["r", "g"],
+      [3, "j"],
+      [{ a: 8 }, { b: "f" }],
+      [[], [9]],
+    ];
 
     const result = entries.flatMap(([s, t]) => constantHandler(s, t));
 
@@ -542,10 +582,7 @@ describe("makeUnionHandler", () => {
     const result = makeUnionHandler<"a", TestedType>("a", {
       num: () => [{ op: "remove", path: "here", oldValue: "test" }],
       str: () => [{ op: "addInto", path: "notHere", value: "notThis" }],
-    })(
-      source,
-      target,
-    );
+    })(source, target);
 
     expect(result).toStrictEqual([
       {
@@ -566,7 +603,11 @@ describe("makePrefixHandler", () => {
       { op: "replace", path: "/replacePath/prop", value: 77, oldValue: 33 },
     ];
 
-    const result = makePrefixHandler("test:", () => true, () => ops)(42, 44);
+    const result = makePrefixHandler(
+      "test:",
+      () => true,
+      () => ops,
+    )(42, 44);
 
     expect(result).toStrictEqual([
       { op: "remove", path: "/test:somePath", oldValue: 666 },
@@ -582,7 +623,11 @@ describe("makePrefixHandler", () => {
       { op: "addInto", path: "/addPath", value: 99 },
     ];
 
-    const result = makePrefixHandler("test:", op => op.path !== "/toDelete", () => ops)(42, 44);
+    const result = makePrefixHandler(
+      "test:",
+      (op) => op.path !== "/toDelete",
+      () => ops,
+    )(42, 44);
 
     expect(result).toStrictEqual([
       { op: "remove", path: "/toDelete", oldValue: 666 },
@@ -601,7 +646,9 @@ describe("makeWholeObjectsHandler", () => {
 
     const result = makeWholeObjectsHandler<Obj>()(source, target);
 
-    expect(result).toStrictEqual([{ op: "replace", path: "/codename:test", value: source[0], oldValue: target[0] }]);
+    expect(result).toStrictEqual([
+      { op: "replace", path: "/codename:test", value: source[0], oldValue: target[0] },
+    ]);
   });
 
   it("Adds objects with no matching codename in target and removes those with no matching codename in source", () => {

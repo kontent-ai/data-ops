@@ -1,8 +1,12 @@
-import { PatchOperation } from "../types/patchOperation.js";
-import { ContentTypeSnippetsSyncModel, isSyncCustomElement, SyncGuidelinesElement } from "../types/syncModel.js";
+import type { PatchOperation } from "../types/patchOperation.js";
 import {
+  type ContentTypeSnippetsSyncModel,
+  type SyncGuidelinesElement,
+  isSyncCustomElement,
+} from "../types/syncModel.js";
+import {
+  type Handler,
   baseHandler,
-  Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
   makeObjectHandler,
@@ -44,10 +48,10 @@ export const makeContentTypeSnippetHandler = (
         };
 
         return makeAdjustOperationHandler(
-          ops => ops.toSorted(snippetOperationsComparator),
+          (ops) => ops.toSorted(snippetOperationsComparator),
           makeOrderingHandler(
             makeArrayHandler(
-              el => el.codename,
+              (el) => el.codename,
               makeUnionHandler("type", {
                 number: makeNumberElementHandler(ctx),
                 text: makeTextElementHandler(ctx),
@@ -60,15 +64,18 @@ export const makeContentTypeSnippetHandler = (
                 modular_content: makeLinkedItemsElementHandler(ctx),
                 multiple_choice: makeMultiChoiceElementHandler(ctx),
               }),
-              el =>
+              (el) =>
                 el.type === "guidelines"
-                  ? transformGuidelinesElementToAddModel({
-                    targetItemsReferencedFromSourceByCodenames: params.targetItemsByCodenames,
-                    targetAssetsReferencedFromSourceByCodenames: params.targetAssetsByCodenames,
-                  }, el) as SyncGuidelinesElement
+                  ? (transformGuidelinesElementToAddModel(
+                      {
+                        targetItemsReferencedFromSourceByCodenames: params.targetItemsByCodenames,
+                        targetAssetsReferencedFromSourceByCodenames: params.targetAssetsByCodenames,
+                      },
+                      el,
+                    ) as SyncGuidelinesElement)
                   : el,
             ),
-            e => e.codename,
+            (e) => e.codename,
           ),
         );
       },

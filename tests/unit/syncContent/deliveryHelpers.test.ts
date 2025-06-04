@@ -1,4 +1,10 @@
-import { Filters, IContentItem, IContentItemElements, Parameters, Responses } from "@kontent-ai/delivery-sdk";
+import {
+  Filters,
+  type IContentItem,
+  type IContentItemElements,
+  Parameters,
+  type Responses,
+} from "@kontent-ai/delivery-sdk";
 import { describe, expect, it } from "vitest";
 
 import {

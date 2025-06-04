@@ -1,4 +1,4 @@
-import { logError, LogOptions } from "../../../log.js";
+import { type LogOptions, logError } from "../../../log.js";
 
 type Err = { err: unknown };
 
@@ -11,7 +11,9 @@ export const handleErr = <T>(entity: WithErr<T>, logOptions: LogOptions, message
       `${message ?? ""}${entity.err instanceof Error ? entity.err.message : JSON.stringify(entity.err)}`,
     );
 
-    throw new Error(`${message ?? ""}${JSON.stringify(entity.err, Object.getOwnPropertyNames(entity.err))}`);
+    throw new Error(
+      `${message ?? ""}${JSON.stringify(entity.err, Object.getOwnPropertyNames(entity.err))}`,
+    );
   }
 
   return entity.value;

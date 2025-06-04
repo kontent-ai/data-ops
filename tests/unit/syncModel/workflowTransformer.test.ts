@@ -1,7 +1,11 @@
-import { CollectionContracts, ContentTypeContracts, WorkflowContracts } from "@kontent-ai/management-sdk";
+import type {
+  CollectionContracts,
+  ContentTypeContracts,
+  WorkflowContracts,
+} from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
-import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
+import type { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
 import { transformWorkflowModel } from "../../../src/modules/sync/modelTransfomers/workflow.ts";
 
 describe("transformWorkflowModel", () => {
@@ -53,21 +57,15 @@ describe("transformWorkflowModel", () => {
                 },
               },
             ],
-            role_ids: [
-              "e25d74b8-f81a-4faf-94b9-b0bf2b3802c6",
-            ],
+            role_ids: ["e25d74b8-f81a-4faf-94b9-b0bf2b3802c6"],
           },
         ],
         published_step: {
           id: "c199950d-99f0-4983-b711-6c4c91624b22",
           name: "Published",
           codename: "published",
-          unpublish_role_ids: [
-            "e25d74b8-f81a-4faf-94b9-b0bf2b3802c6",
-          ],
-          create_new_version_role_ids: [
-            "e25d74b8-f81a-4faf-94b9-b0bf2b3802c6",
-          ],
+          unpublish_role_ids: ["e25d74b8-f81a-4faf-94b9-b0bf2b3802c6"],
+          create_new_version_role_ids: ["e25d74b8-f81a-4faf-94b9-b0bf2b3802c6"],
         },
         scheduled_step: {
           id: "9d2b0228-4d0d-4c23-8b49-01a698857709",
@@ -80,18 +78,18 @@ describe("transformWorkflowModel", () => {
           id: "7a535a69-ad34-47f8-806a-def1fdf4d391",
           name: "Archived",
           codename: "archived",
-          role_ids: [
-            "e25d74b8-f81a-4faf-94b9-b0bf2b3802c6",
-          ],
+          role_ids: ["e25d74b8-f81a-4faf-94b9-b0bf2b3802c6"],
         },
       },
     ] as const satisfies ReadonlyArray<WorkflowContracts.IWorkflowContract>;
 
-    const collections = [{
-      id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc",
-      name: "collection",
-      codename: "collection",
-    }] as const satisfies ReadonlyArray<CollectionContracts.ICollectionContract>;
+    const collections = [
+      {
+        id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc",
+        name: "collection",
+        codename: "collection",
+      },
+    ] as const satisfies ReadonlyArray<CollectionContracts.ICollectionContract>;
 
     const environmentModel: EnvironmentModel = {
       spaces: [],
