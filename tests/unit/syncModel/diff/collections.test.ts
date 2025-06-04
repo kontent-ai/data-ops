@@ -68,13 +68,15 @@ describe("collectionHandler", () => {
 
     const patchOperations = collectionsHandler(source, target);
 
-    expect(patchOperations).toStrictEqual([{
-      op: "move",
-      path: "/codename:collection_2",
-      after: {
-        codename: "collection_1",
+    expect(patchOperations).toStrictEqual([
+      {
+        op: "move",
+        path: "/codename:collection_2",
+        after: {
+          codename: "collection_1",
+        },
       },
-    }]);
+    ]);
   });
 
   it("returns operation to replace name", () => {

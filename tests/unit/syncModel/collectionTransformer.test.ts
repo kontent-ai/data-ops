@@ -1,4 +1,4 @@
-import { CollectionContracts } from "@kontent-ai/management-sdk";
+import type { CollectionContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
 import { transformCollectionsModel } from "../../../src/modules/sync/modelTransfomers/collections.js";

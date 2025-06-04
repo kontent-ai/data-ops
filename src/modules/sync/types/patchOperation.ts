@@ -1,6 +1,6 @@
-import { ContentTypeElements, SharedModels } from "@kontent-ai/management-sdk";
+import type { ContentTypeElements, SharedModels } from "@kontent-ai/management-sdk";
 
-import { Replace } from "../../../utils/types.js";
+import type { Replace } from "../../../utils/types.js";
 
 export type AddIntoPatchOperation = Readonly<{
   op: "addInto";
@@ -23,15 +23,16 @@ export type ReplacePatchOperation = Readonly<{
   oldValue: unknown;
 }>;
 
-export type MovePatchOperation =
-  & Readonly<{
-    op: "move";
-    path: string;
-  }>
-  & Readonly<
-    ({ before: { readonly codename: string } } | { after: { readonly codename: string } } | {
-      under: { readonly codename: string };
-    })
+export type MovePatchOperation = Readonly<{
+  op: "move";
+  path: string;
+}> &
+  Readonly<
+    | { before: { readonly codename: string } }
+    | { after: { readonly codename: string } }
+    | {
+        under: { readonly codename: string };
+      }
   >;
 
 export type PatchOperation =
@@ -58,7 +59,13 @@ export type ExternalIdReference = { external_id: string };
 
 export type DefaultElementValue = {
   global: {
-    value: string | number | ObjectReference | ObjectReference[] | ExternalIdReference | ExternalIdReference[];
+    value:
+      | string
+      | number
+      | ObjectReference
+      | ObjectReference[]
+      | ExternalIdReference
+      | ExternalIdReference[];
   };
 };
 

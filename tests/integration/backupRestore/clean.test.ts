@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { cleanEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
-import { CommandError, runCommand } from "../utils/runCommand.ts";
+import { type CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 import { expectSameEnvironments } from "./utils/compare.ts";
 import {
@@ -54,8 +54,7 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
-      const command =
-        `environment clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
+      const command = `environment clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
 
       await runCommand(command);
 
@@ -85,7 +84,11 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans only entities not specified in the exclude parameter.",
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
-      await cleanEnvironment({ environmentId, apiKey: API_KEY, exclude: ["languages", "collections"] });
+      await cleanEnvironment({
+        environmentId,
+        apiKey: API_KEY,
+        exclude: ["languages", "collections"],
+      });
 
       await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
         include: ["languages", "collections"],
@@ -108,7 +111,7 @@ describe("clean command", () => {
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `environment clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
 
-      const result = await runCommand(command).catch(err => err as CommandError);
+      const result = await runCommand(command).catch((err) => err as CommandError);
 
       expect(result.stdout).toBe("");
       expect(result.stderr).toContain("is still used and cannot be deleted.");
@@ -116,9 +119,10 @@ describe("clean command", () => {
   });
 
   it.concurrent("Errors with help when both include and exclude are provided", async () => {
-    const command = "environment clean --include collections contentTypes --exclude contentTypes -e test -k test -s";
+    const command =
+      "environment clean --include collections contentTypes --exclude contentTypes -e test -k test -s";
 
-    const result = await runCommand(command).catch(err => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
     expect(result.stdout).toBe("");
     await expectHelpText(result.stderr, "environment clean");
@@ -128,22 +132,22 @@ describe("clean command", () => {
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
     const command = "environment clean --include collections invalidEntity -k test -e test -s";
 
-    const result = await runCommand(command).catch(err => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
     expect(result.stdout).toBe("");
     await expectHelpText(result.stderr, "environment clean");
     expect(result.stderr).toContain("Invalid values");
-    expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
+    expect(result.stderr).toContain('include, Given: "invalidEntity", Choices: ');
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
     const command = "environment clean --exclude collections invalidEntity -k test -e test -s";
 
-    const result = await runCommand(command).catch(err => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
     expect(result.stdout).toBe("");
     await expectHelpText(result.stderr, "environment clean");
     expect(result.stderr).toContain("Invalid values");
-    expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
+    expect(result.stderr).toContain('exclude, Given: "invalidEntity", Choices: ');
   });
 });

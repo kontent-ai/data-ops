@@ -28,7 +28,9 @@ describe("request utils", () => {
 
   describe("seriallyReduce", () => {
     it("Runs all fetchers serially in the order they were provided", async () => {
-      const fetchers: ReadonlyArray<(prev: ReadonlyArray<number>) => Promise<ReadonlyArray<number>>> = [
+      const fetchers: ReadonlyArray<
+        (prev: ReadonlyArray<number>) => Promise<ReadonlyArray<number>>
+      > = [
         (prev) => delay(100).then(() => [...prev, 1]),
         (prev) => delay(20).then(() => [...prev, 2]),
         (prev) => delay(0).then(() => [...prev, 3]),
@@ -48,6 +50,6 @@ describe("request utils", () => {
   });
 });
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getCurrentTime = () => performance.now();

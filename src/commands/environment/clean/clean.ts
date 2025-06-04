@@ -1,13 +1,13 @@
-import { logError, LogOptions } from "../../../log.js";
+import { type LogOptions, logError } from "../../../log.js";
 import {
-  CleanEntityChoices,
+  type CleanEntityChoices,
+  type CleanEnvironmentParams,
   cleanEntityChoices,
   cleanEnvironmentInternal,
-  CleanEnvironmentParams,
 } from "../../../modules/backupRestore/clean.js";
 import { resolveIncludeExcludeCliParams } from "../../../modules/backupRestore/utils/includeExclude.js";
 import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
@@ -29,7 +29,8 @@ export const register: RegisterCommand = (yargs) =>
         .option("apiKey", {
           type: "string",
           describe: "Kontent.ai Management API key",
-          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
+          demandOption:
+            "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
         .option("include", {
@@ -53,28 +54,24 @@ export const register: RegisterCommand = (yargs) =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
     handler: (args) => cleanEnvironmentCli(args).catch(simplifyErrors),
   });
 
-type CleanEnvironmentCliParams =
-  & Readonly<{
-    environmentId: string;
-    apiKey: string;
-    include: ReadonlyArray<CleanEntityChoices> | undefined;
-    exclude: ReadonlyArray<CleanEntityChoices> | undefined;
-    skipWarning: boolean | undefined;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type CleanEnvironmentCliParams = Readonly<{
+  environmentId: string;
+  apiKey: string;
+  include: ReadonlyArray<CleanEntityChoices> | undefined;
+  exclude: ReadonlyArray<CleanEntityChoices> | undefined;
+  skipWarning: boolean | undefined;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
-const cleanEnvironmentCli = async (
-  params: CleanEnvironmentCliParams,
-): Promise<void> => {
+const cleanEnvironmentCli = async (params: CleanEnvironmentCliParams): Promise<void> => {
   await checkConfirmation({
-    message:
-      `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
+    message: `⚠ Running this operation may result in irreversible changes to the content in environment ${params.environmentId}.\n\nOK to proceed y/n? (suppress this message with -s parameter)\n`,
     skipConfirmation: params.skipWarning,
     logOptions: params,
   });
@@ -93,14 +90,8 @@ const cleanEnvironmentCli = async (
   }
 };
 
-const handleError = (
-  logOptions: LogOptions,
-  err: unknown,
-) => {
-  logError(
-    logOptions,
-    `${err}\nStopping clean operation...`,
-  );
+const handleError = (logOptions: LogOptions, err: unknown) => {
+  logError(logOptions, `${err}\nStopping clean operation...`);
 
   process.exit(1);
 };

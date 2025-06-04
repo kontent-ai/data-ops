@@ -1,7 +1,11 @@
-import { ContentTypeModels, ContentTypeSnippetModels, TaxonomyModels } from "@kontent-ai/management-sdk";
+import type {
+  ContentTypeModels,
+  ContentTypeSnippetModels,
+  TaxonomyModels,
+} from "@kontent-ai/management-sdk";
 import { z } from "zod";
 
-import {
+import type {
   CountLimitation,
   DefaultElementValue,
   DependsOn,
@@ -13,7 +17,8 @@ import {
 
 export const notNull = <T>(arg: T | null): arg is T => arg !== null;
 
-export const notNullOrUndefined = <T>(arg: T | undefined | null): arg is T => arg !== undefined && arg !== null;
+export const notNullOrUndefined = <T>(arg: T | undefined | null): arg is T =>
+  arg !== undefined && arg !== null;
 
 const elementTypesEnum = z.enum([
   "text",
@@ -49,14 +54,17 @@ const baseTypeSchema = z.object({
   codename: z.string().optional(),
 });
 
-const snippetSchema: z.ZodType<ContentTypeSnippetModels.IAddContentTypeSnippetData> = baseTypeSchema;
+const snippetSchema: z.ZodType<ContentTypeSnippetModels.IAddContentTypeSnippetData> =
+  baseTypeSchema;
 
 const contentTypeSchema: z.ZodType<ContentTypeModels.IAddContentTypeData> = baseTypeSchema.extend({
-  content_groups: z.object({
-    name: z.string(),
-    codename: z.string().optional(),
-    external_id: z.string().optional(),
-  }).array(),
+  content_groups: z
+    .object({
+      name: z.string(),
+      codename: z.string().optional(),
+      external_id: z.string().optional(),
+    })
+    .array(),
 });
 
 const objectReferenceSchema: z.ZodType<ObjectReference> = z.object({
@@ -75,16 +83,21 @@ export const isAddTaxonomyData = (obj: unknown): obj is TaxonomyModels.IAddTaxon
 export const isAddContentTypeData = (obj: unknown): obj is ContentTypeModels.IAddContentTypeData =>
   contentTypeSchema.safeParse(obj).success;
 
-export const isAddContentTypeSnippetData = (obj: unknown): obj is ContentTypeSnippetModels.IAddContentTypeSnippetData =>
+export const isAddContentTypeSnippetData = (
+  obj: unknown,
+): obj is ContentTypeSnippetModels.IAddContentTypeSnippetData =>
   snippetSchema.safeParse(obj).success;
 
 export const isCountLimitation = (obj: unknown): obj is CountLimitation =>
-  z.object({
-    value: z.number(),
-    condition: z.enum(["at_most", "exactly", "at_least"]),
-  }).safeParse(obj).success;
+  z
+    .object({
+      value: z.number(),
+      condition: z.enum(["at_most", "exactly", "at_least"]),
+    })
+    .safeParse(obj).success;
 
-export const isObjectReference = (obj: unknown): obj is ObjectReference => objectReferenceSchema.safeParse(obj).success;
+export const isObjectReference = (obj: unknown): obj is ObjectReference =>
+  objectReferenceSchema.safeParse(obj).success;
 
 export const isObjectReferenceArray = (obj: unknown): obj is ObjectReference[] =>
   objectReferenceSchema.array().safeParse(obj).success;
@@ -96,35 +109,43 @@ export const isExternalIdReferenceArray = (obj: unknown): obj is ExternalIdRefer
   externalIdReferenceSchema.array().safeParse(obj).success;
 
 export const isDependsOn = (obj: unknown): obj is DependsOn =>
-  z.object({
-    element: objectReferenceSchema,
-    snippet: objectReferenceSchema.optional(),
-  }).safeParse(obj).success;
+  z
+    .object({
+      element: objectReferenceSchema,
+      snippet: objectReferenceSchema.optional(),
+    })
+    .safeParse(obj).success;
 
 export const isDefaultElementValue = (obj: unknown): obj is DefaultElementValue =>
-  z.object({
-    global: z.object({
-      value: z.union([
-        z.string(),
-        z.number(),
-        objectReferenceSchema,
-        objectReferenceSchema.array(),
-        externalIdReferenceSchema,
-        externalIdReferenceSchema.array(),
-      ]),
-    }),
-  }).safeParse(obj).success;
+  z
+    .object({
+      global: z.object({
+        value: z.union([
+          z.string(),
+          z.number(),
+          objectReferenceSchema,
+          objectReferenceSchema.array(),
+          externalIdReferenceSchema,
+          externalIdReferenceSchema.array(),
+        ]),
+      }),
+    })
+    .safeParse(obj).success;
 
 export const isMaximumTextLength = (obj: unknown): obj is MaximumTextLength =>
-  z.object({
-    value: z.number(),
-    applies_to: z.enum(["words", "characters"]),
-  }).safeParse(obj).success;
+  z
+    .object({
+      value: z.number(),
+      applies_to: z.enum(["words", "characters"]),
+    })
+    .safeParse(obj).success;
 
 export const isValidationRegex = (obj: unknown): obj is ValidationRegex =>
-  z.object({
-    is_active: z.boolean(),
-    regex: z.string(),
-    flags: z.string().optional().nullable(),
-    validation_message: z.string().optional(),
-  }).safeParse(obj).success;
+  z
+    .object({
+      is_active: z.boolean(),
+      regex: z.string(),
+      flags: z.string().optional().nullable(),
+      validation_message: z.string().optional(),
+    })
+    .safeParse(obj).success;

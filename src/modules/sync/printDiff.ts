@@ -1,15 +1,20 @@
+import { existsSync } from "node:fs";
+import { dirname } from "node:path";
 import chalk from "chalk";
-import { existsSync } from "fs";
-import { dirname } from "path";
 import { match } from "ts-pattern";
 
-import { logInfo, LogOptions } from "../../log.js";
-import { SyncEntityName } from "./constants/entities.js";
-import { DiffModel, DiffObject } from "./types/diffModel.js";
-import { PatchOperation } from "./types/patchOperation.js";
+import { type LogOptions, logInfo } from "../../log.js";
+import type { SyncEntityName } from "./constants/entities.js";
+import type { DiffModel, DiffObject } from "./types/diffModel.js";
+import type { PatchOperation } from "./types/patchOperation.js";
 import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
-import { createOutputDirectory, createOutputFile, openOutputFile, resolveOutputPath } from "./utils/fileUtils.js";
-import { DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
+import {
+  createOutputDirectory,
+  createOutputFile,
+  openOutputFile,
+  resolveOutputPath,
+} from "./utils/fileUtils.js";
+import { type DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
 export const printDiff = (
   diffModel: DiffModel,
@@ -34,7 +39,7 @@ export const printDiff = (
   if (entities.has("assetFolders")) {
     logInfo(logOptions, "standard", chalk.blue.bold("\nASSET FOLDERS:"));
     if (diffModel.assetFolders.length) {
-      diffModel.assetFolders.forEach(op => printPatchOperation(op, logOptions));
+      diffModel.assetFolders.forEach((op) => printPatchOperation(op, logOptions));
     } else {
       logInfo(logOptions, "standard", "No asset folders to update.");
     }
@@ -43,7 +48,7 @@ export const printDiff = (
   if (entities.has("collections")) {
     logInfo(logOptions, "standard", chalk.blue.bold("\nCOLLECTIONS:"));
     if (diffModel.collections.length) {
-      diffModel.collections.forEach(op => printPatchOperation(op, logOptions));
+      diffModel.collections.forEach((op) => printPatchOperation(op, logOptions));
     } else {
       logInfo(logOptions, "standard", "No collections to update.");
     }
@@ -71,11 +76,13 @@ export const printDiff = (
       const messsage = match(diffModel.webSpotlight)
         .with(
           { change: "activate" },
-          ({ rootTypeCodename }) => `Web Spotlight is to be activated with root type: ${chalk.green(rootTypeCodename)}`,
+          ({ rootTypeCodename }) =>
+            `Web Spotlight is to be activated with root type: ${chalk.green(rootTypeCodename)}`,
         )
         .with(
           { change: "changeRootType" },
-          ({ rootTypeCodename }) => `Web Spotlight root type is changed to: ${chalk.green(rootTypeCodename)}`,
+          ({ rootTypeCodename }) =>
+            `Web Spotlight root type is changed to: ${chalk.green(rootTypeCodename)}`,
         )
         .with({ change: "deactivate" }, () => "Web Spotlight is to be deactivated")
         .exhaustive();
@@ -87,26 +94,34 @@ export const printDiff = (
 
 const printDiffEntity = (
   diffObject: DiffObject<unknown>,
-  entityName: "content types" | "content type snippets" | "taxonomy groups" | "spaces" | "languages" | "workflows",
+  entityName:
+    | "content types"
+    | "content type snippets"
+    | "taxonomy groups"
+    | "spaces"
+    | "languages"
+    | "workflows",
   logOptions: LogOptions,
 ) => {
   if (diffObject.added.length) {
     logInfo(logOptions, "standard", `${chalk.blue(entityName)} to add:`);
-    diffObject.added.forEach(a => {
+    diffObject.added.forEach((a) => {
       logInfo(logOptions, "standard", `${chalk.green(JSON.stringify(a, null, 2))}\n`);
     });
   } else {
     logInfo(logOptions, "standard", `No ${chalk.blue(entityName)} to add.`);
   }
 
-  if (Array.from(diffObject.updated.values()).some(o => o.length)) {
+  if (Array.from(diffObject.updated.values()).some((o) => o.length)) {
     logInfo(logOptions, "standard", `${chalk.blue(entityName)} to update:`);
-    Array.from(diffObject.updated.entries()).sort().forEach(([codename, value]) => {
-      if (value.length) {
-        logInfo(logOptions, "standard", `Entity codename: ${chalk.blue(codename)}`);
-        value.forEach(v => printPatchOperation(v, logOptions));
-      }
-    });
+    Array.from(diffObject.updated.entries())
+      .sort()
+      .forEach(([codename, value]) => {
+        if (value.length) {
+          logInfo(logOptions, "standard", `Entity codename: ${chalk.blue(codename)}`);
+          value.forEach((v) => printPatchOperation(v, logOptions));
+        }
+      });
   } else {
     logInfo(logOptions, "standard", `No ${chalk.blue(entityName)} to update.`);
   }
@@ -128,7 +143,7 @@ export const createAdvancedDiffFile = (diffData: DiffData) => {
   const resolvedTemplate = resolveHtmlTemplate(diffHtmlTemplate, diffData);
 
   if (!resolvedPath) {
-    throw new Error(`Output path not specified.`);
+    throw new Error("Output path not specified.");
   }
 
   const outputDir = dirname(resolvedPath);

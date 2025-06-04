@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { spaceHandler } from "../../../../src/modules/sync/diff/space.ts";
-import { SpaceSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";
+import type { SpaceSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";
 
 describe("spaceHandler", () => {
   it("creates a replace operation for every changed property", () => {

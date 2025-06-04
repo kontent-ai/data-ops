@@ -1,4 +1,4 @@
-import { ElementsTypes } from "../types/contractModels.js";
+import type { ElementsTypes } from "../types/contractModels.js";
 
 const elementTypesObj: { [key in ElementsTypes]: null } = {
   asset: null,

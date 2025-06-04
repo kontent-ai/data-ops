@@ -2,9 +2,7 @@
   "compilerOptions": {
     /* Language and Environment */
     "target": "es2023",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     /* Modules */
     "module": "nodenext",
     "moduleResolution": "nodenext",
@@ -26,9 +24,5 @@
     "noErrorTruncation": true,
     "skipLibCheck": true
   },
-  "include": [
-    "tests/integration/**/*",
-    "tests/unit/**/*",
-    "src/**/*"
-  ]
+  "include": ["tests/integration/**/*", "tests/unit/**/*", "src/**/*"]
 }

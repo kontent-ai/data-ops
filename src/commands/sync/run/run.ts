@@ -1,20 +1,27 @@
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
-import { logError, LogOptions } from "../../../log.js";
-import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
+import { type LogOptions, logError } from "../../../log.js";
+import {
+  type SyncEntityName,
+  syncEntityChoices,
+} from "../../../modules/sync/constants/entities.js";
 import { printDiff } from "../../../modules/sync/printDiff.js";
-import { SyncEntities, syncRunInternal, SyncRunParams } from "../../../modules/sync/syncRun.js";
+import {
+  type SyncEntities,
+  type SyncRunParams,
+  syncRunInternal,
+} from "../../../modules/sync/syncRun.js";
 import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "run";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "Synchronize content model between two Kontent.ai environments.",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
@@ -25,7 +32,8 @@ export const register: RegisterCommand = yargs =>
         .option("targetApiKey", {
           type: "string",
           describe: "Management API key of target Kontent.ai environment.",
-          demandOption: "You need to provide a Management API key for target Kontent.ai environment.",
+          demandOption:
+            "You need to provide a Management API key for target Kontent.ai environment.",
           alias: "tk",
         })
         .option("folderName", {
@@ -65,23 +73,22 @@ export const register: RegisterCommand = yargs =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: args => syncRunCli(args).catch(simplifyErrors),
+    handler: (args) => syncRunCli(args).catch(simplifyErrors),
   });
 
-type SyncModelRunCliParams =
-  & Readonly<{
-    targetEnvironmentId: string;
-    targetApiKey: string;
-    entities: ReadonlyArray<SyncEntityName>;
-    folderName: string | undefined;
-    sourceEnvironmentId: string | undefined;
-    sourceApiKey: string | undefined;
-    skipConfirmation: boolean | undefined;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type SyncModelRunCliParams = Readonly<{
+  targetEnvironmentId: string;
+  targetApiKey: string;
+  entities: ReadonlyArray<SyncEntityName>;
+  folderName: string | undefined;
+  sourceEnvironmentId: string | undefined;
+  sourceApiKey: string | undefined;
+  skipConfirmation: boolean | undefined;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
 const syncRunCli = async (params: SyncModelRunCliParams) => {
   const resolvedParams = resolveParams(params);
@@ -91,8 +98,7 @@ const syncRunCli = async (params: SyncModelRunCliParams) => {
       printDiff(diffModel, new Set(params.entities), params);
 
       await checkConfirmation({
-        message:
-          `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
+        message: `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
 - Removing content due to element deletion
 OK to proceed y/n? (suppress this message with --sw parameter)\n`,
         skipConfirmation: params.skipConfirmation,
@@ -125,12 +131,10 @@ const resolveParams = (params: SyncModelRunCliParams): SyncRunParams => {
   return { ...x, entities };
 };
 
-const createSyncEntitiesParameter = (
-  entities: ReadonlyArray<SyncEntityName>,
-): SyncEntities => {
+const createSyncEntitiesParameter = (entities: ReadonlyArray<SyncEntityName>): SyncEntities => {
   const filterEntries = [
-    ...entities.filter(a => a !== "webSpotlight").map(e => [e, () => true]),
-    ...entities.includes("webSpotlight") ? [["webSpotlight", true]] : [],
+    ...entities.filter((a) => a !== "webSpotlight").map((e) => [e, () => true]),
+    ...(entities.includes("webSpotlight") ? [["webSpotlight", true]] : []),
   ] as const;
 
   return Object.fromEntries(filterEntries);

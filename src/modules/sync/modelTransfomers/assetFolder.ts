@@ -1,7 +1,7 @@
-import { AssetFolderContracts } from "@kontent-ai/management-sdk";
+import type { AssetFolderContracts } from "@kontent-ai/management-sdk";
 
 import { omit } from "../../../utils/object.js";
-import { AssetFolderSyncModel } from "../types/syncModel.js";
+import type { AssetFolderSyncModel } from "../types/syncModel.js";
 
 export const transformAssetFolderModel = (
   environmentModel: AssetFolderContracts.IAssetFolderContract,

@@ -1,4 +1,4 @@
-import {
+import type {
   ContentTypeElements,
   ContentTypeModels,
   ContentTypeSnippetModels,
@@ -7,7 +7,7 @@ import {
 } from "@kontent-ai/management-sdk";
 import { match } from "ts-pattern";
 
-import { LogOptions } from "../../../log.js";
+import type { LogOptions } from "../../../log.js";
 import {
   isCountLimitation,
   isDefaultElementValue,
@@ -19,11 +19,11 @@ import {
   isObjectReferenceArray,
   isValidationRegex,
 } from "../../../utils/typeguards.js";
-import { RequiredCodename } from "../../../utils/types.js";
-import { SyncEntityName } from "../constants/entities.js";
+import type { RequiredCodename } from "../../../utils/types.js";
+import type { SyncEntityName } from "../constants/entities.js";
 import { isOp } from "../sync/utils.js";
-import { DiffModel, DiffObject } from "../types/diffModel.js";
-import {
+import type { DiffModel, DiffObject } from "../types/diffModel.js";
+import type {
   AddIntoPatchOperation,
   MovePatchOperation,
   PatchOperation,
@@ -37,7 +37,9 @@ type EntityPathRenderer = {
   render: (() => string) | ((match: string[]) => string);
 };
 type Operation = PatchOperation["op"];
-type TypeOrSnippet = ContentTypeModels.IAddContentTypeData | ContentTypeSnippetModels.IAddContentTypeSnippetData;
+type TypeOrSnippet =
+  | ContentTypeModels.IAddContentTypeData
+  | ContentTypeSnippetModels.IAddContentTypeSnippetData;
 type ElementOrTerm = ContentTypeElements.Element | TaxonomyModels.IAddTaxonomyRequestModel;
 type RenderFunction<T extends PatchOperation> = (patchOp: T) => string;
 type EntityType =
@@ -50,16 +52,15 @@ type EntityType =
   | "collections"
   | "assetFolders";
 type EntityActionType = "added" | "updated" | "deleted";
-type AdvancedDiffParams =
-  & Readonly<{
-    targetEnvironmentId: string;
-    outPath?: string;
-    sourceEnvironmentId?: string;
-    folderName?: string;
-    entities: ReadonlyArray<SyncEntityName>;
-    noOpen?: boolean;
-  }>
-  & LogOptions;
+type AdvancedDiffParams = Readonly<{
+  targetEnvironmentId: string;
+  outPath?: string;
+  sourceEnvironmentId?: string;
+  folderName?: string;
+  entities: ReadonlyArray<SyncEntityName>;
+  noOpen?: boolean;
+}> &
+  LogOptions;
 
 export type DiffData = DiffModel & AdvancedDiffParams;
 
@@ -72,19 +73,14 @@ export type DiffData = DiffModel & AdvancedDiffParams;
  * @param diffData diff data to process for placeholder resolution
  * @returns resolved HTML string
  */
-export const resolveHtmlTemplate = (
-  templateString: string,
-  diffData: DiffData,
-): string => {
+export const resolveHtmlTemplate = (templateString: string, diffData: DiffData): string => {
   const resolvePlaceHolders = (template: string): string => {
     const processedTemplate = template.replace(
       /{{.*?}}/g,
-      match => rendererMap.get(match)?.(diffData) ?? match,
+      (match) => rendererMap.get(match)?.(diffData) ?? match,
     );
 
-    return processedTemplate === template
-      ? template
-      : resolvePlaceHolders(processedTemplate);
+    return processedTemplate === template ? template : resolvePlaceHolders(processedTemplate);
   };
 
   return resolvePlaceHolders(templateString);
@@ -93,14 +89,18 @@ export const resolveHtmlTemplate = (
 const createRenderAddedEntityData =
   <U extends ElementOrTerm>(entityElementRenderer: (element: U) => string) =>
   <T extends { codename: string }>(entity: T, entityElements: U[]) =>
-    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div style="display: none" id=${entity.codename}>${
-      entityElements.map(entityElementRenderer).join("\n")
-    }</div></div>`;
+    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div style="display: none" id=${entity.codename}>${entityElements
+      .map(entityElementRenderer)
+      .join("\n")}</div></div>`;
 
-const createRenderOp = <T extends PatchOperation>(pathRenderer: RenderFunction<T>): RenderFunction<T> => (patchOp: T) =>
-  `<div class="op">${pathRenderer(patchOp)}</div>`;
+const createRenderOp =
+  <T extends PatchOperation>(pathRenderer: RenderFunction<T>): RenderFunction<T> =>
+  (patchOp: T) =>
+    `<div class="op">${pathRenderer(patchOp)}</div>`;
 
-const createRenderEntitySection = (entityActionType: EntityActionType) => (entityType: EntityType) => `
+const createRenderEntitySection =
+  (entityActionType: EntityActionType) => (entityType: EntityType) =>
+    `
     <div class="${entityActionType}">
       <h3>${entityActionType}</h3>
       {{${entityActionType}_${entityType}}}
@@ -168,9 +168,9 @@ const getValueOrIdentifier = (value: unknown): string | string[] => {
     }
 
     if ("content_types" in valueObj && "collections" in valueObj) {
-      return `types: ${getValueOrIdentifier(valueObj.content_types)}, collections: ${
-        getValueOrIdentifier(valueObj.collections)
-      }`;
+      return `types: ${getValueOrIdentifier(valueObj.content_types)}, collections: ${getValueOrIdentifier(
+        valueObj.collections,
+      )}`;
     }
 
     if ("collections" in valueObj) {
@@ -187,38 +187,38 @@ const renderMoveOpPosition = (patchOp: MovePatchOperation) =>
   "after" in patchOp
     ? `after <strong>${patchOp.after.codename}</strong>`
     : "before" in patchOp
-    ? `before <strong>${patchOp.before.codename}</strong>`
-    : `under <strong>${patchOp.under.codename}</strong>`;
+      ? `before <strong>${patchOp.before.codename}</strong>`
+      : `under <strong>${patchOp.under.codename}</strong>`;
 
 const renderAddIntoOpPosition = (patchOp: AddIntoPatchOperation) =>
   patchOp.after
     ? `after <strong>${[patchOp.after.codename]}</strong>`
     : patchOp.before
-    ? `before <strong>${[patchOp.before.codename]}</strong>`
-    : "";
+      ? `before <strong>${[patchOp.before.codename]}</strong>`
+      : "";
 
 const renderRemoveOpDetail = (patchOp: RemovePatchOperation) =>
   `${modifierMap.get("remove")}${getEntityPathRenderer(removeEntityPathRenderers, patchOp.path)} removed`;
 
 const renderMoveOpDetail = (patchOp: MovePatchOperation) =>
-  `${modifierMap.get("move")}${getEntityPathRenderer(moveEntityPathRenderers, patchOp.path)} moved ${
-    renderMoveOpPosition(patchOp)
-  }`;
+  `${modifierMap.get("move")}${getEntityPathRenderer(moveEntityPathRenderers, patchOp.path)} moved ${renderMoveOpPosition(
+    patchOp,
+  )}`;
 
 const renderAddIntoOpDetail = (patchOp: AddIntoPatchOperation) =>
-  `${modifierMap.get("addInto")}${getEntityPathRenderer(addEntityPathRenderers, patchOp.path)} ${
-    getValueOrIdentifier(patchOp.value)
-  } added ${renderAddIntoOpPosition(patchOp)}`;
+  `${modifierMap.get("addInto")}${getEntityPathRenderer(addEntityPathRenderers, patchOp.path)} ${getValueOrIdentifier(
+    patchOp.value,
+  )} added ${renderAddIntoOpPosition(patchOp)}`;
 
 const renderReplaceOpDetail = (patchOp: ReplacePatchOperation) =>
-  `${modifierMap.get("replace")}${getEntityPathRenderer(replaceEntityPathRenderers, patchOp.path)} changed ${
-    renderReplaceOpDifference(patchOp)
-  }`;
+  `${modifierMap.get("replace")}${getEntityPathRenderer(replaceEntityPathRenderers, patchOp.path)} changed ${renderReplaceOpDifference(
+    patchOp,
+  )}`;
 
 const renderReplaceOpDifference = (patchOp: ReplacePatchOperation) =>
-  `<div class="compared-elements"><div class="element">${
-    renderReplaceOpValue(patchOp.oldValue)
-  }</div><div class="comparator">→</div><div class="element"> ${renderReplaceOpValue(patchOp.value)}</div></div>`;
+  `<div class="compared-elements"><div class="element">${renderReplaceOpValue(
+    patchOp.oldValue,
+  )}</div><div class="comparator">→</div><div class="element"> ${renderReplaceOpValue(patchOp.value)}</div></div>`;
 
 const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>) => {
   const extractedTerms = pathSegments.map((s) => s.split(":")[1]);
@@ -228,19 +228,13 @@ const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>) => {
 };
 
 const renderAddedElement = (element: ContentTypeElements.Element) =>
-  `<div class="added-element"><div class="element" onClick="toggleVisibility('${element.codename}')">${element.codename}<div id=${element.codename} style="display: none">${
-    renderAddedObjectProperties(element)
-  }</div></div><div class="element-type">${
-    element.type
-      .toUpperCase()
-      .replace("_", " ")
-  }
+  `<div class="added-element"><div class="element" onClick="toggleVisibility('${element.codename}')">${element.codename}<div id=${element.codename} style="display: none">${renderAddedObjectProperties(
+    element,
+  )}</div></div><div class="element-type">${element.type.toUpperCase().replace("_", " ")}
     </div></div>`;
 
 const renderAddedObjectProperties = (object: object) =>
-  Object.entries(object)
-    .map(renderAddedObjectProperty)
-    .join("\n");
+  Object.entries(object).map(renderAddedObjectProperty).join("\n");
 
 const renderAddedObjectProperty = ([property, value]: Readonly<[string, unknown]>) => {
   // property keys where empty array means all related values are allowed
@@ -267,19 +261,17 @@ const renderAddedTaxonomyTerm = (
   `<ul class="term">
         <li>${taxonomy.name}
         ${
-    (depth < 3 && taxonomy.terms.length)
-      ? taxonomy.terms.map(term => renderAddedTaxonomyTerm(term, depth++)).join("\n") + "</li>"
-      : "</li>"
-  }
+          depth < 3 && taxonomy.terms.length
+            ? `${taxonomy.terms.map((term) => renderAddedTaxonomyTerm(term, depth + 1)).join("\n")}</li>`
+            : "</li>"
+        }
       </ul>`;
 
 const renderAddedTaxonomyData = createRenderAddedEntityData(renderAddedTaxonomyTerm);
 
 const renderAddedTypeOrSnippetData = createRenderAddedEntityData(renderAddedElement);
 
-const renderReplaceOpValue = (
-  value: unknown,
-): ReplacePatchOperationValue | null => {
+const renderReplaceOpValue = (value: unknown): ReplacePatchOperationValue | null => {
   switch (typeof value) {
     case "string":
     case "boolean":
@@ -302,7 +294,7 @@ const renderReplaceOpValue = (
         return value.map((r) => r.external_id).join(", ");
       }
       if (isDependsOn(value)) {
-        return `${value.element.codename} ${value.snippet?.codename ? "of snippet " + value.snippet.codename : ""}`;
+        return `${value.element.codename} ${value.snippet?.codename ? `of snippet ${value.snippet.codename}` : ""}`;
       }
       if (isDefaultElementValue(value)) {
         return renderReplaceOpValue(value.global.value);
@@ -328,32 +320,35 @@ const renderDeletedEntity = (entityCodename: string) =>
 
 const renderAddedTypesOrSnippetsSectionData = <T extends RequiredCodename<TypeOrSnippet>>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "added">,
-) => diff.added.map(a => renderAddedTypeOrSnippetData(a, a.elements)).join("\n");
+) => diff.added.map((a) => renderAddedTypeOrSnippetData(a, a.elements)).join("\n");
 
 const renderAddedTaxonomiesSectionData = <T extends TaxonomyModels.IAddTaxonomyRequestModel>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "added">,
 ) =>
-  diff.added.map(a => renderAddedTaxonomyData(a, a.terms)).join("\n")
-  + "<div class=\"warning\">⚠️ Only the first three depth levels shown.</div>";
+  `${diff.added.map((a) => renderAddedTaxonomyData(a, a.terms)).join("\n")}<div class="warning">⚠️ Only the first three depth levels shown.</div>`;
 
 const renderAddedLanguagesSectionData = (
   diff: Pick<DiffObject<RequiredCodename<LanguageModels.IAddLanguageData>>, "added">,
 ) =>
-  diff.added.map(entity =>
-    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: none" id=${entity.codename}>
+  diff.added
+    .map(
+      (entity) =>
+        `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: none" id=${entity.codename}>
     ${renderAddedObjectProperties({ ...entity, fallback_language: entity.fallback_language?.codename })}
-    </div></div>`
-  )
+    </div></div>`,
+    )
     .join("\n");
 
 const renderAddedWorkflowsOrSpacesSectionData = (
   diff: Pick<DiffObject<RequiredCodename<LanguageModels.IAddLanguageData>>, "added">,
 ) =>
-  diff.added.map(entity =>
-    `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: none" id=${entity.codename}>
+  diff.added
+    .map(
+      (entity) =>
+        `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entity.codename}')">${entity.codename}</div><div class="entity-operations" style="display: none" id=${entity.codename}>
     ${renderAddedObjectProperties(entity)}
-    </div></div>`
-  )
+    </div></div>`,
+    )
     .join("\n");
 
 const renderDeletedEntitiesSectionData = <T extends { codename: string }>(
@@ -368,12 +363,12 @@ const renderUpdatedEntitiesSectionData = <T extends { codename: string }>(
     .flatMap(renderUpdatedEntity)
     .join("\n");
 
-const renderUpdatedEntity = (
-  [entityCodename, patchOps]: Readonly<[string, Readonly<PatchOperation[]>]>,
-) =>
-  `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entityCodename}')">${entityCodename}</div><div class="entity-operations" style="display: none" id="${entityCodename}">${
-    patchOps.flatMap(renderPatchOp).join("\n")
-  }</div></div>`;
+const renderUpdatedEntity = ([entityCodename, patchOps]: Readonly<
+  [string, Readonly<PatchOperation[]>]
+>) =>
+  `<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('${entityCodename}')">${entityCodename}</div><div class="entity-operations" style="display: none" id="${entityCodename}">${patchOps
+    .flatMap(renderPatchOp)
+    .join("\n")}</div></div>`;
 
 const renderEntitySection = (
   entityType: EntityType,
@@ -394,13 +389,13 @@ const renderEntitySection = (
     id: entityType,
     header: `
     <div>${entityTypeNameMap[entityType]}</div>
-    ${modifiedNum([...updated.values()].filter(ops => ops.length).length, true)}
+    ${modifiedNum([...updated.values()].filter((ops) => ops.length).length, true)}
     ${addedNum(added.length)}
     ${removedNum(deleted.size)}
     `,
     content: `
     ${
-      [...updated.values()].filter(v => v.length).length
+      [...updated.values()].filter((v) => v.length).length
         ? renderUpdatedEntitySection(entityType)
         : ""
     }
@@ -412,12 +407,13 @@ const renderEntitySection = (
   });
 };
 
-const addedNum = (num: number, push: boolean = false) => `<div class="num-added ${push ? "push" : ""}">+ ${num}</div>`;
+const addedNum = (num: number, push = false) =>
+  `<div class="num-added ${push ? "push" : ""}">+ ${num}</div>`;
 
-const removedNum = (num: number, push: boolean = false) =>
+const removedNum = (num: number, push = false) =>
   `<div class="num-removed ${push ? "push" : ""}">− ${num}</div>`;
 
-const modifiedNum = (num: number, push: boolean = false) =>
+const modifiedNum = (num: number, push = false) =>
   `<div class="num-modified ${push ? "push" : ""}">✎ ${num}</div>`;
 
 const renderWebSpotlightSection = (webSpotlight: DiffData["webSpotlight"]) => {
@@ -426,15 +422,19 @@ const renderWebSpotlightSection = (webSpotlight: DiffData["webSpotlight"]) => {
 
   return match(webSpotlight)
     .with({ change: "none" }, () => "<h3>No changes to web spotlight.</h3>")
-    .with(
-      { change: "activate" },
-      ws => section(`<div class="added"><h3>Activate web spotlight with root type: ${ws.rootTypeCodename}</h3></div>`),
+    .with({ change: "activate" }, (ws) =>
+      section(
+        `<div class="added"><h3>Activate web spotlight with root type: ${ws.rootTypeCodename}</h3></div>`,
+      ),
     )
-    .with(
-      { change: "changeRootType" },
-      ws => section(`<div class="updated"><h3>Change web spotlight root type to: ${ws.rootTypeCodename}</h3></div>`),
+    .with({ change: "changeRootType" }, (ws) =>
+      section(
+        `<div class="updated"><h3>Change web spotlight root type to: ${ws.rootTypeCodename}</h3></div>`,
+      ),
     )
-    .with({ change: "deactivate" }, () => section("<div class=\"deleted\"><h3>Deactivate web spotlight.</h3></div>"))
+    .with({ change: "deactivate" }, () =>
+      section('<div class="deleted"><h3>Deactivate web spotlight.</h3></div>'),
+    )
     .exhaustive();
 };
 
@@ -456,7 +456,7 @@ const renderSection = (params: RenderSectionParams) => `
 `;
 
 const getCombinedOpLength = (ops: DiffObject<unknown>) =>
-  ops.added.length + ops.deleted.size + [...ops.updated.values()].filter(v => v.length).length;
+  ops.added.length + ops.deleted.size + [...ops.updated.values()].filter((v) => v.length).length;
 
 const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
   [
@@ -473,7 +473,8 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
   ],
   [
     "{{added_snippets}}",
-    ({ contentTypeSnippets }: DiffData) => renderAddedTypesOrSnippetsSectionData(contentTypeSnippets),
+    ({ contentTypeSnippets }: DiffData) =>
+      renderAddedTypesOrSnippetsSectionData(contentTypeSnippets),
   ],
   [
     "{{deleted_snippets}}",
@@ -495,10 +496,7 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     "{{updated_taxonomies}}",
     ({ taxonomyGroups }: DiffData) => renderUpdatedEntitiesSectionData(taxonomyGroups),
   ],
-  [
-    "{{added_languages}}",
-    ({ languages }: DiffData) => renderAddedLanguagesSectionData(languages),
-  ],
+  ["{{added_languages}}", ({ languages }: DiffData) => renderAddedLanguagesSectionData(languages)],
   [
     "{{deleted_languages}}",
     ({ languages }: DiffData) => renderDeletedEntitiesSectionData(languages),
@@ -519,31 +517,16 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
     "{{updated_workflows}}",
     ({ workflows }: DiffData) => renderUpdatedEntitiesSectionData(workflows),
   ],
-  [
-    "{{added_spaces}}",
-    ({ spaces }: DiffData) => renderAddedWorkflowsOrSpacesSectionData(spaces),
-  ],
-  [
-    "{{deleted_spaces}}",
-    ({ spaces }: DiffData) => renderDeletedEntitiesSectionData(spaces),
-  ],
-  [
-    "{{updated_spaces}}",
-    ({ spaces }: DiffData) => renderUpdatedEntitiesSectionData(spaces),
-  ],
+  ["{{added_spaces}}", ({ spaces }: DiffData) => renderAddedWorkflowsOrSpacesSectionData(spaces)],
+  ["{{deleted_spaces}}", ({ spaces }: DiffData) => renderDeletedEntitiesSectionData(spaces)],
+  ["{{updated_spaces}}", ({ spaces }: DiffData) => renderUpdatedEntitiesSectionData(spaces)],
   [
     "{{source_env_id}}",
-    ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName!,
+    ({ sourceEnvironmentId, folderName }: DiffData) => sourceEnvironmentId ?? folderName ?? "",
   ],
-  [
-    "{{target_env_id}}",
-    ({ targetEnvironmentId }: DiffData) => targetEnvironmentId,
-  ],
+  ["{{target_env_id}}", ({ targetEnvironmentId }: DiffData) => targetEnvironmentId],
   ["{{datetime_generated}}", () => new Date().toUTCString()],
-  [
-    "{{env_link_disabler}}",
-    ({ folderName }: DiffData) => (folderName ? "disabled" : ""),
-  ],
+  ["{{env_link_disabler}}", ({ folderName }: DiffData) => (folderName ? "disabled" : "")],
   [
     "{{types_section}}",
     ({ contentTypes, entities }: DiffData) =>
@@ -582,12 +565,12 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
       entities.includes("assetFolders")
         ? assetFolders.length
           ? renderSection({
-            id: "assetFolders",
-            header: `<div>Asset folders</div>
+              id: "assetFolders",
+              header: `<div>Asset folders</div>
         ${addedNum(assetFolders.filter(isOp("addInto")).length, true)}
         ${removedNum(assetFolders.filter(isOp("remove")).length)}`,
-            content: assetFolders.map(renderPatchOp).join("\n"),
-          })
+              content: assetFolders.map(renderPatchOp).join("\n"),
+            })
           : "<h3>No changes to asset folders.</h3>"
         : "",
   ],
@@ -597,13 +580,13 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
       entities.includes("collections")
         ? collections.length
           ? renderSection({
-            id: "collections-section",
-            header: `<div>Collections</div>
+              id: "collections-section",
+              header: `<div>Collections</div>
           ${modifiedNum(collections.filter(isOp("replace")).length, true)}
           ${addedNum(collections.filter(isOp("addInto")).length)}
           ${removedNum(collections.filter(isOp("remove")).length)}`,
-            content: collections.map(renderPatchOp).join("\n"),
-          })
+              content: collections.map(renderPatchOp).join("\n"),
+            })
           : "<h3>No changes to collections</h3>"
         : "",
   ],
@@ -636,14 +619,12 @@ const rendererMap: ReadonlyMap<string, (data: DiffData) => string> = new Map([
   ],
 ]);
 
-const patchOpRendererMap: ReadonlyMap<
-  Operation,
-  RenderFunction<PatchOperation>
-> = new Map<Operation, RenderFunction<any>>([
-  ["addInto", createRenderOp(renderAddIntoOpDetail)],
-  ["move", createRenderOp(renderMoveOpDetail)],
-  ["remove", createRenderOp(renderRemoveOpDetail)],
-  ["replace", createRenderOp(renderReplaceOpDetail)],
+// This is not type-safe as one can for example pass a function expecting addInto op into a value for move op, but doing something more robust is not worth the effort at the moment.
+const patchOpRendererMap: ReadonlyMap<Operation, RenderFunction<PatchOperation>> = new Map([
+  ["addInto", createRenderOp(renderAddIntoOpDetail) as RenderFunction<PatchOperation>],
+  ["move", createRenderOp(renderMoveOpDetail) as RenderFunction<PatchOperation>],
+  ["remove", createRenderOp(renderRemoveOpDetail) as RenderFunction<PatchOperation>],
+  ["replace", createRenderOp(renderReplaceOpDetail) as RenderFunction<PatchOperation>],
 ]);
 
 const modifierMap: ReadonlyMap<Operation, string> = new Map([
@@ -656,15 +637,15 @@ const modifierMap: ReadonlyMap<Operation, string> = new Map([
 const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /^\/name$/,
-    render: () => `Property <strong>name</strong>`,
+    render: () => "Property <strong>name</strong>",
   },
   {
     regex: /^\/collections$/,
-    render: () => `Collection for space`,
+    render: () => "Collection for space",
   },
   {
     regex: /^\/codename$/,
-    render: () => `Property <strong>codename</strong>`,
+    render: () => "Property <strong>codename</strong>",
   },
   {
     regex: /^\/codename:([^/]+)/,
@@ -676,7 +657,7 @@ const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/fallback_language$/,
-    render: () => `Property <strong>fallback_language</strong>`,
+    render: () => "Property <strong>fallback_language</strong>",
   },
   {
     regex: /^\/steps\/codename:([^/]+)\/color$/,
@@ -684,7 +665,8 @@ const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/([^/]+)$/,
-    render: (match: string[]) => `Property <strong>${match[2]}</strong> of element <strong>${match[1]}</strong>`,
+    render: (match: string[]) =>
+      `Property <strong>${match[2]}</strong> of element <strong>${match[1]}</strong>`,
   },
   {
     regex: /^\/content_groups\/codename:([^/]+)\/name$/,
@@ -706,23 +688,23 @@ const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
 const addEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /^\/elements$/,
-    render: () => `Element`,
+    render: () => "Element",
   },
   {
     regex: /^\/content_groups$/,
-    render: () => `Content group`,
+    render: () => "Content group",
   },
   {
     regex: /^\/terms$/,
-    render: () => `Top level term`,
+    render: () => "Top level term",
   },
   {
     regex: /steps$/,
-    render: () => `Step`,
+    render: () => "Step",
   },
   {
     regex: /scopes$/,
-    render: () => `Scope with the following configuration →`,
+    render: () => "Scope with the following configuration →",
   },
   {
     regex: /^\/steps\/codename:([^/]+)\/transitions_to$/,
@@ -742,7 +724,8 @@ const addEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_blocks$/,
-    render: (match: string[]) => `For rich text element <strong>${match[1]}</strong>, allowed block`,
+    render: (match: string[]) =>
+      `For rich text element <strong>${match[1]}</strong>, allowed block`,
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
@@ -750,11 +733,13 @@ const addEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_formatting$/,
-    render: (match: string[]) => `For rich text element <strong>${match[1]}</strong>, allowed formatting`,
+    render: (match: string[]) =>
+      `For rich text element <strong>${match[1]}</strong>, allowed formatting`,
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_text_blocks$/,
-    render: (match: string[]) => `For rich text element <strong>${match[1]}</strong>, allowed text block`,
+    render: (match: string[]) =>
+      `For rich text element <strong>${match[1]}</strong>, allowed text block`,
   },
 ];
 

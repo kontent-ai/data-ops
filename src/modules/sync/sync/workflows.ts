@@ -1,9 +1,9 @@
-import { ManagementClient, WorkflowModels } from "@kontent-ai/management-sdk";
+import type { ManagementClient, WorkflowModels } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../../log.js";
+import { type LogOptions, logInfo } from "../../../log.js";
 import { throwError } from "../../../utils/error.js";
 import { serially } from "../../../utils/requests.js";
-import { DiffModel } from "../types/diffModel.js";
+import type { DiffModel } from "../types/diffModel.js";
 
 export const syncWorkflows = async (
   client: ManagementClient,
@@ -12,7 +12,7 @@ export const syncWorkflows = async (
 ) => {
   if (operations.added.length) {
     logInfo(logOptions, "standard", "Adding workflows");
-    await serially(operations.added.map(w => () => addWorkflow(client, w)));
+    await serially(operations.added.map((w) => () => addWorkflow(client, w)));
   } else {
     logInfo(logOptions, "standard", "No workflows to add");
   }
@@ -25,15 +25,12 @@ export const syncWorkflows = async (
     logInfo(logOptions, "standard", "Updating workflows");
 
     await serially(
-      workflowCodenamesToUpdate.map(codename => () => {
-        const sourceWorkflow = operations.sourceWorkflows.find(w => w.codename === codename)
-          ?? throwError(`Workflow { codename: ${codename} } not found.`);
+      workflowCodenamesToUpdate.map((codename) => () => {
+        const sourceWorkflow =
+          operations.sourceWorkflows.find((w) => w.codename === codename) ??
+          throwError(`Workflow { codename: ${codename} } not found.`);
 
-        return modifyWorkflow(
-          client,
-          codename,
-          sourceWorkflow,
-        );
+        return modifyWorkflow(client, codename, sourceWorkflow);
       }),
     );
   } else {
@@ -43,7 +40,7 @@ export const syncWorkflows = async (
   if (operations.deleted.size) {
     logInfo(logOptions, "standard", "Deleting workflows");
     await serially(
-      [...operations.deleted].map(codename => () => deleteWorkflow(client, codename)),
+      [...operations.deleted].map((codename) => () => deleteWorkflow(client, codename)),
     );
   } else {
     logInfo(logOptions, "standard", "No workflows to delete");
@@ -51,20 +48,13 @@ export const syncWorkflows = async (
 };
 
 const addWorkflow = (client: ManagementClient, workflow: WorkflowModels.IAddWorkflowData) =>
-  client
-    .addWorkflow()
-    .withData(workflow)
-    .toPromise();
+  client.addWorkflow().withData(workflow).toPromise();
 
-const modifyWorkflow = (client: ManagementClient, codename: string, workflow: WorkflowModels.IUpdateWorkflowData) =>
-  client
-    .updateWorkflow()
-    .byWorkflowCodename(codename)
-    .withData(workflow)
-    .toPromise();
+const modifyWorkflow = (
+  client: ManagementClient,
+  codename: string,
+  workflow: WorkflowModels.IUpdateWorkflowData,
+) => client.updateWorkflow().byWorkflowCodename(codename).withData(workflow).toPromise();
 
 const deleteWorkflow = (client: ManagementClient, codename: string) =>
-  client
-    .deleteWorkflow()
-    .byWorkflowCodename(codename)
-    .toPromise();
+  client.deleteWorkflow().byWorkflowCodename(codename).toPromise();

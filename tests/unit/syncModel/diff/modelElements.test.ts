@@ -5,8 +5,8 @@ import {
   makeGuidelinesElementHandler,
   makeRichTextElementHandler,
 } from "../../../../src/modules/sync/diff/modelElements.ts";
-import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
-import {
+import type { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.ts";
+import type {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   SyncAssetElement,
@@ -81,10 +81,7 @@ describe("makeAssetElementHandler", () => {
       sourceTypeOrSnippet: type,
       targetTypeOrSnippet: type,
       targetAssetCodenames: new Set(),
-    })(
-      source,
-      target,
-    );
+    })(source, target);
 
     expect(result).toStrictEqual([
       {
@@ -184,10 +181,7 @@ describe("makeAssetElementHandler", () => {
       sourceTypeOrSnippet: sourceType,
       targetTypeOrSnippet: basicType,
       targetAssetCodenames: new Set(),
-    })(
-      source,
-      target,
-    );
+    })(source, target);
 
     expect(result).toStrictEqual([
       {
@@ -210,16 +204,21 @@ describe("makeGuidelinesElementHandler", () => {
   };
 
   describe("asset references", () => {
-    [[true, true], [true, false], [false, true], [false, false]].forEach(([doesSourceExist, doesTargetExist]) => {
+    [
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false],
+    ].forEach(([doesSourceExist, doesTargetExist]) => {
       it(`Doesn't create operations for the same guidelines with an asset ${doesSourceExist ? "" : "not "}existing in source and ${doesTargetExist ? "" : "not "}existing in target`, () => {
-        const sourceCodenameTag = doesSourceExist ? "data-asset-codename=\"asset1\" " : "";
-        const targetCodenameTag = doesTargetExist ? "data-asset-codename=\"asset1\" " : "";
-        const source =
-          `<p>abc<figure ${sourceCodenameTag}data-asset-external-id="asset1E"><img src="#" ${sourceCodenameTag}data-asset-external-id="asset1E"/></figure>xyz</p>`;
-        const target =
-          `<p>abc<figure ${targetCodenameTag}data-asset-external-id="asset1E"><img src="#" ${targetCodenameTag}data-asset-external-id="asset1E"/></figure>xyz</p>`;
+        const sourceCodenameTag = doesSourceExist ? 'data-asset-codename="asset1" ' : "";
+        const targetCodenameTag = doesTargetExist ? 'data-asset-codename="asset1" ' : "";
+        const source = `<p>abc<figure ${sourceCodenameTag}data-asset-external-id="asset1E"><img src="#" ${sourceCodenameTag}data-asset-external-id="asset1E"/></figure>xyz</p>`;
+        const target = `<p>abc<figure ${targetCodenameTag}data-asset-external-id="asset1E"><img src="#" ${targetCodenameTag}data-asset-external-id="asset1E"/></figure>xyz</p>`;
         const knownAssets = new Map(
-          doesTargetExist ? [["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]] : [],
+          doesTargetExist
+            ? [["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]]
+            : [],
         );
 
         const result = makeGuidelinesElementHandler({
@@ -234,10 +233,8 @@ describe("makeGuidelinesElementHandler", () => {
     });
 
     it("Creates replace and uses assetId for asset existing in target", () => {
-      const source =
-        `<p>abc<figure data-asset-codename="asset2" data-asset-external-id="asset2E"><img src="#" data-asset-codename="asset2" data-asset-external-id="asset2E"/></figure>xyz</p>`;
-      const target =
-        `<p>abc<figure data-asset-codename="asset1" data-asset-external-id="asset1E"><img src="#" data-asset-codename="asset1" data-asset-external-id="asset1E"/></figure>xyz</p>`;
+      const source = `<p>abc<figure data-asset-codename="asset2" data-asset-external-id="asset2E"><img src="#" data-asset-codename="asset2" data-asset-external-id="asset2E"/></figure>xyz</p>`;
+      const target = `<p>abc<figure data-asset-codename="asset1" data-asset-external-id="asset1E"><img src="#" data-asset-codename="asset1" data-asset-external-id="asset1E"/></figure>xyz</p>`;
       const knownAssets = new Map([
         ["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }],
         ["asset2", { id: "391d6188-cc36-47d6-b4a9-09e4da4a54c1", codename: "asset2" }],
@@ -250,21 +247,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value:
-          `<p>abc<figure data-asset-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1"><img src="#" data-asset-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1"/></figure>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<figure data-asset-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1"><img src="#" data-asset-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1"/></figure>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace and uses assetExternalId for asset not existing in target", () => {
-      const source =
-        `<p>abc<figure data-asset-codename="asset2" data-asset-external-id="asset2E"><img src="#" data-asset-codename="asset2" data-asset-external-id="asset2E"/></figure>xyz</p>`;
-      const target =
-        `<p>abc<figure data-asset-codename="asset1" data-asset-external-id="asset1E"><img src="#" data-asset-codename="asset1" data-asset-external-id="asset1E"/></figure>xyz</p>`;
-      const knownAssets = new Map([["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]]);
+      const source = `<p>abc<figure data-asset-codename="asset2" data-asset-external-id="asset2E"><img src="#" data-asset-codename="asset2" data-asset-external-id="asset2E"/></figure>xyz</p>`;
+      const target = `<p>abc<figure data-asset-codename="asset1" data-asset-external-id="asset1E"><img src="#" data-asset-codename="asset1" data-asset-external-id="asset1E"/></figure>xyz</p>`;
+      const knownAssets = new Map([
+        ["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: knownAssets,
@@ -273,21 +273,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value:
-          `<p>abc<figure data-asset-external-id="asset2E"><img src="#" data-asset-external-id="asset2E"/></figure>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<figure data-asset-external-id="asset2E"><img src="#" data-asset-external-id="asset2E"/></figure>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace and uses assetId for asset not existing in source", () => {
-      const source =
-        `<p>abc<figure data-asset-external-id="asset2E"><img src="#" data-asset-external-id="asset2E"/></figure>xyz</p>`;
-      const target =
-        `<p>abc<figure data-asset-codename="asset1" data-asset-external-id="asset1E"><img src="#" data-asset-codename="asset1" data-asset-external-id="asset1E"/></figure>xyz</p>`;
-      const knownAssets = new Map([["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]]);
+      const source = `<p>abc<figure data-asset-external-id="asset2E"><img src="#" data-asset-external-id="asset2E"/></figure>xyz</p>`;
+      const target = `<p>abc<figure data-asset-codename="asset1" data-asset-external-id="asset1E"><img src="#" data-asset-codename="asset1" data-asset-external-id="asset1E"/></figure>xyz</p>`;
+      const knownAssets = new Map([
+        ["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: knownAssets,
@@ -296,25 +299,35 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value:
-          `<p>abc<figure data-asset-external-id="asset2E"><img src="#" data-asset-external-id="asset2E"/></figure>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<figure data-asset-external-id="asset2E"><img src="#" data-asset-external-id="asset2E"/></figure>xyz</p>`,
+          },
+        ]),
+      );
     });
   });
 
   describe("asset link references", () => {
-    [[true, true], [true, false], [false, true], [false, false]].forEach(([doesSourceExist, doesTargetExist]) => {
+    [
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false],
+    ].forEach(([doesSourceExist, doesTargetExist]) => {
       it(`Doesn't create operations for the same guidelines with link to an asset ${doesSourceExist ? "" : "not "}existing in source and ${doesTargetExist ? "" : "not "}existing in target`, () => {
-        const sourceCodenameTag = doesSourceExist ? "data-asset-codename=\"asset1\" " : "";
-        const targetCodenameTag = doesTargetExist ? "data-asset-codename=\"asset1\" " : "";
+        const sourceCodenameTag = doesSourceExist ? 'data-asset-codename="asset1" ' : "";
+        const targetCodenameTag = doesTargetExist ? 'data-asset-codename="asset1" ' : "";
         const source = `<p>abc <a ${sourceCodenameTag}data-asset-external-id="asset1E">asset link</a>xyz</p>`;
         const target = `<p>abc <a ${targetCodenameTag}data-asset-external-id="asset1E">asset link</a>xyz</p>`;
         const knownAssets = new Map(
-          doesTargetExist ? [["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]] : [],
+          doesTargetExist
+            ? [["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]]
+            : [],
         );
 
         const result = makeGuidelinesElementHandler({
@@ -343,18 +356,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value: `<p>abc<a data-asset-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1">asset link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-asset-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1">asset link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace and uses assetExternalId for asset link not existing in target", () => {
       const source = `<p>abc<a data-asset-codename="asset2" data-asset-external-id="asset2E">asset link</a>xyz</p>`;
       const target = `<p>abc<a data-asset-codename="asset1" data-asset-external-id="asset1E">asset link</a>xyz</p>`;
-      const knownAssets = new Map([["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]]);
+      const knownAssets = new Map([
+        ["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: knownAssets,
@@ -363,18 +382,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value: `<p>abc<a data-asset-external-id="asset2E">asset link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-asset-external-id="asset2E">asset link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace and uses assetId for asset link not existing in source", () => {
       const source = `<p>abc<a data-asset-external-id="asset2E">asset link</a>xyz</p>`;
       const target = `<p>abc<a data-asset-codename="asset1" data-asset-external-id="asset1E">asset link</a>xyz</p>`;
-      const knownAssets = new Map([["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }]]);
+      const knownAssets = new Map([
+        ["asset1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "asset1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: knownAssets,
@@ -383,24 +408,35 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value: `<p>abc<a data-asset-external-id="asset2E">asset link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-asset-external-id="asset2E">asset link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
   });
 
   describe("item link references", () => {
-    [[true, true], [true, false], [false, true], [false, false]].forEach(([doesSourceExist, doesTargetExist]) => {
+    [
+      [true, true],
+      [true, false],
+      [false, true],
+      [false, false],
+    ].forEach(([doesSourceExist, doesTargetExist]) => {
       it(`Doesn't create operations for the same guidelines with link to an item ${doesSourceExist ? "" : "not "}existing in source and ${doesTargetExist ? "" : "not "}existing in target`, () => {
-        const sourceCodenameTag = doesSourceExist ? "data-item-codename=\"item1\" " : "";
-        const targetCodenameTag = doesTargetExist ? "data-item-codename=\"item1\" " : "";
+        const sourceCodenameTag = doesSourceExist ? 'data-item-codename="item1" ' : "";
+        const targetCodenameTag = doesTargetExist ? 'data-item-codename="item1" ' : "";
         const source = `<p>abc <a ${sourceCodenameTag}data-item-external-id="item1E">item link</a>xyz</p>`;
         const target = `<p>abc <a ${targetCodenameTag}data-item-external-id="item1E">item link</a>xyz</p>`;
         const knownItems = new Map(
-          doesTargetExist ? [["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }]] : [],
+          doesTargetExist
+            ? [["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }]]
+            : [],
         );
 
         const result = makeGuidelinesElementHandler({
@@ -429,18 +465,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value: `<p>abc<a data-item-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1" >item link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-item-id="391d6188-cc36-47d6-b4a9-09e4da4a54c1" >item link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace and uses itemExternalId for item link not existing in target", () => {
       const source = `<p>abc<a data-item-codename="item2" data-item-external-id="item2E">item link</a>xyz</p>`;
       const target = `<p>abc<a data-item-codename="item1" data-item-external-id="item1E">item link</a>xyz</p>`;
-      const knownItems = new Map([["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }]]);
+      const knownItems = new Map([
+        ["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: new Map(),
@@ -449,18 +491,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value: `<p>abc<a data-item-external-id="item2E" >item link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-item-external-id="item2E" >item link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace and uses itemId for item link not existing in source", () => {
       const source = `<p>abc<a data-item-external-id="item2E">item link</a>xyz</p>`;
       const target = `<p>abc<a data-item-codename="item1" data-item-external-id="item1E">item link</a>xyz</p>`;
-      const knownItems = new Map([["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }]]);
+      const knownItems = new Map([
+        ["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: new Map(),
@@ -469,19 +517,24 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value: `<p>abc<a data-item-external-id="item2E">item link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-item-external-id="item2E">item link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
 
     it("Creates replace even with additional attributes and different order", () => {
       const source = `<p>abc<a data-item-codename="item1"  test="someOtherValue">item link</a>xyz</p>`;
-      const target =
-        `<p>abc<a data-item-external-id="item2E" otherTest="someOtherOldValue" data-item-codename="item2">item link</a>xyz</p>`;
-      const knownItems = new Map([["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }]]);
+      const target = `<p>abc<a data-item-external-id="item2E" otherTest="someOtherOldValue" data-item-codename="item2">item link</a>xyz</p>`;
+      const knownItems = new Map([
+        ["item1", { id: "e89cb81a-fdea-46b5-86bb-0a0a46480146", codename: "item1" }],
+      ]);
 
       const result = makeGuidelinesElementHandler({
         targetAssetsByCodenames: new Map(),
@@ -490,19 +543,22 @@ describe("makeGuidelinesElementHandler", () => {
         sourceTypeOrSnippet: sourceType,
       })({ ...element, guidelines: source }, { ...element, guidelines: target });
 
-      expect(removeSpacesInValues(result)).toStrictEqual(removeSpacesInValues([{
-        op: "replace",
-        path: "/guidelines",
-        oldValue: target,
-        value:
-          `<p>abc<a data-item-id="e89cb81a-fdea-46b5-86bb-0a0a46480146" test="someOtherValue">item link</a>xyz</p>`,
-      }]));
+      expect(removeSpacesInValues(result)).toStrictEqual(
+        removeSpacesInValues([
+          {
+            op: "replace",
+            path: "/guidelines",
+            oldValue: target,
+            value: `<p>abc<a data-item-id="e89cb81a-fdea-46b5-86bb-0a0a46480146" test="someOtherValue">item link</a>xyz</p>`,
+          },
+        ]),
+      );
     });
   });
 });
 
 describe("makeRichTextElementHandler", () => {
-  (["allowed_formatting", "allowed_table_formatting"] as const).forEach(propName => {
+  (["allowed_formatting", "allowed_table_formatting"] as const).forEach((propName) => {
     it(`should remove unstyled last when all formattings are removed in "${propName}"`, () => {
       const source: SyncRichTextElement = {
         name: "test",
@@ -519,10 +575,10 @@ describe("makeRichTextElementHandler", () => {
       };
       const targetType: ContentTypeSyncModel = { ...basicType, elements: [target] };
 
-      const result = makeRichTextElementHandler({ sourceTypeOrSnippet: sourceType, targetTypeOrSnippet: targetType })(
-        source,
-        target,
-      );
+      const result = makeRichTextElementHandler({
+        sourceTypeOrSnippet: sourceType,
+        targetTypeOrSnippet: targetType,
+      })(source, target);
 
       expect(result).toEqual([
         {
@@ -559,10 +615,10 @@ describe("makeRichTextElementHandler", () => {
       };
       const targetType: ContentTypeSyncModel = { ...basicType, elements: [target] };
 
-      const result = makeRichTextElementHandler({ sourceTypeOrSnippet: sourceType, targetTypeOrSnippet: targetType })(
-        source,
-        target,
-      );
+      const result = makeRichTextElementHandler({
+        sourceTypeOrSnippet: sourceType,
+        targetTypeOrSnippet: targetType,
+      })(source, target);
 
       expect(result).toEqual([
         {
@@ -586,8 +642,6 @@ describe("makeRichTextElementHandler", () => {
 });
 
 const removeSpacesInValues = (ops: ReadonlyArray<PatchOperation>): ReadonlyArray<PatchOperation> =>
-  ops.map(op =>
-    "value" in op && typeof op.value === "string"
-      ? { ...op, value: removeSpaces(op.value) }
-      : op
+  ops.map((op) =>
+    "value" in op && typeof op.value === "string" ? { ...op, value: removeSpaces(op.value) } : op,
   );

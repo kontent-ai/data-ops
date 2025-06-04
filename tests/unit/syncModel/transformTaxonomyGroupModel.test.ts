@@ -1,4 +1,4 @@
-import { TaxonomyContracts } from "@kontent-ai/management-sdk";
+import type { TaxonomyContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
 import { transformTaxonomyGroupsModel } from "../../../src/modules/sync/modelTransfomers/taxonomyGroups.ts";

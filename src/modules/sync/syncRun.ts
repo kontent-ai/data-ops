@@ -1,14 +1,14 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
+import type { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../log.js";
+import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
-import { Expect } from "../../utils/types.js";
-import { syncEntityDependencies, SyncEntityName } from "./constants/entities.js";
+import type { Expect } from "../../utils/types.js";
+import { type SyncEntityName, syncEntityDependencies } from "./constants/entities.js";
 import { diff } from "./diff.js";
 import { filterModel } from "./generateSyncModel.js";
 import { sync } from "./sync.js";
-import { DiffModel } from "./types/diffModel.js";
-import {
+import type { DiffModel } from "./types/diffModel.js";
+import type {
   AssetFolderSyncModel,
   CollectionSyncModel,
   ContentTypeSnippetsSyncModel,
@@ -26,34 +26,34 @@ import {
 } from "./utils/getContentModel.js";
 import { validateDiffedModel, validateSyncModelFolder } from "./validation.js";
 
+// biome-ignore lint/suspicious/noExplicitAny: The entity is in contravariant position and we need to allow all types so unknown is not possible and the only alternative is any
 type ExpectedSyncEntities = Record<SyncEntityName, ((entity: any) => boolean) | boolean>;
 
 export type SyncEntities = Partial<
-  Expect<ExpectedSyncEntities, {
-    contentTypes: (type: ContentTypeSyncModel) => boolean;
-    contentTypeSnippets: (snippet: ContentTypeSnippetsSyncModel) => boolean;
-    taxonomies: (taxonomy: TaxonomySyncModel) => boolean;
-    assetFolders: (assetFolder: AssetFolderSyncModel) => boolean;
-    collections: (collection: CollectionSyncModel) => boolean;
-    spaces: (space: SpaceSyncModel) => boolean;
-    languages: (language: LanguageSyncModel) => boolean;
-    workflows: (workflow: WorkflowSyncModel) => boolean;
-    webSpotlight: boolean;
-  }>
+  Expect<
+    ExpectedSyncEntities,
+    {
+      contentTypes: (type: ContentTypeSyncModel) => boolean;
+      contentTypeSnippets: (snippet: ContentTypeSnippetsSyncModel) => boolean;
+      taxonomies: (taxonomy: TaxonomySyncModel) => boolean;
+      assetFolders: (assetFolder: AssetFolderSyncModel) => boolean;
+      collections: (collection: CollectionSyncModel) => boolean;
+      spaces: (space: SpaceSyncModel) => boolean;
+      languages: (language: LanguageSyncModel) => boolean;
+      workflows: (workflow: WorkflowSyncModel) => boolean;
+      webSpotlight: boolean;
+    }
+  >
 >;
 
 export type SyncRunParams = Readonly<
-  & {
+  {
     targetEnvironmentId: string;
     targetApiKey: string;
     entities: SyncEntities;
     kontentUrl?: string;
-  }
-  & (
-    | { folderName: string }
-    | { sourceEnvironmentId: string; sourceApiKey: string }
-  )
-  & LogOptions
+  } & ({ folderName: string } | { sourceEnvironmentId: string; sourceApiKey: string }) &
+    LogOptions
 >;
 /**
  * Synchronizes content model between two environments. This function can either synchronize
@@ -120,29 +120,32 @@ const getDiffModel = async (
   }
 
   const fetchDependencies = new Set(
-    Object.keys(params.entities).flatMap(e => syncEntityDependencies[e as SyncEntityName]),
+    Object.keys(params.entities).flatMap((e) => syncEntityDependencies[e as SyncEntityName]),
   );
 
-  const sourceModel = "folderName" in params
-    ? await getSourceSyncModelFromFolder(
-      params.folderName,
-      new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-    ).catch(e => {
-      if (e instanceof AggregateError) {
-        throw new Error(`Parsing model validation errors:\n${e.errors.map(e => e.message).join("\n")}`);
-      }
-      throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
-    })
-    : await fetchSourceSyncModel(
-      createClient({
-        environmentId: params.sourceEnvironmentId,
-        apiKey: params.sourceApiKey,
-        commandName,
-        baseUrl: params.kontentUrl,
-      }),
-      fetchDependencies,
-      params,
-    );
+  const sourceModel =
+    "folderName" in params
+      ? await getSourceSyncModelFromFolder(
+          params.folderName,
+          new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+        ).catch((e) => {
+          if (e instanceof AggregateError) {
+            throw new Error(
+              `Parsing model validation errors:\n${e.errors.map((e) => e.message).join("\n")}`,
+            );
+          }
+          throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+        })
+      : await fetchSourceSyncModel(
+          createClient({
+            environmentId: params.sourceEnvironmentId,
+            apiKey: params.sourceApiKey,
+            commandName,
+            baseUrl: params.kontentUrl,
+          }),
+          fetchDependencies,
+          params,
+        );
 
   const allCodenames = getSourceItemAndAssetCodenames(sourceModel);
 

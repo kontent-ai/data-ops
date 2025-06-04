@@ -1,16 +1,21 @@
+import * as fsPromises from "node:fs/promises";
 import { config as dotenvConfig } from "dotenv";
-import * as fsPromises from "fs/promises";
 import { describe, expect, it } from "vitest";
 
 import { migrateContentRun } from "../../../src/public.ts";
 import { expectSameAllEnvData, prepareReferences } from "../backupRestore/utils/compare.ts";
-import { AllEnvData, loadAllEnvData, loadVariantsByItemCodename } from "../backupRestore/utils/envData.ts";
+import {
+  type AllEnvData,
+  loadAllEnvData,
+  loadVariantsByItemCodename,
+} from "../backupRestore/utils/envData.ts";
 import { runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 
 dotenvConfig();
 
-const { SYNC_SOURCE_TEST_ENVIRONMENT_ID, API_KEY, SYNC_TARGET_TEST_ENVIRONMENT_ID, DELIVERY_KEY } = process.env;
+const { SYNC_SOURCE_TEST_ENVIRONMENT_ID, API_KEY, SYNC_TARGET_TEST_ENVIRONMENT_ID, DELIVERY_KEY } =
+  process.env;
 
 if (!API_KEY) {
   throw new Error("API_KEY env variable was not provided.");
@@ -34,7 +39,7 @@ const expectSameSyncContentEnvironments = async (
   itemCodenames: ReadonlyArray<string>,
 ): Promise<void> => {
   const loadLanguageVariants = async (envData: AllEnvData, environment: string) => {
-    const lang = envData.languages.find(l => l.codename === language);
+    const lang = envData.languages.find((l) => l.codename === language);
 
     if (!lang) {
       throw new Error(`Could not find required language with codename "${language}"`);
@@ -47,10 +52,10 @@ const expectSameSyncContentEnvironments = async (
   };
 
   const data1 = await loadAllEnvData(environmentId1, { include: ["types", "languages"] })
-    .then(res => loadLanguageVariants(res, environmentId1))
+    .then((res) => loadLanguageVariants(res, environmentId1))
     .then(prepareReferences);
   const data2 = await loadAllEnvData(environmentId2, { include: ["types", "languages"] })
-    .then(res => loadLanguageVariants(res, environmentId2))
+    .then((res) => loadLanguageVariants(res, environmentId2))
     .then(prepareReferences);
 
   expectSameAllEnvData(data1, data2, { include: ["variants"] });
@@ -60,12 +65,13 @@ describe.concurrent("Migrate content between two environments with credentials",
   it.concurrent(
     "migrate-content source environment to target environment without linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command =
-        `migrate-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=${language} --items sync_item_1 --verbose --skipConfirmation`;
+      const command = `migrate-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} -l=${language} --items sync_item_1 --verbose --skipConfirmation`;
 
       await runCommand(command);
 
-      await expectSameSyncContentEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, ["sync_item_1"]);
+      await expectSameSyncContentEnvironments(environmentId, SYNC_SOURCE_TEST_ENVIRONMENT_ID, [
+        "sync_item_1",
+      ]);
     }),
   );
 
@@ -94,8 +100,7 @@ describe.concurrent("Migrate content between two environments with credentials",
   it.concurrent(
     "Migrate content from source environment to target environment directly from source environment get item byContentType with linked item",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command =
-        `migrate-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --verbose --skipConfirmation`;
+      const command = `migrate-content run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -119,12 +124,12 @@ describe.concurrent("Migrate content from zip", () => {
   it.sequential("snapshot migrate content", async () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
-    const command =
-      `migrate-content snapshot -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
+    const command = `migrate-content snapshot -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
     await runCommand(command);
 
-    const fileExists = await fsPromises.stat(relativeContentZipPath)
-      .then(stats => stats.isFile())
+    const fileExists = await fsPromises
+      .stat(relativeContentZipPath)
+      .then((stats) => stats.isFile())
       .catch(() => false);
 
     expect(fileExists).toEqual(true);
@@ -133,8 +138,7 @@ describe.concurrent("Migrate content from zip", () => {
   it.sequential(
     "Run migrate content from zip",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command =
-        `migrate-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l=${language} --verbose --skipConfirmation`;
+      const command = `migrate-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l=${language} --verbose --skipConfirmation`;
 
       await runCommand(command);
 

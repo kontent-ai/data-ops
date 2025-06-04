@@ -1,8 +1,6 @@
-import * as childProcess from "child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { config as dotenvConfig } from "dotenv";
-import * as fs from "fs";
-import * as path from "path";
-import { promisify } from "util";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { runCommand } from "../utils/runCommand.ts";
@@ -26,23 +24,21 @@ describe("Advanced diff", () => {
   const dateGeneratedRegex = /<div>state from <strong>.*<\/strong><\/div>/;
 
   it("matches the generated file with the baseline", async () => {
-    const command =
-      `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies collections webSpotlight spaces assetFolders workflows languages -a -n`;
+    const command = `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies collections webSpotlight spaces assetFolders workflows languages -a -n`;
     await runCommand(command);
 
-    const generatedFileContent = fs.readFileSync(outputFilePath, "utf-8")
-      .replace(
-        dateGeneratedRegex,
-        "test-date",
-      );
+    const generatedFileContent = fs
+      .readFileSync(outputFilePath, "utf-8")
+      .replace(dateGeneratedRegex, "test-date");
 
-    const fmtPromise = promisify(childProcess.exec)(`dprint fmt --stdin ${outputFilePath}`);
-    fmtPromise.child.stdin?.write(generatedFileContent);
-    fmtPromise.child.stdin?.end();
+    // TODO: uncomment when biome 2.0 is released with the capability to format html
+    // const fmtPromise = promisify(childProcess.exec)(`biome fmt --stdin ${outputFilePath}`);
+    // fmtPromise.child.stdin?.write(generatedFileContent);
+    // fmtPromise.child.stdin?.end();
+    //
+    // const result = await fmtPromise;
 
-    const result = await fmtPromise;
-
-    expect(result.stdout).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
+    expect(generatedFileContent).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
   });
 
   afterAll(() => {

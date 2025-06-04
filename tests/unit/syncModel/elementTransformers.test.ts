@@ -1,4 +1,4 @@
-import {
+import type {
   AssetContracts,
   ContentItemContracts,
   ContentTypeContracts,
@@ -7,7 +7,7 @@ import {
 } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
-import { LogOptions } from "../../../src/log.ts";
+import type { LogOptions } from "../../../src/log.ts";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -21,7 +21,7 @@ import {
   transformTaxonomyElement,
   transformUrlSlugElement,
 } from "../../../src/modules/sync/modelTransfomers/elementTransformers.ts";
-import {
+import type {
   ContentTypeSnippetsWithUnionElements,
   SnippetElement,
 } from "../../../src/modules/sync/types/contractModels.ts";
@@ -31,9 +31,7 @@ const logOptions: LogOptions = {
   verbose: false,
 };
 
-const createSnippet = (
-  elements: SnippetElement[],
-): ContentTypeSnippetsWithUnionElements => ({
+const createSnippet = (elements: SnippetElement[]): ContentTypeSnippetsWithUnionElements => ({
   id: "snippetId",
   name: "snippet",
   codename: "snippet",
@@ -105,22 +103,24 @@ const taxonomyGroups = [
     codename: "taxonomy_group_1",
     last_modified: "",
     external_id: "taxonomyGroupExtId1",
-    terms: [{
-      id: "termId1",
-      name: "term 1",
-      codename: "term_1",
-      last_modified: "",
-      external_id: "termExtId1",
-      terms: [
-        {
-          id: "termId2",
-          name: "term 2",
-          codename: "term_2",
-          last_modified: "",
-          terms: [],
-        },
-      ],
-    }],
+    terms: [
+      {
+        id: "termId1",
+        name: "term 1",
+        codename: "term_1",
+        last_modified: "",
+        external_id: "termExtId1",
+        terms: [
+          {
+            id: "termId2",
+            name: "term 2",
+            codename: "term_2",
+            last_modified: "",
+            terms: [],
+          },
+        ],
+      },
+    ],
   },
 ] as const satisfies ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
 
@@ -211,7 +211,9 @@ describe("elementTransfomers test", () => {
       ...element,
       id: undefined,
       external_id: undefined,
-      default: { global: { value: [{ external_id: assets[0].external_id, codename: assets[0].codename }] } },
+      default: {
+        global: { value: [{ external_id: assets[0].external_id, codename: assets[0].codename }] },
+      },
     };
 
     const transformedElement = transformAssetElement(element, assets, logOptions);
@@ -288,7 +290,12 @@ describe("elementTransfomers test", () => {
         id: "taxonomyGroupId1",
       },
       default: {
-        global: { value: [{ id: taxonomyGroups[0].terms[0].id }, { id: taxonomyGroups[0].terms[0].terms[0].id }] },
+        global: {
+          value: [
+            { id: taxonomyGroups[0].terms[0].id },
+            { id: taxonomyGroups[0].terms[0].terms[0].id },
+          ],
+        },
       },
     };
 
@@ -345,7 +352,12 @@ describe("elementTransfomers test", () => {
       allowed_content_types: [{ codename: contentTypes[0].codename }],
     };
 
-    const transformedElement = transformLinkedItemsElement(element, contentTypes, items, logOptions);
+    const transformedElement = transformLinkedItemsElement(
+      element,
+      contentTypes,
+      items,
+      logOptions,
+    );
 
     expect(transformedElement).toEqual(expectedOutput);
   });
@@ -410,13 +422,11 @@ describe("elementTransfomers test", () => {
   it("transformDefaultElement correctly transforms element", () => {
     const transformedElement = transformDefaultElement(dummyElement);
 
-    expect(transformedElement).toEqual(
-      {
-        ...dummyElement,
-        external_id: undefined,
-        id: undefined,
-      },
-    );
+    expect(transformedElement).toEqual({
+      ...dummyElement,
+      external_id: undefined,
+      id: undefined,
+    });
   });
 
   it("transformUrlSlugElement correctly transform element with depends only on type element", () => {
@@ -507,20 +517,26 @@ describe("elementTransfomers test", () => {
     const element: ContentTypeElements.ISubpagesElement = {
       ...commonElementProps,
       type: "subpages",
-      allowed_content_types: [{
-        id: contentTypes[0].id,
-      }],
+      allowed_content_types: [
+        {
+          id: contentTypes[0].id,
+        },
+      ],
     };
 
     const expectedOutput = {
       ...element,
       id: undefined,
       external_id: undefined,
-      allowed_content_types: [{
-        codename: contentTypes[0].codename,
-      }],
+      allowed_content_types: [
+        {
+          codename: contentTypes[0].codename,
+        },
+      ],
     };
 
-    expect(transformSubpagesElement(element, contentTypes, items, logOptions)).toEqual(expectedOutput);
+    expect(transformSubpagesElement(element, contentTypes, items, logOptions)).toEqual(
+      expectedOutput,
+    );
   });
 });

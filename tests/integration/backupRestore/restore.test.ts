@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { restoreEnvironment } from "../../../src/public.ts";
 import { expectHelpText } from "../utils/expectations.ts";
-import { CommandError, runCommand } from "../utils/runCommand.ts";
+import { type CommandError, runCommand } from "../utils/runCommand.ts";
 import { withTestEnvironment } from "../utils/setup.ts";
 import { expectSameEnvironments } from "./utils/compare.ts";
 import {
@@ -36,21 +36,21 @@ if (!API_KEY) {
 describe("restore command", () => {
   it.concurrent(
     "Restores all entities properly into the target project",
-    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
-      const command =
-        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --verbose`;
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async (environmentId) => {
+      const command = `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --verbose`;
 
       await runCommand(command);
 
-      await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, { exclude: ["roles"] });
+      await expectSameEnvironments(environmentId, EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, {
+        exclude: ["roles"],
+      });
     }),
   );
 
   it.concurrent(
     "Restores only entities specified in the include parameter",
-    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
-      const command =
-        `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --include collections languages taxonomies`;
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async (environmentId) => {
+      const command = `environment restore -e=${environmentId} -f=tests/integration/backupRestore/data/backup.zip -k=${API_KEY} --include collections languages taxonomies`;
 
       await runCommand(command);
 
@@ -72,7 +72,7 @@ describe("restore command", () => {
 
   it.concurrent(
     "Restores all entities except those specified in the exclude parameter using API",
-    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async (environmentId) => {
       await restoreEnvironment({
         environmentId: environmentId,
         fileName: "tests/integration/backupRestore/data/backup.zip",
@@ -123,7 +123,7 @@ describe("restore command", () => {
 
   it.concurrent(
     "Restores only active languages when excludeInactiveLanguages is set to true",
-    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async environmentId => {
+    withTestEnvironment(EMPTY_TEST_ENVIRONMENT_ID, async (environmentId) => {
       await restoreEnvironment({
         environmentId: environmentId,
         fileName: "tests/integration/backupRestore/data/backup.zip",
@@ -155,7 +155,7 @@ describe("restore command", () => {
     const command =
       "environment restore --include collections contentTypes --exclude contentTypes -f test -k test -e test";
 
-    const result = await runCommand(command).catch(err => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
     expect(result.stdout).toBe("");
     await expectHelpText(result.stderr, "environment restore");
@@ -163,24 +163,26 @@ describe("restore command", () => {
   });
 
   it.concurrent("Errors with help when include contains invalid entity names", async () => {
-    const command = "environment restore --include collections invalidEntity -f test -k test -e test";
+    const command =
+      "environment restore --include collections invalidEntity -f test -k test -e test";
 
-    const result = await runCommand(command).catch(err => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
     expect(result.stdout).toBe("");
     await expectHelpText(result.stderr, "environment restore");
     expect(result.stderr).toContain("Invalid values");
-    expect(result.stderr).toContain("include, Given: \"invalidEntity\", Choices: ");
+    expect(result.stderr).toContain('include, Given: "invalidEntity", Choices: ');
   });
 
   it.concurrent("Errors with help when exclude contains invalid entity names", async () => {
-    const command = "environment restore --exclude collections invalidEntity -f test -k test -e test";
+    const command =
+      "environment restore --exclude collections invalidEntity -f test -k test -e test";
 
-    const result = await runCommand(command).catch(err => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
     expect(result.stdout).toBe("");
     await expectHelpText(result.stderr, "environment restore");
     expect(result.stderr).toContain("Invalid values");
-    expect(result.stderr).toContain("exclude, Given: \"invalidEntity\", Choices: ");
+    expect(result.stderr).toContain('exclude, Given: "invalidEntity", Choices: ');
   });
 });

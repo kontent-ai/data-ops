@@ -1,7 +1,7 @@
-import { ManagementClient } from "@kontent-ai/management-sdk";
+import type { ManagementClient } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../log.js";
-import { SyncEntityName } from "./constants/entities.js";
+import type { LogOptions } from "../../log.js";
+import type { SyncEntityName } from "./constants/entities.js";
 import { syncAssetFolders } from "./sync/assetFolders.js";
 import { syncAddAndReplaceCollections, syncRemoveCollections } from "./sync/collections.js";
 import { syncLanguages } from "./sync/languages.js";
@@ -14,11 +14,15 @@ import {
 } from "./sync/snippets.js";
 import { syncSpaces } from "./sync/spaces.js";
 import { syncTaxonomies } from "./sync/taxonomy.js";
-import { addTypesWithoutReferences, deleteContentTypes, updateContentTypesAndAddReferences } from "./sync/types.js";
+import {
+  addTypesWithoutReferences,
+  deleteContentTypes,
+  updateContentTypesAndAddReferences,
+} from "./sync/types.js";
 import { isOp } from "./sync/utils.js";
 import { updateWebSpotlight } from "./sync/webSpotlight.js";
 import { syncWorkflows } from "./sync/workflows.js";
-import { DiffModel } from "./types/diffModel.js";
+import type { DiffModel } from "./types/diffModel.js";
 
 export const sync = async (
   client: ManagementClient,
@@ -55,8 +59,9 @@ export const sync = async (
     await addSnippetsWithoutReferences(client, diff.contentTypeSnippets.added, logOptions);
   }
 
-  const updateSnippetAddIntoOps = [...diff.contentTypeSnippets.updated]
-    .map(([c, ops]) => [c, ops.filter(isOp("addInto"))] as const);
+  const updateSnippetAddIntoOps = [...diff.contentTypeSnippets.updated].map(
+    ([c, ops]) => [c, ops.filter(isOp("addInto"))] as const,
+  );
 
   if (entities.has("contentTypeSnippets")) {
     await addElementsIntoSnippetsWithoutReferences(client, updateSnippetAddIntoOps, logOptions);
@@ -67,7 +72,12 @@ export const sync = async (
   }
 
   if (entities.has("contentTypeSnippets")) {
-    await addSnippetsReferences(client, updateSnippetAddIntoOps, diff.contentTypeSnippets.added, logOptions);
+    await addSnippetsReferences(
+      client,
+      updateSnippetAddIntoOps,
+      diff.contentTypeSnippets.added,
+      logOptions,
+    );
   }
 
   if (entities.has("contentTypes")) {

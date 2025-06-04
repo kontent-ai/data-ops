@@ -1,7 +1,11 @@
-import { SharedContracts } from "@kontent-ai/management-sdk";
-import { z } from "zod";
+import type { SharedContracts } from "@kontent-ai/management-sdk";
+import type { z } from "zod";
 
-export type MapValues<Map extends ReadonlyMap<unknown, unknown>> = Map extends ReadonlyMap<unknown, infer Res> ? Res
+export type MapValues<Map extends ReadonlyMap<unknown, unknown>> = Map extends ReadonlyMap<
+  unknown,
+  infer Res
+>
+  ? Res
   : never;
 
 export type IdReference = Readonly<{ id: string }>;
@@ -14,33 +18,44 @@ export type CodenameReference = Readonly<{ codename: string }>;
  *
  * @example ReplaceReferences<LanguageVariantContracts.ILanguageVariantModel, MyBetterReference>
  */
-export type ReplaceReferences<T, R extends IdReference | CodenameReference = IdReference> = T extends object ? {
-    [K in keyof T]: T[K] extends SharedContracts.IReferenceObjectContract
-      ? SharedContracts.IReferenceObjectContract extends T[K] ? R : ReplaceReferences<T[K], R>
-      : ReplaceReferences<T[K], R>;
-  }
+export type ReplaceReferences<
+  T,
+  R extends IdReference | CodenameReference = IdReference,
+> = T extends object
+  ? {
+      [K in keyof T]: T[K] extends SharedContracts.IReferenceObjectContract
+        ? SharedContracts.IReferenceObjectContract extends T[K]
+          ? R
+          : ReplaceReferences<T[K], R>
+        : ReplaceReferences<T[K], R>;
+    }
   : T;
 
 export type RequiredId<T extends { [key in "id"]?: string }> = Replace<T, { id: string }>;
-export type RequiredCodename<T extends { [key in "codename"]?: string }> = Replace<T, { codename: string }>;
+export type RequiredCodename<T extends { [key in "codename"]?: string }> = Replace<
+  T,
+  { codename: string }
+>;
 
-export type Replace<T, NewValues extends { [key in keyof T]?: unknown }> = T extends any ?
-    & Omit<T, keyof NewValues>
-    & Readonly<NewValues>
+export type Replace<T, NewValues extends { [key in keyof T]?: unknown }> = T extends unknown
+  ? Omit<T, keyof NewValues> & Readonly<NewValues>
   : never;
 
 /**
  * Original Pick type extended to work on Union type objects
  */
-export type SuperiorPick<T, K extends keyof T> = T extends any ? {
-    [P in K]: T[P];
-  }
+export type SuperiorPick<T, K extends keyof T> = T extends unknown
+  ? {
+      [P in K]: T[P];
+    }
   : never;
 
 /**
  * Original Omit type extended to work on Union type objects
  */
-export type SuperiorOmit<T, K extends keyof any> = T extends any ? SuperiorPick<T, Exclude<keyof T, K>> : never;
+export type SuperiorOmit<T, K extends keyof T> = T extends unknown
+  ? SuperiorPick<T, Exclude<keyof T, K>>
+  : never;
 
 /**
  * A utility type that takes an object type and returns an union type representing
@@ -63,10 +78,13 @@ export type SuperiorOmit<T, K extends keyof any> = T extends any ? SuperiorPick<
  * // { id?: undefined; name: string; email?: undefined } |
  * // { id?: undefined; name?: undefined; email: string; }
  */
-export type AnyOnePropertyOf<Obj extends object> = [keyof Obj, keyof Obj] extends
-  [infer Key, infer AllKeys extends keyof Obj]
-  ? Key extends keyof Obj ? { [K in Key]: Obj[K] } & { [K in Exclude<AllKeys, Key>]?: undefined }
-  : never
+export type AnyOnePropertyOf<Obj extends object> = [keyof Obj, keyof Obj] extends [
+  infer Key,
+  infer AllKeys extends keyof Obj,
+]
+  ? Key extends keyof Obj
+    ? { [K in Key]: Obj[K] } & { [K in Exclude<AllKeys, Key>]?: undefined }
+    : never
   : never;
 
 export type Expect<T, U extends T> = U;
@@ -93,9 +111,10 @@ export type Expect<T, U extends T> = U;
  * - If `Tuple` extends `ReadonlyArray<Object>`, meaning it is not a fixed-length tuple of objects,
  *   the resulting type is `never`.
  */
-export type AddPropToObjectTuple<Tuple extends ReadonlyArray<Object>, ToAdd extends object> =
-  ReadonlyArray<Object> extends Tuple ? never
-    : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
+export type AddPropToObjectTuple<
+  Tuple extends ReadonlyArray<unknown>,
+  ToAdd extends object,
+> = ReadonlyArray<unknown> extends Tuple ? never : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
 
 /**
  * Maps a tuple of key-value pairs to an object type.
@@ -111,15 +130,16 @@ export type AddPropToObjectTuple<Tuple extends ReadonlyArray<Object>, ToAdd exte
  * //   age: number;
  * // }
  */
-export type ObjectFromTuple<T extends readonly (readonly [string, any])[]> = {
-  [K in T[number][0]]: Extract<T[number], readonly [K, any]>[1];
+export type ObjectFromTuple<T extends readonly (readonly [string, unknown])[]> = {
+  [K in T[number][0]]: Extract<T[number], readonly [K, unknown]>[1];
 };
 
 export type IsSubset<A, B extends A> = B;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type IsFullEnum<ActualEnum extends string, FullEnum extends ActualEnum, _ActualEnum2 extends FullEnum> =
-  ReadonlyArray<
-    unknown
-  >;
+export type IsFullEnum<
+  ActualEnum extends string,
+  FullEnum extends ActualEnum,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _ActualEnum2 extends FullEnum,
+> = ReadonlyArray<unknown>;
 
 export type RequiredZodObject<T> = Readonly<{ [K in keyof T]-?: z.ZodType<T[K]> }>;

@@ -15,13 +15,11 @@ export const serializeDateForFileName = (date: Date, level: DateLevel) =>
     .join("-");
 
 const createDateParts = (date: Date) =>
-  Object.values(
-    {
-      [DateLevel.Year]: date.getUTCFullYear().toString(),
-      [DateLevel.Month]: padWithLeadingZeros(date.getUTCMonth() + 1, 2),
-      [DateLevel.Day]: padWithLeadingZeros(date.getUTCDate(), 2),
-      [DateLevel.Hour]: padWithLeadingZeros(date.getUTCHours(), 2),
-      [DateLevel.Minute]: padWithLeadingZeros(date.getUTCMinutes(), 2),
-      [DateLevel.Second]: padWithLeadingZeros(date.getUTCSeconds(), 2),
-    } as const satisfies Record<DateLevel, string>,
-  );
+  Object.values({
+    [DateLevel.Year]: date.getUTCFullYear().toString(),
+    [DateLevel.Month]: padWithLeadingZeros(date.getUTCMonth() + 1, 2),
+    [DateLevel.Day]: padWithLeadingZeros(date.getUTCDate(), 2),
+    [DateLevel.Hour]: padWithLeadingZeros(date.getUTCHours(), 2),
+    [DateLevel.Minute]: padWithLeadingZeros(date.getUTCMinutes(), 2),
+    [DateLevel.Second]: padWithLeadingZeros(date.getUTCSeconds(), 2),
+  } as const satisfies Record<DateLevel, string>);

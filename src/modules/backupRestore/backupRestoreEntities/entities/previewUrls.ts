@@ -1,37 +1,41 @@
-import { PreviewContracts } from "@kontent-ai/management-sdk";
+import type { PreviewContracts } from "@kontent-ai/management-sdk";
 
 import { notNull } from "../../../../utils/typeguards.js";
-import { EntityDefinition } from "../entityDefinition.js";
+import type { EntityDefinition } from "../entityDefinition.js";
 
 export const previewUrlsEntity = {
   name: "previewUrls",
   displayName: "previewUrls",
-  fetchEntities: client => client.getPreviewConfiguration().toPromise().then(res => res.rawData),
-  serializeEntities: previewUrls => JSON.stringify(previewUrls),
+  fetchEntities: (client) =>
+    client
+      .getPreviewConfiguration()
+      .toPromise()
+      .then((res) => res.rawData),
+  serializeEntities: (previewUrls) => JSON.stringify(previewUrls),
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities: previews, context }) => {
     await client
       .modifyPreviewConfiguration()
       .withData({
         space_domains: previews.space_domains
-          .map(s => {
+          .map((s) => {
             const newSpaceId = context.spaceIdsByOldIds.get(s.space.id);
 
-            return newSpaceId ? [s, newSpaceId] as const : null;
+            return newSpaceId ? ([s, newSpaceId] as const) : null;
           })
           .filter(notNull)
           .map(([s, newSpaceId]) => ({ ...s, space: { id: newSpaceId } })),
 
         preview_url_patterns: previews.preview_url_patterns
-          .map(s => {
+          .map((s) => {
             const newTypeId = context.contentTypeContextByOldIds.get(s.content_type.id)?.selfId;
 
-            return newTypeId ? [s, newTypeId] as const : null;
+            return newTypeId ? ([s, newTypeId] as const) : null;
           })
           .filter(notNull)
           .map(([p, newTypeId]) => {
             const newUrlPatterns = p.url_patterns
-              .map(u => {
+              .map((u) => {
                 if (!u.space) {
                   return u;
                 }
@@ -46,8 +50,10 @@ export const previewUrlsEntity = {
           }),
       })
       .toPromise();
+
+    return context;
   },
-  cleanEntities: async client => {
+  cleanEntities: async (client) => {
     await client
       .modifyPreviewConfiguration()
       .withData({

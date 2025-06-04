@@ -1,12 +1,16 @@
-import { AssetFolderContracts, AssetFolderModels } from "@kontent-ai/management-sdk";
+import type { AssetFolderContracts, AssetFolderModels } from "@kontent-ai/management-sdk";
 
 import { zip } from "../../../../utils/array.js";
-import { EntityDefinition } from "../entityDefinition.js";
+import type { EntityDefinition } from "../entityDefinition.js";
 
 export const assetFoldersEntity = {
   name: "assetFolders",
   displayName: "assetFolders",
-  fetchEntities: client => client.listAssetFolders().toPromise().then(res => res.rawData.folders),
+  fetchEntities: (client) =>
+    client
+      .listAssetFolders()
+      .toPromise()
+      .then((res) => res.rawData.folders),
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities: fileFolders, context }) => {
@@ -18,11 +22,13 @@ export const assetFoldersEntity = {
       .modifyAssetFolders()
       .withData(fileFolders.map(createPatchToAddFolder))
       .toPromise()
-      .then(res => res.rawData.folders);
+      .then((res) => res.rawData.folders);
 
     return {
       ...context,
-      assetFolderIdsByOldIds: new Map(zip(fileFolders, projectFolders).flatMap(extractFolderIdEntries)),
+      assetFolderIdsByOldIds: new Map(
+        zip(fileFolders, projectFolders).flatMap(extractFolderIdEntries),
+      ),
     };
   },
   cleanEntities: async (client, assetFolders) => {
@@ -65,12 +71,10 @@ const createSubFolder = (
   external_id: folder.external_id ?? folder.id,
 });
 
-const extractFolderIdEntries = (
-  [fileFolder, projectFolder]: readonly [
-    AssetFolderContracts.IAssetFolderContract,
-    AssetFolderContracts.IAssetFolderContract,
-  ],
-): ReadonlyArray<readonly [string, string]> => [
+const extractFolderIdEntries = ([fileFolder, projectFolder]: readonly [
+  AssetFolderContracts.IAssetFolderContract,
+  AssetFolderContracts.IAssetFolderContract,
+]): ReadonlyArray<readonly [string, string]> => [
   [fileFolder.id, projectFolder.id] as const,
   ...zip(fileFolder.folders, projectFolder.folders).flatMap(extractFolderIdEntries),
 ];
