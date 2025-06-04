@@ -1,7 +1,5 @@
-import * as childProcess from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { promisify } from "node:util";
 import { config as dotenvConfig } from "dotenv";
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -33,13 +31,14 @@ describe("Advanced diff", () => {
       .readFileSync(outputFilePath, "utf-8")
       .replace(dateGeneratedRegex, "test-date");
 
-    const fmtPromise = promisify(childProcess.exec)(`dprint fmt --stdin ${outputFilePath}`);
-    fmtPromise.child.stdin?.write(generatedFileContent);
-    fmtPromise.child.stdin?.end();
+    // TODO: uncomment when biome 2.0 is released with the capability to format html
+    // const fmtPromise = promisify(childProcess.exec)(`biome fmt --stdin ${outputFilePath}`);
+    // fmtPromise.child.stdin?.write(generatedFileContent);
+    // fmtPromise.child.stdin?.end();
+    //
+    // const result = await fmtPromise;
 
-    const result = await fmtPromise;
-
-    expect(result.stdout).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
+    expect(generatedFileContent).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
   });
 
   afterAll(() => {
