@@ -24,16 +24,19 @@ describe("getItemsCodenames", () => {
     expect(result).toStrictEqual(["sync_draft_item_1", "sync_item_1", "sync_item_2"]);
   });
 
-  it.concurrent("should return correct items codenames using custom filter by type codename", async () => {
-    const client = createDeliveryClient({ environmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID });
+  it.concurrent(
+    "should return correct items codenames using custom filter by type codename",
+    async () => {
+      const client = createDeliveryClient({ environmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID });
 
-    const filter = "system.type=no_change_base_type";
-    const language = "default";
+      const filter = "system.type=no_change_base_type";
+      const language = "default";
 
-    const result = await getItemsCodenames(client, { filter, language });
+      const result = await getItemsCodenames(client, { filter, language });
 
-    expect(result).toStrictEqual(["sync_draft_item_1", "sync_item_1", "sync_item_2"]);
-  });
+      expect(result).toStrictEqual(["sync_draft_item_1", "sync_item_1", "sync_item_2"]);
+    },
+  );
 
   it.concurrent("should return correct items codenames with custom items codename", async () => {
     const client = createDeliveryClient({ environmentId: SYNC_SOURCE_TEST_ENVIRONMENT_ID });

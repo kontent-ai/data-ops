@@ -1,8 +1,11 @@
-import { LogOptions } from "../../../log.js";
+import type { LogOptions } from "../../../log.js";
 import { omit, removeNulls } from "../../../utils/object.js";
-import { EnvironmentModel } from "../generateSyncModel.js";
-import { ContentTypeSnippetsWithUnionElements, SnippetElement } from "../types/contractModels.js";
-import { ContentTypeSnippetsSyncModel, SyncSnippetElement } from "../types/syncModel.js";
+import type { EnvironmentModel } from "../generateSyncModel.js";
+import type {
+  ContentTypeSnippetsWithUnionElements,
+  SnippetElement,
+} from "../types/contractModels.js";
+import type { ContentTypeSnippetsSyncModel, SyncSnippetElement } from "../types/syncModel.js";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -18,11 +21,10 @@ export const transformContentTypeSnippetsModel = (
   environmentModel: EnvironmentModel,
   logOptions: LogOptions,
 ) =>
-  environmentModel.contentTypeSnippets.map(snippet => {
-    const syncSnippetElements = snippet.elements
-      .map<SyncSnippetElement>(
-        element => omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"]),
-      );
+  environmentModel.contentTypeSnippets.map((snippet) => {
+    const syncSnippetElements = snippet.elements.map<SyncSnippetElement>((element) =>
+      omit(transformElement(element, snippet, environmentModel, logOptions), ["content_group"]),
+    );
 
     return removeNulls({
       ...omit(snippet, ["id", "last_modified", "external_id"]),
@@ -52,11 +54,7 @@ const transformElement = (
         logOptions,
       );
     case "taxonomy":
-      return transformTaxonomyElement(
-        element,
-        environmentModel.taxonomyGroups,
-        logOptions,
-      );
+      return transformTaxonomyElement(element, environmentModel.taxonomyGroups, logOptions);
     case "multiple_choice":
       return transformMultipleChoiceElement(element);
     case "custom":

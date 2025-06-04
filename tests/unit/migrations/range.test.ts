@@ -22,7 +22,10 @@ describe("parseRange", () => {
     { input: ":T2023-01-01", result: { from: 0, to: new Date("2023-01-01T00:00:00Z") } },
     { input: "0:T2023-01-01", result: { from: 0, to: new Date("2023-01-01T00:00:00Z") } },
     { input: "10:T2023-01-01", result: { from: 10, to: new Date("2023-01-01T00:00:00Z") } },
-    { input: "T2024:T2024-01-01", result: { from: new Date("2024"), to: new Date("2024-01-01T00:00:00Z") } },
+    {
+      input: "T2024:T2024-01-01",
+      result: { from: new Date("2024"), to: new Date("2024-01-01T00:00:00Z") },
+    },
     {
       input: "T2024-01-01:T2024-01-02",
       result: { from: new Date("2024-01-01"), to: new Date("2024-01-02T00:00:00Z") },
@@ -58,7 +61,7 @@ describe("validateRange", () => {
     { from: new Date("2024-01-01T00:00Z"), to: new Date("2023-12-31T00:00Z") },
     { from: 5, to: 2 },
     { from: new Date("2024"), to: 1 },
-  ].forEach(input => {
+  ].forEach((input) => {
     it("should return an error when right side of order is higher than left", () => {
       const err = { err: "Left side of range can't be bigger than right side!" };
 

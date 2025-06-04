@@ -1,10 +1,10 @@
-import { ContentTypeElements } from "@kontent-ai/management-sdk";
+import type { ContentTypeElements } from "@kontent-ai/management-sdk";
 
-import { LogOptions } from "../../../log.js";
+import type { LogOptions } from "../../../log.js";
 import { omit, removeNulls } from "../../../utils/object.js";
-import { EnvironmentModel } from "../generateSyncModel.js";
-import { ContentTypeWithUnionElements } from "../types/contractModels.js";
-import { ContentTypeSyncModel, SyncTypeElement } from "../types/syncModel.js";
+import type { EnvironmentModel } from "../generateSyncModel.js";
+import type { ContentTypeWithUnionElements } from "../types/contractModels.js";
+import type { ContentTypeSyncModel, SyncTypeElement } from "../types/syncModel.js";
 import {
   transformAssetElement,
   transformCustomElement,
@@ -23,11 +23,13 @@ export const transformContentTypeModel = (
   environmentModel: EnvironmentModel,
   logOptions: LogOptions,
 ) => {
-  return environmentModel.contentTypes.map(type => {
-    const transformedElements = type.elements.map<SyncTypeElement>(element => {
+  return environmentModel.contentTypes.map((type) => {
+    const transformedElements = type.elements.map<SyncTypeElement>((element) => {
       const updatedElement = transformElement(element, type, environmentModel, logOptions);
 
-      const contentGroup = type.content_groups?.find(group => group.id === element.content_group?.id);
+      const contentGroup = type.content_groups?.find(
+        (group) => group.id === element.content_group?.id,
+      );
 
       if (type.content_groups?.length && !contentGroup) {
         throw new Error(
@@ -35,16 +37,16 @@ export const transformContentTypeModel = (
         );
       }
 
-      return ({
+      return {
         ...updatedElement,
         content_group: contentGroup ? { codename: contentGroup.codename as string } : undefined,
-      });
+      };
     });
 
     return removeNulls({
       ...omit(type, ["id", "last_modified", "external_id"]),
       elements: transformedElements,
-      content_groups: type.content_groups?.map(group => ({
+      content_groups: type.content_groups?.map((group) => ({
         ...omit(group, ["id", "external_id"]),
         codename: group.codename as string,
       })),
@@ -74,11 +76,7 @@ const transformElement = (
         logOptions,
       );
     case "taxonomy":
-      return transformTaxonomyElement(
-        element,
-        environmentModel.taxonomyGroups,
-        logOptions,
-      );
+      return transformTaxonomyElement(element, environmentModel.taxonomyGroups, logOptions);
     case "multiple_choice":
       return transformMultipleChoiceElement(element);
     case "custom":
@@ -88,7 +86,12 @@ const transformElement = (
     case "rich_text":
       return transformRichTextElement(element, environmentModel.contentTypes, logOptions);
     case "subpages":
-      return transformSubpagesElement(element, environmentModel.contentTypes, environmentModel.items, logOptions);
+      return transformSubpagesElement(
+        element,
+        environmentModel.contentTypes,
+        environmentModel.items,
+        logOptions,
+      );
     case "snippet":
       return transformSnippetElement(element, environmentModel.contentTypeSnippets);
     case "url_slug":

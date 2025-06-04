@@ -9,9 +9,9 @@ import {
   itemOrComponentAttributeName,
   itemOrComponentRegex,
 } from "../../../../../constants/richText.js";
-import { LogOptions, logWarning } from "../../../../../log.js";
+import { type LogOptions, logWarning } from "../../../../../log.js";
 import { createAssetExternalId, createItemExternalId } from "../../../../../utils/externalIds.js";
-import { RestoreContext } from "../../entityDefinition.js";
+import type { RestoreContext } from "../../entityDefinition.js";
 
 type ReferenceReplacer = <T extends string>(
   foundId: string,
@@ -29,17 +29,26 @@ type ReplaceRichTextReferencesParams = Readonly<{
 export const replaceRichTextReferences = (params: ReplaceRichTextReferencesParams): string =>
   params.richText
     .replaceAll(assetRegex, (_, oldAssetId /* from the regex capture group*/) =>
-      params.replaceAssetId(oldAssetId, id =>
-        `${assetAttributeName}="${id}"`, eId =>
-        `${assetExternalIdAttributeName}="${eId}"`))
+      params.replaceAssetId(
+        oldAssetId,
+        (id) => `${assetAttributeName}="${id}"`,
+        (eId) => `${assetExternalIdAttributeName}="${eId}"`,
+      ),
+    )
     .replaceAll(itemOrComponentRegex, (_, oldItemId /* from the regex capture group*/) =>
-      params.replaceItemId(oldItemId, id =>
-        `${itemOrComponentAttributeName}="${id}"`, eId =>
-        `${itemExternalIdAttributeName}="${eId}"`))
+      params.replaceItemId(
+        oldItemId,
+        (id) => `${itemOrComponentAttributeName}="${id}"`,
+        (eId) => `${itemExternalIdAttributeName}="${eId}"`,
+      ),
+    )
     .replaceAll(itemLinkRegex, (_, oldItemId /* from the regex capture group*/) =>
-      params.replaceItemLinkId(oldItemId, id =>
-        `${itemLinkAttributeName}="${id}"`, eId =>
-        `${itemExternalIdLinkAttributeName}="${eId}"`));
+      params.replaceItemLinkId(
+        oldItemId,
+        (id) => `${itemLinkAttributeName}="${id}"`,
+        (eId) => `${itemExternalIdLinkAttributeName}="${eId}"`,
+      ),
+    );
 
 export const replaceImportRichTextReferences = (
   richText: string,
@@ -52,8 +61,14 @@ export const replaceImportRichTextReferences = (
     replaceAssetId: (oldAssetId, asInternalId, asExternalId) => {
       const newAssetId = context.assetIdsByOldIds.get(oldAssetId);
       if (!newAssetId) {
-        logWarning(logOptions, "standard", `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`);
-        return asExternalId(createAssetExternalId(context.oldAssetCodenamesByIds.get(oldAssetId) ?? oldAssetId));
+        logWarning(
+          logOptions,
+          "standard",
+          `Found asset id "${oldAssetId}" of a non-existent asset in the rich text.`,
+        );
+        return asExternalId(
+          createAssetExternalId(context.oldAssetCodenamesByIds.get(oldAssetId) ?? oldAssetId),
+        );
       }
 
       return asInternalId(newAssetId);
@@ -66,8 +81,14 @@ export const replaceImportRichTextReferences = (
 
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
-        logWarning(logOptions, "standard", `Found item id "${oldItemId}" of a non-existent item in the rich text.`);
-        return asExternalId(createItemExternalId(context.oldContentItemCodenamesByIds.get(oldItemId) ?? oldItemId));
+        logWarning(
+          logOptions,
+          "standard",
+          `Found item id "${oldItemId}" of a non-existent item in the rich text.`,
+        );
+        return asExternalId(
+          createItemExternalId(context.oldContentItemCodenamesByIds.get(oldItemId) ?? oldItemId),
+        );
       }
 
       return asInternalId(newItemId.selfId);
@@ -75,7 +96,11 @@ export const replaceImportRichTextReferences = (
     replaceItemLinkId: (oldItemId, asInternalId, asExternalId) => {
       const newItemId = context.contentItemContextByOldIds.get(oldItemId);
       if (!newItemId) {
-        logWarning(logOptions, "standard", `Found a link to a non-existent item id "${oldItemId}" in the rich text.`);
+        logWarning(
+          logOptions,
+          "standard",
+          `Found a link to a non-existent item id "${oldItemId}" in the rich text.`,
+        );
         return asExternalId(context.oldContentItemCodenamesByIds.get(oldItemId) ?? oldItemId);
       }
 

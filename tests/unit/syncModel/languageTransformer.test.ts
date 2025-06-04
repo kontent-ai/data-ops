@@ -1,4 +1,4 @@
-import { LanguageContracts } from "@kontent-ai/management-sdk";
+import type { LanguageContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
 import { transformLanguageModel } from "../../../src/modules/sync/modelTransfomers/language.js";

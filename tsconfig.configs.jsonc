@@ -2,9 +2,7 @@
   "compilerOptions": {
     /* Language and Environment */
     "target": "es2022",
-    "lib": [
-      "esnext"
-    ],
+    "lib": ["esnext"],
     /* Modules */
     "module": "nodenext",
     "moduleResolution": "nodenext",
@@ -21,8 +19,5 @@
     "noErrorTruncation": true,
     "skipLibCheck": true
   },
-  "include": [
-    "./vitest.config.unit.ts",
-    "./vitest.config.integration.ts"
-  ]
+  "include": ["./vitest.config.unit.ts", "./vitest.config.integration.ts"]
 }

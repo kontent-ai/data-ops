@@ -1,16 +1,16 @@
-import { logError, LogOptions } from "../../../log.js";
-import { addMigration, AddMigrationParams } from "../../../modules/migrations/add.js";
-import { MigrationModuleType } from "../../../modules/migrations/models/migration.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import { type LogOptions, logError } from "../../../log.js";
+import { type AddMigrationParams, addMigration } from "../../../modules/migrations/add.js";
+import type { MigrationModuleType } from "../../../modules/migrations/models/migration.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "add";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "add",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("name", {
           alias: "n",
@@ -34,7 +34,8 @@ export const register: RegisterCommand = yargs =>
         })
         .option("timestamp", {
           alias: "d",
-          describe: "Sets the current DateTime in the order property and prefixes the migration name with it.",
+          describe:
+            "Sets the current DateTime in the order property and prefixes the migration name with it.",
           type: "boolean",
           conflicts: ["order"],
         })
@@ -45,24 +46,24 @@ export const register: RegisterCommand = yargs =>
           conflicts: ["timestamp"],
         })
         .option("padWithLeadingZeros", {
-          describe: "Specifies the number of leading zeros for the order number in the migration file name.",
+          describe:
+            "Specifies the number of leading zeros for the order number in the migration file name.",
           type: "number",
           conflicts: ["timestamp"],
           implies: "order",
         }),
-    handler: args => addMigrationCli(args).catch(simplifyErrors),
+    handler: (args) => addMigrationCli(args).catch(simplifyErrors),
   });
 
-type AddMigrationCliParams =
-  & Readonly<{
-    name: string;
-    migrationsFolder: string | undefined;
-    timestamp: boolean | undefined;
-    order: number | undefined;
-    padWithLeadingZeros: number | undefined;
-    type: string;
-  }>
-  & LogOptions;
+type AddMigrationCliParams = Readonly<{
+  name: string;
+  migrationsFolder: string | undefined;
+  timestamp: boolean | undefined;
+  order: number | undefined;
+  padWithLeadingZeros: number | undefined;
+  type: string;
+}> &
+  LogOptions;
 
 const addMigrationCli = async (params: AddMigrationCliParams) => {
   try {
@@ -75,7 +76,9 @@ const addMigrationCli = async (params: AddMigrationCliParams) => {
 
 const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
   if (args.type !== "ts" && args.type !== "js") {
-    throw new Error(`Invalid type '${args.type}'. Allowed values are 'ts' (TypeScript) or 'js' (JavaScript).`);
+    throw new Error(
+      `Invalid type '${args.type}'. Allowed values are 'ts' (TypeScript) or 'js' (JavaScript).`,
+    );
   }
 
   const orderParams = {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { diff, DiffParams } from "../../../../src/modules/sync/diff.js";
+import { type DiffParams, diff } from "../../../../src/modules/sync/diff.js";
 import { languageHandler } from "../../../../src/modules/sync/diff/language.js";
-import { FileContentModel } from "../../../../src/modules/sync/types/fileContentModel.js";
-import { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.js";
-import { LanguageSyncModel } from "../../../../src/modules/sync/types/syncModel.js";
+import type { FileContentModel } from "../../../../src/modules/sync/types/fileContentModel.js";
+import type { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.js";
+import type { LanguageSyncModel } from "../../../../src/modules/sync/types/syncModel.js";
 
 describe("makeContentTypeHandler", () => {
   it("creates operations for all changed properties", () => {
@@ -82,7 +82,10 @@ describe("diff function", () => {
     workflows: [],
   });
 
-  const createDiffParams = (sourceModel: FileContentModel, targetModel: FileContentModel): DiffParams => ({
+  const createDiffParams = (
+    sourceModel: FileContentModel,
+    targetModel: FileContentModel,
+  ): DiffParams => ({
     sourceEnvModel: sourceModel,
     targetEnvModel: targetModel,
     targetAssetsReferencedFromSourceByCodenames: new Map(),
@@ -90,31 +93,37 @@ describe("diff function", () => {
   });
 
   it("default language codename correctly changed", () => {
-    const sourceModel = createModel([{
-      name: "lang1",
-      codename: "lang_1",
-      fallback_language: { codename: "default" },
-      is_active: true,
-      is_default: false,
-    }, {
-      name: "default",
-      codename: "default",
-      is_active: true,
-      is_default: true,
-    }]);
+    const sourceModel = createModel([
+      {
+        name: "lang1",
+        codename: "lang_1",
+        fallback_language: { codename: "default" },
+        is_active: true,
+        is_default: false,
+      },
+      {
+        name: "default",
+        codename: "default",
+        is_active: true,
+        is_default: true,
+      },
+    ]);
 
-    const targetModel = createModel([{
-      name: "lang2",
-      codename: "lang_1",
-      fallback_language: { codename: "default_changed" },
-      is_active: true,
-      is_default: false,
-    }, {
-      name: "default",
-      codename: "default_changed",
-      is_active: true,
-      is_default: true,
-    }]);
+    const targetModel = createModel([
+      {
+        name: "lang2",
+        codename: "lang_1",
+        fallback_language: { codename: "default_changed" },
+        is_active: true,
+        is_default: false,
+      },
+      {
+        name: "default",
+        codename: "default_changed",
+        is_active: true,
+        is_default: true,
+      },
+    ]);
 
     const result = diff(createDiffParams(sourceModel, targetModel));
 
@@ -131,7 +140,10 @@ describe("diff function", () => {
           },
         ],
       ],
-      ["default_changed", [{ op: "replace", path: "/codename", value: "default", oldValue: "default_changed" }]],
+      [
+        "default_changed",
+        [{ op: "replace", path: "/codename", value: "default", oldValue: "default_changed" }],
+      ],
     ]);
 
     expect(result.languages.updated).toStrictEqual(expectedUpdatedLanguages);

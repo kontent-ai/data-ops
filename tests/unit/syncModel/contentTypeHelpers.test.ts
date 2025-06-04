@@ -1,4 +1,4 @@
-import { ContentTypeElements } from "@kontent-ai/management-sdk";
+import type { ContentTypeElements } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
 import { getRequiredIds } from "../../../src/modules/sync/utils/contentTypeHelpers.ts";
@@ -13,10 +13,7 @@ const assetElements: ContentTypeElements.IAssetElement[] = [
     type: "asset",
     default: {
       global: {
-        value: [
-          { id: "assetId1" },
-          { id: "assetId2" },
-        ],
+        value: [{ id: "assetId1" }, { id: "assetId2" }],
       },
     },
   },
@@ -32,10 +29,7 @@ const linkedItemsElements: ContentTypeElements.ILinkedItemsElement[] = [
     type: "modular_content",
     default: {
       global: {
-        value: [
-          { id: "itemId1" },
-          { id: "itemId2" },
-        ],
+        value: [{ id: "itemId1" }, { id: "itemId2" }],
       },
     },
   },
@@ -57,7 +51,7 @@ const createContentType = (elements: ReadonlyArray<ContentTypeElements.Element>)
 describe("getRequiredIds", () => {
   it("test asset id from links in guidelines", () => {
     const guidelines =
-      "<p>Asset Links:</p>\n<ul>\n  <li><a data-asset-id=\"assetId1\">Asset Link1</a>\n    <ul>\n      <li><a data-asset-id=\"assetId2\">Asset Link 2</a></li>\n    </ul>\n  </li>\n  <li><a data-asset-id=\"assetId2\">Asset Link 2</a></li>\n</ul>";
+      '<p>Asset Links:</p>\n<ul>\n  <li><a data-asset-id="assetId1">Asset Link1</a>\n    <ul>\n      <li><a data-asset-id="assetId2">Asset Link 2</a></li>\n    </ul>\n  </li>\n  <li><a data-asset-id="assetId2">Asset Link 2</a></li>\n</ul>';
     const contentType = createContentType([createGuidelineElement(guidelines)]);
 
     const ids = getRequiredIds(contentType.elements);
@@ -68,7 +62,7 @@ describe("getRequiredIds", () => {
 
   it("test obtain asset ids from assets in guidelines ", () => {
     const guidelines =
-      "<p>Assets:</p>\n<figure data-asset-id=\"assetId1\"><img src=\"#\" data-asset-id=\"assetId1\"></figure>\n<ul>\n  <li><br/></li>\n</ul>\n<figure data-asset-id=\"assetId2\"><img src=\"#\" data-asset-id=\"assetId2\"></figure>";
+      '<p>Assets:</p>\n<figure data-asset-id="assetId1"><img src="#" data-asset-id="assetId1"></figure>\n<ul>\n  <li><br/></li>\n</ul>\n<figure data-asset-id="assetId2"><img src="#" data-asset-id="assetId2"></figure>';
     const contentType = createContentType([createGuidelineElement(guidelines)]);
 
     const ids = getRequiredIds(contentType.elements);
@@ -79,7 +73,7 @@ describe("getRequiredIds", () => {
 
   it("test obtain item ids from links in guidelines ", () => {
     const guidelines =
-      "<p>Item links:</p>\n<p><a data-item-id=\"itemId1\">Item Link 1</a></p>\n<ul>\n  <li><a data-item-id=\"itemId2\">Item Link 2</a>\n    <ul>\n      <li><a data-item-id=\"itemId3\">Item Link 3</a></li>\n    </ul>\n  </li>\n</ul>";
+      '<p>Item links:</p>\n<p><a data-item-id="itemId1">Item Link 1</a></p>\n<ul>\n  <li><a data-item-id="itemId2">Item Link 2</a>\n    <ul>\n      <li><a data-item-id="itemId3">Item Link 3</a></li>\n    </ul>\n  </li>\n</ul>';
     const contentType = createContentType([createGuidelineElement(guidelines)]);
 
     const ids = getRequiredIds(contentType.elements);
@@ -90,7 +84,7 @@ describe("getRequiredIds", () => {
 
   it("test obtain assets and item ids from guidelines ", () => {
     const guidelines =
-      "<p>Item links: <a data-item-id=\"itemId1\">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-id=\"assetId1\">Asset Link 1</a></p>\n<figure data-asset-id=\"assetId1\"><img src=\"#\" data-asset-id=\"assetId1\"></figure>";
+      '<p>Item links: <a data-item-id="itemId1">Item Link 1</a></p>\n<p>Asset Link: <a data-asset-id="assetId1">Asset Link 1</a></p>\n<figure data-asset-id="assetId1"><img src="#" data-asset-id="assetId1"></figure>';
     const contentType = createContentType([createGuidelineElement(guidelines)]);
 
     const ids = getRequiredIds(contentType.elements);

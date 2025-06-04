@@ -1,4 +1,4 @@
-import {
+import type {
   ContentTypeModels,
   ContentTypeSnippetModels,
   LanguageModels,
@@ -8,8 +8,8 @@ import {
   WorkflowModels,
 } from "@kontent-ai/management-sdk";
 
-import { Replace, RequiredCodename } from "../../../utils/types.js";
-import { PatchOperation } from "./patchOperation.js";
+import type { Replace, RequiredCodename } from "../../../utils/types.js";
+import type { PatchOperation } from "./patchOperation.js";
 
 type Codename = string;
 
@@ -28,7 +28,9 @@ export type WebSpotlightDiffModel = Readonly<
 
 export type DiffModel = Readonly<{
   taxonomyGroups: DiffObject<RequiredCodename<TaxonomyModels.IAddTaxonomyRequestModel>>;
-  contentTypeSnippets: DiffObject<RequiredCodename<ContentTypeSnippetModels.IAddContentTypeSnippetData>>;
+  contentTypeSnippets: DiffObject<
+    RequiredCodename<ContentTypeSnippetModels.IAddContentTypeSnippetData>
+  >;
   contentTypes: DiffObject<RequiredCodename<ContentTypeModels.IAddContentTypeData>>;
   collections: ReadonlyArray<PatchOperation>;
   webSpotlight: WebSpotlightDiffModel;
@@ -39,7 +41,9 @@ export type DiffModel = Readonly<{
       { collections: ReadonlyArray<SharedContracts.IReferenceObjectContract> }
     >
   >;
-  languages: DiffObject<RequiredCodename<LanguageModels.IAddLanguageData> & Readonly<{ is_default: boolean }>>;
+  languages: DiffObject<
+    RequiredCodename<LanguageModels.IAddLanguageData> & Readonly<{ is_default: boolean }>
+  >;
   workflows: DiffObject<RequiredCodename<WorkflowModels.IAddWorkflowData>> & {
     sourceWorkflows: ReadonlyArray<WorkflowModels.IAddWorkflowData>;
   };

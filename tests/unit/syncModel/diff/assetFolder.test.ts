@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { assetFoldersHandler } from "../../../../src/modules/sync/diff/assetFolder.js";
-import { AssetFolderSyncModel } from "../../../../src/modules/sync/types/syncModel.js";
+import type { AssetFolderSyncModel } from "../../../../src/modules/sync/types/syncModel.js";
 
 const createFolder = (
   name: string,
   subFolders: ReadonlyArray<AssetFolderSyncModel> = [],
-  codename: string = "",
+  codename = "",
 ): AssetFolderSyncModel => ({
   name,
   codename: codename || name,
@@ -21,7 +21,11 @@ describe("assetFolderHandler", () => {
     const operations = assetFoldersHandler(source, target);
 
     expect(operations).toStrictEqual([
-      { op: "addInto", path: "/codename:root/folders/codename:folder1/folders", value: createFolder("folder2") },
+      {
+        op: "addInto",
+        path: "/codename:root/folders/codename:folder1/folders",
+        value: createFolder("folder2"),
+      },
     ]);
   });
 

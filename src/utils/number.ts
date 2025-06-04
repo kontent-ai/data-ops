@@ -6,6 +6,4 @@
  * @returns {string} The number as a string, padded with leading zeros if specified.
  */
 export const padWithLeadingZeros = (num: number, numberOfZeros: number | undefined): string =>
-  numberOfZeros
-    ? num.toString().padStart(numberOfZeros, "0")
-    : num.toString();
+  numberOfZeros ? num.toString().padStart(numberOfZeros, "0") : num.toString();

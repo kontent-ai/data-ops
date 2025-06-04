@@ -1,4 +1,4 @@
-import { RegisterCommand } from "../../types/yargs.js";
+import type { RegisterCommand } from "../../types/yargs.js";
 
 const commandName = "sync <command>";
 
@@ -8,12 +8,12 @@ const commands = [
   (await import("./diff/diff.js")).register,
 ];
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "sync commands",
-    builder: yargs => {
-      commands.forEach(register => register(yargs));
+    builder: (yargs) => {
+      commands.forEach((register) => register(yargs));
       return yargs;
     },
     handler: () => {},

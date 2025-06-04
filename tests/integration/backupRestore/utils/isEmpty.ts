@@ -13,9 +13,9 @@ export const expectNoPreviewUrls = async (envId: string) => {
   const previewUrls = await client
     .getPreviewConfiguration()
     .toPromise()
-    .then(res => res.data);
+    .then((res) => res.data);
 
-  previewUrls.spaceDomains.forEach(d => expect(d.domain).toBe(""));
+  previewUrls.spaceDomains.forEach((d) => expect(d.domain).toBe(""));
   expect(previewUrls.previewUrlPatterns).toStrictEqual([]);
 };
 
@@ -25,7 +25,7 @@ export const expectNoTaxonomies = async (envId: string) => {
   const taxonomies = await client
     .listTaxonomies()
     .toAllPromise()
-    .then(res => res.data.items);
+    .then((res) => res.data.items);
 
   expect(taxonomies).toStrictEqual([]);
 };
@@ -36,7 +36,7 @@ export const expectNoAssetFolders = async (envId: string) => {
   const folders = await client
     .listAssetFolders()
     .toPromise()
-    .then(res => res.data.items);
+    .then((res) => res.data.items);
 
   expect(folders).toStrictEqual([]);
 };
@@ -47,7 +47,7 @@ export const expectNoAssets = async (envId: string) => {
   const assets = await client
     .listAssets()
     .toAllPromise()
-    .then(res => res.data.items);
+    .then((res) => res.data.items);
 
   expect(assets).toStrictEqual([]);
 };
@@ -58,13 +58,13 @@ export const expectNoWorkflows = async (envId: string) => {
   const [defaultWorkflow, ...restWorkflows] = await client
     .listWorkflows()
     .toPromise()
-    .then(res => res.data);
+    .then((res) => res.data);
 
   expect(restWorkflows).toStrictEqual([]);
   expect(defaultWorkflow?.name).toBe("Default");
   expect(defaultWorkflow?.codename).toBe("default");
   expect(defaultWorkflow?.scopes).toStrictEqual([]);
-  expect(defaultWorkflow?.steps.map(s => s.codename)).toStrictEqual(["draft"]);
+  expect(defaultWorkflow?.steps.map((s) => s.codename)).toStrictEqual(["draft"]);
 };
 
 export const expectNoSnippets = async (envId: string) => {
@@ -73,7 +73,7 @@ export const expectNoSnippets = async (envId: string) => {
   const assets = await client
     .listContentTypeSnippets()
     .toAllPromise()
-    .then(res => res.data.items);
+    .then((res) => res.data.items);
 
   expect(assets).toStrictEqual([]);
 };
@@ -84,7 +84,7 @@ export const expectNoSpaces = async (envId: string) => {
   const spaces = await client
     .listSpaces()
     .toPromise()
-    .then(res => res.data);
+    .then((res) => res.data);
 
   expect(spaces).toStrictEqual([]);
 };
@@ -95,7 +95,7 @@ export const expectNoTypes = async (envId: string) => {
   const types = await client
     .listContentTypes()
     .toAllPromise()
-    .then(res => res.data.items);
+    .then((res) => res.data.items);
 
   expect(types).toStrictEqual([]);
 };
@@ -106,7 +106,7 @@ export const expectNoItems = async (envId: string) => {
   const items = await client
     .listContentItems()
     .toAllPromise()
-    .then(res => res.data.items);
+    .then((res) => res.data.items);
 
   expect(items).toStrictEqual([]);
 };
@@ -117,7 +117,7 @@ export const expectNoWebhooks = async (envId: string) => {
   const webhooks = await client
     .listWebhooks()
     .toPromise()
-    .then(res => res.data.webhooks);
+    .then((res) => res.data.webhooks);
 
   expect(webhooks).toStrictEqual([]);
 };

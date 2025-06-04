@@ -1,8 +1,8 @@
-import { ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
+import type { ContentTypeSnippetContracts } from "@kontent-ai/management-sdk";
 import { describe, expect, it } from "vitest";
 
-import { LogOptions } from "../../../src/log.ts";
-import { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
+import type { LogOptions } from "../../../src/log.ts";
+import type { EnvironmentModel } from "../../../src/modules/sync/generateSyncModel.ts";
 import { transformContentTypeSnippetsModel } from "../../../src/modules/sync/modelTransfomers/contentTypeSnippets.ts";
 
 const logOptions: LogOptions = {

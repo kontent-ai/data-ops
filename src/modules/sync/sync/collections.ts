@@ -1,16 +1,16 @@
-import { CollectionModels, ManagementClient } from "@kontent-ai/management-sdk";
+import type { CollectionModels, ManagementClient } from "@kontent-ai/management-sdk";
 
-import { logInfo, LogOptions } from "../../../log.js";
+import { type LogOptions, logInfo } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
-import { DiffModel } from "../types/diffModel.js";
-import { getTargetCodename, PatchOperation } from "../types/patchOperation.js";
+import type { DiffModel } from "../types/diffModel.js";
+import { type PatchOperation, getTargetCodename } from "../types/patchOperation.js";
 
 export const syncAddAndReplaceCollections = (
   client: ManagementClient,
   collections: DiffModel["collections"],
   logOptions: LogOptions,
 ) => {
-  const collectionAddAndReplaceOps = collections.filter(op => op.op !== "remove");
+  const collectionAddAndReplaceOps = collections.filter((op) => op.op !== "remove");
 
   if (!collectionAddAndReplaceOps.length) {
     logInfo(logOptions, "standard", "No collections to add or update");
@@ -30,7 +30,7 @@ export const syncRemoveCollections = (
   collections: DiffModel["collections"],
   logOptions: LogOptions,
 ) => {
-  const collectionsRemoveOps = collections.filter(op => op.op === "remove");
+  const collectionsRemoveOps = collections.filter((op) => op.op === "remove");
 
   if (!collectionsRemoveOps.length) {
     logInfo(logOptions, "standard", "No collections to delete");
@@ -45,17 +45,21 @@ export const syncRemoveCollections = (
     .toPromise();
 };
 
-const transformCollectionsReferences = (operation: PatchOperation): CollectionModels.ISetCollectionData => {
+const transformCollectionsReferences = (
+  operation: PatchOperation,
+): CollectionModels.ISetCollectionData => {
   const pathParts = operation.path.split("/");
   const propertyName = pathParts[pathParts.length - 1];
   const codename = getTargetCodename(operation);
 
   return {
-    ...operation.op === "replace" ? omit(operation, ["path", "oldValue"]) : omit(operation, ["path"]),
+    ...(operation.op === "replace"
+      ? omit(operation, ["path", "oldValue"])
+      : omit(operation, ["path"])),
     reference: codename
       ? {
-        codename: codename,
-      }
+          codename: codename,
+        }
       : undefined,
     property_name: operation.op === "replace" ? propertyName : undefined,
   } as unknown as CollectionModels.ISetCollectionData;

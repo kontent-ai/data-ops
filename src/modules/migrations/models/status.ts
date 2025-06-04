@@ -2,13 +2,15 @@ import { z } from "zod";
 
 export type MigrationOperation = "run" | "rollback";
 
-export const migrationStatusSchema = z.object({
-  name: z.string(),
-  success: z.boolean(),
-  order: z.union([z.number(), z.coerce.date()]),
-  time: z.coerce.date(),
-  lastOperation: z.union([z.literal("run"), z.literal("rollback")]).optional(),
-}).readonly();
+export const migrationStatusSchema = z
+  .object({
+    name: z.string(),
+    success: z.boolean(),
+    order: z.union([z.number(), z.coerce.date()]),
+    time: z.coerce.date(),
+    lastOperation: z.union([z.literal("run"), z.literal("rollback")]).optional(),
+  })
+  .readonly();
 
 export const statusSchema = z.record(z.string(), migrationStatusSchema.array()).readonly();
 

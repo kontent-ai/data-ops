@@ -1,19 +1,25 @@
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
-import { logError, LogOptions } from "../../../log.js";
-import { syncEntityChoices, SyncEntityName } from "../../../modules/sync/constants/entities.js";
-import { syncDiffInternal, SyncDiffParamsInternal } from "../../../modules/sync/diffEnvironments.js";
+import { type LogOptions, logError } from "../../../log.js";
+import {
+  type SyncEntityName,
+  syncEntityChoices,
+} from "../../../modules/sync/constants/entities.js";
+import {
+  type SyncDiffParamsInternal,
+  syncDiffInternal,
+} from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "diff";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "Compares content models from two Kontent.ai environments.",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("targetEnvironmentId", {
           type: "string",
@@ -24,7 +30,8 @@ export const register: RegisterCommand = yargs =>
         .option("targetApiKey", {
           type: "string",
           describe: "Management API key of target Kontent.ai environment.",
-          demandOption: "You need to provide a Management API key for target Kontent.ai environment.",
+          demandOption:
+            "You need to provide a Management API key for target Kontent.ai environment.",
           alias: "tk",
         })
         .option("folderName", {
@@ -73,25 +80,24 @@ export const register: RegisterCommand = yargs =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: args => syncDiffCli(args).catch(simplifyErrors),
+    handler: (args) => syncDiffCli(args).catch(simplifyErrors),
   });
 
-type syncDiffCliParams =
-  & Readonly<{
-    targetEnvironmentId: string;
-    targetApiKey: string;
-    folderName: string | undefined;
-    sourceEnvironmentId: string | undefined;
-    sourceApiKey: string | undefined;
-    entities: ReadonlyArray<SyncEntityName> | undefined;
-    advanced: boolean | undefined;
-    outPath: string | undefined;
-    noOpen: boolean | undefined;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type syncDiffCliParams = Readonly<{
+  targetEnvironmentId: string;
+  targetApiKey: string;
+  folderName: string | undefined;
+  sourceEnvironmentId: string | undefined;
+  sourceApiKey: string | undefined;
+  entities: ReadonlyArray<SyncEntityName> | undefined;
+  advanced: boolean | undefined;
+  outPath: string | undefined;
+  noOpen: boolean | undefined;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
 const syncDiffCli = async (params: syncDiffCliParams) => {
   const resolvedParams = resolveParams(params);
@@ -114,7 +120,11 @@ const resolveParams = (params: syncDiffCliParams): SyncDiffParamsInternal => {
   return match(updatedParams)
     .with(
       { sourceEnvironmentId: P.nonNullable, sourceApiKey: P.nonNullable },
-      ({ sourceEnvironmentId, sourceApiKey }) => ({ ...updatedParams, sourceEnvironmentId, sourceApiKey }),
+      ({ sourceEnvironmentId, sourceApiKey }) => ({
+        ...updatedParams,
+        sourceEnvironmentId,
+        sourceApiKey,
+      }),
     )
     .with({ folderName: P.nonNullable }, ({ folderName }) => ({ ...updatedParams, folderName }))
     .otherwise(() => {

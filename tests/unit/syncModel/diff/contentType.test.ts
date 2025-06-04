@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { makeContentTypeHandler } from "../../../../src/modules/sync/diff/contentType.ts";
-import { ContentTypeSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";
+import type { ContentTypeSyncModel } from "../../../../src/modules/sync/types/syncModel.ts";
 import { removeSpaces } from "./utils.ts";
 
 describe("makeContentTypeHandler", () => {
@@ -166,8 +166,7 @@ describe("makeContentTypeHandler", () => {
         {
           type: "guidelines",
           codename: "guidelines",
-          guidelines:
-            `<p><a data-item-codename="item" data-item-external-id="itemE">item link</a>xyz <a data-asset-codename="asset1" data-asset-external-id="asset1E">asset link</a></p><figure data-asset-codename="asset2" data-asset-external-id="asset2E"><img src="#" data-asset-codename="asset2" data-asset-external-id="asset2E"/></figure><p><a data-asset-external-id="assetN">non-existing asset link</a></p>`,
+          guidelines: `<p><a data-item-codename="item" data-item-external-id="itemE">item link</a>xyz <a data-asset-codename="asset1" data-asset-external-id="asset1E">asset link</a></p><figure data-asset-codename="asset2" data-asset-external-id="asset2E"><img src="#" data-asset-codename="asset2" data-asset-external-id="asset2E"/></figure><p><a data-asset-external-id="assetN">non-existing asset link</a></p>`,
         },
       ],
     };
@@ -185,14 +184,17 @@ describe("makeContentTypeHandler", () => {
       ]),
     })(source, target);
 
-    const resultWithFilteredSpaces = result
-      .map(op => ({
-        ...op,
-        value: op.op === "addInto" && typeof op.value === "object" && op.value !== null && "guidelines" in op.value
-            && typeof op.value.guidelines === "string"
+    const resultWithFilteredSpaces = result.map((op) => ({
+      ...op,
+      value:
+        op.op === "addInto" &&
+        typeof op.value === "object" &&
+        op.value !== null &&
+        "guidelines" in op.value &&
+        typeof op.value.guidelines === "string"
           ? { ...op.value, guidelines: removeSpaces(op.value.guidelines) }
           : {},
-      }));
+    }));
 
     expect(resultWithFilteredSpaces).toStrictEqual([
       {

@@ -1,23 +1,23 @@
-import { logError, LogOptions } from "../../../log.js";
+import { type LogOptions, logError } from "../../../log.js";
 import {
-  BackupEntityChoices,
+  type BackupEntityChoices,
+  type BackupEnvironmentParams,
   backupEntityChoices,
   backupEnvironmentInternal,
-  BackupEnvironmentParams,
 } from "../../../modules/backupRestore/backup.js";
 import { resolveIncludeExcludeCliParams } from "../../../modules/backupRestore/utils/includeExclude.js";
-import { RegisterCommand } from "../../../types/yargs.js";
+import type { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 
 const commandName = "backup";
 
-export const register: RegisterCommand = yargs =>
+export const register: RegisterCommand = (yargs) =>
   yargs.command({
     command: commandName,
     describe: "Backs up data from the specified Kontent.ai project into a .zip file.",
-    builder: yargs =>
+    builder: (yargs) =>
       yargs
         .option("environmentId", {
           type: "string",
@@ -33,7 +33,8 @@ export const register: RegisterCommand = yargs =>
         .option("apiKey", {
           type: "string",
           describe: "Kontent.ai Management API key",
-          demandOption: "You need to provide a Management API key for the given Kontent.ai environment.",
+          demandOption:
+            "You need to provide a Management API key for the given Kontent.ai environment.",
           alias: "k",
         })
         .option("secureAssetDeliveryKey", {
@@ -57,22 +58,21 @@ export const register: RegisterCommand = yargs =>
         })
         .option("kontentUrl", {
           type: "string",
-          describe: "Custom URL for Kontent.ai endpoints. Defaults to \"kontent.ai\".",
+          describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: args => backupEnvironmentCli(args).catch(simplifyErrors),
+    handler: (args) => backupEnvironmentCli(args).catch(simplifyErrors),
   });
 
-type BackupEnvironmentCliParams =
-  & Readonly<{
-    environmentId: string;
-    fileName: string | undefined;
-    apiKey: string;
-    secureAssetDeliveryKey: string | undefined;
-    include: ReadonlyArray<BackupEntityChoices> | undefined;
-    exclude: ReadonlyArray<BackupEntityChoices> | undefined;
-    kontentUrl: string | undefined;
-  }>
-  & LogOptions;
+type BackupEnvironmentCliParams = Readonly<{
+  environmentId: string;
+  fileName: string | undefined;
+  apiKey: string;
+  secureAssetDeliveryKey: string | undefined;
+  include: ReadonlyArray<BackupEntityChoices> | undefined;
+  exclude: ReadonlyArray<BackupEntityChoices> | undefined;
+  kontentUrl: string | undefined;
+}> &
+  LogOptions;
 
 const backupEnvironmentCli = async (params: BackupEnvironmentCliParams): Promise<void> => {
   const client = createClient({
