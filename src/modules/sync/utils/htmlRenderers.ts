@@ -261,7 +261,7 @@ const renderAddedTaxonomyTerm = (
   `<ul class="term">
         <li>${taxonomy.name}
         ${
-          depth < 3 && taxonomy.terms.length
+          depth < 2 && taxonomy.terms.length // needs to be 2 to show 3 levels, because when depth is 3 we still render the name, just stop the children
             ? `${taxonomy.terms.map((term) => renderAddedTaxonomyTerm(term, depth + 1)).join("\n")}</li>`
             : "</li>"
         }
