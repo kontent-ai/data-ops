@@ -4,7 +4,7 @@ import type archiver from "archiver";
 import chalk from "chalk";
 import type { StreamZipAsync } from "node-stream-zip";
 
-import { type LogOptions, logInfo } from "../../../../log.js";
+import { type LogOptions, logInfo, logWarning } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
 import type { ReplaceReferences } from "../../../../utils/types.js";
 import { getRequired } from "../../utils/utils.js";
@@ -36,10 +36,13 @@ export const assetsEntity = {
   importEntities: async (client, { entities: fileAssets, context, logOptions, zip }) => {
     const fileAssetsWithElements = fileAssets.filter((a) => !!a.elements.length);
     if (fileAssetsWithElements.length) {
-      throw new Error(
-        `It is not possible to restore assets with elements at the moment. Assets that contain elements are: ${fileAssetsWithElements
+      logWarning(
+        logOptions,
+        "verbose",
+        `It is not possible to restore assets with elements at the moment. The following assets will be imported without their elements: ${fileAssetsWithElements
           .map((a) => a.id)
           .join(", ")}.`,
+        "If you want the elements, import them using a management API after the assets are imported.",
       );
     }
 
@@ -130,6 +133,7 @@ const createImportAssetFetcher =
       .withData(() => ({
         title: fileAsset.title,
         codename: fileAsset.codename,
+        elements: [], // Elements are currently not supported
         ...(folderId ? { folder: { id: folderId } } : undefined),
         file_reference: fileRef,
         ...(collectionId ? { collection: { reference: { id: collectionId } } } : undefined),

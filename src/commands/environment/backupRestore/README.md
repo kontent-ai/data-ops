@@ -233,6 +233,7 @@ await restoreEnvironment(params);
 
 - **Asset Size Limit**: The Management API accepts only assets smaller than 100 MB. If your backup file contains assets larger than that (they can be uploaded through the UI), the tool won't be able to import them.
 - **Asset Quality**: Assets fetched by the tool may be compressed and metadata can be missing. You may find more information about asset compression in the [quality parameter](https://kontent.ai/learn/docs/apis/image-transformation-api#a-quality-parameter) documentation.
+- **Asset Elements**: It is not possible to restore assets with elements at the moment. Assets will be imported without their elements. If you need the elements, you can adjust the asset type manually in the UI and import the elements using the Management API after the assets and taxonomies are restored.
 
 ### Performance
 
