@@ -1,4 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@kontent-ai/biome-config/base"]
+  "extends": ["@kontent-ai/biome-config/base"],
+  "files": {
+    "ignore": ["package.json"]
+  }
 }
