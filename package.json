@@ -18,9 +18,7 @@
     "test:unit:watch": "vitest run --config=vitest.config.unit.js --watch",
     "export:testEnvs": "node exportTestEnvironments.js"
   },
-  "files": [
-    "./build/**/*"
-  ],
+  "files": ["./build/**/*"],
   "main": "./build/src/public.js",
   "types": "./build/src/public.d.ts",
   "bin": {
