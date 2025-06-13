@@ -123,8 +123,8 @@ export const fetchCollections = (client: ManagementClient) =>
 export const fetchLanguages = (client: ManagementClient) =>
   client
     .listLanguages()
-    .toPromise()
-    .then((res) => res.rawData.languages);
+    .toAllPromise()
+    .then((res) => res.data.items.map((l) => l._raw));
 
 export const fetchWorkflows = (client: ManagementClient) =>
   client
