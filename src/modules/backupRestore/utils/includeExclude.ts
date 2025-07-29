@@ -1,4 +1,4 @@
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 export type IncludeExclude<Choices extends string> = Readonly<
   | { include?: ReadonlyArray<Choices>; exclude?: undefined }

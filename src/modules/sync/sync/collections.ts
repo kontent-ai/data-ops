@@ -3,7 +3,7 @@ import type { CollectionModels, ManagementClient } from "@kontent-ai/management-
 import { type LogOptions, logInfo } from "../../../log.js";
 import { omit } from "../../../utils/object.js";
 import type { DiffModel } from "../types/diffModel.js";
-import { type PatchOperation, getTargetCodename } from "../types/patchOperation.js";
+import { getTargetCodename, type PatchOperation } from "../types/patchOperation.js";
 
 export const syncAddAndReplaceCollections = (
   client: ManagementClient,

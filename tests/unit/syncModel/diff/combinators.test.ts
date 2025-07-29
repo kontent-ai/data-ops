@@ -1,9 +1,9 @@
 import { describe, expect, it, vitest } from "vitest";
 
 import {
-  type Handler,
   baseHandler,
   constantHandler,
+  type Handler,
   makeAdjustEntityHandler,
   makeAdjustOperationHandler,
   makeArrayHandler,

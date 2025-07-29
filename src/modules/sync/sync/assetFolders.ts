@@ -7,7 +7,7 @@ import { apply, not } from "../../../utils/function.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import type { DiffModel } from "../types/diffModel.js";
-import { type PatchOperation, getTargetCodename } from "../types/patchOperation.js";
+import { getTargetCodename, type PatchOperation } from "../types/patchOperation.js";
 import { isOp } from "./utils.js";
 
 export const syncAssetFolders = async (

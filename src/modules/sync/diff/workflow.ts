@@ -1,9 +1,9 @@
 import { zip } from "../../../utils/array.js";
 import type { WorkflowStepSyncModel, WorkflowSyncModel } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
   constantHandler,
+  type Handler,
   makeAdjustEntityHandler,
   makeArrayHandler,
   makeLeafObjectHandler,

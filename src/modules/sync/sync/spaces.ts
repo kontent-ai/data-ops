@@ -1,5 +1,5 @@
 import type { ManagementClient, SpaceModels } from "@kontent-ai/management-sdk";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 import { type LogOptions, logInfo } from "../../../log.js";
 import { throwError } from "../../../utils/error.js";

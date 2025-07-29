@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 import { type LogOptions, logInfo } from "../../../log.js";
 
-const requestConfirmation = async (message: string) => {
+const requestConfirmation = (message: string) => {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

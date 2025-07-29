@@ -23,9 +23,9 @@ import type {
   SyncUrlSlugElement,
 } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
   constantHandler,
+  type Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
   makeBaseArrayHandler,
@@ -35,9 +35,9 @@ import {
   optionalHandler,
 } from "./combinators.js";
 import {
-  type OriginalReference,
   getAssetReferences,
   getItemReferences,
+  type OriginalReference,
   replaceAssetReferences,
   replaceItemReferences,
 } from "./guidelinesRichText.js";

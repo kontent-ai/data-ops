@@ -4,16 +4,16 @@ import { pathToFileURL } from "node:url";
 
 import type { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 import { type LogOptions, logError, logInfo } from "../../../log.js";
 import { DateLevel, serializeDateForFileName } from "../../../utils/files.js";
 import { seriallyReduce } from "../../../utils/requests.js";
 import {
+  isMigrationModule,
   type Migration,
   type MigrationModuleType,
   type MigrationOrder,
-  isMigrationModule,
 } from "../models/migration.js";
 import type { MigrationOperation, MigrationStatus } from "../models/status.js";
 import type { RunMigrationFilterParams } from "../run.js";

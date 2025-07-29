@@ -1,13 +1,13 @@
 import type { PatchOperation } from "../types/patchOperation.js";
 import {
   type ContentTypeSyncModel,
-  type SyncGuidelinesElement,
   isSyncCustomElement,
   isSyncUrlSlugElement,
+  type SyncGuidelinesElement,
 } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
+  type Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
   makeObjectHandler,

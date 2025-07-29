@@ -1,4 +1,4 @@
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 import { type LogOptions, logError, logInfo } from "../../../log.js";
 import { type RunMigrationsParams, withMigrationsToRun } from "../../../modules/migrations/run.js";

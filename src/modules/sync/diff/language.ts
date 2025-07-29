@@ -1,8 +1,8 @@
 import type { LanguageSyncModel } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
   constantHandler,
+  type Handler,
   makeLeafObjectHandler,
   makeObjectHandler,
   makeWholeObjectsHandler,

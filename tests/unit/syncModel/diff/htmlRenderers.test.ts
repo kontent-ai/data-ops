@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.js";
-import { resolveHtmlTemplate } from "../../../../src/modules/sync/utils/htmlRenderers.js";
 import type { DiffData } from "../../../../src/modules/sync/utils/htmlRenderers.js";
+import { resolveHtmlTemplate } from "../../../../src/modules/sync/utils/htmlRenderers.js";
 
 // Helper function to create empty entity sections with consistent structure
 const createEmptyEntitySection = () => ({

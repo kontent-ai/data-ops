@@ -60,8 +60,8 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@kontent-ai/biome-config": "^0.4.0",
+    "@biomejs/biome": "^2.1.2",
+    "@kontent-ai/biome-config": "^0.5.0",
     "@kontent-ai/eslint-config": "^2.0.0",
     "@types/archiver": "^6.0.3",
     "@types/node": "^22.13.16",

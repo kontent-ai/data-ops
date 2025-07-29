@@ -4,7 +4,7 @@ import type {
   IContentItemElements,
   Responses,
 } from "@kontent-ai/delivery-sdk";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import type { SuperiorOmit } from "../../utils/types.js";
@@ -22,7 +22,7 @@ type SyncContentFilterDeliveryOnlyParams =
 // { items: ReadonlyArray<string>; depth: number; limit?: number } is assignable to { items: ReadonlyArray<string> }
 // therefore it was also removed by Exclude
 
-export const getItemsCodenames = async (
+export const getItemsCodenames = (
   client: DeliveryClient,
   params: SyncContentFilterDeliveryOnlyParams,
 ) => {
