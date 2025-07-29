@@ -7,9 +7,9 @@ import {
 
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
 import {
-  type OriginalReference,
   getAssetReferences,
   getItemReferences,
+  type OriginalReference,
 } from "../diff/guidelinesRichText.js";
 import type {
   SyncAssetElement,

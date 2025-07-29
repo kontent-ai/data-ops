@@ -16,9 +16,9 @@ import type {
   RestoreContext,
 } from "../entityDefinition.js";
 import {
-  type MultiChoiceElement,
   createPatchItemAndTypeReferencesInTypeElement,
   createTransformTypeElement,
+  type MultiChoiceElement,
 } from "./utils/typeElements.js";
 
 type Snippet = Replace<
@@ -124,38 +124,37 @@ type InsertSnippetParams = Readonly<{
   logOptions: LogOptions;
 }>;
 
-const createInsertSnippetFetcher =
-  (params: InsertSnippetParams) => (snippet: Snippet) => async () => {
-    logInfo(
-      params.logOptions,
-      "verbose",
-      `Importing: snippet ${snippet.id} (${chalk.yellow(snippet.name)})`,
-    );
+const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Snippet) => () => {
+  logInfo(
+    params.logOptions,
+    "verbose",
+    `Importing: snippet ${snippet.id} (${chalk.yellow(snippet.name)})`,
+  );
 
-    return params.client
-      .addContentTypeSnippet()
-      .withData((builder) => ({
-        name: snippet.name,
-        codename: snippet.codename,
-        external_id: snippet.external_id ?? snippet.codename,
-        elements: snippet.elements.map(
-          createTransformTypeElement({
-            ...params,
-            builder,
-            typeOrSnippetCodename: snippet.codename,
-            elementExternalIdsByOldId: new Map(
-              snippet.elements.map((el) => [
-                el.id,
-                el.external_id ?? `${snippet.codename}_${el.codename}_element`,
-              ]),
-            ),
-            contentGroupExternalIdByOldId: new Map(),
-          }),
-        ),
-      }))
-      .toPromise()
-      .then((res) => res.rawData as Snippet);
-  };
+  return params.client
+    .addContentTypeSnippet()
+    .withData((builder) => ({
+      name: snippet.name,
+      codename: snippet.codename,
+      external_id: snippet.external_id ?? snippet.codename,
+      elements: snippet.elements.map(
+        createTransformTypeElement({
+          ...params,
+          builder,
+          typeOrSnippetCodename: snippet.codename,
+          elementExternalIdsByOldId: new Map(
+            snippet.elements.map((el) => [
+              el.id,
+              el.external_id ?? `${snippet.codename}_${el.codename}_element`,
+            ]),
+          ),
+          contentGroupExternalIdByOldId: new Map(),
+        }),
+      ),
+    }))
+    .toPromise()
+    .then((res) => res.rawData as Snippet);
+};
 
 type UpdateSnippetParams = Readonly<{
   client: ManagementClient;

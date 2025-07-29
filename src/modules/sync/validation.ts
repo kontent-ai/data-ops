@@ -13,7 +13,7 @@ import {
 } from "./constants/filename.js";
 import type { ElementsTypes } from "./types/contractModels.js";
 import type { DiffModel } from "./types/diffModel.js";
-import { type PatchOperation, getTargetCodename } from "./types/patchOperation.js";
+import { getTargetCodename, type PatchOperation } from "./types/patchOperation.js";
 
 export const validateSyncModelFolder = async (folderPath: string) => {
   const stats = await fs.stat(folderPath);

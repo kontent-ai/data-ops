@@ -1,12 +1,12 @@
 import type { PatchOperation } from "../types/patchOperation.js";
 import {
   type ContentTypeSnippetsSyncModel,
-  type SyncGuidelinesElement,
   isSyncCustomElement,
+  type SyncGuidelinesElement,
 } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
+  type Handler,
   makeAdjustOperationHandler,
   makeArrayHandler,
   makeObjectHandler,

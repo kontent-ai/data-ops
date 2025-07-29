@@ -1,5 +1,5 @@
 import type { AssetFolderSyncModel } from "../types/syncModel.js";
-import { type Handler, baseHandler, makeArrayHandler, makeObjectHandler } from "./combinators.js";
+import { baseHandler, type Handler, makeArrayHandler, makeObjectHandler } from "./combinators.js";
 
 const assetFolderHandler: Handler<AssetFolderSyncModel> = makeObjectHandler({
   name: baseHandler,

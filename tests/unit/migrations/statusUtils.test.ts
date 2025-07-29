@@ -1,7 +1,6 @@
-import * as fsPromises from "node:fs/promises";
-import { type MockedObject, describe, expect, it, vitest } from "vitest";
-
 import type { Stats } from "node:fs";
+import * as fsPromises from "node:fs/promises";
+import { describe, expect, it, type MockedObject, vitest } from "vitest";
 import type { MigrationStatus } from "../../../src/modules/migrations/models/status.ts";
 import {
   createDefaultReadStatus,

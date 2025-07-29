@@ -12,8 +12,8 @@ import {
   type RoleContracts,
   type SpaceContracts,
   type TaxonomyContracts,
-  type WebSpotlightContracts,
   type WebhookContracts,
+  type WebSpotlightContracts,
   type WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";

@@ -13,7 +13,7 @@ import type {
   Status,
   StatusPlugin,
 } from "./models/status.js";
-import { type WithErr, handleErr } from "./utils/errUtils.js";
+import { handleErr, type WithErr } from "./utils/errUtils.js";
 import {
   executeMigrations,
   filterMigrations,

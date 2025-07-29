@@ -3,7 +3,7 @@ import type { ManagementClient, TaxonomyModels } from "@kontent-ai/management-sd
 import { type LogOptions, logInfo } from "../../../log.js";
 import { serially } from "../../../utils/requests.js";
 import type { DiffModel } from "../types/diffModel.js";
-import { type PatchOperation, getTargetCodename } from "../types/patchOperation.js";
+import { getTargetCodename, type PatchOperation } from "../types/patchOperation.js";
 
 export const syncTaxonomies = async (
   client: ManagementClient,

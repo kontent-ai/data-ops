@@ -107,7 +107,7 @@ describe("clean command", () => {
     }),
   );
 
-  it.concurrent("Errors when removing types with existing items, prints message.", async () => {
+  it.concurrent("Errors when removing types with existing items, prints message.", () => {
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
       const command = `environment clean -e=${environmentId} -k=${API_KEY} --include contentTypes -s`;
 

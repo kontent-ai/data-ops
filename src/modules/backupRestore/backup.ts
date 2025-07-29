@@ -1,6 +1,5 @@
-import { finished } from "node:stream/promises";
-
 import * as fs from "node:fs";
+import { finished } from "node:stream/promises";
 import type { ManagementClient } from "@kontent-ai/management-sdk";
 import archiver from "archiver";
 import chalk from "chalk";
@@ -16,14 +15,14 @@ import { collectionsEntity } from "./backupRestoreEntities/entities/collections.
 import { contentItemsEntity } from "./backupRestoreEntities/entities/contentItems.js";
 import { contentTypesEntity } from "./backupRestoreEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
-import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
 import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
+import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { rolesExportEntity } from "./backupRestoreEntities/entities/roles.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
-import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import { workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
 import type {
   AnyEntityBackupDefinition,

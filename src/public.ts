@@ -1,9 +1,17 @@
 // biome-ignore lint/performance/noBarrelFile: One barrel for the public API is fine
-export { backupEnvironment, BackupEnvironmentParams } from "./modules/backupRestore/backup.js";
-export { cleanEnvironment, CleanEnvironmentParams } from "./modules/backupRestore/clean.js";
-export { restoreEnvironment, RestoreEnvironmentParams } from "./modules/backupRestore/restore.js";
-
-export { addMigration, AddMigrationParams } from "./modules/migrations/add.js";
+export { BackupEnvironmentParams, backupEnvironment } from "./modules/backupRestore/backup.js";
+export { CleanEnvironmentParams, cleanEnvironment } from "./modules/backupRestore/clean.js";
+export { RestoreEnvironmentParams, restoreEnvironment } from "./modules/backupRestore/restore.js";
+export {
+  MigrateContentFilterParams as SyncContentFilterParams,
+  MigrateContentRunParams as SyncContentRunParams,
+  migrateContentRun,
+} from "./modules/migrateContent/migrateContentRun.js";
+export {
+  MigrateContentSnapshotParams,
+  migrateContentSnapshot,
+} from "./modules/migrateContent/migrateContentSnapshot.js";
+export { AddMigrationParams, addMigration } from "./modules/migrations/add.js";
 export { MigrationModule, MigrationOrder } from "./modules/migrations/models/migration.js";
 export {
   MigrationStatus,
@@ -13,13 +21,12 @@ export {
 } from "./modules/migrations/models/status.js";
 export {
   RunMigrationFilterParams,
-  runMigrations,
   RunMigrationsParams,
+  runMigrations,
 } from "./modules/migrations/run.js";
-
-export { syncDiff, SyncDiffParams } from "./modules/sync/diffEnvironments.js";
-export { SyncEntities, syncRun, SyncRunParams } from "./modules/sync/syncRun.js";
-export { syncSnapshot, SyncSnapshotParams } from "./modules/sync/syncSnapshot.js";
+export { SyncDiffParams, syncDiff } from "./modules/sync/diffEnvironments.js";
+export { SyncEntities, SyncRunParams, syncRun } from "./modules/sync/syncRun.js";
+export { SyncSnapshotParams, syncSnapshot } from "./modules/sync/syncSnapshot.js";
 export {
   AssetFolderSyncModel,
   CollectionSyncModel,
@@ -32,13 +39,3 @@ export {
   TaxonomySyncModel,
   WebSpotlightSyncModel,
 } from "./modules/sync/types/syncModel.js";
-
-export {
-  MigrateContentFilterParams as SyncContentFilterParams,
-  migrateContentRun,
-  MigrateContentRunParams as SyncContentRunParams,
-} from "./modules/migrateContent/migrateContentRun.js";
-export {
-  migrateContentSnapshot,
-  MigrateContentSnapshotParams,
-} from "./modules/migrateContent/migrateContentSnapshot.js";

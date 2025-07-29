@@ -1,7 +1,7 @@
 import type { CollectionSyncModel } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
+  type Handler,
   makeArrayHandler,
   makeObjectHandler,
   makeOrderingHandler,

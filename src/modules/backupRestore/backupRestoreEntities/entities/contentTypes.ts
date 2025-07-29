@@ -18,9 +18,9 @@ import type {
   RestoreContext,
 } from "../entityDefinition.js";
 import {
-  type MultiChoiceElement,
   createPatchItemAndTypeReferencesInTypeElement,
   createTransformTypeElement,
+  type MultiChoiceElement,
 } from "./utils/typeElements.js";
 
 type Type = Replace<
@@ -173,7 +173,7 @@ const createMakeTypeContextByOldIdEntry =
     ];
   };
 
-const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => async () => {
+const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => () => {
   logInfo(params.logOptions, "verbose", `Importing: type ${type.id} (${chalk.yellow(type.name)})`);
 
   const makeGroupFallbackExternalId = (groupCodename: string | undefined) =>

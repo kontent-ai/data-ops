@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-
-import { type DiffParams, diff } from "../../../../src/modules/sync/diff.js";
 import { languageHandler } from "../../../../src/modules/sync/diff/language.js";
+import { type DiffParams, diff } from "../../../../src/modules/sync/diff.js";
 import type { FileContentModel } from "../../../../src/modules/sync/types/fileContentModel.js";
 import type { PatchOperation } from "../../../../src/modules/sync/types/patchOperation.js";
 import type { LanguageSyncModel } from "../../../../src/modules/sync/types/syncModel.js";

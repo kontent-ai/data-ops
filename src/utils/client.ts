@@ -1,5 +1,5 @@
 import { HttpService, type IRetryStrategyOptions, retryHelper } from "@kontent-ai/core-sdk";
-import { type DeliveryClient, createDeliveryClient } from "@kontent-ai/delivery-sdk";
+import { createDeliveryClient, type DeliveryClient } from "@kontent-ai/delivery-sdk";
 import { ManagementClient } from "@kontent-ai/management-sdk";
 import { isAxiosError } from "axios";
 

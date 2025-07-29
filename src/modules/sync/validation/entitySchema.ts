@@ -17,8 +17,8 @@ import type {
 import { CodenameReferenceSchema } from "./commonSchemas.js";
 import {
   SnippetElementsSchemasUnion,
-  TypeElementWithGroupSchemasUnion,
   TypeElementsSchemasUnion,
+  TypeElementWithGroupSchemasUnion,
 } from "./elementSchemas.js";
 
 export const AssetFolderSchema: z.ZodType<AssetFolderSyncModel> = z.strictObject({

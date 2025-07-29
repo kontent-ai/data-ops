@@ -17,13 +17,13 @@ import {
   contentTypesSnippetsEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
 } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
-import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
 import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
+import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
-import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
+import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import {
   importWorkflowScopesEntity,
   workflowsEntity,

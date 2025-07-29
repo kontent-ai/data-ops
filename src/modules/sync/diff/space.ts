@@ -1,8 +1,8 @@
 import { zip } from "../../../utils/array.js";
 import type { SpaceSyncModel } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
+  type Handler,
   makeLeafObjectHandler,
   makeObjectHandler,
   makeWholeObjectsHandler,

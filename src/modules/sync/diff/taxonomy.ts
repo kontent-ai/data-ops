@@ -2,12 +2,12 @@ import { zip } from "../../../utils/array.js";
 import { throwError } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 import type { Replace } from "../../../utils/types.js";
-import { type PatchOperation, getTargetCodename } from "../types/patchOperation.js";
+import { getTargetCodename, type PatchOperation } from "../types/patchOperation.js";
 import type { TaxonomySyncModel } from "../types/syncModel.js";
 import {
-  type Handler,
   baseHandler,
   constantHandler,
+  type Handler,
   makeAdjustEntityHandler,
   makeAdjustOperationHandler,
   makeArrayHandler,

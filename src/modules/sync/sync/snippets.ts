@@ -11,11 +11,11 @@ import { elementTypes } from "../constants/elements.js";
 import type { DiffModel } from "../types/diffModel.js";
 import type { PatchOperation } from "../types/patchOperation.js";
 import {
-  type ReferencingElement,
   createUpdateReferenceOps,
   createUpdateReferencesOps,
   isOp,
   isReferencingElement,
+  type ReferencingElement,
   removeReferencesFromAddOp,
 } from "./utils.js";
 
