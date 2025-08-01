@@ -105,6 +105,7 @@ export const register: RegisterCommand = (yargs) =>
         .option("skipConfirmation", {
           type: "boolean",
           describe: "Skip confirmation message.",
+          alias: "sc",
         })
         .option("kontentUrl", {
           type: "string",
@@ -149,7 +150,7 @@ const migrateContentRunCli = async (params: MigrateContentRunCliParams) => {
   await migrateContentRunInternal(resolvedParams, "migrate-content-run", async () => {
     await checkConfirmation({
       message: `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. 
-OK to proceed y/n? (suppress this message with --sw parameter)\n`,
+OK to proceed y/n? (suppress this message with --sc parameter)\n`,
       skipConfirmation: params.skipConfirmation,
       logOptions: params,
     });
