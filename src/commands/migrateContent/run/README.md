@@ -115,6 +115,7 @@ The command provides several parameters to cover various scenarios for selecting
 | `--depth`                            | (Optional) The depth of linked items to include in the migration.                                                          |
 | `--limit`                            | (Optional) The maximum number of content items to retrieve per API call (default is 100, maximum is 100).                        |
 | `--configFile`                       | (Optional) Path to a JSON configuration file containing parameters.                                                              |
+| `--skipConfirmation`                 | (Optional) Skip confirmation message.                                                              |
 
 To see all supported parameters, run:
 

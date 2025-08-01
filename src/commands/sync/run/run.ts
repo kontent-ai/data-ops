@@ -70,6 +70,7 @@ export const register: RegisterCommand = (yargs) =>
         .option("skipConfirmation", {
           type: "boolean",
           describe: "Skip confirmation message.",
+          alias: "sc",
         })
         .option("kontentUrl", {
           type: "string",
@@ -100,7 +101,7 @@ const syncRunCli = async (params: SyncModelRunCliParams) => {
       await checkConfirmation({
         message: `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
 - Removing content due to element deletion
-OK to proceed y/n? (suppress this message with --sw parameter)\n`,
+OK to proceed y/n? (suppress this message with --sc parameter)\n`,
         skipConfirmation: params.skipConfirmation,
         logOptions: params,
       });
