@@ -220,7 +220,8 @@ await restoreEnvironment(params);
 ### Entity Limitations
 
 - **Roles and Asset Types**: Roles and [Asset Types](https://kontent.ai/learn/docs/assets/asset-organization#a-set-up-the-asset-type) are currently not a part of the backup due to API limitations. The tool also cannot set role limitations when restoring workflows.
-
+- **Asset Type Workaround:** Taxonomy elements on assets are not restored during the backup/restore process due to current API behaviour. A workaround is available via the [Asset Taxonomy Remapper](https://github.com/Kontent-ai-consulting/asset-taxonomy-remap) script, which compares source and target environments using the Management API to remap taxonomy terms post-restore.
+  **Note:** This is not an officially supported solution. It’s a community-driven workaround maintained by the Consulting Team on a best-effort basis. Feel free to adapt or contribute as needed.
 ### Multiple Versions of Content
 
 - **Published and Draft Versions**: Due to recently removed API limitations, only the [newest version](https://kontent.ai/learn/docs/workflows-publishing/create-new-versions) will be exported or imported. Published language variants that don't exist in any other workflow step are exported correctly.
