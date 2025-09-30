@@ -5,7 +5,7 @@ import type {
   LanguageVariantElementsBuilder,
   ManagementClient,
 } from "@kontent-ai/management-sdk";
-
+import { emptyId } from "../../../../constants/ids.js";
 import { type LogOptions, logInfo, logWarning } from "../../../../log.js";
 import { handleKontentErrors } from "../../../../utils/error.js";
 import { createAssetExternalId, createItemExternalId } from "../../../../utils/externalIds.js";
@@ -44,7 +44,25 @@ export const languageVariantsEntity = {
   serializeEntities: JSON.stringify,
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities: fileVariants, context, logOptions }) => {
-    await serially(fileVariants.map(createImportVariant(client, context, logOptions)));
+    await serially(
+      fileVariants
+        .toSorted((a, b) => {
+          if (a.item.id !== b.item.id) {
+            return 0;
+          }
+
+          if (a.language.id === emptyId) {
+            return -1;
+          }
+
+          if (b.language.id === emptyId) {
+            return 1;
+          }
+
+          return 0;
+        })
+        .map(createImportVariant(client, context, logOptions)),
+    );
 
     return context;
   },
