@@ -367,17 +367,17 @@
     
     <div class="updated">
       <h3>updated</h3>
-      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_complex_reordering')">patch_complex_reordering</div><div class="entity-operations" style="display: none" id="patch_complex_reordering"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>c</strong> changed <div class="compared-elements"><div class="element">second_group</div><div class="comparator">→</div><div class="element"> first_group</div></div></div>
-<div class="op"><span class="num-removed modifier-icon">−</span>Element <strong>to_delete_137a3a5</strong> removed</div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Content group <strong>second_group</strong> moved after <strong>first_group</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Content group <strong>third_group</strong> moved after <strong>second_group</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>b</strong> moved after <strong>a</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>c</strong> moved after <strong>b</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>d</strong> moved after <strong>c</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>to_delete</strong> moved after <strong>d</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>f</strong> moved after <strong>e</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>h</strong> moved after <strong>g</strong></div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_remove_last_content_group')">patch_remove_last_content_group</div><div class="entity-operations" style="display: none" id="patch_remove_last_content_group"><div class="op"><span class="num-added modifier-icon">+</span>Element <strong>c</strong> added </div></div></div>
+      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_add_content_groups')">patch_add_content_groups</div><div class="entity-operations" style="display: none" id="patch_add_content_groups"><div class="op"><span class="num-added modifier-icon">+</span>Content group <strong>n1</strong> added </div>
+<div class="op"><span class="num-added modifier-icon">+</span>Content group <strong>n2</strong> added </div>
+<div class="op"><span class="num-added modifier-icon">+</span>Content group <strong>n3</strong> added </div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>a</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n1</div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>c</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n1</div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>b</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n2</div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>d</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n2</div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>e</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n3</div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>taxonomy_group</strong> of element <strong>e</strong> changed <div class="compared-elements"><div class="element">taxonomy_group_to_delete</div><div class="comparator">→</div><div class="element"> add_taxonomy</div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>c</strong> moved after <strong>a</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>d</strong> moved after <strong>b</strong></div></div></div>
 <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_add_default_value')">patch_add_default_value</div><div class="entity-operations" style="display: none" id="patch_add_default_value"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>text</strong> changed <div class="compared-elements"><div class="element"><strong>null</strong></div><div class="comparator">→</div><div class="element"> Default text value</div></div></div>
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>number</strong> changed <div class="compared-elements"><div class="element"><strong>null</strong></div><div class="comparator">→</div><div class="element"> 42</div></div></div>
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>multi_choice</strong> changed <div class="compared-elements"><div class="element"><strong>null</strong></div><div class="comparator">→</div><div class="element"> n2, n3</div></div></div>
@@ -385,8 +385,6 @@
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>asset</strong> changed <div class="compared-elements"><div class="element"><strong>null</strong></div><div class="comparator">→</div><div class="element"> test_title_jpg</div></div></div>
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>items</strong> changed <div class="compared-elements"><div class="element"><strong>null</strong></div><div class="comparator">→</div><div class="element"> item_1</div></div></div>
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>taxonomy</strong> changed <div class="compared-elements"><div class="element"><strong>null</strong></div><div class="comparator">→</div><div class="element"> update_term_1_1_1, update_term_2</div></div></div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_reference_deleting_snippet')">patch_reference_deleting_snippet</div><div class="entity-operations" style="display: none" id="patch_reference_deleting_snippet"><div class="op"><span class="num-added modifier-icon">+</span>Element <strong>snippet_referenced_by_url_slug</strong> added </div>
-<div class="op"><span class="num-removed modifier-icon">−</span>Element <strong>snippet_to_delete</strong> removed</div></div></div>
 <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_complex_changes')">patch_complex_changes</div><div class="entity-operations" style="display: none" id="patch_complex_changes"><div class="op"><span class="num-added modifier-icon">+</span>For rich text element <strong>untitled_rich_text</strong>, allowed formatting <strong>unstyled</strong> added </div>
 <div class="op"><span class="num-added modifier-icon">+</span>For rich text element <strong>untitled_rich_text</strong>, allowed formatting <strong>bold</strong> added </div>
 <div class="op"><span class="num-added modifier-icon">+</span>For rich text element <strong>untitled_rich_text</strong>, allowed formatting <strong>superscript</strong> added </div>
@@ -452,23 +450,25 @@
 <div class="op"><span class="num-modified modifier-icon">⤷</span>Option <strong>second_option</strong> for multiple choice element <strong>complex_update_options</strong> moved after <strong>first_option</strong></div>
 <div class="op"><span class="num-modified modifier-icon">⤷</span>Option <strong>third_option</strong> for multiple choice element <strong>complex_update_options</strong> moved after <strong>second_option</strong></div>
 <div class="op"><span class="num-modified modifier-icon">⤷</span>Option <strong>fourth_option</strong> for multiple choice element <strong>complex_update_options</strong> moved after <strong>third_option</strong></div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_complex_reordering')">patch_complex_reordering</div><div class="entity-operations" style="display: none" id="patch_complex_reordering"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>c</strong> changed <div class="compared-elements"><div class="element">second_group</div><div class="comparator">→</div><div class="element"> first_group</div></div></div>
+<div class="op"><span class="num-removed modifier-icon">−</span>Element <strong>to_delete_137a3a5</strong> removed</div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Content group <strong>second_group</strong> moved after <strong>first_group</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Content group <strong>third_group</strong> moved after <strong>second_group</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>b</strong> moved after <strong>a</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>c</strong> moved after <strong>b</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>d</strong> moved after <strong>c</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>to_delete</strong> moved after <strong>d</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>f</strong> moved after <strong>e</strong></div>
+<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>h</strong> moved after <strong>g</strong></div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_reference_deleting_snippet')">patch_reference_deleting_snippet</div><div class="entity-operations" style="display: none" id="patch_reference_deleting_snippet"><div class="op"><span class="num-added modifier-icon">+</span>Element <strong>snippet_referenced_by_url_slug</strong> added </div>
+<div class="op"><span class="num-removed modifier-icon">−</span>Element <strong>snippet_to_delete</strong> removed</div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_remove_last_content_group')">patch_remove_last_content_group</div><div class="entity-operations" style="display: none" id="patch_remove_last_content_group"><div class="op"><span class="num-added modifier-icon">+</span>Element <strong>c</strong> added </div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_removing_default_value_to_null')">patch_removing_default_value_to_null</div><div class="entity-operations" style="display: none" id="patch_removing_default_value_to_null"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>asset</strong> changed <div class="compared-elements"><div class="element">test_title_jpg</div><div class="comparator">→</div><div class="element"> <strong>null</strong></div></div></div>
+<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>linked_items</strong> changed <div class="compared-elements"><div class="element">item</div><div class="comparator">→</div><div class="element"> <strong>null</strong></div></div></div></div></div>
 <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('type_codename_b')">type_codename_b</div><div class="entity-operations" style="display: none" id="type_codename_b"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>guidelines</strong> changed <div class="compared-elements"><div class="element">group_1</div><div class="comparator">→</div><div class="element"> <strong>null</strong></div></div></div>
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>guidelines</strong> of element <strong>guidelines</strong> changed <div class="compared-elements"><div class="element"><p><br/></p></div><div class="comparator">→</div><div class="element"> <p><em><strong>With External Ids But Different Codename B </strong></em>has external ids set on target&nbsp;and <em><strong>Add With External Ids But Different Codename A </strong></em>has external ids on source &nbsp;=&gt; meaning in target <em>a new type with existing external ids. </em>will be<em> added</em></p></div></div></div>
 <div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>text_element</strong> changed <div class="compared-elements"><div class="element">group_1</div><div class="comparator">→</div><div class="element"> <strong>null</strong></div></div></div>
 <div class="op"><span class="num-removed modifier-icon">−</span>Content group <strong>group_1</strong> removed</div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_removing_default_value_to_null')">patch_removing_default_value_to_null</div><div class="entity-operations" style="display: none" id="patch_removing_default_value_to_null"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>asset</strong> changed <div class="compared-elements"><div class="element">test_title_jpg</div><div class="comparator">→</div><div class="element"> <strong>null</strong></div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>default</strong> of element <strong>linked_items</strong> changed <div class="compared-elements"><div class="element">item</div><div class="comparator">→</div><div class="element"> <strong>null</strong></div></div></div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('patch_add_content_groups')">patch_add_content_groups</div><div class="entity-operations" style="display: none" id="patch_add_content_groups"><div class="op"><span class="num-added modifier-icon">+</span>Content group <strong>n1</strong> added </div>
-<div class="op"><span class="num-added modifier-icon">+</span>Content group <strong>n2</strong> added </div>
-<div class="op"><span class="num-added modifier-icon">+</span>Content group <strong>n3</strong> added </div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>a</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n1</div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>c</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n1</div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>b</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n2</div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>d</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n2</div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>content_group</strong> of element <strong>e</strong> changed <div class="compared-elements"><div class="element">null</div><div class="comparator">→</div><div class="element"> n3</div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>taxonomy_group</strong> of element <strong>e</strong> changed <div class="compared-elements"><div class="element">taxonomy_group_to_delete</div><div class="comparator">→</div><div class="element"> add_taxonomy</div></div></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>c</strong> moved after <strong>a</strong></div>
-<div class="op"><span class="num-modified modifier-icon">⤷</span>Element <strong>d</strong> moved after <strong>b</strong></div></div></div>
     </div>
   
     <div class="added-and-deleted">
@@ -481,50 +481,7 @@
         
     <div class="added">
       <h3>added</h3>
-      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('custom_web_spotlight_root')">custom_web_spotlight_root</div><div style="display: none" id=custom_web_spotlight_root><div class="added-element"><div class="element" onClick="toggleVisibility('title')">title<div id=title style="display: none"><div>maximum_text_length: <strong>undefined</strong></div>
-<div>validation_regex: <strong>undefined</strong></div>
-<div>default: <strong>undefined</strong></div>
-<div>name: <strong>Title</strong></div>
-<div>guidelines: <strong>undefined</strong></div>
-<div>is_required: <strong>false</strong></div>
-<div>is_non_localizable: <strong>false</strong></div>
-<div>type: <strong>text</strong></div>
-<div>codename: <strong>title</strong></div>
-<div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">TEXT
-    </div></div>
-<div class="added-element"><div class="element" onClick="toggleVisibility('subpages_element')">subpages_element<div id=subpages_element style="display: none"><div>item_count_limit: <strong>undefined</strong></div>
-<div>allowed_content_types: <strong>page</strong></div>
-<div>default: <strong>undefined</strong></div>
-<div>name: <strong>Subpages</strong></div>
-<div>guidelines: <strong>undefined</strong></div>
-<div>is_required: <strong>false</strong></div>
-<div>is_non_localizable: <strong>false</strong></div>
-<div>type: <strong>subpages</strong></div>
-<div>codename: <strong>subpages_element</strong></div>
-<div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">SUBPAGES
-    </div></div>
-<div class="added-element"><div class="element" onClick="toggleVisibility('content')">content<div id=content style="display: none"><div>maximum_text_length: <strong>undefined</strong></div>
-<div>maximum_image_size: <strong>undefined</strong></div>
-<div>allowed_content_types: <strong>all</strong></div>
-<div>allowed_item_link_types: <strong>all</strong></div>
-<div>image_width_limit: <strong>undefined</strong></div>
-<div>image_height_limit: <strong>undefined</strong></div>
-<div>allowed_image_types: <strong>any</strong></div>
-<div>allowed_blocks: <strong>all</strong></div>
-<div>allowed_formatting: <strong>all</strong></div>
-<div>allowed_text_blocks: <strong>all</strong></div>
-<div>allowed_table_blocks: <strong>all</strong></div>
-<div>allowed_table_formatting: <strong>all</strong></div>
-<div>allowed_table_text_blocks: <strong>all</strong></div>
-<div>name: <strong>Content</strong></div>
-<div>guidelines: <strong>undefined</strong></div>
-<div>is_required: <strong>false</strong></div>
-<div>is_non_localizable: <strong>false</strong></div>
-<div>type: <strong>rich_text</strong></div>
-<div>codename: <strong>content</strong></div>
-<div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">RICH TEXT
-    </div></div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('add_complex_content_type_to_add')">add_complex_content_type_to_add</div><div style="display: none" id=add_complex_content_type_to_add><div class="added-element"><div class="element" onClick="toggleVisibility('fully_equiped_text_element')">fully_equiped_text_element<div id=fully_equiped_text_element style="display: none"><div>maximum_text_length: <strong>50</strong></div>
+      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('add_complex_content_type_to_add')">add_complex_content_type_to_add</div><div style="display: none" id=add_complex_content_type_to_add><div class="added-element"><div class="element" onClick="toggleVisibility('fully_equiped_text_element')">fully_equiped_text_element<div id=fully_equiped_text_element style="display: none"><div>maximum_text_length: <strong>50</strong></div>
 <div>validation_regex: <strong>^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$</strong></div>
 <div>default: <strong>test@kontent.ai</strong></div>
 <div>name: <strong>Fully Equiped Text Element</strong></div>
@@ -678,6 +635,64 @@
 <div>codename: <strong>snippet_referenced_by_url_slug</strong></div>
 <div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">SNIPPET
     </div></div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('add_content_type_referencing_snippet_via_url_slug_b804e88')">add_content_type_referencing_snippet_via_url_slug_b804e88</div><div style="display: none" id=add_content_type_referencing_snippet_via_url_slug_b804e88><div class="added-element"><div class="element" onClick="toggleVisibility('url_slug_element')">url_slug_element<div id=url_slug_element style="display: none"><div>depends_on: <strong>[object Object]</strong></div>
+<div>validation_regex: <strong>undefined</strong></div>
+<div>name: <strong>Url Slug Element</strong></div>
+<div>guidelines: <strong>undefined</strong></div>
+<div>is_required: <strong>false</strong></div>
+<div>is_non_localizable: <strong>false</strong></div>
+<div>type: <strong>url_slug</strong></div>
+<div>codename: <strong>url_slug_element</strong></div>
+<div>content_group: <strong>first_group</strong></div></div></div><div class="element-type">URL SLUG
+    </div></div>
+<div class="added-element"><div class="element" onClick="toggleVisibility('snippet_referenced_by_url_slug')">snippet_referenced_by_url_slug<div id=snippet_referenced_by_url_slug style="display: none"><div>snippet: <strong>snippet_referenced_by_url_slug</strong></div>
+<div>type: <strong>snippet</strong></div>
+<div>codename: <strong>snippet_referenced_by_url_slug</strong></div>
+<div>content_group: <strong>second_group</strong></div></div></div><div class="element-type">SNIPPET
+    </div></div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('custom_web_spotlight_root')">custom_web_spotlight_root</div><div style="display: none" id=custom_web_spotlight_root><div class="added-element"><div class="element" onClick="toggleVisibility('title')">title<div id=title style="display: none"><div>maximum_text_length: <strong>undefined</strong></div>
+<div>validation_regex: <strong>undefined</strong></div>
+<div>default: <strong>undefined</strong></div>
+<div>name: <strong>Title</strong></div>
+<div>guidelines: <strong>undefined</strong></div>
+<div>is_required: <strong>false</strong></div>
+<div>is_non_localizable: <strong>false</strong></div>
+<div>type: <strong>text</strong></div>
+<div>codename: <strong>title</strong></div>
+<div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">TEXT
+    </div></div>
+<div class="added-element"><div class="element" onClick="toggleVisibility('subpages_element')">subpages_element<div id=subpages_element style="display: none"><div>item_count_limit: <strong>undefined</strong></div>
+<div>allowed_content_types: <strong>page</strong></div>
+<div>default: <strong>undefined</strong></div>
+<div>name: <strong>Subpages</strong></div>
+<div>guidelines: <strong>undefined</strong></div>
+<div>is_required: <strong>false</strong></div>
+<div>is_non_localizable: <strong>false</strong></div>
+<div>type: <strong>subpages</strong></div>
+<div>codename: <strong>subpages_element</strong></div>
+<div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">SUBPAGES
+    </div></div>
+<div class="added-element"><div class="element" onClick="toggleVisibility('content')">content<div id=content style="display: none"><div>maximum_text_length: <strong>undefined</strong></div>
+<div>maximum_image_size: <strong>undefined</strong></div>
+<div>allowed_content_types: <strong>all</strong></div>
+<div>allowed_item_link_types: <strong>all</strong></div>
+<div>image_width_limit: <strong>undefined</strong></div>
+<div>image_height_limit: <strong>undefined</strong></div>
+<div>allowed_image_types: <strong>any</strong></div>
+<div>allowed_blocks: <strong>all</strong></div>
+<div>allowed_formatting: <strong>all</strong></div>
+<div>allowed_text_blocks: <strong>all</strong></div>
+<div>allowed_table_blocks: <strong>all</strong></div>
+<div>allowed_table_formatting: <strong>all</strong></div>
+<div>allowed_table_text_blocks: <strong>all</strong></div>
+<div>name: <strong>Content</strong></div>
+<div>guidelines: <strong>undefined</strong></div>
+<div>is_required: <strong>false</strong></div>
+<div>is_non_localizable: <strong>false</strong></div>
+<div>type: <strong>rich_text</strong></div>
+<div>codename: <strong>content</strong></div>
+<div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">RICH TEXT
+    </div></div></div></div>
 <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('page')">page</div><div style="display: none" id=page><div class="added-element"><div class="element" onClick="toggleVisibility('title')">title<div id=title style="display: none"><div>maximum_text_length: <strong>undefined</strong></div>
 <div>validation_regex: <strong>undefined</strong></div>
 <div>default: <strong>undefined</strong></div>
@@ -731,21 +746,6 @@
 <div>type: <strong>modular_content</strong></div>
 <div>codename: <strong>content</strong></div>
 <div>content_group: <strong>undefined</strong></div></div></div><div class="element-type">MODULAR CONTENT
-    </div></div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('add_content_type_referencing_snippet_via_url_slug_b804e88')">add_content_type_referencing_snippet_via_url_slug_b804e88</div><div style="display: none" id=add_content_type_referencing_snippet_via_url_slug_b804e88><div class="added-element"><div class="element" onClick="toggleVisibility('url_slug_element')">url_slug_element<div id=url_slug_element style="display: none"><div>depends_on: <strong>[object Object]</strong></div>
-<div>validation_regex: <strong>undefined</strong></div>
-<div>name: <strong>Url Slug Element</strong></div>
-<div>guidelines: <strong>undefined</strong></div>
-<div>is_required: <strong>false</strong></div>
-<div>is_non_localizable: <strong>false</strong></div>
-<div>type: <strong>url_slug</strong></div>
-<div>codename: <strong>url_slug_element</strong></div>
-<div>content_group: <strong>first_group</strong></div></div></div><div class="element-type">URL SLUG
-    </div></div>
-<div class="added-element"><div class="element" onClick="toggleVisibility('snippet_referenced_by_url_slug')">snippet_referenced_by_url_slug<div id=snippet_referenced_by_url_slug style="display: none"><div>snippet: <strong>snippet_referenced_by_url_slug</strong></div>
-<div>type: <strong>snippet</strong></div>
-<div>codename: <strong>snippet_referenced_by_url_slug</strong></div>
-<div>content_group: <strong>second_group</strong></div></div></div><div class="element-type">SNIPPET
     </div></div></div></div>
 <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('type_codename_a')">type_codename_a</div><div style="display: none" id=type_codename_a><div class="added-element"><div class="element" onClick="toggleVisibility('guidelines')">guidelines<div id=guidelines style="display: none"><div>guidelines: <strong><p><em><strong>With External Ids But Different Codename B </strong></em>has external ids set on target&nbsp;and <em><strong>Add With External Ids But Different Codename A </strong></em>has external ids on source &nbsp;=&gt; meaning in target <em>a new type with existing external ids. </em>will be<em> added</em></p></strong></div>
 <div>type: <strong>guidelines</strong></div>
@@ -992,8 +992,8 @@
     
     <div class="updated">
       <h3>updated</h3>
-      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('space_to_rename')">space_to_rename</div><div class="entity-operations" style="display: none" id="space_to_rename"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>name</strong> changed <div class="compared-elements"><div class="element">Space to rename (target)</div><div class="comparator">→</div><div class="element"> Space to rename</div></div></div></div></div>
-<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('space_to_change_collections')">space_to_change_collections</div><div class="entity-operations" style="display: none" id="space_to_change_collections"><div class="op"><span class="num-modified modifier-icon">⇄</span>Collection for space changed <div class="compared-elements"><div class="element">collection_to_delete, collection_to_be_renamed</div><div class="comparator">→</div><div class="element"> default</div></div></div></div></div>
+      <div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('space_to_change_collections')">space_to_change_collections</div><div class="entity-operations" style="display: none" id="space_to_change_collections"><div class="op"><span class="num-modified modifier-icon">⇄</span>Collection for space changed <div class="compared-elements"><div class="element">collection_to_delete, collection_to_be_renamed</div><div class="comparator">→</div><div class="element"> default</div></div></div></div></div>
+<div class="entity-detail"><div class="entity-name" onClick="toggleVisibility('space_to_rename')">space_to_rename</div><div class="entity-operations" style="display: none" id="space_to_rename"><div class="op"><span class="num-modified modifier-icon">⇄</span>Property <strong>name</strong> changed <div class="compared-elements"><div class="element">Space to rename (target)</div><div class="comparator">→</div><div class="element"> Space to rename</div></div></div></div></div>
     </div>
   
     <div class="added-and-deleted">
