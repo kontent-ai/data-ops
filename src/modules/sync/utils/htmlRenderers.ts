@@ -74,16 +74,37 @@ export type DiffData = DiffModel & AdvancedDiffParams;
  * @returns resolved HTML string
  */
 export const resolveHtmlTemplate = (templateString: string, diffData: DiffData): string => {
+  const sortedDiffData = {
+    ...diffData,
+    contentTypes: sortDiffObject(diffData.contentTypes),
+    contentTypeSnippets: sortDiffObject(diffData.contentTypeSnippets),
+    taxonomyGroups: sortDiffObject(diffData.taxonomyGroups),
+    languages: sortDiffObject(diffData.languages),
+    spaces: sortDiffObject(diffData.spaces),
+    workflows: sortDiffObject(diffData.workflows),
+  } as const satisfies DiffData;
+
   const resolvePlaceHolders = (template: string): string => {
     const processedTemplate = template.replace(
       /{{.*?}}/g,
-      (match) => rendererMap.get(match)?.(diffData) ?? match,
+      (match) => rendererMap.get(match)?.(sortedDiffData) ?? match,
     );
 
     return processedTemplate === template ? template : resolvePlaceHolders(processedTemplate);
   };
 
   return resolvePlaceHolders(templateString);
+};
+
+const sortDiffObject = <T extends { codename: string }, Z extends DiffObject<T>>(
+  diffObject: Z,
+): Z => {
+  return {
+    ...diffObject,
+    added: diffObject.added.toSorted((a, b) => a.codename.localeCompare(b.codename)),
+    updated: new Map(Array.from(diffObject.updated).toSorted((a, b) => a[0].localeCompare(b[0]))),
+    deleted: new Set(Array.from(diffObject.deleted).toSorted((a, b) => a.localeCompare(b))),
+  };
 };
 
 const createRenderAddedEntityData =
