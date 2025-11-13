@@ -141,6 +141,7 @@ const params: MigrateContentRunParams = {
   items: ["article1", "article2"],
   // depth: 2,
   // limit: 100,
+  // tolerateMissingReferences: true,
 };
 
 await migrateContentRun(params);

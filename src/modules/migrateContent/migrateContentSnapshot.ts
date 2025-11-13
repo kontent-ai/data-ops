@@ -48,9 +48,7 @@ export const migrateContentSnapshotInternal = async (
     })),
     logger: getDefaultLogger(),
     baseUrl: apply(createManagementApiUrl, params.kontentUrl),
-    exportOptions: {
-      tolerateMissingReferences: params.tolerateMissingReferences ?? false,
-    },
+    tolerateMissingReferences: params.tolerateMissingReferences ?? false,
   });
 
   await storeAsync({
