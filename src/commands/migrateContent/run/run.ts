@@ -96,6 +96,11 @@ export const register: RegisterCommand = (yargs) =>
           type: "boolean",
           describe: "Continue when encounter the item that can't be migrated.",
         })
+        .option("tolerateMissingReferences", {
+          type: "boolean",
+          describe:
+            "When enabled, missing items and assets will be skipped instead of throwing errors.",
+        })
         .option("filter", {
           type: "string",
           describe:
@@ -139,6 +144,7 @@ type MigrateContentRunCliParams = Readonly<{
   byTypesCodenames: ReadonlyArray<string> | undefined;
   filter: string | undefined;
   skipFailedItems: boolean | undefined;
+  tolerateMissingReferences: boolean | undefined;
   skipConfirmation: boolean | undefined;
   kontentUrl: string | undefined;
 }> &

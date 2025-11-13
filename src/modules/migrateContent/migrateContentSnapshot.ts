@@ -11,6 +11,7 @@ export type MigrateContentSnapshotParams = Readonly<
     sourceEnvironmentId: string;
     sourceApiKey: string;
     filename?: string;
+    tolerateMissingReferences?: boolean;
     kontentUrl?: string;
   } & MigrateContentFilterParams &
     LogOptions
@@ -47,6 +48,9 @@ export const migrateContentSnapshotInternal = async (
     })),
     logger: getDefaultLogger(),
     baseUrl: apply(createManagementApiUrl, params.kontentUrl),
+    exportOptions: {
+      tolerateMissingReferences: params.tolerateMissingReferences ?? false,
+    },
   });
 
   await storeAsync({

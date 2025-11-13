@@ -114,6 +114,7 @@ The command provides several parameters to cover various scenarios for selecting
 | `--filter`                           | (Mutually exclusive) A custom query string for filtering content items via the Delivery API.                                     |
 | `--depth`                            | (Optional) The depth of linked items to include in the migration.                                                          |
 | `--limit`                            | (Optional) The maximum number of content items to retrieve per API call (default is 100, maximum is 100).                        |
+| `--tolerateMissingReferences`        | (Optional) When enabled, missing items and assets will be skipped instead of throwing errors (default is false).                 |
 | `--configFile`                       | (Optional) Path to a JSON configuration file containing parameters.                                                              |
 | `--skipConfirmation`                 | (Optional) Skip confirmation message.                                                              |
 

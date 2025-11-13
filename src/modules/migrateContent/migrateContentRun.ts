@@ -10,6 +10,7 @@ export type MigrateContentRunParams = Readonly<
     targetEnvironmentId: string;
     targetApiKey: string;
     skipFailedItems?: boolean;
+    tolerateMissingReferences?: boolean;
     kontentUrl?: string;
   } & (
     | ({
@@ -96,6 +97,9 @@ export const migrateContentRunInternal = async (
       apiKey: params.sourceApiKey,
       items: itemsCodenames.map((i) => ({ itemCodename: i, languageCodename: params.language })),
       baseUrl: apply(createManagementApiUrl, params.kontentUrl),
+      exportOptions: {
+        tolerateMissingReferences: params.tolerateMissingReferences ?? false,
+      },
     },
   });
 
