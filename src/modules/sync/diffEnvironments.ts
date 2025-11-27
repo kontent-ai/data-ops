@@ -3,20 +3,19 @@ import chalk from "chalk";
 import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
 import type { Replace } from "../../utils/types.js";
+import { renderDiffReport } from "./advancedDiff/renderDiffReport.js";
 import {
   type SyncEntityName,
   syncEntityChoices,
   syncEntityDependencies,
 } from "./constants/entities.js";
 import { diff } from "./diff.js";
-import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
 import {
   fetchSourceSyncModel,
   getSourceItemAndAssetCodenames,
   getSourceSyncModelFromFolder,
   getTargetContentModel,
 } from "./utils/getContentModel.js";
-import { resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 import { validateSyncModelFolder } from "./validation.js";
 
 export type SyncDiffParams = Readonly<
@@ -48,7 +47,7 @@ export const syncDiff = async (params: SyncDiffParams) => {
   const resolvedParams = { ...params, entities: params.entities ?? syncEntityChoices };
   const diffModel = await syncDiffInternal(resolvedParams, "diff-API");
 
-  return resolveHtmlTemplate(diffHtmlTemplate, { ...diffModel, ...resolvedParams });
+  return renderDiffReport({ ...diffModel, ...resolvedParams });
 };
 
 export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandName: string) => {
