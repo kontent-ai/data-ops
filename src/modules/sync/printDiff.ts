@@ -4,17 +4,16 @@ import chalk from "chalk";
 import { match } from "ts-pattern";
 
 import { type LogOptions, logInfo } from "../../log.js";
+import { type DiffData, renderDiffReport } from "./advancedDiff/renderDiffReport.js";
 import type { SyncEntityName } from "./constants/entities.js";
 import type { DiffModel, DiffObject } from "./types/diffModel.js";
 import type { PatchOperation } from "./types/patchOperation.js";
-import { diffHtmlTemplate } from "./utils/diffTemplateHtml.js";
 import {
   createOutputDirectory,
   createOutputFile,
   openOutputFile,
   resolveOutputPath,
 } from "./utils/fileUtils.js";
-import { type DiffData, resolveHtmlTemplate } from "./utils/htmlRenderers.js";
 
 export const printDiff = (
   diffModel: DiffModel,
@@ -138,9 +137,9 @@ const printDiffEntity = (
 };
 
 export const createAdvancedDiffFile = (diffData: DiffData) => {
-  const logOptions: LogOptions = diffData;
-  const resolvedPath = diffData.outPath ? resolveOutputPath(diffData.outPath) : false;
-  const resolvedTemplate = resolveHtmlTemplate(diffHtmlTemplate, diffData);
+  const logOptions: LogOptions = diffData.params;
+  const resolvedPath = diffData.params.outPath ? resolveOutputPath(diffData.params.outPath) : false;
+  const resolvedTemplate = renderDiffReport(diffData);
 
   if (!resolvedPath) {
     throw new Error("Output path not specified.");
@@ -154,7 +153,7 @@ export const createAdvancedDiffFile = (diffData: DiffData) => {
 
   createOutputFile(resolvedPath, resolvedTemplate, logOptions);
 
-  if (!diffData.noOpen) {
+  if (!diffData.params.noOpen) {
     openOutputFile(resolvedPath, logOptions);
   }
 };

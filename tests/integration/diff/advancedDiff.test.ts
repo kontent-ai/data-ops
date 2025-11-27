@@ -21,7 +21,7 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
 
 describe("Advanced diff", () => {
   const outputFilePath = path.join(import.meta.dirname, "diffTest.html");
-  const dateGeneratedRegex = /<div>state from <strong>.*<\/strong><\/div>/;
+  const dateGeneratedRegex = /<div>state from <strong>[^<]*<\/strong><\/div>/;
 
   it("matches the generated file with the baseline", async () => {
     const command = `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies collections webSpotlight spaces assetFolders workflows languages -a -n`;
