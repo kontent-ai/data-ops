@@ -3,6 +3,7 @@
     /* Language and Environment */
     "target": "es2023",
     "lib": ["esnext"],
+    "jsx": "react-jsx",
     /* Modules */
     "module": "nodenext",
     "moduleResolution": "nodenext",
