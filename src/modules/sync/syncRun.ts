@@ -113,7 +113,10 @@ const getDiffModel = async (
   commandName: string,
 ) => {
   if ("folderName" in params) {
-    const folderErrors = await validateSyncModelFolder(params.folderName);
+    const folderErrors = await validateSyncModelFolder(
+      params.folderName,
+      new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+    );
     if (folderErrors.length) {
       return Promise.reject(folderErrors);
     }

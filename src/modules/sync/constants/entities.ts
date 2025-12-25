@@ -1,4 +1,15 @@
 import type { SyncEntities } from "../syncRun.js";
+import {
+  assetFoldersFileName,
+  collectionsFileName,
+  contentTypeSnippetsFileName,
+  contentTypesFileName,
+  languagesFileName,
+  spacesFileName,
+  taxonomiesFileName,
+  webSpotlightFileName,
+  workflowsFileName,
+} from "./filename.js";
 
 export const syncEntityChoices = [
   "contentTypes",
@@ -29,3 +40,15 @@ export const syncEntityDependencies: Record<
   languages: ["languages"],
   webSpotlight: ["webSpotlight", "contentTypes", "contentTypeSnippets", "taxonomies"],
 };
+
+export const entityToFilename = {
+  contentTypes: contentTypesFileName,
+  contentTypeSnippets: contentTypeSnippetsFileName,
+  taxonomies: taxonomiesFileName,
+  collections: collectionsFileName,
+  webSpotlight: webSpotlightFileName,
+  assetFolders: assetFoldersFileName,
+  spaces: spacesFileName,
+  languages: languagesFileName,
+  workflows: workflowsFileName,
+} as const satisfies Record<SyncEntityName, string>;
