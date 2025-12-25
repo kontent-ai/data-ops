@@ -6,24 +6,25 @@ import chalk from "chalk";
 import { serially } from "../../utils/requests.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { elementTypes } from "./constants/elements.js";
-import {
-  contentTypeSnippetsFileName,
-  contentTypesFileName,
-  taxonomiesFileName,
-} from "./constants/filename.js";
+import { entityToFilename, type SyncEntityName } from "./constants/entities.js";
 import type { ElementsTypes } from "./types/contractModels.js";
 import type { DiffModel } from "./types/diffModel.js";
 import { getTargetCodename, type PatchOperation } from "./types/patchOperation.js";
 
-export const validateSyncModelFolder = async (folderPath: string) => {
+export const validateSyncModelFolder = async (
+  folderPath: string,
+  entities: ReadonlySet<SyncEntityName>,
+) => {
   const stats = await fs.stat(folderPath);
 
   if (!stats.isDirectory()) {
     return [`The provided path ${chalk.yellow(folderPath)} is not a valid content model folder`];
   }
 
+  const filenames = [...entities].map((entity) => entityToFilename[entity]);
+
   const fileStatuses = await Promise.all(
-    [contentTypesFileName, contentTypeSnippetsFileName, taxonomiesFileName].map((filename) =>
+    filenames.map((filename) =>
       fs.stat(path.resolve(folderPath, filename)).catch((e) => {
         return `Could not find required file ${chalk.yellow(filename)} due to ${chalk.red(e)}`;
       }),
