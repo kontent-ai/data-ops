@@ -91,7 +91,7 @@ const items = [
     codename: "item_1",
     type: { id: contentTypes[0].id },
     spaces: [],
-    last_modified: new Date(),
+    last_modified: new Date().toISOString(),
     collection: { id: "" },
   },
 ] as const satisfies ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
