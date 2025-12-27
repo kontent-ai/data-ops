@@ -23,7 +23,7 @@ describe("transformSpacesModel", () => {
           type: { id: "ad2d7314-19d8-43ca-a015-8b82e6f6f152" },
           collection: { id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc" },
           spaces: [],
-          last_modified: new Date(),
+          last_modified: new Date().toISOString(),
         },
       ],
       collections: [

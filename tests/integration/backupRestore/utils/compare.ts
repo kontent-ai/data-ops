@@ -619,7 +619,7 @@ const createPrepareItemReferences: PrepareReferencesCreator<
   ...item,
   id: "-",
   external_id: "-",
-  last_modified: new Date(1316, 4, 14),
+  last_modified: new Date(1316, 4, 14).toISOString(),
   type: { id: data.types.find((t) => t.id === item.type.id)?.codename ?? "non-existing-type" },
   collection: {
     id:
@@ -658,6 +658,17 @@ const createPrepareVariantReferences: PrepareReferencesCreator<
           "non-existing-step"),
     },
   },
+  workflow_step: {
+    id: data.workflows
+      .map((wf) => wf.scheduled_step.id)
+      .includes(variant.workflow.step_identifier.id ?? "") // TODO: remove once we schedule variants when importing (currently it is not possible and scheduled variants are put to draft)
+      ? (data.workflows.find((wf) => wf.id === variant.workflow.workflow_identifier.id)?.steps[0]
+          ?.codename ?? "non-existing-step")
+      : (data.workflows
+          .flatMap(getAllSteps)
+          .find((step) => step.id === variant.workflow.step_identifier.id)?.codename ??
+        "non-existing-step"),
+  },
   contributors: [],
   elements: variant.elements.map(createPrepareVariantElementReferences(data)),
   due_date: variant.due_date,
@@ -685,7 +696,10 @@ const createPrepareVariantElementReferences: PrepareReferencesCreator<
       )}" that doesn't have any matching element in any type or snippet. If this happens, please re-save the variant and re-export data to fix it.`,
     );
   }
-  const baseElement = { ...element, element: { id: typeElement.codename } };
+  const baseElement = {
+    ...element,
+    element: { id: typeElement.codename ?? "non-existing-element" },
+  };
 
   switch (typeElement.type) {
     case "asset": {
@@ -770,7 +784,9 @@ const createPrepareVariantElementReferences: PrepareReferencesCreator<
           type: {
             id: data.types.find((t) => t.id === component.type.id)?.codename ?? "non-existing-type",
           },
-          elements: component.elements.map(createPrepareVariantElementReferences(data)),
+          elements: (
+            component.elements as ReadonlyArray<ElementContracts.IContentItemElementContract>
+          ).map(createPrepareVariantElementReferences(data)),
         })),
       };
 
