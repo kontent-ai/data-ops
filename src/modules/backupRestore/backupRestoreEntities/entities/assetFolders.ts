@@ -50,7 +50,7 @@ const createPatchToAddFolder = (
   value: {
     name: folder.name,
     external_id: folder.external_id ?? folder.id,
-    folders: folder.folders.map(createSubFolder),
+    folders: folder.folders?.map(createSubFolder) ?? [],
   },
 });
 
@@ -67,7 +67,7 @@ const createSubFolder = (
   folder: AssetFolderContracts.IAssetFolderContract,
 ): AssetFolderModels.IAssetFolderValue => ({
   name: folder.name,
-  folders: folder.folders.map(createSubFolder),
+  folders: folder.folders?.map(createSubFolder) ?? [],
   external_id: folder.external_id ?? folder.id,
 });
 
@@ -76,5 +76,5 @@ const extractFolderIdEntries = ([fileFolder, projectFolder]: readonly [
   AssetFolderContracts.IAssetFolderContract,
 ]): ReadonlyArray<readonly [string, string]> => [
   [fileFolder.id, projectFolder.id] as const,
-  ...zip(fileFolder.folders, projectFolder.folders).flatMap(extractFolderIdEntries),
+  ...zip(fileFolder.folders ?? [], projectFolder.folders ?? []).flatMap(extractFolderIdEntries),
 ];

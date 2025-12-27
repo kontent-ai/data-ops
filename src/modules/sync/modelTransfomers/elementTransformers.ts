@@ -244,10 +244,10 @@ export const transformTaxonomyElement = (
   ): TaxonomyContracts.ITaxonomyContract | null =>
     term.id === id
       ? term
-      : term.terms.reduce<TaxonomyContracts.ITaxonomyContract | null>(
+      : (term.terms?.reduce<TaxonomyContracts.ITaxonomyContract | null>(
           (res, term) => res || findTerm(term, id),
           null,
-        );
+        ) ?? null);
 
   const defaultTermsReferences = element.default?.global.value
     .map((t) => {

@@ -11,6 +11,6 @@ export const transformTaxonomyGroupsModel = (
     (t) =>
       removeNulls({
         ...omit(t, ["id", "last_modified", "external_id"]),
-        terms: transformTaxonomyGroupsModel(t.terms, taxonomyGroupCodename ?? t.codename),
+        terms: transformTaxonomyGroupsModel(t.terms ?? [], taxonomyGroupCodename ?? t.codename),
       }) as TaxonomySyncModel,
   );

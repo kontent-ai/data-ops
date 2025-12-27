@@ -282,7 +282,7 @@ const renderAddedTaxonomyTerm = (
   `<ul class="term">
         <li>${taxonomy.name}
         ${
-          depth < 2 && taxonomy.terms.length // needs to be 2 to show 3 levels, because when depth is 3 we still render the name, just stop the children
+          depth < 2 && taxonomy.terms?.length // needs to be 2 to show 3 levels, because when depth is 3 we still render the name, just stop the children
             ? `${taxonomy.terms.map((term) => renderAddedTaxonomyTerm(term, depth + 1)).join("\n")}</li>`
             : "</li>"
         }
@@ -346,7 +346,7 @@ const renderAddedTypesOrSnippetsSectionData = <T extends RequiredCodename<TypeOr
 const renderAddedTaxonomiesSectionData = <T extends TaxonomyModels.IAddTaxonomyRequestModel>(
   diff: Pick<DiffObject<RequiredCodename<T>>, "added">,
 ) =>
-  `${diff.added.map((a) => renderAddedTaxonomyData(a, a.terms)).join("\n")}<div class="warning">⚠️ Only the first three depth levels shown.</div>`;
+  `${diff.added.map((a) => renderAddedTaxonomyData(a, a.terms ?? [])).join("\n")}<div class="warning">⚠️ Only the first three depth levels shown.</div>`;
 
 const renderAddedLanguagesSectionData = (
   diff: Pick<DiffObject<RequiredCodename<LanguageModels.IAddLanguageData>>, "added">,

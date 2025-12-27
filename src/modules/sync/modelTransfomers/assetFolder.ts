@@ -7,5 +7,5 @@ export const transformAssetFolderModel = (
   environmentModel: AssetFolderContracts.IAssetFolderContract,
 ): AssetFolderSyncModel => ({
   ...omit(environmentModel, ["id", "external_id"]),
-  folders: environmentModel.folders.map(transformAssetFolderModel),
+  folders: environmentModel.folders?.map(transformAssetFolderModel) ?? [],
 });
