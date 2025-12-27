@@ -128,10 +128,7 @@ const getDiffModel = async (
 
   const sourceModel =
     "folderName" in params
-      ? await getSourceSyncModelFromFolder(
-          params.folderName,
-          new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-        ).catch((e) => {
+      ? await getSourceSyncModelFromFolder(params.folderName).catch((e) => {
           if (e instanceof AggregateError) {
             throw new Error(
               `Parsing model validation errors:\n${e.errors.map((e) => e.message).join("\n")}`,

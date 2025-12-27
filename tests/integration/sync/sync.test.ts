@@ -249,14 +249,11 @@ describe.concurrent("Partial sync environment from folder", () => {
     }),
   );
 
-  it.sequential(
-    "Partial sync environment from folder should throw due more entities than in exported folder",
-    async () => {
-      const command = `sync run -t=00000000-0000-0000-0000-000000000000 --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies languages --verbose --skipConfirmation`;
+  it.sequential("Partial sync environment from folder should throw due more entities than in exported folder", async () => {
+    const command = `sync run -t=00000000-0000-0000-0000-000000000000 --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies languages --verbose --skipConfirmation`;
 
-      const result = await runCommand(command).catch((err) => err as CommandError);
+    const result = await runCommand(command).catch((err) => err as CommandError);
 
-      expect(result.stderr).toContain("Missing files in folder for these entities: languages");
-    },
-  );
+    expect(result.stderr).toContain("Could not find required file languages.json");
+  });
 });

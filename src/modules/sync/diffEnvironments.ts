@@ -17,6 +17,7 @@ import {
   getTargetContentModel,
 } from "./utils/getContentModel.js";
 import { resolveHtmlTemplate } from "./utils/htmlRenderers.js";
+import { validateSyncModelFolder } from "./validation.js";
 
 export type SyncDiffParams = Readonly<
   {
@@ -59,16 +60,23 @@ export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandNa
     )} and target environment ${chalk.blue(params.targetEnvironmentId)}\n`,
   );
 
+  if ("folderName" in params && params.folderName) {
+    const folderErrors = await validateSyncModelFolder(
+      params.folderName,
+      new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+    );
+    if (folderErrors.length) {
+      return Promise.reject(folderErrors);
+    }
+  }
+
   const fetchDependencies = new Set(
     params.entities.flatMap((e) => syncEntityDependencies[e as SyncEntityName]),
   );
 
   const sourceModel =
     "folderName" in params && params.folderName !== undefined
-      ? await getSourceSyncModelFromFolder(
-          params.folderName,
-          new Set(params.entities) as ReadonlySet<SyncEntityName>,
-        ).catch((e) => {
+      ? await getSourceSyncModelFromFolder(params.folderName).catch((e) => {
           if (e instanceof AggregateError) {
             throw new Error(
               `Parsing model validation errors:\n${e.errors.map((e) => e.message).join("\n")}`,
