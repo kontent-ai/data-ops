@@ -43,16 +43,8 @@ type ParseResult<Result> = { success: true; result: Result };
 
 export const getSourceSyncModelFromFolder = async (
   folderName: string,
-  entities: ReadonlySet<SyncEntityName>,
-) => {
+): Promise<FileContentModel> => {
   const fileModel = await readContentModelFromFolder(folderName);
-
-  const fileModelKeys = Object.keys(fileModel);
-  const keysDifference = [...entities].filter((k) => !fileModelKeys.includes(k));
-
-  if (keysDifference.length) {
-    throw new Error(`Missing files in folder for these entities: ${keysDifference.join(", ")}`);
-  }
 
   return createFullContentModel(fileModel);
 };
