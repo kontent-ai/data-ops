@@ -13,7 +13,7 @@ export const register: RegisterCommand = (yargs) =>
     command: commandName,
     describe: "sync commands",
     builder: (yargs) => {
-      commands.forEach((register) => register(yargs));
+      commands.forEach((register) => void register(yargs));
       return yargs;
     },
     handler: () => {},

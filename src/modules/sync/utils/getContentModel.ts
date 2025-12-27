@@ -165,8 +165,8 @@ export const getSourceItemAndAssetCodenames = (
     (previous, type) => {
       const requiredIds = getRequiredCodenames(type.elements);
 
-      requiredIds.assetCodenames.forEach((c) => previous.assetCodenames.add(c));
-      requiredIds.itemCodenames.forEach((c) => previous.itemCodenames.add(c));
+      requiredIds.assetCodenames.forEach((c) => void previous.assetCodenames.add(c));
+      requiredIds.itemCodenames.forEach((c) => void previous.itemCodenames.add(c));
 
       return previous;
     },

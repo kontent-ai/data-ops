@@ -157,8 +157,5 @@ type MakeArraysMutable<T extends object> = {
     : T[Key];
 };
 
-type MakeArrayMutable<T extends ReadonlyArray<unknown> | undefined> = T extends ReadonlyArray<
-  infer Elem
->
-  ? Elem[]
-  : T;
+type MakeArrayMutable<T extends ReadonlyArray<unknown> | undefined> =
+  T extends ReadonlyArray<infer Elem> ? Elem[] : T;

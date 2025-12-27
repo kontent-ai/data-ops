@@ -1,12 +1,8 @@
 import type { SharedContracts } from "@kontent-ai/management-sdk";
 import type { z } from "zod";
 
-export type MapValues<Map extends ReadonlyMap<unknown, unknown>> = Map extends ReadonlyMap<
-  unknown,
-  infer Res
->
-  ? Res
-  : never;
+export type MapValues<Map extends ReadonlyMap<unknown, unknown>> =
+  Map extends ReadonlyMap<unknown, infer Res> ? Res : never;
 
 export type IdReference = Readonly<{ id: string }>;
 export type CodenameReference = Readonly<{ codename: string }>;
