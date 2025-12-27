@@ -44,8 +44,8 @@ export const taxonomiesEntity = {
       ),
       taxonomyTermIdsByOldIds: new Map(
         zip(
-          fileTaxonomies.flatMap((t) => t.terms),
-          projectTaxonomies.flatMap((t) => t.terms),
+          fileTaxonomies.flatMap((t) => t.terms ?? []),
+          projectTaxonomies.flatMap((t) => t.terms ?? []),
         ).flatMap(extractTermIdsEntries),
       ),
     };
@@ -71,7 +71,7 @@ const createAddExternalIds =
     external_id:
       taxonomy.external_id ??
       (taxonomy === group ? group.codename : `${group.codename}_${taxonomy.codename}`),
-    terms: taxonomy.terms.map(createAddExternalIds(group)),
+    terms: taxonomy.terms?.map(createAddExternalIds(group)) ?? [],
   });
 
 const extractTermIdsEntries = ([fileTaxonomy, projectTaxonomy]: readonly [
@@ -79,5 +79,5 @@ const extractTermIdsEntries = ([fileTaxonomy, projectTaxonomy]: readonly [
   TaxonomyContracts.ITaxonomyContract,
 ]): ReadonlyArray<readonly [string, string]> => [
   [fileTaxonomy.id, projectTaxonomy.id] as const,
-  ...zip(fileTaxonomy.terms, projectTaxonomy.terms).flatMap(extractTermIdsEntries),
+  ...zip(fileTaxonomy.terms ?? [], projectTaxonomy.terms ?? []).flatMap(extractTermIdsEntries),
 ];

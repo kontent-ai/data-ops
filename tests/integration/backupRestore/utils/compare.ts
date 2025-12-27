@@ -261,7 +261,7 @@ const prepareTaxonomyReferences: PrepareReferencesFnc<TaxonomyContracts.ITaxonom
   id: "-",
   last_modified: "-",
   external_id: "-",
-  terms: taxonomy.terms.map(prepareTaxonomyReferences),
+  terms: taxonomy.terms?.map(prepareTaxonomyReferences) ?? [],
 });
 
 const prepareFolderReferences: PrepareReferencesFnc<AssetFolderContracts.IAssetFolderContract> = (
@@ -270,7 +270,7 @@ const prepareFolderReferences: PrepareReferencesFnc<AssetFolderContracts.IAssetF
   ...folder,
   id: "-",
   external_id: "-",
-  folders: folder.folders.map(prepareFolderReferences),
+  folders: folder.folders?.map(prepareFolderReferences) ?? [],
 });
 
 const createPrepareAssetReferences: PrepareReferencesCreator<AssetContracts.IAssetModelContract> =
@@ -927,7 +927,7 @@ const createPrepareWebhookReferences: PrepareReferencesCreator<WebhookContracts.
 const getAllTerms = (
   group: TaxonomyContracts.ITaxonomyContract | undefined,
 ): ReadonlyArray<TaxonomyContracts.ITaxonomyContract> =>
-  group ? [group, ...group.terms.flatMap(getAllTerms)] : [];
+  group ? [group, ...(group.terms?.flatMap(getAllTerms) ?? [])] : [];
 
 const getAllSteps = (workflow: WorkflowContracts.IWorkflowContract) => [
   workflow.published_step,
