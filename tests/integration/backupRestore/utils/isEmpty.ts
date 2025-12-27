@@ -15,7 +15,7 @@ export const expectNoPreviewUrls = async (envId: string) => {
     .toPromise()
     .then((res) => res.data);
 
-  previewUrls.spaceDomains.forEach((d) => expect(d.domain).toBe(""));
+  previewUrls.spaceDomains.forEach((d) => void expect(d.domain).toBe(""));
   expect(previewUrls.previewUrlPatterns).toStrictEqual([]);
 };
 

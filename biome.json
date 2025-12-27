@@ -2,6 +2,16 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@kontent-ai/biome-config/base"],
   "files": {
-    "includes": ["src/**", "!**/package.json"]
+    "includes": ["src/**", "!**/package.json", "!**/*.snap.*"]
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "useImportExtensions": "off"
+      },
+      "complexity": {
+        "noVoid": "off"
+      }
+    }
   }
 }

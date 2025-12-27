@@ -39,7 +39,7 @@ export const printDiff = (
   if (entities.has("assetFolders")) {
     logInfo(logOptions, "standard", chalk.blue.bold("\nASSET FOLDERS:"));
     if (diffModel.assetFolders.length) {
-      diffModel.assetFolders.forEach((op) => printPatchOperation(op, logOptions));
+      diffModel.assetFolders.forEach((op) => void printPatchOperation(op, logOptions));
     } else {
       logInfo(logOptions, "standard", "No asset folders to update.");
     }
@@ -48,7 +48,7 @@ export const printDiff = (
   if (entities.has("collections")) {
     logInfo(logOptions, "standard", chalk.blue.bold("\nCOLLECTIONS:"));
     if (diffModel.collections.length) {
-      diffModel.collections.forEach((op) => printPatchOperation(op, logOptions));
+      diffModel.collections.forEach((op) => void printPatchOperation(op, logOptions));
     } else {
       logInfo(logOptions, "standard", "No collections to update.");
     }
@@ -119,7 +119,7 @@ const printDiffEntity = (
       .forEach(([codename, value]) => {
         if (value.length) {
           logInfo(logOptions, "standard", `Entity codename: ${chalk.blue(codename)}`);
-          value.forEach((v) => printPatchOperation(v, logOptions));
+          value.forEach((v) => void printPatchOperation(v, logOptions));
         }
       });
   } else {
