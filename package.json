@@ -11,9 +11,9 @@
     "biome:fix": "biome check --write",
     "biome:fix:unsafe": "biome check --write --unsafe",
     "biome:ci": "biome ci",
-    "start": "npm run build && node ./build/src/index.js",
-    "test:integration": "npm run build && vitest run --config=vitest.config.integration.js",
-    "test:advancedDiff": "npm run build && vitest run --config=vitest.config.integration.js tests/integration/diff/advancedDiff.test.ts",
+    "start": "pnpm build && node ./build/src/index.js",
+    "test:integration": "pnpm build && vitest run --config=vitest.config.integration.js",
+    "test:advancedDiff": "pnpm build && vitest run --config=vitest.config.integration.js tests/integration/diff/advancedDiff.test.ts",
     "test:unit": "vitest run --config=vitest.config.unit.js",
     "test:unit:watch": "vitest run --config=vitest.config.unit.js --watch",
     "export:testEnvs": "node exportTestEnvironments.js"
@@ -29,6 +29,7 @@
   "engines": {
     "node": ">=20.10"
   },
+  "packageManager": "pnpm@10.26.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kontent-ai/data-ops.git"

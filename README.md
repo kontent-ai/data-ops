@@ -180,22 +180,22 @@ This project adheres to a [Code of Conduct](https://github.com/kontent-ai/.githu
 
 ### Getting Started with Development
 
-- Run `npm ci` to install packages.
-- Run `npm run build` to compile the tool.
-- Run `node build/src/index.js --help` to run (or `npm run start -- --help`).
+- Run `pnpm install` to install packages.
+- Run `pnpm build` to compile the tool.
+- Run `node build/src/index.js --help` to run (or `pnpm start -- --help`).
 
 ### Running Tests
 
 We have comprehensive test suites to ensure the reliability of the Data Ops tool.
 
-- **Unit Tests**: Run `npm run test:unit` to execute unit tests.
-- **Integration Tests**: Run `npm run test:integration` to execute integration tests.
+- **Unit Tests**: Run `pnpm test:unit` to execute unit tests.
+- **Integration Tests**: Run `pnpm test:integration` to execute integration tests.
 
 > [!IMPORTANT]
 > Integration tests require access to a Kontent.ai project and may create temporary environments. Interrupting tests may lead to orphaned environments. Always allow tests to be completed or clean up manually if necessary.
 
 > [!IMPORTANT]
-> Run `npm run test:advancedDiff` to compare generated advanced diffs with test baselines.
+> Run `pnpm test:advancedDiff` to compare generated advanced diffs with test baselines.
 
 ### Prepare Your Testing Project
 
@@ -203,7 +203,7 @@ To successfully execute integration tests, you must prepare a Kontent.ai project
 
 #### Exporting Test Environments
 
-All Kontent.ai test environments are exported in `tests/integration/<testName>/data/<zipName>.zip`. When you update any of these environments, you should also update the corresponding exported zip files. To streamline this process, we've provided a script called `exportTestEnvironments.js`. You can run it with the command `npm run export:testEnv`. If you need to export specific environments, you can use the following command parameters: `-i` for Import/Export test environment, `-s` for Sync Source Template environment, and `-t` for Sync Target Template environment. For instance, to export only the Sync Source and Sync Target environments, you would run `npm run export:testEnv -- -s -t`.
+All Kontent.ai test environments are exported in `tests/integration/<testName>/data/<zipName>.zip`. When you update any of these environments, you should also update the corresponding exported zip files. To streamline this process, we've provided a script called `exportTestEnvironments.js`. You can run it with the command `pnpm export:testEnvs`. If you need to export specific environments, you can use the following command parameters: `-i` for Import/Export test environment, `-s` for Sync Source Template environment, and `-t` for Sync Target Template environment. For instance, to export only the Sync Source and Sync Target environments, you would run `pnpm export:testEnvs -- -s -t`.
 
 > [!IMPORTANT]
 > Creation and removal of new environments takes some time; therefore, try to keep the number of environment-dependent tests to a minimum.
