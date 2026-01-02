@@ -2,6 +2,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  # Required for OIDC publishing
+  id-token: write
+
 name: publish-to-npm
 jobs:
   publish:
@@ -22,9 +26,5 @@ jobs:
 
       - run: pnpm publish --access=public --no-git-checks
         if: ${{!github.event.release.prerelease}}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
       - run: pnpm publish --tag prerelease --no-git-checks
         if: ${{github.event.release.prerelease}}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
