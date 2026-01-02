@@ -13,7 +13,7 @@ import { getTargetCodename, type PatchOperation } from "./types/patchOperation.j
 
 export const validateSyncModelFolder = async (
   folderPath: string,
-  entities: ReadonlySet<SyncEntityName>,
+  entities: ReadonlyArray<SyncEntityName>,
 ) => {
   const stats = await fs.stat(folderPath);
 
@@ -21,7 +21,7 @@ export const validateSyncModelFolder = async (
     return [`The provided path ${chalk.yellow(folderPath)} is not a valid content model folder`];
   }
 
-  const filenames = [...entities].map((entity) => entityToFilename[entity]);
+  const filenames = entities.map((entity) => entityToFilename[entity]);
 
   const fileStatuses = await Promise.all(
     filenames.map((filename) =>
