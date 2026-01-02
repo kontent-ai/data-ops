@@ -61,10 +61,7 @@ export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandNa
   );
 
   if ("folderName" in params && params.folderName) {
-    const folderErrors = await validateSyncModelFolder(
-      params.folderName,
-      new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-    );
+    const folderErrors = await validateSyncModelFolder(params.folderName, params.entities);
     if (folderErrors.length) {
       return Promise.reject(folderErrors);
     }
