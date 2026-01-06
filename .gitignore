@@ -146,3 +146,5 @@ dist
 
 #ignore generated diffs
 /diff_*.html
+tests/integration/exportMarkdown/test-output/
+.pnpm-store
