@@ -3,7 +3,7 @@ import { extractAsync, importAsync, migrateAsync } from "@kontent-ai/migration-t
 import { type LogOptions, logInfo } from "../../log.js";
 import { createClientDelivery, createManagementApiUrl } from "../../utils/client.js";
 import { apply } from "../../utils/function.js";
-import { getItemsCodenames } from "./migrateContent.js";
+import { getItemsCodenames } from "./migrateContentDeliveryHelpers.js";
 
 export type MigrateContentRunParams = Readonly<
   {

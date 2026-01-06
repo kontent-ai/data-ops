@@ -3,6 +3,18 @@ export { BackupEnvironmentParams, backupEnvironment } from "./modules/backupRest
 export { CleanEnvironmentParams, cleanEnvironment } from "./modules/backupRestore/clean.js";
 export { RestoreEnvironmentParams, restoreEnvironment } from "./modules/backupRestore/restore.js";
 export {
+  FetchItemsToMarkdownParams,
+  fetchItemsToMarkdown,
+  MarkdownFilterParams,
+  MarkdownResult,
+} from "./modules/export/markdown/fetchItemsToMarkdown.js";
+export {
+  ElementsOptions,
+  FrontMatterOptions,
+  ToMarkdownOptions,
+  toMarkdown,
+} from "./modules/export/markdown/markdown.js";
+export {
   MigrateContentFilterParams as SyncContentFilterParams,
   MigrateContentRunParams as SyncContentRunParams,
   migrateContentRun,

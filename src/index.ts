@@ -12,6 +12,7 @@ const commandsToRegister: ReadonlyArray<RegisterCommand> = [
   (await import("./commands/sync/sync.js")).register,
   (await import("./commands/migrateContent/migrateContent.js")).register,
   (await import("./commands/migrations/migrations.js")).register,
+  (await import("./commands/export/export.js")).register,
 ];
 
 const emptyYargs = yargs(hideBin(process.argv)); // hides the first two arguments - path to script and path to node.js

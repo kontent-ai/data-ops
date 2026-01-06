@@ -3,7 +3,7 @@ import { exportAsync, getDefaultLogger, storeAsync } from "@kontent-ai/migration
 import type { LogOptions } from "../../log.js";
 import { createClientDelivery, createManagementApiUrl } from "../../utils/client.js";
 import { apply } from "../../utils/function.js";
-import { getItemsCodenames } from "./migrateContent.js";
+import { getItemsCodenames } from "./migrateContentDeliveryHelpers.js";
 import type { MigrateContentFilterParams } from "./migrateContentRun.js";
 
 export type MigrateContentSnapshotParams = Readonly<
