@@ -119,6 +119,8 @@ Below are the available commands:
 - **[migrations](./src/commands/migrations/README.md)**:
   - **add**: Add new migration scripts.
   - **run**: Execute migration scripts.
+- **export**:
+  - **[markdown](./src/commands/export/exportMarkdown/README.md)**: Export content items as markdown files with YAML frontmatter.
 
 > [!NOTE]
 > All command functions are publicly exposed, making it easy to include them in your scripts. See the individual command readmes for more information.
