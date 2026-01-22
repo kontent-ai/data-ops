@@ -2,7 +2,7 @@ import { createDeliveryClient } from "@kontent-ai/delivery-sdk";
 import { config as dotenvConfig } from "dotenv";
 import { describe, expect, it } from "vitest";
 
-import { getItemsCodenames } from "../../../../src/modules/migrateContent/migrateContent.ts";
+import { getItemsCodenames } from "../../../../src/modules/migrateContent/migrateContentDeliveryHelpers.ts";
 
 dotenvConfig();
 
