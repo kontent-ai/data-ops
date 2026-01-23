@@ -1,6 +1,6 @@
 # Export Markdown Command
 
-The `export markdown` command exports content items from a Kontent.ai environment as markdown files with [YAML frontmatter](https://mdxjs.com/guides/frontmatter/). Frontmatter is structured metadata at the beginning of markdown files, commonly used by static site generators (Jekyll, Hugo, Astro, Docusaurus) and beneficial for AI/RAG systems where metadata improves retrieval quality and provides context for LLM generation.
+The `export markdown` command exports content items from a Kontent.ai environment as markdown files with [YAML frontmatter](https://mdxjs.com/guides/frontmatter/). Frontmatter is structured metadata at the beginning of markdown files, commonly used by static site generators (Jekyll, Hugo, Astro, Docusaurus) and beneficial for AI/RAG systems where markdown improves retrieval quality and provides context for LLM generation.
 
 The command uses the [Delivery API](https://kontent.ai/learn/docs/apis/openapi/delivery-api/) to fetch content items and converts them to markdown format.
 
