@@ -28,8 +28,8 @@ export const CollectionsSection = ({ collections }: CollectionsSectionProps) => 
         </>
       }
     >
-      {collections.map((op) => (
-        <PatchOperation key={`collection-op-${op.path}`} operation={op} />
+      {collections.map((op, i) => (
+        <PatchOperation key={`collection-op-${op.op}-${op.path}-${i}`} operation={op} />
       ))}
     </SimpleSection>
   );

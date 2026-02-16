@@ -26,8 +26,8 @@ export const AssetFoldersSection = ({ assetFolders }: AssetFoldersSectionProps) 
         </>
       }
     >
-      {assetFolders.map((op) => (
-        <PatchOperation key={`asset-folder-op-${op.path}`} operation={op} />
+      {assetFolders.map((op, i) => (
+        <PatchOperation key={`asset-folder-op-${op.op}-${op.path}-${i}`} operation={op} />
       ))}
     </SimpleSection>
   );

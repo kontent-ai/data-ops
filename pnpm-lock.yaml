@@ -26,6 +26,9 @@ importers:
       '@kontent-ai/rich-text-resolver-markdown':
         specifier: ^3.0.2
         version: 3.0.2(@kontent-ai/rich-text-resolver@3.0.2)
+      '@kontent-ai/rich-text-resolver-react':
+        specifier: ^3.0.3
+        version: 3.0.3(@kontent-ai/rich-text-resolver@3.0.2)(react@19.2.4)
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
@@ -445,6 +448,12 @@ packages:
     peerDependencies:
       '@kontent-ai/rich-text-resolver': ^3.0.2
 
+  '@kontent-ai/rich-text-resolver-react@3.0.3':
+    resolution: {integrity: sha512-QZBT6ApYXVHRM9MT4AN7TyhnouOvikuS+1txdCVFQUgw4BQTgy8X6hStjfh1HPpBpjYeFYmviU8xAfq1ZZcVsw==}
+    peerDependencies:
+      '@kontent-ai/rich-text-resolver': ^3.0.2
+      react: '>=18.0.0'
+
   '@kontent-ai/rich-text-resolver@3.0.2':
     resolution: {integrity: sha512-wAt7oxATOfd1Hl18hXizijh60hYQqXc7ASxh+OTYkOuCgbx/3uiO+kTesuVrSSyCB5f9Rxqu/LrABf36X0YrBw==}
 
@@ -464,6 +473,12 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
+  '@portabletext/react@6.0.2':
+    resolution: {integrity: sha512-qE3/Fg8PqzGzZ6+lxVXKPDqthJTRG3T1R0R6wrUCVAYeC5e0JtXWwhOiWa0daLG9TEOwn2SUeB2SuWxQlTq+5g==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+    peerDependencies:
+      react: ^18.2 || ^19
+
   '@portabletext/to-html@4.0.1':
     resolution: {integrity: sha512-DBMpj3lLnQjyljyJ+rC0E2GMGaFIniLGqojTMyBCDBNRu1nxuFCmLVEw3l4mBgyFN1TGVM0mcHxII+jdPuVgaQ==}
     engines: {node: '>=20.19 <22 || >=22.12'}
@@ -472,8 +487,16 @@ packages:
     resolution: {integrity: sha512-Jj/QIy3vzZCNcxiUGM7KjGhUhyVjch+9pOzotWRARPNe07R6nbF/cRsKL70q5Xizf+6PVtFYwks4CSXKInC+wg==}
     engines: {node: '>=20.19 <22 || >=22.12'}
 
+  '@portabletext/toolkit@5.0.1':
+    resolution: {integrity: sha512-qcwnWd15J2Ziwi0YfWHRx+DRqp87cPb+EBcYuEbDW0ChZwwxCdfIjDazzFpQeXnqhJn8own1c8UB3iHB61DiWg==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+
   '@portabletext/types@3.0.1':
     resolution: {integrity: sha512-Axessc2mZ6tjbD2qIZdTZIEfBtzJBe/1pzKF372cUar6ccUCfgXU4vaKgIbqB33mB6rI75omx9rrm+SgR4rIAA==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+
+  '@portabletext/types@4.0.1':
+    resolution: {integrity: sha512-L8PZjVjmdKpW+82c1oNqGMqCOtQD2xORqJfr6Is7X5XXbz38eLYY79IM/1ok+Esf/iGOPtEYORdcf0ETmsWYew==}
     engines: {node: '>=20.19 <22 || >=22.12'}
 
   '@rollup/rollup-android-arm-eabi@4.54.0':
@@ -2620,6 +2643,13 @@ snapshots:
       '@kontent-ai/rich-text-resolver': 3.0.2
       '@portabletext/to-html': 4.0.1
 
+  '@kontent-ai/rich-text-resolver-react@3.0.3(@kontent-ai/rich-text-resolver@3.0.2)(react@19.2.4)':
+    dependencies:
+      '@kontent-ai/rich-text-resolver': 3.0.2
+      '@portabletext/react': 6.0.2(react@19.2.4)
+      '@portabletext/types': 3.0.1
+      react: 19.2.4
+
   '@kontent-ai/rich-text-resolver@3.0.2':
     dependencies:
       '@portabletext/types': 3.0.1
@@ -2643,6 +2673,12 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
+  '@portabletext/react@6.0.2(react@19.2.4)':
+    dependencies:
+      '@portabletext/toolkit': 5.0.1
+      '@portabletext/types': 4.0.1
+      react: 19.2.4
+
   '@portabletext/to-html@4.0.1':
     dependencies:
       '@portabletext/toolkit': 4.0.0
@@ -2652,7 +2688,13 @@ snapshots:
     dependencies:
       '@portabletext/types': 3.0.1
 
+  '@portabletext/toolkit@5.0.1':
+    dependencies:
+      '@portabletext/types': 4.0.1
+
   '@portabletext/types@3.0.1': {}
+
+  '@portabletext/types@4.0.1': {}
 
   '@rollup/rollup-android-arm-eabi@4.54.0':
     optional: true

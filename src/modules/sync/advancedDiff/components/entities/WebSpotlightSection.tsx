@@ -1,48 +1,41 @@
 import { match } from "ts-pattern";
 
 import type { WebSpotlightDiffModel } from "../../../types/diffModel.js";
+import { SimpleSection } from "../SimpleSection.js";
 
 type WebSpotlightSectionProps = Readonly<{
   webSpotlight: WebSpotlightDiffModel;
 }>;
 
-export const WebSpotlightSection = ({ webSpotlight }: WebSpotlightSectionProps) =>
-  match(webSpotlight)
-    .with({ change: "none" }, () => <h3>No changes to web spotlight.</h3>)
-    .with({ change: "activate" }, (ws) => (
-      <details className="entity-section">
-        <summary className="entity-section-header">
-          <div>Web Spotlight</div>
-        </summary>
-        <div id="web-spotlight" className="entity-section-content">
-          <div className="added">
-            <h3>Activate web spotlight with root type: {ws.rootTypeCodename}</h3>
-          </div>
-        </div>
-      </details>
-    ))
-    .with({ change: "changeRootType" }, (ws) => (
-      <details className="entity-section">
-        <summary className="entity-section-header">
-          <div>Web Spotlight</div>
-        </summary>
-        <div id="web-spotlight" className="entity-section-content">
-          <div className="updated">
-            <h3>Change web spotlight root type to: {ws.rootTypeCodename}</h3>
-          </div>
-        </div>
-      </details>
-    ))
-    .with({ change: "deactivate" }, () => (
-      <details className="entity-section">
-        <summary className="entity-section-header">
-          <div>Web Spotlight</div>
-        </summary>
-        <div id="web-spotlight" className="entity-section-content">
-          <div className="deleted">
-            <h3>Deactivate web spotlight.</h3>
-          </div>
-        </div>
-      </details>
-    ))
+const getChangeInfo = (ws: WebSpotlightDiffModel) =>
+  match(ws)
+    .with({ change: "activate" }, (w) => ({
+      className: "added",
+      message: `Activate web spotlight with root type: ${w.rootTypeCodename}`,
+    }))
+    .with({ change: "changeRootType" }, (w) => ({
+      className: "updated",
+      message: `Change web spotlight root type to: ${w.rootTypeCodename}`,
+    }))
+    .with({ change: "deactivate" }, () => ({
+      className: "deleted",
+      message: "Deactivate web spotlight.",
+    }))
+    .with({ change: "none" }, () => null)
     .exhaustive();
+
+export const WebSpotlightSection = ({ webSpotlight }: WebSpotlightSectionProps) => {
+  const change = getChangeInfo(webSpotlight);
+
+  if (!change) {
+    return <h3>No changes to web spotlight.</h3>;
+  }
+
+  return (
+    <SimpleSection id="web-spotlight" header={<div>Web Spotlight</div>}>
+      <div className={change.className}>
+        <h3>{change.message}</h3>
+      </div>
+    </SimpleSection>
+  );
+};

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-
 import {
   isCountLimitation,
   isDefaultElementValue,
@@ -11,6 +10,7 @@ import {
   isObjectReferenceArray,
   isValidationRegex,
 } from "../../../../utils/typeguards.js";
+import { renderRichTextValue } from "./richTextResolvers.js";
 
 const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray<ReactNode> => {
   if (Array.isArray(value)) {
@@ -68,7 +68,7 @@ const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray
 
 const joinReactNodes = (nodes: ReadonlyArray<ReactNode>): ReactNode =>
   nodes.map((node, i) => (
-    // biome-ignore lint/suspicious/noArrayIndexKey: TODO: fix this
+    // biome-ignore lint/suspicious/noArrayIndexKey: Static list, never reordered
     <span key={i}>
       {i > 0 && ", "}
       {node}
@@ -83,8 +83,7 @@ export const getValueOrIdentifier = (value: unknown): ReactNode => {
 export const renderReplaceOpValue = (value: unknown): ReactNode => {
   switch (typeof value) {
     case "string":
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: TODO: rich text rendering
-      return <span dangerouslySetInnerHTML={{ __html: value }} />;
+      return renderRichTextValue(value);
     case "boolean":
     case "number":
       return String(value);
