@@ -1,5 +1,5 @@
-import { isOp } from "../../../sync/utils.js";
 import type { PatchOperation as PatchOperationType } from "../../../types/patchOperation.js";
+import { countPatchOps } from "../../utils/diffCounts.js";
 import { PatchOperation } from "../operations/PatchOperation.js";
 import { SimpleSection } from "../SimpleSection.js";
 
@@ -9,11 +9,14 @@ type AssetFoldersSectionProps = Readonly<{
 
 export const AssetFoldersSection = ({ assetFolders }: AssetFoldersSectionProps) => {
   if (assetFolders.length === 0) {
-    return <h3>No changes to asset folders.</h3>;
+    return (
+      <SimpleSection id="assetFolders" header={<div>Asset folders</div>}>
+        <p>No changes to asset folders.</p>
+      </SimpleSection>
+    );
   }
 
-  const addedCount = assetFolders.filter(isOp("addInto")).length;
-  const removedCount = assetFolders.filter(isOp("remove")).length;
+  const counts = countPatchOps(assetFolders);
 
   return (
     <SimpleSection
@@ -21,8 +24,8 @@ export const AssetFoldersSection = ({ assetFolders }: AssetFoldersSectionProps) 
       header={
         <>
           <div>Asset folders</div>
-          <div className="num-added push">+ {addedCount}</div>
-          <div className="num-removed">− {removedCount}</div>
+          <div className="num-added push">+ {counts.added}</div>
+          <div className="num-removed">− {counts.removed}</div>
         </>
       }
     >

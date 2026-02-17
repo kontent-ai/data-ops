@@ -3,16 +3,28 @@ export const diffStyles = `
         --color-added: #005f3c;
         --color-modified: #5b4ff5;
         --color-removed: #ff005c;
+        --color-added-bg: #f0faf5;
+        --color-removed-bg: #fff5f8;
+        --color-modified-bg: #f5f3ff;
         --color-border: #ccc;
         --color-border-light: rgb(223, 223, 223);
         --font-mono: 'Courier New', Courier, monospace;
+        --sidebar-width: 240px;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    * {
+        box-sizing: border-box;
     }
 
     body {
         font-family: Arial, sans-serif;
         height: auto;
         width: 100vw;
-        margin: auto;
+        margin: 0;
         max-width: 3000px;
         position: relative;
     }
@@ -51,8 +63,8 @@ export const diffStyles = `
 
     .content {
         padding-top: 2em;
-        padding-left: 8em;
-        padding-right: 8em;
+        padding-left: calc(var(--sidebar-width) + 4em);
+        padding-right: 4em;
         margin: auto;
     }
 
@@ -79,6 +91,17 @@ export const diffStyles = `
 
     .timestamp {
         font-size: medium;
+    }
+
+    .timestamp-pill {
+        font-size: 0.4em;
+        background: #f0f0f0;
+        border-radius: 20px;
+        padding: 4px 12px;
+        margin-left: 1em;
+        font-weight: normal;
+        color: #666;
+        white-space: nowrap;
     }
 
     .push {
@@ -162,8 +185,6 @@ export const diffStyles = `
     .compared-environments {
         display: flex;
         justify-content: space-between;
-        position: sticky;
-        top: 0px;
         background-color: white;
         align-items: stretch;
         z-index: 100;
@@ -202,14 +223,21 @@ export const diffStyles = `
         border: var(--color-border) solid 1px;
         box-shadow: rgba(0, 0, 0, 0.03) 0px 0px 8px;
         background-color: white;
+        display: none;
+    }
+
+    .entity-section:target {
+        display: block;
+    }
+
+    .diffContainer:not(:has(.entity-section:target)) > .entity-section:first-of-type {
+        display: block;
     }
 
     .entity-section-header {
         display: flex;
         justify-content: stretch;
         width: 100%;
-        position: sticky;
-        top: 50px;
         background-color: white;
         cursor: pointer;
 
@@ -409,4 +437,50 @@ export const diffStyles = `
     .warning, .term {
         font-size: small;
     }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: var(--sidebar-width);
+        height: 100vh;
+        background: #fafafa;
+        border-right: 1px solid var(--color-border-light);
+        z-index: 200;
+        font-size: 15px;
+        overflow-y: auto;
+        padding-top: 2em;
+    }
+
+    .sidebar a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 1em;
+        border-left: 3px solid transparent;
+        text-decoration: none;
+        color: #333;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .sidebar a:hover {
+        background: #f0f0f0;
+    }
+
+    .sidebar a.active {
+        background: var(--color-modified-bg);
+        border-left-color: var(--color-modified);
+        font-weight: bold;
+    }
+
+    .nav-counts {
+        display: flex;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .c-add { color: var(--color-added); }
+    .c-mod { color: var(--color-modified); }
+    .c-rem { color: var(--color-removed); }
 `;

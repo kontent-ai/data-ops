@@ -17,15 +17,13 @@ export const EntitySection = ({
   removedCount,
   children,
 }: EntitySectionProps) => (
-  <details className="entity-section">
+  <details className="entity-section" id={id} open>
     <summary className="entity-section-header">
       <div>{title}</div>
       <div className="num-modified push">✎ {modifiedCount}</div>
       <div className="num-added">+ {addedCount}</div>
       <div className="num-removed">− {removedCount}</div>
     </summary>
-    <div id={id} className="entity-section-content">
-      {children}
-    </div>
+    <div className="entity-section-content">{children}</div>
   </details>
 );
