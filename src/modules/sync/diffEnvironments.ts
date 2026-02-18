@@ -47,7 +47,7 @@ export const syncDiff = async (params: SyncDiffParams) => {
   const resolvedParams = { ...params, entities: params.entities ?? syncEntityChoices };
   const diffModel = await syncDiffInternal(resolvedParams, "diff-API");
 
-  return renderDiffReport({ ...diffModel, ...resolvedParams });
+  return renderDiffReport({ diffModel, params: resolvedParams });
 };
 
 export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandName: string) => {

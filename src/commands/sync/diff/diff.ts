@@ -106,7 +106,7 @@ const syncDiffCli = async (params: syncDiffCliParams) => {
     const diffModel = await syncDiffInternal(resolvedParams, commandName);
 
     return params.advanced
-      ? createAdvancedDiffFile({ ...diffModel, ...resolvedParams })
+      ? createAdvancedDiffFile({ diffModel, params: resolvedParams })
       : printDiff(diffModel, new Set(resolvedParams.entities), params);
   } catch (e) {
     logError(params, e instanceof Error ? e.message : JSON.stringify(e));

@@ -137,8 +137,8 @@ const printDiffEntity = (
 };
 
 export const createAdvancedDiffFile = (diffData: DiffData) => {
-  const logOptions: LogOptions = diffData;
-  const resolvedPath = diffData.outPath ? resolveOutputPath(diffData.outPath) : false;
+  const logOptions: LogOptions = diffData.params;
+  const resolvedPath = diffData.params.outPath ? resolveOutputPath(diffData.params.outPath) : false;
   const resolvedTemplate = renderDiffReport(diffData);
 
   if (!resolvedPath) {
@@ -153,7 +153,7 @@ export const createAdvancedDiffFile = (diffData: DiffData) => {
 
   createOutputFile(resolvedPath, resolvedTemplate, logOptions);
 
-  if (!diffData.noOpen) {
+  if (!diffData.params.noOpen) {
     openOutputFile(resolvedPath, logOptions);
   }
 };

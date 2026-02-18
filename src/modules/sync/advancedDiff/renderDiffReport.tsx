@@ -15,7 +15,10 @@ type AdvancedDiffParams = Readonly<{
 }> &
   LogOptions;
 
-export type DiffData = DiffModel & AdvancedDiffParams;
+export type DiffData = Readonly<{
+  diffModel: DiffModel;
+  params: AdvancedDiffParams;
+}>;
 
 const sortDiffObject = <T extends { codename: string }, Z extends DiffObject<T>>(
   diffObject: Z,
@@ -36,17 +39,17 @@ const sortDiffModel = (diffModel: DiffModel): DiffModel => ({
   workflows: sortDiffObject(diffModel.workflows),
 });
 
-export const renderDiffReport = (diffData: DiffData): string => {
-  const sortedDiffModel = sortDiffModel(diffData);
+export const renderDiffReport = ({ diffModel, params }: DiffData): string => {
+  const sortedDiffModel = sortDiffModel(diffModel);
 
   const html = renderToString(
     <DiffReport
       diffModel={sortedDiffModel}
-      sourceEnvId={diffData.sourceEnvironmentId ?? diffData.folderName ?? "local folder"}
-      targetEnvId={diffData.targetEnvironmentId}
-      entities={diffData.entities}
+      sourceEnvId={params.sourceEnvironmentId ?? params.folderName ?? "local folder"}
+      targetEnvId={params.targetEnvironmentId}
+      entities={params.entities}
       timestamp={new Date().toISOString()}
-      disableLinks={!diffData.sourceEnvironmentId}
+      disableLinks={!params.sourceEnvironmentId}
     />,
   );
 
