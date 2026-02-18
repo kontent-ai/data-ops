@@ -6,7 +6,7 @@ import {
   getEntityPathRenderer,
   modifierIcons,
 } from "../../utils/pathRenderers.js";
-import { getValueOrIdentifier } from "../../utils/valueHelpers.js";
+import { renderValueOrIdentifier } from "../../utils/valueHelpers.js";
 
 type AddIntoOpProps = Readonly<{
   op: AddIntoPatchOperation;
@@ -25,7 +25,7 @@ const renderPosition = (op: AddIntoPatchOperation): ReactNode =>
 
 export const AddIntoOp = ({ op }: AddIntoOpProps) => {
   const pathElement = getEntityPathRenderer(addEntityPathRenderers, op.path);
-  const valueElement = getValueOrIdentifier(op.value);
+  const valueElement = renderValueOrIdentifier(op.value);
   const positionElement = renderPosition(op);
 
   return (

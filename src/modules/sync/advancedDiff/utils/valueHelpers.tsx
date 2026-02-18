@@ -12,9 +12,9 @@ import {
 } from "../../../../utils/typeguards.js";
 import { renderRichTextValue } from "./richTextResolvers.js";
 
-const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray<ReactNode> => {
+const renderValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray<ReactNode> => {
   if (Array.isArray(value)) {
-    return value.flatMap(getValueOrIdentifierInternal);
+    return value.flatMap(renderValueOrIdentifierInternal);
   }
 
   if (typeof value !== "object" || value === null) {
@@ -32,11 +32,11 @@ const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray
   }
 
   if ("value" in valueObj) {
-    return getValueOrIdentifierInternal(valueObj.value);
+    return renderValueOrIdentifierInternal(valueObj.value);
   }
 
   if ("global" in valueObj) {
-    return getValueOrIdentifierInternal(valueObj.global);
+    return renderValueOrIdentifierInternal(valueObj.global);
   }
 
   if (typeof valueObj.regex === "string") {
@@ -44,16 +44,16 @@ const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray
   }
 
   if ("step" in valueObj) {
-    return getValueOrIdentifierInternal(valueObj.step);
+    return renderValueOrIdentifierInternal(valueObj.step);
   }
 
   if ("scope" in valueObj) {
-    return getValueOrIdentifierInternal(valueObj.scope);
+    return renderValueOrIdentifierInternal(valueObj.scope);
   }
 
   if ("content_types" in valueObj && "collections" in valueObj) {
-    const types = getValueOrIdentifier(valueObj.content_types);
-    const collections = getValueOrIdentifier(valueObj.collections);
+    const types = renderValueOrIdentifier(valueObj.content_types);
+    const collections = renderValueOrIdentifier(valueObj.collections);
     return (
       <>
         types: {types}, collections: {collections}
@@ -62,7 +62,7 @@ const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray
   }
 
   if ("collections" in valueObj) {
-    return getValueOrIdentifierInternal(valueObj.collections);
+    return renderValueOrIdentifierInternal(valueObj.collections);
   }
 
   return <strong>{String(value)}</strong>;
@@ -77,8 +77,8 @@ const joinReactNodes = (nodes: ReadonlyArray<ReactNode>): ReactNode =>
     </span>
   ));
 
-export const getValueOrIdentifier = (value: unknown): ReactNode => {
-  const result = getValueOrIdentifierInternal(value);
+export const renderValueOrIdentifier = (value: unknown): ReactNode => {
+  const result = renderValueOrIdentifierInternal(value);
   return Array.isArray(result) ? joinReactNodes(result) : result;
 };
 
@@ -135,7 +135,7 @@ export const renderReplaceOpValue = (value: unknown): ReactNode => {
           </>
         );
       }
-      return getValueOrIdentifier(value);
+      return renderValueOrIdentifier(value);
     default:
       return String(value);
   }

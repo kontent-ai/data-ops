@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { emptyAllowsAllProperties, getValueOrIdentifier } from "../../../utils/valueHelpers.js";
+import { emptyAllowsAllProperties, renderValueOrIdentifier } from "../../../utils/valueHelpers.js";
 
 type AddedObjectPropertiesProps = Readonly<{
   object: object;
@@ -14,7 +14,7 @@ const renderPropertyValue = (property: string, value: unknown): ReactNode => {
     return <strong>all</strong>;
   }
 
-  return getValueOrIdentifier(value);
+  return renderValueOrIdentifier(value);
 };
 
 export const AddedObjectProperties = ({ object }: AddedObjectPropertiesProps) => (
