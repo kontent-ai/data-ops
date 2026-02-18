@@ -5,18 +5,17 @@ import type { SyncEntityName } from "../constants/entities.js";
 import type { DiffModel, DiffObject } from "../types/diffModel.js";
 import { DiffReport } from "./components/DiffReport.js";
 
-type AdvancedDiffParams =
-  & Readonly<{
-    targetEnvironmentId: string;
-    outPath?: string;
-    entities: ReadonlyArray<SyncEntityName>;
-    noOpen?: boolean;
-  }>
-  & (
+type AdvancedDiffParams = Readonly<{
+  targetEnvironmentId: string;
+  outPath?: string;
+  entities: ReadonlyArray<SyncEntityName>;
+  noOpen?: boolean;
+}> &
+  (
     | Readonly<{ sourceEnvironmentId: string; folderName?: undefined }>
     | Readonly<{ sourceEnvironmentId?: undefined; folderName: string }>
-  )
-  & LogOptions;
+  ) &
+  LogOptions;
 
 export type DiffData = Readonly<{
   diffModel: DiffModel;
