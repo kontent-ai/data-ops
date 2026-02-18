@@ -17,50 +17,52 @@ const getValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyArray
     return value.flatMap(getValueOrIdentifierInternal);
   }
 
-  if (typeof value === "object" && value !== null) {
-    const valueObj = value as Record<string, unknown>;
+  if (typeof value !== "object" || value === null) {
+    return <strong>{String(value)}</strong>;
+  }
 
-    if (typeof valueObj.codename === "string") {
-      return <strong>{valueObj.codename}</strong>;
-    }
+  const valueObj = value as Record<string, unknown>;
 
-    if (typeof valueObj.id === "string") {
-      return <strong>{valueObj.id}</strong>;
-    }
+  if (typeof valueObj.codename === "string") {
+    return <strong>{valueObj.codename}</strong>;
+  }
 
-    if ("value" in valueObj) {
-      return getValueOrIdentifierInternal(valueObj.value);
-    }
+  if (typeof valueObj.id === "string") {
+    return <strong>{valueObj.id}</strong>;
+  }
 
-    if ("global" in valueObj) {
-      return getValueOrIdentifierInternal(valueObj.global);
-    }
+  if ("value" in valueObj) {
+    return getValueOrIdentifierInternal(valueObj.value);
+  }
 
-    if (typeof valueObj.regex === "string") {
-      return <strong>{valueObj.regex}</strong>;
-    }
+  if ("global" in valueObj) {
+    return getValueOrIdentifierInternal(valueObj.global);
+  }
 
-    if ("step" in valueObj) {
-      return getValueOrIdentifierInternal(valueObj.step);
-    }
+  if (typeof valueObj.regex === "string") {
+    return <strong>{valueObj.regex}</strong>;
+  }
 
-    if ("scope" in valueObj) {
-      return getValueOrIdentifierInternal(valueObj.scope);
-    }
+  if ("step" in valueObj) {
+    return getValueOrIdentifierInternal(valueObj.step);
+  }
 
-    if ("content_types" in valueObj && "collections" in valueObj) {
-      const types = getValueOrIdentifier(valueObj.content_types);
-      const collections = getValueOrIdentifier(valueObj.collections);
-      return (
-        <>
-          types: {types}, collections: {collections}
-        </>
-      );
-    }
+  if ("scope" in valueObj) {
+    return getValueOrIdentifierInternal(valueObj.scope);
+  }
 
-    if ("collections" in valueObj) {
-      return getValueOrIdentifierInternal(valueObj.collections);
-    }
+  if ("content_types" in valueObj && "collections" in valueObj) {
+    const types = getValueOrIdentifier(valueObj.content_types);
+    const collections = getValueOrIdentifier(valueObj.collections);
+    return (
+      <>
+        types: {types}, collections: {collections}
+      </>
+    );
+  }
+
+  if ("collections" in valueObj) {
+    return getValueOrIdentifierInternal(valueObj.collections);
   }
 
   return <strong>{String(value)}</strong>;
@@ -135,7 +137,7 @@ export const renderReplaceOpValue = (value: unknown): ReactNode => {
       }
       return getValueOrIdentifier(value);
     default:
-      return value === null ? "null" : String(value);
+      return String(value);
   }
 };
 

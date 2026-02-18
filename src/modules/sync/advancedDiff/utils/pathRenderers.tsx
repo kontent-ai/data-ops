@@ -7,12 +7,13 @@ type EntityPathRenderer = {
 
 export const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>): ReactNode => {
   const extractedTerms = pathSegments.map((s) => s.split(":")[1]);
-  const lastTerm = extractedTerms.pop();
+  const leadingTerms = extractedTerms.slice(0, -1);
+  const lastTerm = extractedTerms.at(-1);
 
   return (
     <span>
-      {extractedTerms.join(" » ")}
-      {extractedTerms.length > 0 && " » "}
+      {leadingTerms.join(" » ")}
+      {leadingTerms.length > 0 && " » "}
       <strong>{lastTerm}</strong> term
     </span>
   );
