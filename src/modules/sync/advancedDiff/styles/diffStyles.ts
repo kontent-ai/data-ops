@@ -256,7 +256,7 @@ export const diffStyles = `
         font-size: smaller;
         font-family: Arial, Helvetica, sans-serif;
 
-        & .div {
+        & div {
             font-family: Arial, Helvetica, sans-serif;
         }
     }

@@ -10,8 +10,8 @@ export const UpdatedEntity = ({ codename, operations }: UpdatedEntityProps) => (
   <details className="entity-detail">
     <summary className="entity-name">{codename}</summary>
     <div className="entity-operations">
-      {operations.map((op, i) => (
-        <PatchOperation key={`${codename}-op-${op.op}-${op.path}-${i}`} operation={op} />
+      {operations.map((op) => (
+        <PatchOperation key={`${codename}-op-${op.op}-${op.path}`} operation={op} />
       ))}
     </div>
   </details>

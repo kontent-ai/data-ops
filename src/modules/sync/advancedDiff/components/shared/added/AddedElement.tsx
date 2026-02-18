@@ -12,6 +12,6 @@ export const AddedElement = ({ element }: AddedElementProps) => (
       <summary>{element.codename}</summary>
       <AddedObjectProperties object={element} />
     </details>
-    <div className="element-type">{element.type.toUpperCase().replace("_", " ")}</div>
+    <div className="element-type">{element.type.toUpperCase().replaceAll("_", " ")}</div>
   </div>
 );

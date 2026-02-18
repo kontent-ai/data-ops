@@ -9,7 +9,7 @@ type CollectionsSectionProps = Readonly<{
 
 export const CollectionsSection = ({ collections }: CollectionsSectionProps) => {
   if (collections.length === 0) {
-    return <h3>No changes to collections</h3>;
+    return <h3>No changes to collections.</h3>;
   }
 
   const addedCount = collections.filter(isOp("addInto")).length;

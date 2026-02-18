@@ -16,7 +16,7 @@ export const LanguagesSection = ({ languages }: LanguagesSectionProps) => (
   <DiffObjectSection
     id="languages"
     title="Languages"
-    noChangesMessage="No changes to languages"
+    noChangesMessage="No changes to languages."
     diffObject={languages}
     renderAddedEntity={(language) => (
       <AddedEntity key={language.codename} codename={language.codename}>
