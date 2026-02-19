@@ -7,8 +7,8 @@ type SimpleSectionProps = Readonly<{
 }>;
 
 export const SimpleSection = ({ id, header, children }: SimpleSectionProps) => (
-  <details className="entity-section" id={id} open>
-    <summary className="entity-section-header">{header}</summary>
+  <div className="entity-section" id={id}>
+    <div className="entity-section-header">{header}</div>
     <div className="entity-section-content">{children}</div>
-  </details>
+  </div>
 );

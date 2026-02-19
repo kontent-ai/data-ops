@@ -239,7 +239,6 @@ export const diffStyles = `
         justify-content: stretch;
         width: 100%;
         background-color: white;
-        cursor: pointer;
 
         & div {
             font-size: large;
@@ -424,7 +423,6 @@ export const diffStyles = `
         padding-right: 1em;
     }
 
-    details.entity-section > summary,
     details.entity-detail > summary,
     details.element > summary {
         list-style: none;
