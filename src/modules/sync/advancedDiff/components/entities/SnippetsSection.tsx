@@ -2,7 +2,7 @@ import type { ContentTypeSnippetModels } from "@kontent-ai/management-sdk";
 
 import type { RequiredCodename } from "../../../../../utils/types.js";
 import type { DiffObject } from "../../../types/diffModel.js";
-import { AddedElement } from "../shared/added/AddedElement.js";
+import { AddedElementsTable } from "../shared/added/AddedElementsTable.js";
 import { AddedEntity } from "../shared/added/AddedEntity.js";
 import { DiffObjectSection } from "../shared/DiffObjectSection.js";
 
@@ -18,9 +18,7 @@ export const SnippetsSection = ({ snippets }: SnippetsSectionProps) => (
     diffObject={snippets}
     renderAddedEntity={(snippet) => (
       <AddedEntity key={snippet.codename} codename={snippet.codename}>
-        {snippet.elements.map((element) => (
-          <AddedElement key={element.codename} element={element} />
-        ))}
+        {snippet.elements.length > 0 && <AddedElementsTable elements={snippet.elements} />}
       </AddedEntity>
     )}
   />

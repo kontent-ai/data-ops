@@ -65,7 +65,12 @@ const renderValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyAr
     return renderValueOrIdentifierInternal(valueObj.collections);
   }
 
-  return <strong>{String(value)}</strong>;
+  if (isDependsOn(value)) {
+    const snippet = value.snippet?.codename ? ` of snippet ${value.snippet.codename}` : "";
+    return <strong>{value.element.codename}{snippet}</strong>;
+  }
+
+  return <strong>{JSON.stringify(value, null, 2)}</strong>;
 };
 
 const joinReactNodes = (nodes: ReadonlyArray<ReactNode>): ReactNode =>

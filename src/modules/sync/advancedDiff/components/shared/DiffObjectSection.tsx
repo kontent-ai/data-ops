@@ -41,6 +41,13 @@ export const DiffObjectSection = <T extends { codename: string }>({
       modifiedCount={counts.modified}
       removedCount={counts.removed}
     >
+      {diffObject.added.length > 0 && (
+        <div className="added">
+          <h3>added</h3>
+          {diffObject.added.map(renderAddedEntity)}
+          {addedFooter}
+        </div>
+      )}
       {counts.modified > 0 && (
         <div className="updated">
           <h3>updated</h3>
@@ -51,23 +58,14 @@ export const DiffObjectSection = <T extends { codename: string }>({
             ))}
         </div>
       )}
-      <div className="added-and-deleted">
-        {diffObject.deleted.size > 0 && (
-          <div className="deleted">
-            <h3>deleted</h3>
-            {[...diffObject.deleted].map((codename) => (
-              <DeletedEntity key={codename} codename={codename} />
-            ))}
-          </div>
-        )}
-        {diffObject.added.length > 0 && (
-          <div className="added">
-            <h3>added</h3>
-            {diffObject.added.map(renderAddedEntity)}
-            {addedFooter}
-          </div>
-        )}
-      </div>
+      {diffObject.deleted.size > 0 && (
+        <div className="deleted">
+          <h3>deleted</h3>
+          {[...diffObject.deleted].map((codename) => (
+            <DeletedEntity key={codename} codename={codename} />
+          ))}
+        </div>
+      )}
     </EntitySection>
   );
 };
