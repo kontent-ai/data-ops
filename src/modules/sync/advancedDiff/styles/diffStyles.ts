@@ -483,4 +483,258 @@ export const diffStyles = `
     .c-add { color: var(--color-added); }
     .c-mod { color: var(--color-modified); }
     .c-rem { color: var(--color-removed); }
+
+    .prop-diff-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 13px;
+        margin: 6px 0 16px 0;
+    }
+
+    .prop-diff-table th {
+        text-align: left;
+        padding: 4px 10px;
+        font-weight: bold;
+        border-bottom: 2px solid var(--color-border-light);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #666;
+        background: transparent;
+    }
+
+    .prop-diff-table th:first-child { width: 20%; }
+    .prop-diff-table th:nth-child(2) { width: 40%; }
+    .prop-diff-table th:nth-child(3) { width: 40%; }
+
+    .prop-diff-table td {
+        padding: 5px 10px;
+        vertical-align: top;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .prop-name {
+        font-family: var(--font-mono);
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .prop-old {
+        background: var(--color-removed-bg);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+    }
+
+    .prop-new {
+        background: var(--color-added-bg);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+    }
+
+    .element-node {
+        border-left: 3px solid var(--color-border-light);
+        margin: 14px 0;
+        border-radius: 0 8px 8px 0;
+        background: #fafafa;
+        transition: background 0.15s ease;
+
+        &:hover { background: #f5f5f5; }
+    }
+
+    .element-node--modified { border-left-color: var(--color-modified); }
+
+    .element-node-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: bold;
+        user-select: none;
+    }
+
+    .element-node-header .en-counts {
+        display: flex;
+        gap: 6px;
+        font-size: 11px;
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+    .element-node-content {
+        padding: 4px 12px 12px 12px;
+        font-size: 13px;
+    }
+
+    .element-node-toggle {
+        font-size: 9px;
+        color: #999;
+        transition: transform 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    .element-node[open] > .element-node-header .element-node-toggle {
+        transform: rotate(90deg);
+    }
+
+    details.element-node > summary {
+        list-style: none;
+
+        &::-webkit-details-marker { display: none; }
+    }
+
+    .moves-group {
+        margin: 16px 0;
+    }
+
+    .moves-group-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: #5b9bd5;
+    }
+
+    .moves-group .op {
+        font-size: 12px;
+        padding: 2px 0;
+    }
+
+    .array-changes {
+        margin: 16px 0;
+    }
+
+    .array-changes-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: var(--color-modified);
+    }
+
+    .array-changes-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 13px;
+    }
+
+    .array-changes-table th:first-child { width: 20%; }
+    .array-changes-table th:nth-child(2) { width: 40%; }
+    .array-changes-table th:nth-child(3) { width: 40%; }
+
+    .array-changes-table th {
+        text-align: left;
+        padding: 4px 10px;
+        font-weight: bold;
+        border-bottom: 2px solid var(--color-border-light);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #666;
+    }
+
+    .array-changes-table td {
+        padding: 5px 10px;
+        vertical-align: top;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .array-values {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        border-radius: 3px;
+    }
+
+    .array-values--added {
+        background: var(--color-added-bg);
+    }
+
+    .array-values--removed {
+        background: var(--color-removed-bg);
+    }
+
+    .move-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .move-table th:first-child { width: 30%; }
+    .move-table th:nth-child(2) { width: 15%; }
+    .move-table th:nth-child(3) { width: 55%; }
+
+    .move-table th {
+        text-align: left;
+        padding: 4px 10px;
+        font-weight: bold;
+        border-bottom: 2px solid var(--color-border-light);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #666;
+    }
+
+    .move-table td {
+        padding: 5px 10px;
+        vertical-align: top;
+        border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .move-item {
+        font-family: var(--font-mono);
+    }
+
+    .move-reference {
+        font-family: var(--font-mono);
+    }
+
+    .move-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 1px 8px;
+        border-radius: 10px;
+        text-transform: lowercase;
+    }
+
+    .move-badge--after {
+        background: var(--color-modified-bg);
+        color: var(--color-modified);
+    }
+
+    .move-badge--before {
+        background: var(--color-added-bg);
+        color: var(--color-added);
+    }
+
+    .elements-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: bold;
+        color: #888;
+        margin-top: 16px;
+        margin-bottom: 4px;
+    }
+
+    .move-badge--under {
+        background: #fff8e6;
+        color: #996600;
+    }
 `;
