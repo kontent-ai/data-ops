@@ -1,69 +1,55 @@
-import type {
-  AddIntoPatchOperation,
-  MovePatchOperation,
-  PatchOperation,
-  RemovePatchOperation,
-  ReplacePatchOperation,
-} from "../../types/patchOperation.js";
+import type { PatchOperation } from "../../types/patchOperation.js";
+import { isOp } from "../../sync/utils.js";
 
 export type GroupedElementOps = Readonly<{
-  replaces: ReadonlyArray<ReplacePatchOperation>;
-  adds: ReadonlyArray<AddIntoPatchOperation>;
-  removes: ReadonlyArray<RemovePatchOperation>;
-  moves: ReadonlyArray<MovePatchOperation>;
+  replaces: ReadonlyArray<Extract<PatchOperation, { op: "replace" }>>;
+  adds: ReadonlyArray<Extract<PatchOperation, { op: "addInto" }>>;
+  removes: ReadonlyArray<Extract<PatchOperation, { op: "remove" }>>;
+  moves: ReadonlyArray<Extract<PatchOperation, { op: "move" }>>;
 }>;
 
-export type GroupedOps = Readonly<{
-  elements: ReadonlyMap<string, GroupedElementOps>;
-  entityLevel: GroupedElementOps;
+export type OpCounts = Readonly<{
+  adds: number;
+  modifies: number;
+  removes: number;
+  moves: number;
+  total: number;
 }>;
-
-const emptyGroup: GroupedElementOps = { replaces: [], adds: [], removes: [], moves: [] };
 
 const elementPropertyPathRegex = /^\/elements\/codename:([^/]+)\/.+$/;
 
 const getElementCodename = (path: string): string | null =>
   path.match(elementPropertyPathRegex)?.[1] ?? null;
 
-const addToGroup = (group: GroupedElementOps, op: PatchOperation): GroupedElementOps => {
-  switch (op.op) {
-    case "replace":
-      return { ...group, replaces: [...group.replaces, op] };
-    case "addInto":
-      return { ...group, adds: [...group.adds, op] };
-    case "remove":
-      return { ...group, removes: [...group.removes, op] };
-    case "move":
-      return { ...group, moves: [...group.moves, op] };
-    default: {
-      const _exhaustive: never = op;
-      return _exhaustive;
-    }
-  }
-};
+export const groupOperations = (operations: ReadonlyArray<PatchOperation>): GroupedElementOps => ({
+  replaces: operations.filter(isOp("replace")),
+  adds: operations.filter(isOp("addInto")),
+  removes: operations.filter(isOp("remove")),
+  moves: operations.filter(isOp("move")),
+});
 
-export const groupOperations = (operations: ReadonlyArray<PatchOperation>): GroupedOps =>
-  operations.reduce<GroupedOps>(
-    (acc, op) => {
-      const elementCodename = getElementCodename(op.path);
-      if (!elementCodename) {
-        return { ...acc, entityLevel: addToGroup(acc.entityLevel, op) };
-      }
-      const existing = acc.elements.get(elementCodename) ?? emptyGroup;
-      return {
-        ...acc,
-        elements: new Map([...acc.elements, [elementCodename, addToGroup(existing, op)]]),
-      };
-    },
-    { elements: new Map(), entityLevel: emptyGroup },
-  );
+export const groupEntityWithElements = (operations: ReadonlyArray<PatchOperation>) => {
+  const withCodename = operations.flatMap((op) => {
+    const codename = getElementCodename(op.path);
+    return codename ? [{ codename, op }] : [];
+  });
+
+  return {
+    entityLevel: groupOperations(operations.filter((op) => !getElementCodename(op.path))),
+    elements: new Map(
+      [...Map.groupBy(withCodename, (e) => e.codename)].map(
+        ([codename, entries]) => [codename, groupOperations(entries.map((e) => e.op))] as const,
+      ),
+    ),
+  };
+};
 
 export const extractPropertyPath = (path: string, elementCodename?: string): string => {
   if (elementCodename) {
     const prefix = `/elements/codename:${elementCodename}/`;
-    return path.startsWith(prefix) ? path.slice(prefix.length) : path.replace(/^\//, "");
+    return path.startsWith(prefix) ? path.slice(prefix.length) : path.slice(1);
   }
-  return path.replace(/^\//, "");
+  return path.slice(1);
 };
 
 export const getRemoveArrayProperty = (path: string, elementCodename?: string): string => {
@@ -75,7 +61,7 @@ export const getRemoveArrayProperty = (path: string, elementCodename?: string): 
 export const formatPropertyName = (propertyPath: string): string =>
   propertyPath.replace(/codename:/g, "").replace(/\//g, " / ");
 
-export const countOps = (group: GroupedElementOps) => ({
+export const countOps = (group: GroupedElementOps): OpCounts => ({
   adds: group.adds.length,
   modifies: group.replaces.length,
   removes: group.removes.length,

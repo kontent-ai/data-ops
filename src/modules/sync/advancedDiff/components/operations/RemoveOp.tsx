@@ -1,6 +1,6 @@
 import type { RemovePatchOperation } from "../../../types/patchOperation.js";
 import {
-  getEntityPathRenderer,
+  renderEntityPath,
   modifierIcons,
   removeEntityPathRenderers,
 } from "../../utils/pathRenderers.js";
@@ -10,7 +10,7 @@ type RemoveOpProps = Readonly<{
 }>;
 
 export const RemoveOp = ({ op }: RemoveOpProps) => {
-  const pathElement = getEntityPathRenderer(removeEntityPathRenderers, op.path);
+  const pathElement = renderEntityPath(removeEntityPathRenderers, op.path);
 
   return (
     <div className="op">

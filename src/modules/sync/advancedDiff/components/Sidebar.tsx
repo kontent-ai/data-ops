@@ -1,7 +1,7 @@
 import type { SidebarItem } from "../utils/sidebarSections.js";
 
 type SidebarProps = Readonly<{
-  sectionCounts: ReadonlyArray<SidebarItem>;
+  sidebarItems: ReadonlyArray<SidebarItem>;
 }>;
 
 const NumericCounts = ({
@@ -30,23 +30,23 @@ const LabelCount = ({ changeLabel }: Readonly<{ changeLabel: string | null }>) =
   ) : null;
 
 const SidebarLink = ({
-  count,
+  item,
   isFirst,
-}: Readonly<{ count: SidebarItem; isFirst: boolean }>) => (
-  <a href={`#${count.sectionId}`} className={isFirst ? "active" : undefined}>
-    <span>{count.title}</span>
-    {count.kind === "numeric" ? (
-      <NumericCounts added={count.added} modified={count.modified} removed={count.removed} />
+}: Readonly<{ item: SidebarItem; isFirst: boolean }>) => (
+  <a href={`#${item.sectionId}`} className={isFirst ? "active" : undefined}>
+    <span>{item.title}</span>
+    {item.kind === "numeric" ? (
+      <NumericCounts added={item.added} modified={item.modified} removed={item.removed} />
     ) : (
-      <LabelCount changeLabel={count.changeLabel} />
+      <LabelCount changeLabel={item.changeLabel} />
     )}
   </a>
 );
 
-export const Sidebar = ({ sectionCounts }: SidebarProps) => (
+export const Sidebar = ({ sidebarItems }: SidebarProps) => (
   <nav className="sidebar">
-    {sectionCounts.map((count, i) => (
-      <SidebarLink key={count.sectionId} count={count} isFirst={i === 0} />
+    {sidebarItems.map((item, i) => (
+      <SidebarLink key={item.sectionId} item={item} isFirst={i === 0} />
     ))}
   </nav>
 );

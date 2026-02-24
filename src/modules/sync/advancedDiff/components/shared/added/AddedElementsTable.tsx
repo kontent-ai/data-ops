@@ -37,15 +37,6 @@ const renderDetailProperties = (element: ContentTypeElements.Element) =>
       );
     });
 
-const asRecord = (element: ContentTypeElements.Element): Record<string, unknown> =>
-  element as unknown as Record<string, unknown>;
-
-const getContentGroup = (element: ContentTypeElements.Element): string | undefined => {
-  const rec = asRecord(element);
-  return typeof rec.content_group === "object" && rec.content_group !== null
-    ? (rec.content_group as { codename: string }).codename
-    : undefined;
-};
 
 export const AddedElementsTable = ({ elements }: AddedElementsTableProps) => (
   <div className="elements-grid">
@@ -56,8 +47,8 @@ export const AddedElementsTable = ({ elements }: AddedElementsTableProps) => (
       <div>Content group</div>
     </div>
     {elements.map((element) => {
-      const contentGroup = getContentGroup(element);
-      const isRequired = asRecord(element).is_required === true;
+      const contentGroupCodename = element.content_group?.codename;
+      const isRequired = (element as unknown as Record<string, unknown>).is_required === true;
       const detailProps = renderDetailProperties(element);
 
       return (
@@ -68,7 +59,7 @@ export const AddedElementsTable = ({ elements }: AddedElementsTableProps) => (
               <span className="type-badge">{element.type.replaceAll("_", " ")}</span>
             </div>
             <div>{isRequired ? "true" : "\u2014"}</div>
-            <div>{contentGroup ?? "\u2014"}</div>
+            <div>{contentGroupCodename ?? "\u2014"}</div>
           </summary>
           {detailProps.length > 0 && (
             <div className="elements-grid-detail">

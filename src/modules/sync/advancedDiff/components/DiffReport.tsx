@@ -1,7 +1,7 @@
 import type { SyncEntityName } from "../../constants/entities.js";
 import type { DiffModel } from "../../types/diffModel.js";
 import { diffStyles } from "../styles/diffStyles.js";
-import { computeSectionCounts } from "../utils/sidebarSections.js";
+import { computeSidebarItems } from "../utils/sidebarSections.js";
 import { ComparedEnvironments } from "./ComparedEnvironments.js";
 import { AssetFoldersSection } from "./entities/AssetFoldersSection.js";
 import { CollectionsSection } from "./entities/CollectionsSection.js";
@@ -51,7 +51,7 @@ export const DiffReport = ({
   timestamp,
   disableLinks = false,
 }: DiffReportProps) => {
-  const sectionCounts = computeSectionCounts(diffModel, entities);
+  const sidebarItems = computeSidebarItems(diffModel, entities);
 
   return (
     <html lang="en">
@@ -63,7 +63,7 @@ export const DiffReport = ({
         <style dangerouslySetInnerHTML={{ __html: diffStyles }} />
       </head>
       <body>
-        <Sidebar sectionCounts={sectionCounts} />
+        <Sidebar sidebarItems={sidebarItems} />
         <div id="content-diff" className="content">
           <div className="title">
             <div className="logo">

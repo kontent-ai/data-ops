@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import type { MovePatchOperation } from "../../../types/patchOperation.js";
 import {
-  getEntityPathRenderer,
+  renderEntityPath,
   modifierIcons,
   moveEntityPathRenderers,
 } from "../../utils/pathRenderers.js";
@@ -27,7 +27,7 @@ const renderPosition = (op: MovePatchOperation): ReactNode =>
   );
 
 export const MoveOp = ({ op }: MoveOpProps) => {
-  const pathElement = getEntityPathRenderer(moveEntityPathRenderers, op.path);
+  const pathElement = renderEntityPath(moveEntityPathRenderers, op.path);
   const positionElement = renderPosition(op);
 
   return (

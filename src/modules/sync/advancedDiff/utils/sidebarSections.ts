@@ -3,7 +3,7 @@ import type { DiffModel, DiffObject } from "../../types/diffModel.js";
 import type { PatchOperation } from "../../types/patchOperation.js";
 import { countDiffObject, countPatchOps } from "./diffCounts.js";
 
-type NumericSectionCount = Readonly<{
+type NumericSidebarItem = Readonly<{
   kind: "numeric";
   entityName: SyncEntityName;
   sectionId: string;
@@ -13,7 +13,7 @@ type NumericSectionCount = Readonly<{
   removed: number;
 }>;
 
-type LabelSectionCount = Readonly<{
+type LabelSidebarItem = Readonly<{
   kind: "label";
   entityName: SyncEntityName;
   sectionId: string;
@@ -21,7 +21,7 @@ type LabelSectionCount = Readonly<{
   changeLabel: string | null;
 }>;
 
-export type SidebarItem = NumericSectionCount | LabelSectionCount;
+export type SidebarItem = NumericSidebarItem | LabelSidebarItem;
 
 const entityMeta: ReadonlyArray<
   Readonly<{ entityName: SyncEntityName; sectionId: string; title: string }>
@@ -37,7 +37,7 @@ const entityMeta: ReadonlyArray<
   { entityName: "workflows", sectionId: "workflows", title: "Workflows" },
 ];
 
-const diffObjectKey: Record<string, keyof DiffModel> = {
+const diffObjectKey: Partial<Record<SyncEntityName, keyof DiffModel>> = {
   contentTypes: "contentTypes",
   contentTypeSnippets: "contentTypeSnippets",
   taxonomies: "taxonomyGroups",
@@ -46,12 +46,12 @@ const diffObjectKey: Record<string, keyof DiffModel> = {
   workflows: "workflows",
 };
 
-const patchOpsKey: Record<string, keyof DiffModel> = {
+const patchOpsKey: Partial<Record<SyncEntityName, keyof DiffModel>> = {
   collections: "collections",
   assetFolders: "assetFolders",
 };
 
-const computeEntityCount = (
+const computeSidebarItem = (
   entityName: SyncEntityName,
   sectionId: string,
   title: string,
@@ -83,10 +83,10 @@ const computeEntityCount = (
   return { kind: "numeric", entityName, sectionId, title, added: 0, modified: 0, removed: 0 };
 };
 
-export const computeSectionCounts = (
+export const computeSidebarItems = (
   diffModel: DiffModel,
   entities: ReadonlyArray<SyncEntityName>,
 ): ReadonlyArray<SidebarItem> =>
   entityMeta
-    .filter((m) => entities.includes(m.entityName))
-    .map((m) => computeEntityCount(m.entityName, m.sectionId, m.title, diffModel));
+    .filter((meta) => entities.includes(meta.entityName))
+    .map((meta) => computeSidebarItem(meta.entityName, meta.sectionId, meta.title, diffModel));

@@ -1,6 +1,6 @@
 import type { MovePatchOperation } from "../../../types/patchOperation.js";
 import { extractPropertyPath } from "../../utils/groupOperations.js";
-import { elementMovePathRenderers, getEntityPathRenderer, moveEntityPathRenderers } from "../../utils/pathRenderers.js";
+import { elementMovePathRenderers, moveEntityPathRenderers, renderEntityPath } from "../../utils/pathRenderers.js";
 
 type MoveTableProps = Readonly<{
   moves: ReadonlyArray<MovePatchOperation>;
@@ -41,7 +41,7 @@ export const MoveTable = ({ moves, elementCodename }: MoveTableProps) => {
             return (
               <tr key={`move-${op.path}-${i}`}>
                 <td className="move-item">
-                  {getEntityPathRenderer(renderers, path)}
+                  {renderEntityPath(renderers, path)}
                 </td>
                 <td>
                   <span className={`move-badge move-badge--${position}`}>{position}</span>

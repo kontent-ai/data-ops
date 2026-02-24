@@ -22,17 +22,23 @@ export const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>): ReactNo
 
 export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | null => {
   const termMatches = [...propertyPath.matchAll(/terms\/codename:([^/]+)/g)];
-  if (termMatches.length === 0) return null;
+  if (termMatches.length === 0) {
+    return null;
+  }
 
   const terms = termMatches.map(m => m[1]);
   const leadingTerms = terms.slice(0, -1);
   const lastTerm = terms.at(-1);
 
-  const lastMatch = termMatches.at(-1)!;
-  const remainder = propertyPath.slice(lastMatch.index! + lastMatch[0].length);
-  const trailingProp = remainder.replace(/^\//, "");
+  if (!lastTerm) {
+    return null;
+  }
 
-  const titleText = trailingProp
+  const lastMatch = termMatches.at(-1) as RegExpExecArray; // we already chcecked if termMatches is not empty
+  const remainder = propertyPath.slice(lastMatch.index + lastMatch?.[0]?.length);
+  const trailingProp = remainder.replace("/", " / ");
+
+  const titleText = trailingProp.length > 0
     ? `${terms.join(" » ")} / ${trailingProp}`
     : terms.join(" » ");
 
@@ -46,22 +52,18 @@ export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | nu
   );
 };
 
-export const getEntityPathRenderer = (
+export const renderEntityPath = (
   renderers: ReadonlyArray<EntityPathRenderer>,
   path: string,
 ): ReactNode => {
-  const renderer = renderers.find((h) => {
-    h.regex.lastIndex = 0;
-    return h.regex.test(path);
-  });
-  if (!renderer) {
-    return <strong>{path}</strong>;
+  for (const candidate of renderers) {
+    candidate.regex.lastIndex = 0;
+    const match = path.match(candidate.regex);
+    if (match) {
+      return candidate.render(match);
+    }
   }
-
-  renderer.regex.lastIndex = 0;
-  const match = path.match(renderer.regex);
-
-  return match ? renderer.render(match) : renderer.render([]);
+  return <strong>{path}</strong>;
 };
 
 export const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [

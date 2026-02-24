@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { AddIntoPatchOperation } from "../../../types/patchOperation.js";
 import {
   addEntityPathRenderers,
-  getEntityPathRenderer,
+  renderEntityPath,
   modifierIcons,
 } from "../../utils/pathRenderers.js";
 import { renderValueOrIdentifier } from "../../utils/valueHelpers.js";
@@ -24,7 +24,7 @@ const renderPosition = (op: AddIntoPatchOperation): ReactNode =>
   ) : null;
 
 export const AddIntoOp = ({ op }: AddIntoOpProps) => {
-  const pathElement = getEntityPathRenderer(addEntityPathRenderers, op.path);
+  const pathElement = renderEntityPath(addEntityPathRenderers, op.path);
   const valueElement = renderValueOrIdentifier(op.value);
   const positionElement = renderPosition(op);
 

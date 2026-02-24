@@ -32,10 +32,13 @@ const groupAddsByProperty = (
   adds: ReadonlyArray<AddIntoPatchOperation>,
   elementCodename?: string,
 ): ReadonlyArray<ArrayPropertyGroup<AddIntoPatchOperation>> => {
-  const grouped = adds.reduce<Map<string, ReadonlyArray<AddIntoPatchOperation>>>(
+  const grouped = adds.reduce<Map<string, AddIntoPatchOperation[]>>(
     (acc, op) => {
       const property = extractPropertyPath(op.path, elementCodename);
-      return new Map([...acc, [property, [...(acc.get(property) ?? []), op]]]);
+      const propertyOps = acc.get(property) ?? [];
+      propertyOps.push(op);
+      acc.set(property, propertyOps);
+      return acc;
     },
     new Map(),
   );
@@ -51,10 +54,13 @@ const groupRemovesByProperty = (
   removes: ReadonlyArray<RemovePatchOperation>,
   elementCodename?: string,
 ): ReadonlyArray<ArrayPropertyGroup<RemovePatchOperation>> => {
-  const grouped = removes.reduce<Map<string, ReadonlyArray<RemovePatchOperation>>>(
+  const grouped = removes.reduce<Map<string, RemovePatchOperation[]>>(
     (acc, op) => {
       const property = getRemoveArrayProperty(op.path, elementCodename);
-      return new Map([...acc, [property, [...(acc.get(property) ?? []), op]]]);
+      const propertyOps = acc.get(property) ?? [];
+      propertyOps.push(op);
+      acc.set(property, propertyOps);
+      return acc;
     },
     new Map(),
   );
@@ -72,22 +78,22 @@ const mergeGroups = (
 ): ReadonlyArray<MergedArrayRow> => {
   const rowMap = new Map<string, MergedArrayRow>();
 
-  for (const g of addGroups) {
-    rowMap.set(g.property, {
-      property: g.property,
-      displayName: g.displayName,
-      adds: g.ops,
+  for (const addGroup of addGroups) {
+    rowMap.set(addGroup.property, {
+      property: addGroup.property,
+      displayName: addGroup.displayName,
+      adds: addGroup.ops,
       removes: [],
     });
   }
 
-  for (const g of removeGroups) {
-    const existing = rowMap.get(g.property);
-    rowMap.set(g.property, {
-      property: g.property,
-      displayName: existing?.displayName ?? g.displayName,
+  for (const removeGroup of removeGroups) {
+    const existing = rowMap.get(removeGroup.property);
+    rowMap.set(removeGroup.property, {
+      property: removeGroup.property,
+      displayName: existing?.displayName ?? removeGroup.displayName,
       adds: existing?.adds ?? [],
-      removes: g.ops,
+      removes: removeGroup.ops,
     });
   }
 
