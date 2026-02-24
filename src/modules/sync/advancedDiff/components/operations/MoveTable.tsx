@@ -1,5 +1,5 @@
 import type { MovePatchOperation } from "../../../types/patchOperation.js";
-import { extractPropertyPath } from "../../utils/groupOperations.js";
+import { stripElementPrefix } from "../../utils/groupOperations.js";
 import { elementMovePathRenderers, moveEntityPathRenderers, renderEntityPath } from "../../utils/pathRenderers.js";
 
 type MoveTableProps = Readonly<{
@@ -36,7 +36,7 @@ export const MoveTable = ({ moves, elementCodename }: MoveTableProps) => {
           {moves.map((op, i) => {
             const { position, codename } = getMovePosition(op);
             const path = elementCodename
-              ? extractPropertyPath(op.path, elementCodename)
+              ? stripElementPrefix(op.path, elementCodename)
               : op.path;
             return (
               <tr key={`move-${op.path}-${i}`}>

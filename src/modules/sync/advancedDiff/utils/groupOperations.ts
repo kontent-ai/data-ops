@@ -1,5 +1,5 @@
-import type { PatchOperation } from "../../types/patchOperation.js";
 import { isOp } from "../../sync/utils.js";
+import type { PatchOperation } from "../../types/patchOperation.js";
 
 export type GroupedElementOps = Readonly<{
   replaces: ReadonlyArray<Extract<PatchOperation, { op: "replace" }>>;
@@ -44,7 +44,7 @@ export const groupEntityWithElements = (operations: ReadonlyArray<PatchOperation
   };
 };
 
-export const extractPropertyPath = (path: string, elementCodename?: string): string => {
+export const stripElementPrefix = (path: string, elementCodename?: string): string => {
   if (elementCodename) {
     const prefix = `/elements/codename:${elementCodename}/`;
     return path.startsWith(prefix) ? path.slice(prefix.length) : path.slice(1);
@@ -52,8 +52,14 @@ export const extractPropertyPath = (path: string, elementCodename?: string): str
   return path.slice(1);
 };
 
+export const stripEntityPrefix = (op: PatchOperation, codename: string): PatchOperation => {
+  const prefix = `/codename:${codename}`;
+  const stripped = op.path.slice(prefix.length);
+  return { ...op, path: stripped || `/codename:${codename}` } as PatchOperation;
+};
+
 export const getRemoveArrayProperty = (path: string, elementCodename?: string): string => {
-  const propertyPath = extractPropertyPath(path, elementCodename);
+  const propertyPath = stripElementPrefix(path, elementCodename);
   const lastSlash = propertyPath.lastIndexOf("/");
   return lastSlash >= 0 ? propertyPath.slice(0, lastSlash) : propertyPath;
 };

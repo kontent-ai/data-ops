@@ -89,11 +89,7 @@ export const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/codename:([^/]+)/,
-    render: (match: string[]) => (
-      <>
-        Object <strong>{match[1]}</strong>
-      </>
-    ),
+    render: (match: string[]) => <strong>{match[1]}</strong>,
   },
   {
     regex: /^\/scopes\/codename:([^/]+)$/,
@@ -340,11 +336,7 @@ export const removeEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/codename:([^/]+)/,
-    render: (match: string[]) => (
-      <>
-        Object <strong>{match[1]}</strong>
-      </>
-    ),
+    render: (match: string[]) => <strong>{match[1]}</strong>,
   },
 ];
 
@@ -379,11 +371,7 @@ export const moveEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/codename:([^/]+)/,
-    render: (match: string[]) => (
-      <>
-        Object <strong>{match[1]}</strong>
-      </>
-    ),
+    render: (match: string[]) => <strong>{match[1]}</strong>,
   },
 ];
 

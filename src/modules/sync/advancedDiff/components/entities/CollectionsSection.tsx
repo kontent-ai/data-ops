@@ -1,38 +1,52 @@
-import type { PatchOperation as PatchOperationType } from "../../../types/patchOperation.js";
-import { countPatchOps } from "../../utils/diffCounts.js";
-import { PatchOperation } from "../operations/PatchOperation.js";
-import { SimpleSection } from "../SimpleSection.js";
+import type { PatchOperation } from "../../../types/patchOperation.js";
+import { getTargetCodename } from "../../../types/patchOperation.js";
+import type { DiffObject } from "../../../types/diffModel.js";
+import { isOp } from "../../../sync/utils.js";
+import { stripEntityPrefix } from "../../utils/groupOperations.js";
+import { AddedEntity } from "../shared/added/AddedEntity.js";
+import { AddedObjectProperties } from "../shared/added/AddedObjectProperties.js";
+import { DiffObjectSection } from "../shared/DiffObjectSection.js";
 
 type CollectionsSectionProps = Readonly<{
-  collections: ReadonlyArray<PatchOperationType>;
+  collections: ReadonlyArray<PatchOperation>;
 }>;
 
-export const CollectionsSection = ({ collections }: CollectionsSectionProps) => {
-  if (collections.length === 0) {
-    return (
-      <SimpleSection id="collections-section" header={<div>Collections</div>}>
-        <p>No changes to collections.</p>
-      </SimpleSection>
-    );
-  }
+type CollectionEntity = Readonly<{ codename: string } & Record<string, unknown>>;
 
-  const counts = countPatchOps(collections);
+const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<CollectionEntity> => ({
+  added: ops.filter(isOp("addInto")).map(op => op.value as CollectionEntity),
+  deleted: new Set(
+    ops.filter(isOp("remove")).flatMap(op => {
+      const codename = getTargetCodename(op);
+      return codename ? [codename] : [];
+    }),
+  ),
+  updated: new Map(
+    [...Map.groupBy(
+      ops.filter((op): op is Extract<PatchOperation, { op: "replace" | "move" }> =>
+        op.op === "replace" || op.op === "move",
+      ),
+      getTargetCodename,
+    )].flatMap(([codename, ops]) =>
+      codename !== null
+        ? [[codename, ops.map(op => stripEntityPrefix(op, codename))] as [string, PatchOperation[]]]
+        : [],
+    ),
+  ),
+});
 
-  return (
-    <SimpleSection
-      id="collections-section"
-      header={
-        <>
-          <div>Collections</div>
-          <div className="num-modified push">✎ {counts.modified}</div>
-          <div className="num-added">+ {counts.added}</div>
-          <div className="num-removed">− {counts.removed}</div>
-        </>
-      }
-    >
-      {collections.map((op, i) => (
-        <PatchOperation key={`collection-op-${op.op}-${op.path}-${i}`} operation={op} />
-      ))}
-    </SimpleSection>
-  );
-};
+export const CollectionsSection = ({ collections }: CollectionsSectionProps) => (
+  <DiffObjectSection
+    id="collections-section"
+    title="Collections"
+    noChangesMessage="No changes to collections."
+    diffObject={toDiffObject(collections)}
+    renderAddedEntity={(collection) => (
+      <AddedEntity key={collection.codename} codename={collection.codename}>
+        <div className="entity-operations">
+          <AddedObjectProperties object={collection} />
+        </div>
+      </AddedEntity>
+    )}
+  />
+);

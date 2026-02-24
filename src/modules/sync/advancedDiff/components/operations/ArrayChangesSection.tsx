@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import type { AddIntoPatchOperation, RemovePatchOperation } from "../../../types/patchOperation.js";
 import {
-  extractPropertyPath,
+  stripElementPrefix,
   formatPropertyName,
   getRemoveArrayProperty,
 } from "../../utils/groupOperations.js";
@@ -34,7 +34,7 @@ const groupAddsByProperty = (
 ): ReadonlyArray<ArrayPropertyGroup<AddIntoPatchOperation>> => {
   const grouped = adds.reduce<Map<string, AddIntoPatchOperation[]>>(
     (acc, op) => {
-      const property = extractPropertyPath(op.path, elementCodename);
+      const property = stripElementPrefix(op.path, elementCodename);
       const propertyOps = acc.get(property) ?? [];
       propertyOps.push(op);
       acc.set(property, propertyOps);

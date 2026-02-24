@@ -21,7 +21,7 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
 
 describe("Advanced diff", () => {
   const outputFilePath = path.join(import.meta.dirname, "diffTest.html");
-  const dateGeneratedRegex = /<div>state from <strong>[^<]*<\/strong><\/div>/;
+  const dateGeneratedRegex = /<span class="timestamp-pill">[^<]*<\/span>/;
 
   it("matches the generated file with the baseline", async () => {
     const command = `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies collections webSpotlight spaces assetFolders workflows languages -a -n`;
@@ -29,7 +29,7 @@ describe("Advanced diff", () => {
 
     const generatedFileContent = fs
       .readFileSync(outputFilePath, "utf-8")
-      .replace(dateGeneratedRegex, "test-date");
+      .replace(dateGeneratedRegex, `<span class="timestamp-pill">test-date</span>`);
 
     // TODO: uncomment when biome 2.0 is released with the capability to format html
     // const fmtPromise = promisify(childProcess.exec)(`biome fmt --stdin ${outputFilePath}`);
