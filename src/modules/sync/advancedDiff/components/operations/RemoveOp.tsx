@@ -1,8 +1,8 @@
 import type { RemovePatchOperation } from "../../../types/patchOperation.js";
 import {
-  renderEntityPath,
   modifierIcons,
   removeEntityPathRenderers,
+  renderEntityPath,
 } from "../../utils/pathRenderers.js";
 
 type RemoveOpProps = Readonly<{

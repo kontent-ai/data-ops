@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 
 import type { MovePatchOperation } from "../../../types/patchOperation.js";
 import {
-  renderEntityPath,
   modifierIcons,
   moveEntityPathRenderers,
+  renderEntityPath,
 } from "../../utils/pathRenderers.js";
 
 type MoveOpProps = Readonly<{

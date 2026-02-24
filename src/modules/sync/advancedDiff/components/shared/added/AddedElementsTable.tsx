@@ -23,11 +23,14 @@ const renderDetailProperties = (element: ContentTypeElements.Element) =>
       const allowsAll =
         emptyAllowsAllProperties.includes(property) && Array.isArray(value) && value.length === 0;
 
-      const renderedValue = property === "guidelines" && typeof value === "string"
-        ? renderRichTextValue(value)
-        : allowsAll
-          ? <strong>all</strong>
-          : renderValueOrIdentifier(value);
+      const renderedValue =
+        property === "guidelines" && typeof value === "string" ? (
+          renderRichTextValue(value)
+        ) : allowsAll ? (
+          <strong>all</strong>
+        ) : (
+          renderValueOrIdentifier(value)
+        );
 
       return (
         <tr key={property}>
@@ -36,7 +39,6 @@ const renderDetailProperties = (element: ContentTypeElements.Element) =>
         </tr>
       );
     });
-
 
 export const AddedElementsTable = ({ elements }: AddedElementsTableProps) => (
   <div className="elements-grid">

@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import type { AddIntoPatchOperation } from "../../../types/patchOperation.js";
 import {
   addEntityPathRenderers,
-  renderEntityPath,
   modifierIcons,
+  renderEntityPath,
 } from "../../utils/pathRenderers.js";
 import { renderValueOrIdentifier } from "../../utils/valueHelpers.js";
 

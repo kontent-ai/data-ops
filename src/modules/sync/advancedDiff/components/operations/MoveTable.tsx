@@ -1,13 +1,19 @@
 import type { MovePatchOperation } from "../../../types/patchOperation.js";
 import { stripElementPrefix } from "../../utils/groupOperations.js";
-import { elementMovePathRenderers, moveEntityPathRenderers, renderEntityPath } from "../../utils/pathRenderers.js";
+import {
+  elementMovePathRenderers,
+  moveEntityPathRenderers,
+  renderEntityPath,
+} from "../../utils/pathRenderers.js";
 
 type MoveTableProps = Readonly<{
   moves: ReadonlyArray<MovePatchOperation>;
   elementCodename?: string;
 }>;
 
-const getMovePosition = (op: MovePatchOperation): { position: "after" | "before" | "under"; codename: string } =>
+const getMovePosition = (
+  op: MovePatchOperation,
+): { position: "after" | "before" | "under"; codename: string } =>
   "after" in op
     ? { position: "after", codename: op.after.codename }
     : "before" in op
@@ -35,14 +41,10 @@ export const MoveTable = ({ moves, elementCodename }: MoveTableProps) => {
         <tbody>
           {moves.map((op, i) => {
             const { position, codename } = getMovePosition(op);
-            const path = elementCodename
-              ? stripElementPrefix(op.path, elementCodename)
-              : op.path;
+            const path = elementCodename ? stripElementPrefix(op.path, elementCodename) : op.path;
             return (
               <tr key={`move-${op.path}-${i}`}>
-                <td className="move-item">
-                  {renderEntityPath(renderers, path)}
-                </td>
+                <td className="move-item">{renderEntityPath(renderers, path)}</td>
                 <td>
                   <span className={`move-badge move-badge--${position}`}>{position}</span>
                 </td>

@@ -26,7 +26,7 @@ export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | nu
     return null;
   }
 
-  const terms = termMatches.map(m => m[1]);
+  const terms = termMatches.map((m) => m[1]);
   const leadingTerms = terms.slice(0, -1);
   const lastTerm = terms.at(-1);
 
@@ -35,12 +35,11 @@ export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | nu
   }
 
   const lastMatch = termMatches.at(-1) as RegExpExecArray; // we already chcecked if termMatches is not empty
-  const remainder = propertyPath.slice(lastMatch.index + lastMatch?.[0]?.length);
+  const remainder = propertyPath.slice(lastMatch.index + lastMatch[0].length);
   const trailingProp = remainder.replace("/", " / ");
 
-  const titleText = trailingProp.length > 0
-    ? `${terms.join(" » ")} / ${trailingProp}`
-    : terms.join(" » ");
+  const titleText =
+    trailingProp.length > 0 ? `${terms.join(" » ")} / ${trailingProp}` : terms.join(" » ");
 
   return (
     <span title={titleText}>
@@ -378,11 +377,19 @@ export const moveEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
 export const elementMovePathRenderers: ReadonlyArray<EntityPathRenderer> = [
   {
     regex: /^options\/codename:([^/]+)$/,
-    render: (match: string[]) => <><strong>{match[1]}</strong></>,
+    render: (match: string[]) => (
+      <>
+        <strong>{match[1]}</strong>
+      </>
+    ),
   },
   {
     regex: /^codename:([^/]+)/,
-    render: (match: string[]) => <><strong>{match[1]}</strong></>,
+    render: (match: string[]) => (
+      <>
+        <strong>{match[1]}</strong>
+      </>
+    ),
   },
 ];
 

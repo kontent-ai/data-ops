@@ -29,10 +29,7 @@ const LabelCount = ({ changeLabel }: Readonly<{ changeLabel: string | null }>) =
     </span>
   ) : null;
 
-const SidebarLink = ({
-  item,
-  isFirst,
-}: Readonly<{ item: SidebarItem; isFirst: boolean }>) => (
+const SidebarLink = ({ item, isFirst }: Readonly<{ item: SidebarItem; isFirst: boolean }>) => (
   <a href={`#${item.sectionId}`} className={isFirst ? "active" : undefined}>
     <span>{item.title}</span>
     {item.kind === "numeric" ? (

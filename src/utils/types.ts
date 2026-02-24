@@ -140,4 +140,6 @@ export type IsFullEnum<
 
 export type RequiredZodObject<T> = Readonly<{ [K in keyof T]-?: z.ZodType<T[K]> }>;
 
-export type Mutable<T> = { -readonly [K in keyof T]: T[K] extends ReadonlyArray<infer E> ? E[] : T[K] };
+export type Mutable<T> = {
+  -readonly [K in keyof T]: T[K] extends ReadonlyArray<infer E> ? E[] : T[K];
+};

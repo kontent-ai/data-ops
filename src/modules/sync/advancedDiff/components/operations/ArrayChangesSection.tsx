@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 
 import type { AddIntoPatchOperation, RemovePatchOperation } from "../../../types/patchOperation.js";
 import {
-  stripElementPrefix,
   formatPropertyName,
   getRemoveArrayProperty,
+  stripElementPrefix,
 } from "../../utils/groupOperations.js";
 import { renderTaxonomyPropertyPath } from "../../utils/pathRenderers.js";
 import { renderValueOrIdentifier } from "../../utils/valueHelpers.js";
@@ -32,16 +32,13 @@ const groupAddsByProperty = (
   adds: ReadonlyArray<AddIntoPatchOperation>,
   elementCodename?: string,
 ): ReadonlyArray<ArrayPropertyGroup<AddIntoPatchOperation>> => {
-  const grouped = adds.reduce<Map<string, AddIntoPatchOperation[]>>(
-    (acc, op) => {
-      const property = stripElementPrefix(op.path, elementCodename);
-      const propertyOps = acc.get(property) ?? [];
-      propertyOps.push(op);
-      acc.set(property, propertyOps);
-      return acc;
-    },
-    new Map(),
-  );
+  const grouped = adds.reduce<Map<string, AddIntoPatchOperation[]>>((acc, op) => {
+    const property = stripElementPrefix(op.path, elementCodename);
+    const propertyOps = acc.get(property) ?? [];
+    propertyOps.push(op);
+    acc.set(property, propertyOps);
+    return acc;
+  }, new Map());
 
   return [...grouped.entries()].map(([property, ops]) => ({
     property,
@@ -54,16 +51,13 @@ const groupRemovesByProperty = (
   removes: ReadonlyArray<RemovePatchOperation>,
   elementCodename?: string,
 ): ReadonlyArray<ArrayPropertyGroup<RemovePatchOperation>> => {
-  const grouped = removes.reduce<Map<string, RemovePatchOperation[]>>(
-    (acc, op) => {
-      const property = getRemoveArrayProperty(op.path, elementCodename);
-      const propertyOps = acc.get(property) ?? [];
-      propertyOps.push(op);
-      acc.set(property, propertyOps);
-      return acc;
-    },
-    new Map(),
-  );
+  const grouped = removes.reduce<Map<string, RemovePatchOperation[]>>((acc, op) => {
+    const property = getRemoveArrayProperty(op.path, elementCodename);
+    const propertyOps = acc.get(property) ?? [];
+    propertyOps.push(op);
+    acc.set(property, propertyOps);
+    return acc;
+  }, new Map());
 
   return [...grouped.entries()].map(([property, ops]) => ({
     property,
@@ -116,7 +110,11 @@ const renderRemoveValues = (ops: ReadonlyArray<RemovePatchOperation>): ReactNode
     </span>
   ));
 
-export const ArrayChangesSection = ({ adds, removes, elementCodename }: ArrayChangesSectionProps) => {
+export const ArrayChangesSection = ({
+  adds,
+  removes,
+  elementCodename,
+}: ArrayChangesSectionProps) => {
   const addGroups = groupAddsByProperty(adds, elementCodename);
   const removeGroups = groupRemovesByProperty(removes, elementCodename);
 
@@ -140,7 +138,9 @@ export const ArrayChangesSection = ({ adds, removes, elementCodename }: ArrayCha
         <tbody>
           {rows.map((row) => (
             <tr key={row.property}>
-              <td className="prop-name">{renderTaxonomyPropertyPath(row.property) ?? row.displayName}</td>
+              <td className="prop-name">
+                {renderTaxonomyPropertyPath(row.property) ?? row.displayName}
+              </td>
               <td className="array-values array-values--removed">
                 {row.removes.length > 0 ? renderRemoveValues(row.removes) : "-"}
               </td>

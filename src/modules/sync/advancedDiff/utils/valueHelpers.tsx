@@ -67,7 +67,12 @@ const renderValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyAr
 
   if (isDependsOn(value)) {
     const snippet = value.snippet?.codename ? ` of snippet ${value.snippet.codename}` : "";
-    return <strong>{value.element.codename}{snippet}</strong>;
+    return (
+      <strong>
+        {value.element.codename}
+        {snippet}
+      </strong>
+    );
   }
 
   return <strong>{JSON.stringify(value, null, 2)}</strong>;

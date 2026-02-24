@@ -1,7 +1,7 @@
 import type { ReplacePatchOperation } from "../../../types/patchOperation.js";
 import {
-  renderEntityPath,
   modifierIcons,
+  renderEntityPath,
   replaceEntityPathRenderers,
 } from "../../utils/pathRenderers.js";
 import { ComparedElements } from "../shared/ComparedElements.js";

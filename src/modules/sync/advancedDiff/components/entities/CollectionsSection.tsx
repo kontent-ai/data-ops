@@ -1,7 +1,7 @@
+import { isOp } from "../../../sync/utils.js";
+import type { DiffObject } from "../../../types/diffModel.js";
 import type { PatchOperation } from "../../../types/patchOperation.js";
 import { getTargetCodename } from "../../../types/patchOperation.js";
-import type { DiffObject } from "../../../types/diffModel.js";
-import { isOp } from "../../../sync/utils.js";
 import { stripEntityPrefix } from "../../utils/groupOperations.js";
 import { AddedEntity } from "../shared/added/AddedEntity.js";
 import { AddedObjectProperties } from "../shared/added/AddedObjectProperties.js";
@@ -14,22 +14,30 @@ type CollectionsSectionProps = Readonly<{
 type CollectionEntity = Readonly<{ codename: string } & Record<string, unknown>>;
 
 const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<CollectionEntity> => ({
-  added: ops.filter(isOp("addInto")).map(op => op.value as CollectionEntity),
+  added: ops.filter(isOp("addInto")).map((op) => op.value as CollectionEntity),
   deleted: new Set(
-    ops.filter(isOp("remove")).flatMap(op => {
+    ops.filter(isOp("remove")).flatMap((op) => {
       const codename = getTargetCodename(op);
       return codename ? [codename] : [];
     }),
   ),
   updated: new Map(
-    [...Map.groupBy(
-      ops.filter((op): op is Extract<PatchOperation, { op: "replace" | "move" }> =>
-        op.op === "replace" || op.op === "move",
+    [
+      ...Map.groupBy(
+        ops.filter(
+          (op): op is Extract<PatchOperation, { op: "replace" | "move" }> =>
+            op.op === "replace" || op.op === "move",
+        ),
+        getTargetCodename,
       ),
-      getTargetCodename,
-    )].flatMap(([codename, ops]) =>
+    ].flatMap(([codename, ops]) =>
       codename !== null
-        ? [[codename, ops.map(op => stripEntityPrefix(op, codename))] as [string, PatchOperation[]]]
+        ? [
+            [codename, ops.map((op) => stripEntityPrefix(op, codename))] as [
+              string,
+              PatchOperation[],
+            ],
+          ]
         : [],
     ),
   ),

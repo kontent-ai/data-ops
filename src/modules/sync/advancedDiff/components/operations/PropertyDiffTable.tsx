@@ -1,5 +1,5 @@
 import type { GroupedElementOps } from "../../utils/groupOperations.js";
-import { stripElementPrefix, formatPropertyName } from "../../utils/groupOperations.js";
+import { formatPropertyName, stripElementPrefix } from "../../utils/groupOperations.js";
 import { renderTaxonomyPropertyPath } from "../../utils/pathRenderers.js";
 import { renderReplaceOpValue } from "../../utils/valueHelpers.js";
 
@@ -27,7 +27,9 @@ export const PropertyDiffTable = ({ ops, elementCodename }: PropertyDiffTablePro
           const property = stripElementPrefix(op.path, elementCodename);
           return (
             <tr key={`replace-${op.path}-${i}`}>
-              <td className="prop-name">{renderTaxonomyPropertyPath(property) ?? formatPropertyName(property)}</td>
+              <td className="prop-name">
+                {renderTaxonomyPropertyPath(property) ?? formatPropertyName(property)}
+              </td>
               <td className="prop-old">{renderReplaceOpValue(op.oldValue)}</td>
               <td className="prop-new">{renderReplaceOpValue(op.value)}</td>
             </tr>
