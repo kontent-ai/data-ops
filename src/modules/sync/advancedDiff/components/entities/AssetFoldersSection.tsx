@@ -1,37 +1,92 @@
-import type { PatchOperation as PatchOperationType } from "../../../types/patchOperation.js";
-import { countPatchOps } from "../../utils/diffCounts.js";
-import { PatchOperation } from "../operations/PatchOperation.js";
-import { SimpleSection } from "../SimpleSection.js";
+import { isOp } from "../../../sync/utils.js";
+import type { DiffObject } from "../../../types/diffModel.js";
+import type { PatchOperation } from "../../../types/patchOperation.js";
+import { getTargetCodename } from "../../../types/patchOperation.js";
+import { AddedEntity } from "../shared/added/AddedEntity.js";
+import { DiffObjectSection } from "../shared/DiffObjectSection.js";
 
 type AssetFoldersSectionProps = Readonly<{
-  assetFolders: ReadonlyArray<PatchOperationType>;
+  assetFolders: ReadonlyArray<PatchOperation>;
 }>;
 
-export const AssetFoldersSection = ({ assetFolders }: AssetFoldersSectionProps) => {
-  if (assetFolders.length === 0) {
-    return (
-      <SimpleSection id="assetFolders" header={<div>Asset folders</div>}>
-        <p>No changes to asset folders.</p>
-      </SimpleSection>
-    );
+type AssetFolderEntity = Readonly<{
+  codename: string;
+  name: string;
+  folders: ReadonlyArray<AssetFolderEntity>;
+}>;
+
+const stripNestedEntityPrefix = (op: PatchOperation, codename: string): PatchOperation => {
+  const marker = `/codename:${codename}`;
+  const idx = op.path.lastIndexOf(marker);
+  if (idx < 0) {
+    return op;
   }
+  const stripped = op.path.slice(idx + marker.length);
+  return { ...op, path: stripped || marker } as PatchOperation;
+};
 
-  const counts = countPatchOps(assetFolders);
+const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<AssetFolderEntity> => {
+  const addIntoOps = ops.filter(isOp("addInto"));
+  const added = addIntoOps
+    .filter((op) => op.path === "")
+    .map((op) => op.value as AssetFolderEntity);
 
+  const deleted = new Set(
+    ops.filter(isOp("remove")).flatMap((op) => {
+      const codename = getTargetCodename(op);
+      return codename ? [codename] : [];
+    }),
+  );
+
+  const nestedAdds = addIntoOps.filter((op) => op.path !== "");
+
+  const updated = new Map(
+    [...Map.groupBy([...ops.filter(isOp("replace")), ...nestedAdds], getTargetCodename)].flatMap(
+      ([codename, ops]) =>
+        codename !== null
+          ? [
+              [codename, ops.map((op) => stripNestedEntityPrefix(op, codename))] as [
+                string,
+                PatchOperation[],
+              ],
+            ]
+          : [],
+    ),
+  );
+
+  return { added, deleted, updated };
+};
+
+const AddedAssetFolder = ({
+  folder,
+  depth = 0,
+}: Readonly<{ folder: AssetFolderEntity; depth?: number }>) => (
+  <ul className="term">
+    <li>
+      {folder.name}
+      {depth < 2 &&
+        folder.folders.length > 0 &&
+        folder.folders.map((child) => (
+          <AddedAssetFolder key={child.codename} folder={child} depth={depth + 1} />
+        ))}
+    </li>
+  </ul>
+);
+
+export const AssetFoldersSection = ({ assetFolders }: AssetFoldersSectionProps) => {
   return (
-    <SimpleSection
+    <DiffObjectSection
       id="assetFolders"
-      header={
-        <>
-          <div>Asset folders</div>
-          <div className="num-added push">+ {counts.added}</div>
-          <div className="num-removed">− {counts.removed}</div>
-        </>
-      }
-    >
-      {assetFolders.map((op, i) => (
-        <PatchOperation key={`asset-folder-op-${op.op}-${op.path}-${i}`} operation={op} />
-      ))}
-    </SimpleSection>
+      title="Asset folders"
+      noChangesMessage="No changes to asset folders."
+      diffObject={toDiffObject(assetFolders)}
+      renderAddedEntity={(folder) => (
+        <AddedEntity key={folder.codename} codename={folder.codename}>
+          {folder.folders.map((child) => (
+            <AddedAssetFolder key={child.codename} folder={child} />
+          ))}
+        </AddedEntity>
+      )}
+    />
   );
 };

@@ -436,6 +436,10 @@ export const diffStyles = `
         font-size: small;
     }
 
+    .entity-detail > div > .term:first-child {
+        margin-block-start: 0;
+    }
+
     .sidebar {
         position: fixed;
         left: 0;
