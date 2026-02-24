@@ -10,8 +10,9 @@ export const UpdatedEntity = ({ codename, operations }: UpdatedEntityProps) => (
   <details className="entity-detail">
     <summary className="entity-name">{codename}</summary>
     <div className="entity-operations">
-      {operations.map((op) => (
-        <PatchOperation key={`${codename}-op-${op.op}-${op.path}`} operation={op} />
+      {operations.map((op, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: a stable unique identifier would be too complex
+        <PatchOperation key={i} operation={op} />
       ))}
     </div>
   </details>
