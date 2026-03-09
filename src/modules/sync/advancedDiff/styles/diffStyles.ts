@@ -490,7 +490,7 @@ export const diffStyles = `
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
-        font-size: 13px;
+        font-size: 14px;
         margin: 6px 0 16px 0;
     }
 
@@ -499,7 +499,7 @@ export const diffStyles = `
         padding: 4px 10px;
         font-weight: bold;
         border-bottom: 2px solid var(--color-border-light);
-        font-size: 12px;
+        font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: #666;
@@ -519,23 +519,23 @@ export const diffStyles = `
     }
 
     .prop-name {
-        font-family: var(--font-mono);
+        font-family: Arial, sans-serif;
         font-weight: bold;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .prop-old {
         background: var(--color-removed-bg);
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
         border-radius: 3px;
         white-space: pre-wrap;
     }
 
     .prop-new {
         background: var(--color-added-bg);
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
         border-radius: 3px;
         white-space: pre-wrap;
     }
@@ -558,8 +558,8 @@ export const diffStyles = `
         gap: 8px;
         padding: 8px 12px;
         cursor: pointer;
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
         font-weight: bold;
         user-select: none;
     }
@@ -574,7 +574,7 @@ export const diffStyles = `
 
     .element-node-content {
         padding: 4px 12px 12px 12px;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .element-node-toggle {
@@ -629,7 +629,7 @@ export const diffStyles = `
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .array-changes-table th:first-child { width: 20%; }
@@ -641,7 +641,7 @@ export const diffStyles = `
         padding: 4px 10px;
         font-weight: bold;
         border-bottom: 2px solid var(--color-border-light);
-        font-size: 12px;
+        font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: #666;
@@ -656,8 +656,8 @@ export const diffStyles = `
     }
 
     .array-values {
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
         border-radius: 3px;
     }
 
@@ -673,7 +673,7 @@ export const diffStyles = `
         width: 100%;
         border-collapse: collapse;
         table-layout: fixed;
-        font-size: 13px;
+        font-size: 14px;
         margin-top: 4px;
     }
 
@@ -686,7 +686,7 @@ export const diffStyles = `
         padding: 4px 10px;
         font-weight: bold;
         border-bottom: 2px solid var(--color-border-light);
-        font-size: 12px;
+        font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         color: #666;
@@ -699,11 +699,11 @@ export const diffStyles = `
     }
 
     .move-item {
-        font-family: var(--font-mono);
+        font-family: Arial, sans-serif;
     }
 
     .move-reference {
-        font-family: var(--font-mono);
+        font-family: Arial, sans-serif;
     }
 
     .move-badge {
@@ -749,7 +749,7 @@ export const diffStyles = `
         grid-template-columns: 40% 20% 15% 25%;
         padding: 6px 10px;
         background: #f5f5f5;
-        font-size: 12px;
+        font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         font-weight: bold;
@@ -761,8 +761,8 @@ export const diffStyles = `
         grid-template-columns: 40% 20% 15% 25%;
         padding: 6px 10px;
         cursor: pointer;
-        font-family: var(--font-mono);
-        font-size: 13px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
         border-bottom: 1px solid var(--color-border-light);
         list-style: none;
         transition: background 0.1s ease;
@@ -775,7 +775,7 @@ export const diffStyles = `
     .elements-grid-detail {
         padding: 10px 10px 10px 20px;
         font-family: Arial, sans-serif;
-        font-size: 12px;
+        font-size: 13px;
         background: #fafafa;
         border-bottom: 2px solid var(--color-border-light);
     }
@@ -784,7 +784,7 @@ export const diffStyles = `
         width: 100%;
         table-layout: fixed;
         border-collapse: collapse;
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .detail-props-table td:first-child { width: 30%; }
@@ -794,8 +794,8 @@ export const diffStyles = `
         text-align: left;
         padding: 3px 8px;
         border-bottom: 1px solid var(--color-border-light);
-        font-family: var(--font-mono);
-        font-size: 12px;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
         overflow-wrap: break-word;
         word-break: break-word;
     }
