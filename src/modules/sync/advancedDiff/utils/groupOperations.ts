@@ -52,10 +52,11 @@ export const stripElementPrefix = (path: string, elementCodename?: string): stri
   return path.slice(1);
 };
 
-export const stripEntityPrefix = (op: PatchOperation, codename: string): PatchOperation => {
-  const prefix = `/codename:${codename}`;
-  const stripped = op.path.slice(prefix.length);
-  return { ...op, path: stripped || `/codename:${codename}` } as PatchOperation;
+export const stripEntityPrefix = (path: string, prefix: string): string => {
+  if (!path.startsWith(prefix)) {
+    return path;
+  }
+  return path.slice(prefix.length);
 };
 
 export const getRemoveArrayProperty = (path: string, elementCodename?: string): string => {

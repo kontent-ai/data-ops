@@ -15,14 +15,9 @@ type AssetFolderEntity = Readonly<{
   folders: ReadonlyArray<AssetFolderEntity>;
 }>;
 
-const stripNestedEntityPrefix = (op: PatchOperation, codename: string): PatchOperation => {
-  const marker = `/codename:${codename}`;
-  const idx = op.path.lastIndexOf(marker);
-  if (idx < 0) {
-    return op;
-  }
-  const stripped = op.path.slice(idx + marker.length);
-  return { ...op, path: stripped || marker } as PatchOperation;
+const stripNestedEntityPrefix = (path: string, marker: string): string => {
+  const idx = path.lastIndexOf(marker);
+  return idx < 0 ? path : path.slice(idx + marker.length);
 };
 
 const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<AssetFolderEntity> => {
@@ -45,7 +40,10 @@ const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<AssetFolde
       ([codename, ops]) =>
         codename !== null
           ? [
-              [codename, ops.map((op) => stripNestedEntityPrefix(op, codename))] as [
+              [codename, ops.map((op) => {
+                const stripped = stripNestedEntityPrefix(op.path, `/codename:${codename}`);
+                return stripped ? { ...op, path: stripped } as PatchOperation : op;
+              })] as [
                 string,
                 PatchOperation[],
               ],
