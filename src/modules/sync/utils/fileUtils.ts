@@ -6,7 +6,7 @@ import open from "open";
 import { type LogOptions, logError, logInfo } from "../../../log.js";
 
 export const resolveOutputPath = (outputPath: string) => {
-  const hasExtension = path.resolve(outputPath).includes(".");
+  const hasExtension = path.extname(outputPath) !== "";
 
   return hasExtension
     ? path.resolve(outputPath)
