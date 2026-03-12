@@ -40,13 +40,13 @@ const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<AssetFolde
       ([codename, ops]) =>
         codename !== null
           ? [
-              [codename, ops.map((op) => {
-                const stripped = stripNestedEntityPrefix(op.path, `/codename:${codename}`);
-                return stripped ? { ...op, path: stripped } as PatchOperation : op;
-              })] as [
-                string,
-                PatchOperation[],
-              ],
+              [
+                codename,
+                ops.map((op) => {
+                  const stripped = stripNestedEntityPrefix(op.path, `/codename:${codename}`);
+                  return stripped ? ({ ...op, path: stripped } as PatchOperation) : op;
+                }),
+              ] as [string, PatchOperation[]],
             ]
           : [],
     ),

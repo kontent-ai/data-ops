@@ -139,4 +139,3 @@ export type IsFullEnum<
 > = ReadonlyArray<unknown>;
 
 export type RequiredZodObject<T> = Readonly<{ [K in keyof T]-?: z.ZodType<T[K]> }>;
-

@@ -85,7 +85,9 @@ export const ArrayChangesSection = ({
   elementCodename,
 }: ArrayChangesSectionProps) => {
   const addGroups = groupByProperty(adds, (op) => stripElementPrefix(op.path, elementCodename));
-  const removeGroups = groupByProperty(removes, (op) => getRemoveArrayProperty(op.path, elementCodename));
+  const removeGroups = groupByProperty(removes, (op) =>
+    getRemoveArrayProperty(op.path, elementCodename),
+  );
 
   if (addGroups.length === 0 && removeGroups.length === 0) {
     return null;
