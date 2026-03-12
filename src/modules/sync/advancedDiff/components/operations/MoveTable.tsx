@@ -1,3 +1,5 @@
+import { match } from "ts-pattern";
+
 import type { MovePatchOperation } from "../../../types/patchOperation.js";
 import { stripElementPrefix } from "../../utils/groupOperations.js";
 import {
@@ -14,11 +16,19 @@ type MoveTableProps = Readonly<{
 const getMovePosition = (
   op: MovePatchOperation,
 ): { position: "after" | "before" | "under"; codename: string } =>
-  "after" in op
-    ? { position: "after", codename: op.after.codename }
-    : "before" in op
-      ? { position: "before", codename: op.before.codename }
-      : { position: "under", codename: op.under.codename };
+  match(op)
+    .when(
+      (o): o is MovePatchOperation & { after: { codename: string } } => "after" in o,
+      (o) => ({ position: "after" as const, codename: o.after.codename }),
+    )
+    .when(
+      (o): o is MovePatchOperation & { before: { codename: string } } => "before" in o,
+      (o) => ({ position: "before" as const, codename: o.before.codename }),
+    )
+    .otherwise((o) => ({
+      position: "under" as const,
+      codename: (o as MovePatchOperation & { under: { codename: string } }).under.codename,
+    }));
 
 export const MoveTable = ({ moves, elementCodename }: MoveTableProps) => {
   if (moves.length === 0) {

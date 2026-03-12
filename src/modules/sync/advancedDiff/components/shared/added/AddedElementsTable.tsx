@@ -50,7 +50,7 @@ export const AddedElementsTable = ({ elements }: AddedElementsTableProps) => (
     </div>
     {elements.map((element) => {
       const contentGroupCodename = element.content_group?.codename;
-      const isRequired = (element as unknown as Record<string, unknown>).is_required === true;
+      const isRequired = "is_required" in element && element.is_required === true;
       const detailProps = renderDetailProperties(element);
 
       return (

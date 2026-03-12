@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 
-import type { AddIntoPatchOperation, RemovePatchOperation } from "../../../types/patchOperation.js";
+import type {
+  AddIntoPatchOperation,
+  PatchOperation,
+  RemovePatchOperation,
+} from "../../../types/patchOperation.js";
 import {
   formatPropertyName,
   getRemoveArrayProperty,
@@ -28,70 +32,35 @@ type MergedArrayRow = Readonly<{
   removes: ReadonlyArray<RemovePatchOperation>;
 }>;
 
-const groupAddsByProperty = (
-  adds: ReadonlyArray<AddIntoPatchOperation>,
-  elementCodename?: string,
-): ReadonlyArray<ArrayPropertyGroup<AddIntoPatchOperation>> => {
-  const grouped = adds.reduce<Map<string, AddIntoPatchOperation[]>>((acc, op) => {
-    const property = stripElementPrefix(op.path, elementCodename);
-    const propertyOps = acc.get(property) ?? [];
-    propertyOps.push(op);
-    acc.set(property, propertyOps);
-    return acc;
-  }, new Map());
-
-  return [...grouped.entries()].map(([property, ops]) => ({
+const groupByProperty = <T extends PatchOperation>(
+  ops: ReadonlyArray<T>,
+  getProperty: (op: T) => string,
+): ReadonlyArray<ArrayPropertyGroup<T>> =>
+  [...Map.groupBy(ops, getProperty)].map(([property, ops]) => ({
     property,
     displayName: formatPropertyName(property),
     ops,
   }));
-};
-
-const groupRemovesByProperty = (
-  removes: ReadonlyArray<RemovePatchOperation>,
-  elementCodename?: string,
-): ReadonlyArray<ArrayPropertyGroup<RemovePatchOperation>> => {
-  const grouped = removes.reduce<Map<string, RemovePatchOperation[]>>((acc, op) => {
-    const property = getRemoveArrayProperty(op.path, elementCodename);
-    const propertyOps = acc.get(property) ?? [];
-    propertyOps.push(op);
-    acc.set(property, propertyOps);
-    return acc;
-  }, new Map());
-
-  return [...grouped.entries()].map(([property, ops]) => ({
-    property,
-    displayName: formatPropertyName(property),
-    ops,
-  }));
-};
 
 const mergeGroups = (
   addGroups: ReadonlyArray<ArrayPropertyGroup<AddIntoPatchOperation>>,
   removeGroups: ReadonlyArray<ArrayPropertyGroup<RemovePatchOperation>>,
 ): ReadonlyArray<MergedArrayRow> => {
-  const rowMap = new Map<string, MergedArrayRow>();
+  const all = [
+    ...addGroups.map((g) => ({ ...g, kind: "add" as const })),
+    ...removeGroups.map((g) => ({ ...g, kind: "remove" as const })),
+  ];
 
-  for (const addGroup of addGroups) {
-    rowMap.set(addGroup.property, {
-      property: addGroup.property,
-      displayName: addGroup.displayName,
-      adds: addGroup.ops,
-      removes: [],
-    });
-  }
-
-  for (const removeGroup of removeGroups) {
-    const existing = rowMap.get(removeGroup.property);
-    rowMap.set(removeGroup.property, {
-      property: removeGroup.property,
-      displayName: existing?.displayName ?? removeGroup.displayName,
-      adds: existing?.adds ?? [],
-      removes: removeGroup.ops,
-    });
-  }
-
-  return [...rowMap.values()];
+  return [...Map.groupBy(all, (g) => g.property)].map(([property, groups]) => ({
+    property,
+    displayName: formatPropertyName(property),
+    adds: groups
+      .filter((g): g is (typeof groups)[number] & { kind: "add" } => g.kind === "add")
+      .flatMap((g) => g.ops),
+    removes: groups
+      .filter((g): g is (typeof groups)[number] & { kind: "remove" } => g.kind === "remove")
+      .flatMap((g) => g.ops),
+  }));
 };
 
 const renderAddValues = (ops: ReadonlyArray<AddIntoPatchOperation>): ReactNode =>
@@ -115,8 +84,8 @@ export const ArrayChangesSection = ({
   removes,
   elementCodename,
 }: ArrayChangesSectionProps) => {
-  const addGroups = groupAddsByProperty(adds, elementCodename);
-  const removeGroups = groupRemovesByProperty(removes, elementCodename);
+  const addGroups = groupByProperty(adds, (op) => stripElementPrefix(op.path, elementCodename));
+  const removeGroups = groupByProperty(removes, (op) => getRemoveArrayProperty(op.path, elementCodename));
 
   if (addGroups.length === 0 && removeGroups.length === 0) {
     return null;

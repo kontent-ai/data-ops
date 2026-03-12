@@ -22,19 +22,16 @@ export const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>): ReactNo
 
 export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | null => {
   const termMatches = [...propertyPath.matchAll(/terms\/codename:([^/]+)/g)];
-  if (termMatches.length === 0) {
-    return null;
-  }
-
   const terms = termMatches.map((m) => m[1]);
-  const leadingTerms = terms.slice(0, -1);
   const lastTerm = terms.at(-1);
+  const lastMatch = termMatches.at(-1);
 
-  if (!lastTerm) {
+  // biome-ignore lint/complexity/useSimplifiedLogicExpression: easier to read then suggestion
+  if (!lastTerm || !lastMatch) {
     return null;
   }
 
-  const lastMatch = termMatches.at(-1) as RegExpExecArray; // we already chcecked if termMatches is not empty
+  const leadingTerms = terms.slice(0, -1);
   const remainder = propertyPath.slice(lastMatch.index + lastMatch[0].length);
   const trailingProp = remainder.replace("/", " / ");
 
