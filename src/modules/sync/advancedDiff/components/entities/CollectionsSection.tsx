@@ -24,10 +24,7 @@ const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<Collection
   updated: new Map(
     [
       ...Map.groupBy(
-        ops.filter(
-          (op): op is Extract<PatchOperation, { op: "replace" | "move" }> =>
-            op.op === "replace" || op.op === "move",
-        ),
+        ops.filter((op) => op.op === "replace" || op.op === "move"),
         getTargetCodename,
       ),
     ].flatMap(([codename, ops]) =>
@@ -37,9 +34,9 @@ const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<Collection
               codename,
               ops.map((op) => {
                 const stripped = stripEntityPrefix(op.path, `/codename:${codename}`);
-                return stripped ? ({ ...op, path: stripped } as PatchOperation) : op;
+                return stripped ? { ...op, path: stripped } : op;
               }),
-            ] as [string, PatchOperation[]],
+            ] as const,
           ]
         : [],
     ),

@@ -18,16 +18,16 @@ const getMovePosition = (
 ): { position: "after" | "before" | "under"; codename: string } =>
   match(op)
     .when(
-      (o): o is MovePatchOperation & { after: { codename: string } } => "after" in o,
+      (o) => "after" in o,
       (o) => ({ position: "after" as const, codename: o.after.codename }),
     )
     .when(
-      (o): o is MovePatchOperation & { before: { codename: string } } => "before" in o,
+      (o) => "before" in o,
       (o) => ({ position: "before" as const, codename: o.before.codename }),
     )
     .otherwise((o) => ({
       position: "under" as const,
-      codename: (o as MovePatchOperation & { under: { codename: string } }).under.codename,
+      codename: o.under.codename,
     }));
 
 export const MoveTable = ({ moves, elementCodename }: MoveTableProps) => {

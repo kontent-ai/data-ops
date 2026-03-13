@@ -46,7 +46,7 @@ const toDiffObject = (ops: ReadonlyArray<PatchOperation>): DiffObject<AssetFolde
                   const stripped = stripNestedEntityPrefix(op.path, `/codename:${codename}`);
                   return stripped ? ({ ...op, path: stripped } as PatchOperation) : op;
                 }),
-              ] as [string, PatchOperation[]],
+              ] as const,
             ]
           : [],
     ),

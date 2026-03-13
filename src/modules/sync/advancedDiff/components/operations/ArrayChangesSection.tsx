@@ -32,7 +32,7 @@ type MergedArrayRow = Readonly<{
   removes: ReadonlyArray<RemovePatchOperation>;
 }>;
 
-const groupByProperty = <T extends PatchOperation>(
+const groupOpsByProperty = <T extends PatchOperation>(
   ops: ReadonlyArray<T>,
   getProperty: (op: T) => string,
 ): ReadonlyArray<ArrayPropertyGroup<T>> =>
@@ -54,12 +54,8 @@ const mergeGroups = (
   return [...Map.groupBy(all, (g) => g.property)].map(([property, groups]) => ({
     property,
     displayName: formatPropertyName(property),
-    adds: groups
-      .filter((g): g is (typeof groups)[number] & { kind: "add" } => g.kind === "add")
-      .flatMap((g) => g.ops),
-    removes: groups
-      .filter((g): g is (typeof groups)[number] & { kind: "remove" } => g.kind === "remove")
-      .flatMap((g) => g.ops),
+    adds: groups.filter((g) => g.kind === "add").flatMap((g) => g.ops),
+    removes: groups.filter((g) => g.kind === "remove").flatMap((g) => g.ops),
   }));
 };
 
@@ -84,8 +80,8 @@ export const ArrayChangesSection = ({
   removes,
   elementCodename,
 }: ArrayChangesSectionProps) => {
-  const addGroups = groupByProperty(adds, (op) => stripElementPrefix(op.path, elementCodename));
-  const removeGroups = groupByProperty(removes, (op) =>
+  const addGroups = groupOpsByProperty(adds, (op) => stripElementPrefix(op.path, elementCodename));
+  const removeGroups = groupOpsByProperty(removes, (op) =>
     getRemoveArrayProperty(op.path, elementCodename),
   );
 
