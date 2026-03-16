@@ -1,7 +1,7 @@
 import type { ReplacePatchOperation } from "../../../types/patchOperation.js";
 import {
-  getEntityPathRenderer,
   modifierIcons,
+  renderEntityPath,
   replaceEntityPathRenderers,
 } from "../../utils/pathRenderers.js";
 import { ComparedElements } from "../shared/ComparedElements.js";
@@ -11,7 +11,7 @@ type ReplaceOpProps = Readonly<{
 }>;
 
 export const ReplaceOp = ({ op }: ReplaceOpProps) => {
-  const pathElement = getEntityPathRenderer(replaceEntityPathRenderers, op.path);
+  const pathElement = renderEntityPath(replaceEntityPathRenderers, op.path);
 
   return (
     <div className="op">

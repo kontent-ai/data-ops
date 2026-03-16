@@ -25,7 +25,7 @@ The advanced output is a stylized, interactive overview of all the differences b
 
 ### Example of Advanced Output
 
-![Visual Diff Showcase](https://github.com/kontent-ai/data-ops/assets/52500882/4c85b987-3343-4bad-bd34-1888c506397d)
+![Visual Diff Showcase](https://github.com/user-attachments/assets/e5e438fc-d643-4dae-a3bb-ed717eab6381)
 
 ## Usage
 

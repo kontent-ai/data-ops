@@ -19,26 +19,19 @@ if (!SYNC_TARGET_TEST_ENVIRONMENT_ID) {
   throw new Error("SYNC_TARGET_TEST_ENVIRONMENT_ID env variable was not provided.");
 }
 
-describe("Advanced diff", () => {
-  const outputFilePath = path.join(import.meta.dirname, "diffTest.html");
+describe("Advanced diff GIF", () => {
+  const outputFilePath = path.join(import.meta.dirname, "diffTestGif.html");
   const dateGeneratedRegex = /<span class="timestamp-pill">[^<]*<\/span>/;
 
   it("matches the generated file with the baseline", async () => {
-    const command = `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies collections webSpotlight spaces assetFolders workflows languages -a -n`;
+    const command = `sync diff -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} -t=${SYNC_TARGET_TEST_ENVIRONMENT_ID} --sk=${API_KEY} --tk=${API_KEY} -o="${outputFilePath}" --entities contentTypes contentTypeSnippets taxonomies -a -n`;
     await runCommand(command);
 
     const generatedFileContent = fs
       .readFileSync(outputFilePath, "utf-8")
       .replace(dateGeneratedRegex, `<span class="timestamp-pill">test-date</span>`);
 
-    // TODO: uncomment when biome 2.0 is released with the capability to format html
-    // const fmtPromise = promisify(childProcess.exec)(`biome fmt --stdin ${outputFilePath}`);
-    // fmtPromise.child.stdin?.write(generatedFileContent);
-    // fmtPromise.child.stdin?.end();
-    //
-    // const result = await fmtPromise;
-
-    expect(generatedFileContent).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
+    expect(generatedFileContent).toMatchFileSnapshot("advancedDiffGif.test.ts.snap.html");
   });
 
   afterAll(() => {
