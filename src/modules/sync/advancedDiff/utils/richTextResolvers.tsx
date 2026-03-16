@@ -13,14 +13,20 @@ const diffResolvers: PortableTextReactResolvers = {
         [{value.componentOrItem.dataType ?? "item"}: {value.componentOrItem._ref}]
       </strong>
     ),
-    image: ({ value }) => <strong>[image: {value.asset._ref}]</strong>,
+    image: ({ value }) => {
+      const url = value.asset.url;
+      if (url && url !== "#") {
+        return <img src={url} alt={value.asset.alt ?? ""} className="rt-image" />;
+      }
+      return <strong>[image: {value.asset._ref}]</strong>;
+    },
     table: ({ value }) => <TableComponent {...value} />,
   },
   marks: {
     contentItemLink: ({ value, children }) => (
-      <strong>
-        [item-link: {value?.contentItemLink._ref}] {children}
-      </strong>
+      <span className="item-link">
+        {children} <span className="ref-badge">{value?.contentItemLink._ref}</span>
+      </span>
     ),
     link: ({ value, children }) => <a href={value?.href}>{children}</a>,
   },

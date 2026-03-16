@@ -65,7 +65,17 @@ const renderValueOrIdentifierInternal = (value: unknown): ReactNode | ReadonlyAr
     return renderValueOrIdentifierInternal(valueObj.collections);
   }
 
-  return <strong>{String(value)}</strong>;
+  if (isDependsOn(value)) {
+    const snippet = value.snippet?.codename ? ` of snippet ${value.snippet.codename}` : "";
+    return (
+      <strong>
+        {value.element.codename}
+        {snippet}
+      </strong>
+    );
+  }
+
+  return <strong>{JSON.stringify(value, null, 2)}</strong>;
 };
 
 const joinReactNodes = (nodes: ReadonlyArray<ReactNode>): ReactNode =>
@@ -118,22 +128,7 @@ export const renderReplaceOpValue = (value: unknown): ReactNode => {
         return `${value.value} ${value.applies_to}`;
       }
       if (isValidationRegex(value)) {
-        return (
-          <>
-            <p>
-              <strong>Regex:</strong> {value.regex}
-            </p>
-            <p>
-              <strong>Flags:</strong> {value.flags ?? "—"}
-            </p>
-            <p>
-              <strong>IsActive:</strong> {value.is_active || "—"}
-            </p>
-            <p>
-              <strong>Validation message:</strong> {value.validation_message ?? "—"}
-            </p>
-          </>
-        );
+        return JSON.stringify(value, null, 2);
       }
       return renderValueOrIdentifier(value);
     default:

@@ -28,7 +28,11 @@ export const WebSpotlightSection = ({ webSpotlight }: WebSpotlightSectionProps) 
   const change = getChangeInfo(webSpotlight);
 
   if (!change) {
-    return <h3>No changes to web spotlight.</h3>;
+    return (
+      <SimpleSection id="web-spotlight" header={<div>Web Spotlight</div>}>
+        <p>No changes to web spotlight.</p>
+      </SimpleSection>
+    );
   }
 
   return (

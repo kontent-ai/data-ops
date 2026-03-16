@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { DiffObject } from "../../../types/diffModel.js";
+import { countDiffObject } from "../../utils/diffCounts.js";
 import { EntitySection } from "../Section.js";
 import { DeletedEntity } from "./DeletedEntity.js";
 import { UpdatedEntity } from "./UpdatedEntity.js";
@@ -22,21 +23,32 @@ export const DiffObjectSection = <T extends { codename: string }>({
   renderAddedEntity,
   addedFooter,
 }: DiffObjectSectionProps<T>) => {
-  const modifiedCount = [...diffObject.updated.values()].filter((ops) => ops.length > 0).length;
+  const counts = countDiffObject(diffObject);
 
-  if (diffObject.added.length === 0 && modifiedCount === 0 && diffObject.deleted.size === 0) {
-    return <h3>{noChangesMessage}</h3>;
+  if (counts.added === 0 && counts.modified === 0 && counts.removed === 0) {
+    return (
+      <EntitySection id={id} title={title} addedCount={0} modifiedCount={0} removedCount={0}>
+        <p>{noChangesMessage}</p>
+      </EntitySection>
+    );
   }
 
   return (
     <EntitySection
       id={id}
       title={title}
-      addedCount={diffObject.added.length}
-      modifiedCount={modifiedCount}
-      removedCount={diffObject.deleted.size}
+      addedCount={counts.added}
+      modifiedCount={counts.modified}
+      removedCount={counts.removed}
     >
-      {modifiedCount > 0 && (
+      {diffObject.added.length > 0 && (
+        <div className="added">
+          <h3>added</h3>
+          {diffObject.added.map(renderAddedEntity)}
+          {addedFooter}
+        </div>
+      )}
+      {counts.modified > 0 && (
         <div className="updated">
           <h3>updated</h3>
           {[...diffObject.updated]
@@ -46,23 +58,14 @@ export const DiffObjectSection = <T extends { codename: string }>({
             ))}
         </div>
       )}
-      <div className="added-and-deleted">
-        {diffObject.deleted.size > 0 && (
-          <div className="deleted">
-            <h3>deleted</h3>
-            {[...diffObject.deleted].map((codename) => (
-              <DeletedEntity key={codename} codename={codename} />
-            ))}
-          </div>
-        )}
-        {diffObject.added.length > 0 && (
-          <div className="added">
-            <h3>added</h3>
-            {diffObject.added.map(renderAddedEntity)}
-            {addedFooter}
-          </div>
-        )}
-      </div>
+      {diffObject.deleted.size > 0 && (
+        <div className="deleted">
+          <h3>deleted</h3>
+          {[...diffObject.deleted].map((codename) => (
+            <DeletedEntity key={codename} codename={codename} />
+          ))}
+        </div>
+      )}
     </EntitySection>
   );
 };

@@ -18,11 +18,14 @@ const renderPropertyValue = (property: string, value: unknown): ReactNode => {
 };
 
 export const AddedObjectProperties = ({ object }: AddedObjectPropertiesProps) => (
-  <>
-    {Object.entries(object).map(([property, value]) => (
-      <div key={property}>
-        {property}: {renderPropertyValue(property, value)}
-      </div>
-    ))}
-  </>
+  <table className="detail-props-table">
+    <tbody>
+      {Object.entries(object).map(([property, value]) => (
+        <tr key={property}>
+          <td className="prop-name">{property}</td>
+          <td>{renderPropertyValue(property, value)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
 );

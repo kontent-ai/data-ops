@@ -9,28 +9,57 @@ export const renderTaxonomyPath = (pathSegments: ReadonlyArray<string>): ReactNo
   const extractedTerms = pathSegments.map((s) => s.split(":")[1]);
   const leadingTerms = extractedTerms.slice(0, -1);
   const lastTerm = extractedTerms.at(-1);
+  const titleText = extractedTerms.join(" » ");
 
   return (
-    <span>
+    <span title={titleText}>
       {leadingTerms.join(" » ")}
       {leadingTerms.length > 0 && " » "}
-      <strong>{lastTerm}</strong> term
+      <strong>{lastTerm}</strong>
     </span>
   );
 };
 
-export const getEntityPathRenderer = (
+export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | null => {
+  const termMatches = [...propertyPath.matchAll(/terms\/codename:([^/]+)/g)];
+  const terms = termMatches.map((m) => m[1]);
+  const lastTerm = terms.at(-1);
+  const lastMatch = termMatches.at(-1);
+
+  // biome-ignore lint/complexity/useSimplifiedLogicExpression: easier to read then suggestion
+  if (!lastTerm || !lastMatch) {
+    return null;
+  }
+
+  const leadingTerms = terms.slice(0, -1);
+  const remainder = propertyPath.slice(lastMatch.index + lastMatch[0].length);
+  const trailingProp = remainder.replace("/", " / ");
+
+  const titleText =
+    trailingProp.length > 0 ? `${terms.join(" » ")} / ${trailingProp}` : terms.join(" » ");
+
+  return (
+    <span title={titleText}>
+      {leadingTerms.join(" » ")}
+      {leadingTerms.length > 0 && " » "}
+      <strong>{lastTerm}</strong>
+      {trailingProp && ` / ${trailingProp}`}
+    </span>
+  );
+};
+
+export const renderEntityPath = (
   renderers: ReadonlyArray<EntityPathRenderer>,
   path: string,
 ): ReactNode => {
-  const renderer = renderers.find((h) => h.regex.test(path));
-  if (!renderer) {
-    return <>Object at path {path}</>;
+  for (const candidate of renderers) {
+    candidate.regex.lastIndex = 0;
+    const match = path.match(candidate.regex);
+    if (match) {
+      return candidate.render(match);
+    }
   }
-
-  const match = path.match(renderer.regex);
-
-  return match ? renderer.render(match) : renderer.render([]);
+  return <strong>{path}</strong>;
 };
 
 export const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
@@ -56,11 +85,7 @@ export const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/codename:([^/]+)/,
-    render: (match: string[]) => (
-      <>
-        Object <strong>{match[1]}</strong>
-      </>
-    ),
+    render: (match: string[]) => <strong>{match[1]}</strong>,
   },
   {
     regex: /^\/scopes\/codename:([^/]+)$/,
@@ -307,11 +332,7 @@ export const removeEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/codename:([^/]+)/,
-    render: (match: string[]) => (
-      <>
-        Object <strong>{match[1]}</strong>
-      </>
-    ),
+    render: (match: string[]) => <strong>{match[1]}</strong>,
   },
 ];
 
@@ -346,9 +367,24 @@ export const moveEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /^\/codename:([^/]+)/,
+    render: (match: string[]) => <strong>{match[1]}</strong>,
+  },
+];
+
+export const elementMovePathRenderers: ReadonlyArray<EntityPathRenderer> = [
+  {
+    regex: /^options\/codename:([^/]+)$/,
     render: (match: string[]) => (
       <>
-        Object <strong>{match[1]}</strong>
+        <strong>{match[1]}</strong>
+      </>
+    ),
+  },
+  {
+    regex: /^codename:([^/]+)/,
+    render: (match: string[]) => (
+      <>
+        <strong>{match[1]}</strong>
       </>
     ),
   },
