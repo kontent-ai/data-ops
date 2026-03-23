@@ -6,6 +6,7 @@ const commands = [
   (await import("./run/run.js")).register,
   (await import("./snapshot/snapshot.js")).register,
   (await import("./diff/diff.js")).register,
+  (await import("./validate/validate.js")).register,
 ];
 
 export const register: RegisterCommand = (yargs) =>

@@ -41,23 +41,13 @@ type ParseWithError<Result> = ParseResult<Result> | ParseError;
 type ParseError = { success: false; error: Error };
 type ParseResult<Result> = { success: true; result: Result };
 
-export const getSourceSyncModelFromFolder = async (
+export type ContentModelParseResult =
+  | { success: true; data: FileContentModel }
+  | { success: false; errors: ReadonlyArray<Error> };
+
+export const parseContentModelFromFolder = async (
   folderName: string,
-): Promise<FileContentModel> => {
-  const fileModel = await readContentModelFromFolder(folderName);
-
-  return createFullContentModel(fileModel);
-};
-
-export const fetchSourceSyncModel = async (
-  client: ManagementClient,
-  fetchDependencies: ReadonlySet<SyncEntityName>,
-  logOptions: LogOptions,
-) => transformSyncModel(await fetchModel(client, fetchDependencies), logOptions);
-
-const readContentModelFromFolder = async (
-  folderName: string,
-): Promise<Partial<FileContentModel>> => {
+): Promise<ContentModelParseResult> => {
   const syncFiles = await loadSyncFilesFromFolder(folderName);
 
   const parseEntity = async <EntityName extends string, T>(
@@ -91,15 +81,35 @@ const readContentModelFromFolder = async (
     .map(([, value]) => value.error);
 
   if (errors.length) {
-    throw new AggregateError(errors);
+    return { success: false, errors };
   }
 
-  return superiorFromEntries(
+  const partialModel = superiorFromEntries(
     parseResults.map(([key, value]) =>
       value.success ? [key, value.result] : throwError("Error with parsing the model from folder."),
     ),
   );
+
+  return { success: true, data: createFullContentModel(partialModel) };
 };
+
+export const getSourceSyncModelFromFolder = async (
+  folderName: string,
+): Promise<FileContentModel> => {
+  const result = await parseContentModelFromFolder(folderName);
+
+  if (!result.success) {
+    throw new AggregateError(result.errors);
+  }
+
+  return result.data;
+};
+
+export const fetchSourceSyncModel = async (
+  client: ManagementClient,
+  fetchDependencies: ReadonlySet<SyncEntityName>,
+  logOptions: LogOptions,
+) => transformSyncModel(await fetchModel(client, fetchDependencies), logOptions);
 
 const createFullContentModel = (partialModel: Partial<FileContentModel>): FileContentModel => ({
   contentTypes: partialModel.contentTypes ?? [],
