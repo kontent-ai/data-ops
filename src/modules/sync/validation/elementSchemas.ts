@@ -377,7 +377,7 @@ const ContentGroupSchema = z.strictObject({
 });
 
 export const TypeElementSchemasWithGroups = TypeElementSchemas.map((schema) =>
-  schema.merge(ContentGroupSchema),
+  schema.extend(ContentGroupSchema.shape),
 ) as unknown as AddPropToObjectTuple<typeof TypeElementSchemas, typeof ContentGroupSchema>;
 
 export const SnippetElementsSchemasUnion = z.discriminatedUnion("type", [

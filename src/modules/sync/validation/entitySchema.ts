@@ -43,11 +43,9 @@ const ContentGroupSchema = z.strictObject({ codename: z.string(), name: z.string
 
 export const TypeSchema: z.ZodType<
   ContentTypeSyncModel,
-  z.ZodTypeDef,
   Pick<ContentTypeSyncModel, "content_groups">
 > = z
-  .strictObject({ content_groups: z.array(ContentGroupSchema) })
-  .passthrough()
+  .looseObject({ content_groups: z.array(ContentGroupSchema) })
   .transform((obj) => ({
     ...obj,
     groups_number: obj.content_groups.length === 0 ? "zero" : "multiple",

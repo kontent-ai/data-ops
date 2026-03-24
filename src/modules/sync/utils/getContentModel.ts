@@ -144,7 +144,7 @@ const loadSyncFilesFromFolder = async (
 };
 
 const parseSchema = <Output>(
-  schema: z.ZodType<Output, z.ZodTypeDef, unknown>,
+  schema: z.ZodType<Output, unknown>,
   file: string,
   filename: string,
 ): ParseWithError<Output> => {

@@ -13,8 +13,8 @@ export type MigrationModule = Readonly<{
 
 const migrationModuleSchema: z.Schema<MigrationModule> = z.object({
   order: z.union([z.number(), z.coerce.date()]),
-  run: z.function().args(z.custom<ManagementClient>()).returns(z.promise(z.void())),
-  rollback: z.function().args(z.custom<ManagementClient>()).returns(z.promise(z.void())).optional(),
+  run: z.function().input([z.custom<ManagementClient>()]).output(z.promise(z.void())),
+  rollback: z.function().input([z.custom<ManagementClient>()]).output(z.promise(z.void())).optional(),
 });
 
 export const isMigrationModule = (obj: unknown): obj is MigrationModule =>

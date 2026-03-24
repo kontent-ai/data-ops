@@ -28,6 +28,6 @@ export type StatusPlugin = {
 };
 
 export const statusPluginSchema = z.object({
-  saveStatus: z.function().args(statusSchema).returns(z.promise(z.void())),
-  readStatus: z.function().returns(z.promise(statusSchema)),
+  saveStatus: z.function().input([statusSchema]).output(z.promise(z.void())),
+  readStatus: z.function().output(z.promise(statusSchema)),
 });
