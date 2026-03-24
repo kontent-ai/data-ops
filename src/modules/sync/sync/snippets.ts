@@ -5,6 +5,7 @@ import type {
 } from "@kontent-ai/management-sdk";
 
 import { type LogOptions, logInfo } from "../../../log.js";
+import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import { elementTypes } from "../constants/elements.js";
@@ -167,16 +168,17 @@ const addSnippet = (
   client
     .addContentTypeSnippet()
     .withData(() => snippet)
-    .toPromise();
+    .toPromise()
+    .catch(simplifyErrors);
 
 const updateSnippet = (
   client: ManagementClient,
   codename: string,
   snippetData: ContentTypeSnippetModels.IModifyContentTypeSnippetData[],
-) => client.modifyContentTypeSnippet().byTypeCodename(codename).withData(snippetData).toPromise();
+) => client.modifyContentTypeSnippet().byTypeCodename(codename).withData(snippetData).toPromise().catch(simplifyErrors);
 
 const deleteSnippet = (client: ManagementClient, codename: string) =>
-  client.deleteContentTypeSnippet().byTypeCodename(codename).toPromise();
+  client.deleteContentTypeSnippet().byTypeCodename(codename).toPromise().catch(simplifyErrors);
 
 const isElement = (entity: unknown): entity is ContentTypeElements.Element =>
   typeof entity === "object" &&

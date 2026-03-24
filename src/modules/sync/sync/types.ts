@@ -1,6 +1,7 @@
 import type { ContentTypeModels, ManagementClient } from "@kontent-ai/management-sdk";
 
 import { type LogOptions, logInfo } from "../../../log.js";
+import { simplifyErrors } from "../../../utils/error.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import type { DiffModel } from "../types/diffModel.js";
@@ -71,13 +72,14 @@ const addContentType = (client: ManagementClient, type: ContentTypeModels.IAddCo
   client
     .addContentType()
     .withData(() => type)
-    .toPromise();
+    .toPromise()
+    .catch(simplifyErrors);
 
 const updateContentType = (
   client: ManagementClient,
   codename: string,
   typeData: ContentTypeModels.IModifyContentTypeData[],
-) => client.modifyContentType().byTypeCodename(codename).withData(typeData).toPromise();
+) => client.modifyContentType().byTypeCodename(codename).withData(typeData).toPromise().catch(simplifyErrors);
 
 const deleteContentType = (client: ManagementClient, codename: string) =>
-  client.deleteContentType().byTypeCodename(codename).toPromise();
+  client.deleteContentType().byTypeCodename(codename).toPromise().catch(simplifyErrors);
