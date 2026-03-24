@@ -55,4 +55,17 @@ export {
   SyncTypeElement,
   TaxonomySyncModel,
   WebSpotlightSyncModel,
+  WorkflowSyncModel,
 } from "./modules/sync/types/syncModel.js";
+export {
+  SyncAssetFolderSchema,
+  SyncCollectionsSchema,
+  SyncLanguageSchema,
+  SyncLegacyWebSpotlightSchema,
+  SyncLivePreviewSchema,
+  SyncSnippetsSchema,
+  SyncSpacesSchema,
+  SyncTaxonomySchema,
+  SyncTypesSchema,
+  SyncWorkflowSchema,
+} from "./modules/sync/validation/syncSchemas.js";
