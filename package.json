@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "prepare": "pnpm run build",
     "checkTests": "tsc --project tsconfig.tests.jsonc",
     "eslint": "eslint src --ext ts,tsx",
     "biome:check": "biome check",
