@@ -24,9 +24,36 @@ export const handleKontentErrors =
     throw simplifyAxiosErrors(error);
   };
 
-export const simplifyErrors = handleKontentErrors((err) => {
-  throw err as unknown;
-});
+const formatKontentError = (err: SharedModels.ContentManagementBaseKontentError): string => {
+  const parts = [
+    `Kontent.ai API error ${err.errorCode}: ${err.message}`,
+    `Request ID: ${err.requestId}`,
+  ];
+
+  if (err.validationErrors.length) {
+    parts.push(
+      "Validation errors:",
+      ...err.validationErrors.map((ve) => `  - ${ve.message}`),
+    );
+  }
+
+  return parts.join("\n");
+};
+
+const ensureError = (error: unknown): Error =>
+  error instanceof Error
+    ? error
+    : new Error(typeof error === "string" ? error : JSON.stringify(error, null, 2));
+
+export const simplifyErrors = (error: unknown): never => {
+  if (error instanceof SharedModels.ContentManagementBaseKontentError) {
+    const simplified = new Error(formatKontentError(error));
+    simplified.cause = simplifyAxiosErrors(error.originalError);
+    throw simplified;
+  }
+
+  throw ensureError(simplifyAxiosErrors(error));
+};
 
 export const simplifyAxiosErrors = (error: unknown): unknown =>
   isAxiosError(error)
