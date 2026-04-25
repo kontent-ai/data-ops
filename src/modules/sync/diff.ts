@@ -169,7 +169,7 @@ const getLanguageDiffModel = (
   targetLanguages: ReadonlyArray<LanguageSyncModel>,
 ): DiffModel["languages"] => {
   if (sourceLanguages.length === 0 && targetLanguages.length === 0) {
-    return { added: [], updated: new Map(), deleted: new Set() };
+    return { added: [], updated: new Map(), deleted: new Set(), sourceDefaultLanguageCodename: "" };
   }
 
   const sourceDefaultLanguageCodename = getDefaultLang(sourceLanguages).codename;
@@ -209,7 +209,7 @@ const getLanguageDiffModel = (
         ]),
   ]);
 
-  return languageDiffModel;
+  return { ...languageDiffModel, sourceDefaultLanguageCodename };
 };
 
 const adjustSourceDefaultLanguageCodename = (
