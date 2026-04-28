@@ -1,4 +1,4 @@
-import type { LanguageModels, ManagementClient } from "@kontent-ai/management-sdk";
+import type { LanguageModels, ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import { match } from "ts-pattern";
 import { v4 as createUuid } from "uuid";
 import { z } from "zod";
@@ -8,87 +8,61 @@ import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
 import type { DiffModel } from "../types/diffModel.js";
 import type { PatchOperation } from "../types/patchOperation.js";
-import { sortLanguagesByFallback } from "./languageFallbackSort.js";
 
 export const syncLanguages = async (
   client: ManagementClient,
   operations: DiffModel["languages"],
   logOptions: LogOptions,
 ) => {
-  const transformedUpdates = [...operations.updated]
-    .map(([codename, ops]) => [codename, ops.map(transformLanguagePatchOperation)] as const)
-    .filter(([, ops]) => ops.length > 0);
-
-  // Codename renames must happen before adding new languages, so that fallback_language
-  // references resolve correctly. Other operations for the same language (e.g. fallback_language
-  // pointing to a language being added) must happen after adds, using the new codename.
-  const preAddUpdates = transformedUpdates.flatMap(([codename, ops]) => {
-    const codenameOp = ops.find((op) => op.property_name === "codename");
-    return codenameOp ? [[codename, [codenameOp]] as const] : [];
+  const splitUpdates = [...operations.updated].map(([codename, ops]) => {
+    const transformed = ops.map(transformLanguagePatchOperation);
+    const fallbackOp = transformed.find((op) => op.property_name === "fallback_language");
+    const nonFallbackOps = transformed.filter((op) => op.property_name !== "fallback_language");
+    const codenameOp = transformed.find((op) => op.property_name === "codename");
+    const updatedCodename = typeof codenameOp?.value === "string" ? codenameOp.value : codename;
+    return { codename, updatedCodename, nonFallbackOps, fallbackOp };
   });
 
-  const postAddUpdates = transformedUpdates.flatMap(([codename, ops]) => {
-    const codenameOp = ops.find((op) => op.property_name === "codename");
-    if (!codenameOp) {
-      return [[codename, ops] as const];
-    }
-    const newCodename = codenameOp.value as string;
-    const remainingOps = ops.filter((op) => op.property_name !== "codename");
-    return remainingOps.length > 0 ? [[newCodename, remainingOps] as const] : [];
-  });
-
-  if (preAddUpdates.length) {
-    logInfo(logOptions, "standard", "Updating default language");
+  const nonFallbackUpdates = splitUpdates.filter((u) => u.nonFallbackOps.length > 0);
+  if (nonFallbackUpdates.length) {
+    logInfo(logOptions, "standard", "Updating languages");
     await serially(
-      preAddUpdates.map(
-        ([codename, ops]) =>
-          () =>
-            modifyLanguage(client, codename, [...ops]),
-      ),
+      nonFallbackUpdates.map((u) => () => modifyLanguage(client, u.codename, u.nonFallbackOps)),
     );
   }
 
-  const languagesToAdd = operations.added.filter((op) => !op.is_default);
-  const { sorted, deferredFallbackUpdates } = sortLanguagesByFallback(
-    languagesToAdd,
-    operations.sourceDefaultLanguageCodename,
-  );
-
-  if (sorted.length) {
+  if (operations.added.length) {
     logInfo(logOptions, "standard", "Adding languages");
-    await serially(sorted.map((l) => () => addLanguage(client, l)));
+    await serially(
+      operations.added.map((l) => () => addLanguage(client, omit(l, ["fallback_language"]))),
+    );
   } else {
     logInfo(logOptions, "standard", "No languages to add");
   }
 
-  if (deferredFallbackUpdates.length) {
-    logInfo(logOptions, "standard", "Fixing fallback languages after cycle breaking");
+  const newLangFallbackOps = operations.added.flatMap((l) =>
+    l.fallback_language
+      ? [
+          {
+            codename: l.codename,
+            op: createReplaceFallbackOperation(l.fallback_language),
+          },
+        ]
+      : [],
+  );
+  const existingLangFallbackOps = splitUpdates.flatMap((u) =>
+    u.fallbackOp ? [{ codename: u.updatedCodename, op: u.fallbackOp }] : [],
+  );
+  const fallbackUpdates = [...newLangFallbackOps, ...existingLangFallbackOps];
+  if (fallbackUpdates.length) {
+    logInfo(logOptions, "standard", "Setting language fallbacks");
     await serially(
-      deferredFallbackUpdates.map(
-        ({ codename, fallback_language }) =>
+      fallbackUpdates.map(
+        ({ codename, op }) =>
           () =>
-            modifyLanguage(client, codename, [
-              {
-                op: "replace",
-                property_name: "fallback_language",
-                value: fallback_language,
-              },
-            ]),
+            modifyLanguage(client, codename, [op]),
       ),
     );
-  }
-
-  if (postAddUpdates.length) {
-    logInfo(logOptions, "standard", "Updating languages");
-    await serially(
-      postAddUpdates.map(
-        ([codename, ops]) =>
-          () =>
-            modifyLanguage(client, codename, ops),
-      ),
-    );
-  } else if (!preAddUpdates.length) {
-    logInfo(logOptions, "standard", "No languages to update");
   }
 
   if (operations.deleted.size) {
@@ -190,4 +164,12 @@ const createReplaceIsActiveOperation = (isActive: boolean): LanguageModels.IModi
   op: "replace",
   property_name: "is_active",
   value: isActive,
+});
+
+const createReplaceFallbackOperation = (
+  fallbackLanguage: SharedModels.IReferenceObject,
+): LanguageModels.IModifyLanguageData => ({
+  op: "replace",
+  property_name: "fallback_language",
+  value: fallbackLanguage,
 });
