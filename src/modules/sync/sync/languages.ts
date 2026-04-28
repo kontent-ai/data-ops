@@ -1,4 +1,4 @@
-import type { LanguageModels, ManagementClient } from "@kontent-ai/management-sdk";
+import type { LanguageModels, ManagementClient, SharedModels } from "@kontent-ai/management-sdk";
 import { match } from "ts-pattern";
 import { v4 as createUuid } from "uuid";
 import { z } from "zod";
@@ -14,42 +14,59 @@ export const syncLanguages = async (
   operations: DiffModel["languages"],
   logOptions: LogOptions,
 ) => {
+  const splitUpdates = [...operations.updated].map(([codename, ops]) => {
+    const transformed = ops.map(transformLanguagePatchOperation);
+    const fallbackOp = transformed.find((op) => op.property_name === "fallback_language");
+    const nonFallbackOps = transformed.filter((op) => op.property_name !== "fallback_language");
+    const codenameOp = transformed.find((op) => op.property_name === "codename");
+    const updatedCodename = typeof codenameOp?.value === "string" ? codenameOp.value : codename;
+    return { codename, updatedCodename, nonFallbackOps, fallbackOp };
+  });
+
+  const nonFallbackUpdates = splitUpdates.filter((u) => u.nonFallbackOps.length > 0);
+  if (nonFallbackUpdates.length) {
+    logInfo(logOptions, "standard", "Updating languages");
+    await serially(
+      nonFallbackUpdates.map((u) => () => modifyLanguage(client, u.codename, u.nonFallbackOps)),
+    );
+  }
+
   if (operations.added.length) {
     logInfo(logOptions, "standard", "Adding languages");
     await serially(
-      operations.added.filter((op) => !op.is_default).map((l) => () => addLanguage(client, l)),
+      operations.added.map((l) => () => addLanguage(client, omit(l, ["fallback_language"]))),
     );
   } else {
     logInfo(logOptions, "standard", "No languages to add");
   }
 
-  if ([...operations.updated].flatMap(([, arr]) => arr).length) {
-    logInfo(logOptions, "standard", "Updating Languages");
-
-    const transformedOperations = [...operations.updated].map(
-      ([codename, operations]) =>
-        [codename, operations.map(transformLanguagePatchOperation)] as const,
-    );
-
-    const sortedOperations = transformedOperations.toSorted(
-      ([, operations], [, operations2]) =>
-        operationsToOrdNumb(operations) - operationsToOrdNumb(operations2),
-    );
-
+  const newLangFallbackOps = operations.added.flatMap((l) =>
+    l.fallback_language
+      ? [
+          {
+            codename: l.codename,
+            op: createReplaceFallbackOperation(l.fallback_language),
+          },
+        ]
+      : [],
+  );
+  const existingLangFallbackOps = splitUpdates.flatMap((u) =>
+    u.fallbackOp ? [{ codename: u.updatedCodename, op: u.fallbackOp }] : [],
+  );
+  const fallbackUpdates = [...newLangFallbackOps, ...existingLangFallbackOps];
+  if (fallbackUpdates.length) {
+    logInfo(logOptions, "standard", "Setting language fallbacks");
     await serially(
-      sortedOperations.map(
-        ([codename, operations]) =>
+      fallbackUpdates.map(
+        ({ codename, op }) =>
           () =>
-            modifyLanguage(client, codename, operations),
+            modifyLanguage(client, codename, [op]),
       ),
     );
-  } else {
-    logInfo(logOptions, "standard", "No languages to update");
   }
 
   if (operations.deleted.size) {
     logInfo(logOptions, "standard", "Deactivating languages");
-
     await serially(
       [...operations.deleted].map((codename) => () => deleteLanguage(client, codename)),
     );
@@ -149,5 +166,10 @@ const createReplaceIsActiveOperation = (isActive: boolean): LanguageModels.IModi
   value: isActive,
 });
 
-const operationsToOrdNumb = (operations: LanguageModels.IModifyLanguageData[]) =>
-  operations.find((op) => op.property_name === "codename") !== undefined ? 0 : 100;
+const createReplaceFallbackOperation = (
+  fallbackLanguage: SharedModels.IReferenceObject,
+): LanguageModels.IModifyLanguageData => ({
+  op: "replace",
+  property_name: "fallback_language",
+  value: fallbackLanguage,
+});

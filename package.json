@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/data-ops",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "",
   "type": "module",
   "scripts": {
@@ -29,7 +29,7 @@
   "engines": {
     "node": ">=20.10"
   },
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.33.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kontent-ai/data-ops.git"
@@ -76,6 +76,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/yargs": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
     "dotenv": "^17.4.2",
     "eslint": "^8.57.1",
     "minimist": "^1.2.8",
