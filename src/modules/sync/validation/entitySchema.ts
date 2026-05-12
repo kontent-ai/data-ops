@@ -94,12 +94,18 @@ export const CollectionSchema = z.strictObject({
   codename: z.string(),
 } satisfies RequiredZodObject<CollectionSyncModel>);
 
-export const SpaceSchema = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  web_spotlight_root_item: CodenameReferenceSchema.optional(),
-  collections: z.array(CodenameReferenceSchema),
-} satisfies RequiredZodObject<SpaceSyncModel>);
+export const SpaceSchema: z.ZodType<SpaceSyncModel, z.ZodTypeDef, unknown> = z
+  .strictObject({
+    name: z.string(),
+    codename: z.string(),
+    web_spotlight_root_item: CodenameReferenceSchema.optional(),
+    root_item: CodenameReferenceSchema.optional(),
+    collections: z.array(CodenameReferenceSchema),
+  })
+  .transform(({ web_spotlight_root_item, root_item, ...rest }) => ({
+    ...rest,
+    root_item: root_item ?? web_spotlight_root_item,
+  }));
 
 export const LanguageSchema = z.discriminatedUnion("is_default", [
   z.strictObject({

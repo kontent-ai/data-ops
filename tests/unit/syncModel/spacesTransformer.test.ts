@@ -11,7 +11,7 @@ describe("transformSpacesModel", () => {
           id: "fd7e46fc-451f-47be-801a-f9c645fb6a39",
           name: "space1",
           codename: "space1",
-          web_spotlight_root_item: { id: "cbf1bdb1-9399-47cf-8ab1-b6afab184f9c" },
+          root_item: { id: "cbf1bdb1-9399-47cf-8ab1-b6afab184f9c" },
           collections: [{ id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc" }],
         },
       ],
@@ -45,7 +45,7 @@ describe("transformSpacesModel", () => {
       {
         name: "space1",
         codename: "space1",
-        web_spotlight_root_item: { codename: "rootItem" },
+        root_item: { codename: "rootItem" },
         collections: [{ codename: "collection" }],
       },
     ]);

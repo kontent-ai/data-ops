@@ -6,24 +6,27 @@ import type { SpaceSyncModel } from "../types/syncModel.js";
 export const transformSpacesModel = (
   environmentModel: EnvironmentModel,
 ): ReadonlyArray<SpaceSyncModel> =>
-  environmentModel.spaces.map((space) => ({
-    ...omit(space, ["id"]),
-    web_spotlight_root_item: space.web_spotlight_root_item
-      ? {
+  environmentModel.spaces.map((space) => {
+    const rootItem = space.root_item;
+
+    return {
+      ...omit(space, ["id", "web_spotlight_root_item"]),
+      root_item: rootItem
+        ? {
+            codename:
+              environmentModel.items.find((i) => i.id === rootItem.id)?.codename ??
+              throwError(
+                `Cannot find root item { id: ${rootItem.id} } for space { codename: ${space.codename}}.`,
+              ),
+          }
+        : undefined,
+      collections:
+        space.collections?.map((collection) => ({
           codename:
-            environmentModel.items.find((i) => i.id === space.web_spotlight_root_item?.id)
-              ?.codename ??
+            environmentModel.collections.find((i) => i.id === collection.id)?.codename ??
             throwError(
-              `Cannot find web spotlight root item { id: ${space.web_spotlight_root_item.id} } for space { codename: ${space.codename}}.`,
+              `Cannot find collection { id: ${collection.id} } for space { codename: ${space.codename}}.`,
             ),
-        }
-      : undefined,
-    collections:
-      space.collections?.map((collection) => ({
-        codename:
-          environmentModel.collections.find((i) => i.id === collection.id)?.codename ??
-          throwError(
-            `Cannot find collection { id: ${collection.id} } for space { codename: ${space.codename}}.`,
-          ),
-      })) ?? [],
-  }));
+        })) ?? [],
+    };
+  });

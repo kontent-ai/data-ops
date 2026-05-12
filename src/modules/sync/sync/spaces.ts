@@ -20,7 +20,8 @@ export const syncSpaces = async (
         (space) => () =>
           client
             .addSpace()
-            .withData(space as SpaceModels.IAddSpaceData)
+            // TODO(sdk-root-item): MAPI accepts `root_item`; SDK types still only expose `web_spotlight_root_item`.
+            .withData(space as unknown as SpaceModels.IAddSpaceData)
             .toPromise(),
       ),
     );
@@ -67,9 +68,11 @@ const convertOperation = (operation: PatchOperation): SpaceModels.IModifySpaceDa
           property_name: pName,
           value,
         }))
-        .with(["web_spotlight_root_item" as const, referencePattern], ([pName, value]) => ({
+        // TODO(sdk-root-item): MAPI accepts `root_item` as the patch property; SDK types
+        // still type `property_name` as `"web_spotlight_root_item"`, hence the cast.
+        .with(["root_item" as const, referencePattern], ([pName, value]) => ({
           op: "replace" as const,
-          property_name: pName,
+          property_name: pName as unknown as "web_spotlight_root_item",
           value,
         }))
         .with(["collections" as const, P.array(referencePattern)], ([pName, value]) => ({

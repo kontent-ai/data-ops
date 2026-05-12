@@ -11,7 +11,7 @@ import {
 
 export const spaceHandler: Handler<SpaceSyncModel> = makeObjectHandler({
   name: baseHandler,
-  web_spotlight_root_item: optionalHandler(makeLeafObjectHandler({})),
+  root_item: optionalHandler(makeLeafObjectHandler({})),
   collections: (source, target) =>
     source.length !== target.length ||
     zip(source, target).some(([s, t]) => s.codename !== t.codename)
