@@ -173,9 +173,7 @@ export const getSourceItemAndAssetCodenames = (
     {
       assetCodenames: new Set(),
       itemCodenames: new Set(
-        sourceModel.spaces
-          .map((s) => s.web_spotlight_root_item?.codename)
-          .filter(notNullOrUndefined),
+        sourceModel.spaces.map((s) => s.root_item?.codename).filter(notNullOrUndefined),
       ),
     },
   );

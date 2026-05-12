@@ -7,7 +7,6 @@ import type {
   ContentItemContracts,
   LanguageContracts,
   ManagementClient,
-  SpaceContracts,
   TaxonomyContracts,
   WebSpotlightContracts,
   WorkflowContracts,
@@ -16,6 +15,7 @@ import chalk from "chalk";
 
 import packageJson from "../../../package.json" with { type: "json" };
 import { type LogOptions, logInfo } from "../../log.js";
+import type { SpaceContractWithRootItem } from "../../types/spaceContractOverrides.js";
 import { DateLevel, serializeDateForFileName } from "../../utils/files.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { type SyncEntityName, syncEntityChoices } from "./constants/entities.js";
@@ -67,7 +67,7 @@ export type EnvironmentModel = {
   collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
   webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
   assetFolders: ReadonlyArray<AssetFolderContracts.IAssetFolderContract>;
-  spaces: ReadonlyArray<SpaceContracts.ISpaceContract>;
+  spaces: ReadonlyArray<SpaceContractWithRootItem>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
   languages: ReadonlyArray<LanguageContracts.ILanguageModelContract>;
@@ -111,7 +111,7 @@ export const fetchModel = async (
     },
     {
       assetIds: new Set(),
-      itemIds: new Set(spaces.map((s) => s.web_spotlight_root_item?.id).filter(notNullOrUndefined)),
+      itemIds: new Set(spaces.map((s) => s.root_item?.id).filter(notNullOrUndefined)),
     },
   );
 

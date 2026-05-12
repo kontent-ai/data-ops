@@ -10,7 +10,6 @@ import type {
   LanguageVariantElements,
   PreviewContracts,
   RoleContracts,
-  SpaceContracts,
   TaxonomyContracts,
   WebhookContracts,
   WorkflowContracts,
@@ -18,7 +17,9 @@ import type {
 import { config as dotenvConfig } from "dotenv";
 import { expect } from "vitest";
 
+import type { BackupSpace } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/spaces.ts";
 import { replaceRichTextReferences } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/utils/richText.ts";
+import { omit } from "../../../../src/utils/object.ts";
 import { type AllEnvData, loadAllEnvData } from "./envData.ts";
 
 dotenvConfig();
@@ -220,17 +221,16 @@ export const prepareReferences = (data: AllEnvData, options?: EnvironmentsOption
 type PrepareReferencesCreator<T> = (data: AllEnvData) => PrepareReferencesFnc<T>;
 type PrepareReferencesFnc<T> = (entity: T) => T;
 
-const createPrepareSpaceReferences: PrepareReferencesCreator<SpaceContracts.ISpaceContract> =
-  (data) => (space) => ({
-    ...space,
-    id: "-",
-    collections: space.collections?.map((c) => ({
-      id: data.collections.find((col) => col.id === c.id)?.codename,
-    })),
-    web_spotlight_root_item: space.web_spotlight_root_item
-      ? { id: data.items.find((i) => i.id === space.web_spotlight_root_item?.id)?.codename }
-      : undefined,
-  });
+const createPrepareSpaceReferences: PrepareReferencesCreator<BackupSpace> = (data) => (space) => ({
+  ...omit(space, ["root_item"]),
+  id: "-",
+  collections: space.collections?.map((c) => ({
+    id: data.collections.find((col) => col.id === c.id)?.codename,
+  })),
+  root_item: space.root_item
+    ? { id: data.items.find((i) => i.id === space.root_item?.id)?.codename }
+    : undefined,
+});
 
 const createPreparePreviewUrlReferences: PrepareReferencesCreator<
   PreviewContracts.IPreviewConfigurationContract

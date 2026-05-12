@@ -1,5 +1,6 @@
 import type { ManagementClient } from "@kontent-ai/management-sdk";
 
+import type { SpaceContractWithRootItem } from "../../../types/spaceContractOverrides.js";
 import { skipKontentErrors } from "../../../utils/error.js";
 import { serially } from "../../../utils/requests.js";
 import { notNullOrUndefined } from "../../../utils/typeguards.js";
@@ -112,7 +113,7 @@ export const fetchSpaces = (client: ManagementClient) =>
   client
     .listSpaces()
     .toPromise()
-    .then((res) => res.rawData);
+    .then((res) => res.rawData as ReadonlyArray<SpaceContractWithRootItem>);
 
 export const fetchCollections = (client: ManagementClient) =>
   client
