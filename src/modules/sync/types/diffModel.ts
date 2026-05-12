@@ -43,7 +43,8 @@ export type DiffModel = Readonly<{
   >;
   languages: DiffObject<
     RequiredCodename<LanguageModels.IAddLanguageData> & Readonly<{ is_default: boolean }>
-  >;
+  > &
+    Readonly<{ inactiveTargetLanguageCodenames: ReadonlySet<Codename> }>;
   workflows: DiffObject<RequiredCodename<WorkflowModels.IAddWorkflowData>> & {
     sourceWorkflows: ReadonlyArray<WorkflowModels.IAddWorkflowData>;
   };
