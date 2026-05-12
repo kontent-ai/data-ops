@@ -8,13 +8,13 @@ describe("spaceHandler", () => {
     const source: SpaceSyncModel = {
       name: "name source",
       codename: "space",
-      web_spotlight_root_item: { codename: "item1" },
+      root_item: { codename: "item1" },
       collections: [{ codename: "collection1" }],
     };
     const target: SpaceSyncModel = {
       name: "name target",
       codename: "space",
-      web_spotlight_root_item: { codename: "item2" },
+      root_item: { codename: "item2" },
       collections: [{ codename: "collection2" }],
     };
 
@@ -24,7 +24,7 @@ describe("spaceHandler", () => {
       { op: "replace", path: "/name", value: "name source", oldValue: "name target" },
       {
         op: "replace",
-        path: "/web_spotlight_root_item",
+        path: "/root_item",
         value: { codename: "item1" },
         oldValue: { codename: "item2" },
       },
@@ -41,13 +41,13 @@ describe("spaceHandler", () => {
     const source: SpaceSyncModel = {
       name: "name",
       codename: "space",
-      web_spotlight_root_item: { codename: "item" },
+      root_item: { codename: "item" },
       collections: [{ codename: "collection" }],
     };
     const target: SpaceSyncModel = {
       name: "name",
       codename: "space",
-      web_spotlight_root_item: { codename: "item" },
+      root_item: { codename: "item" },
       collections: [{ codename: "collection" }],
     };
 

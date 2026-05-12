@@ -111,7 +111,15 @@ export const fetchModel = async (
     },
     {
       assetIds: new Set(),
-      itemIds: new Set(spaces.map((s) => s.web_spotlight_root_item?.id).filter(notNullOrUndefined)),
+      itemIds: new Set(
+        spaces
+          .map(
+            (s) =>
+              (s as typeof s & { root_item?: { id?: string } }).root_item?.id ??
+              s.web_spotlight_root_item?.id,
+          )
+          .filter(notNullOrUndefined),
+      ),
     },
   );
 
