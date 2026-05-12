@@ -14,20 +14,41 @@ export const syncLanguages = async (
   operations: DiffModel["languages"],
   logOptions: LogOptions,
 ) => {
+  const inactiveTargets = operations.inactiveTargetLanguageCodenames;
+
   const splitUpdates = [...operations.updated].map(([codename, ops]) => {
     const transformed = ops.map(transformLanguagePatchOperation);
     const fallbackOp = transformed.find((op) => op.property_name === "fallback_language");
     const nonFallbackOps = transformed.filter((op) => op.property_name !== "fallback_language");
     const codenameOp = transformed.find((op) => op.property_name === "codename");
+    const isActiveOp = transformed.find((op) => op.property_name === "is_active");
     const updatedCodename = typeof codenameOp?.value === "string" ? codenameOp.value : codename;
-    return { codename, updatedCodename, nonFallbackOps, fallbackOp };
+    const isCurrentlyActive = !inactiveTargets.has(codename);
+    // When is_active is in the diff, its value is the source state; otherwise target === source.
+    const sourceIsActive =
+      typeof isActiveOp?.value === "boolean" ? isActiveOp.value : isCurrentlyActive;
+    return {
+      codename,
+      updatedCodename,
+      nonFallbackOps,
+      fallbackOp,
+      isCurrentlyActive,
+      sourceIsActive,
+    };
   });
 
   const nonFallbackUpdates = splitUpdates.filter((u) => u.nonFallbackOps.length > 0);
   if (nonFallbackUpdates.length) {
     logInfo(logOptions, "standard", "Updating languages");
     await serially(
-      nonFallbackUpdates.map((u) => () => modifyLanguage(client, u.codename, u.nonFallbackOps)),
+      nonFallbackUpdates.map(
+        (u) => () =>
+          modifyLanguage(
+            client,
+            u.codename,
+            withActiveGuard(u.nonFallbackOps, u.isCurrentlyActive, u.sourceIsActive),
+          ),
+      ),
     );
   }
 
@@ -46,21 +67,24 @@ export const syncLanguages = async (
           {
             codename: l.codename,
             op: createReplaceFallbackOperation(l.fallback_language),
+            isActive: l.is_active ?? true,
           },
         ]
       : [],
   );
   const existingLangFallbackOps = splitUpdates.flatMap((u) =>
-    u.fallbackOp ? [{ codename: u.updatedCodename, op: u.fallbackOp }] : [],
+    u.fallbackOp
+      ? [{ codename: u.updatedCodename, op: u.fallbackOp, isActive: u.sourceIsActive }]
+      : [],
   );
   const fallbackUpdates = [...newLangFallbackOps, ...existingLangFallbackOps];
   if (fallbackUpdates.length) {
     logInfo(logOptions, "standard", "Setting language fallbacks");
     await serially(
       fallbackUpdates.map(
-        ({ codename, op }) =>
+        ({ codename, op, isActive }) =>
           () =>
-            modifyLanguage(client, codename, [op]),
+            modifyLanguage(client, codename, withActiveGuard([op], isActive, isActive)),
       ),
     );
   }
@@ -73,6 +97,22 @@ export const syncLanguages = async (
   } else {
     logInfo(logOptions, "standard", "No languages to deactivate");
   }
+};
+
+/**
+ * MAPI rejects modify calls on inactive languages. Prepend an activation when the lang is
+ * currently inactive and append a deactivation when it should end inactive. Any is_active op
+ * already in the batch is dropped so this helper alone owns the toggling.
+ */
+const withActiveGuard = (
+  ops: ReadonlyArray<LanguageModels.IModifyLanguageData>,
+  isCurrentlyActive: boolean,
+  shouldEndActive: boolean,
+): LanguageModels.IModifyLanguageData[] => {
+  const withoutIsActive = ops.filter((op) => op.property_name !== "is_active");
+  const prefix = isCurrentlyActive ? [] : [createReplaceIsActiveOperation(true)];
+  const suffix = shouldEndActive ? [] : [createReplaceIsActiveOperation(false)];
+  return [...prefix, ...withoutIsActive, ...suffix];
 };
 
 const addLanguage = (client: ManagementClient, langauge: LanguageModels.IAddLanguageData) =>
