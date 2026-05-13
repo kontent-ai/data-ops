@@ -17,7 +17,12 @@ export const syncSpaces = async (
 
     await serially(
       model.added.map(
-        (space) => () => client.addSpace().withData(toAddSpaceData(space)).toPromise(),
+        (space) => () =>
+          client
+            .addSpace()
+            // MAPI accepts `root_item`; SDK types still only expose `web_spotlight_root_item`.
+            .withData(space as unknown as SpaceModels.IAddSpaceData)
+            .toPromise(),
       ),
     );
   } else {
@@ -54,17 +59,6 @@ export const syncSpaces = async (
   logInfo(logOptions, "standard", "No spaces to delete");
 };
 
-// Internal model uses root_item; MAPI's add-space body still uses web_spotlight_root_item.
-const toAddSpaceData = (space: DiffModel["spaces"]["added"][number]): SpaceModels.IAddSpaceData => {
-  const { root_item, ...rest } = space as typeof space & {
-    root_item?: { codename?: string; id?: string; external_id?: string };
-  };
-  return {
-    ...rest,
-    ...(root_item ? { web_spotlight_root_item: root_item } : {}),
-  } as unknown as SpaceModels.IAddSpaceData;
-};
-
 const convertOperation = (operation: PatchOperation): SpaceModels.IModifySpaceData =>
   match(operation)
     .with({ op: "replace" }, (op) =>
@@ -74,10 +68,10 @@ const convertOperation = (operation: PatchOperation): SpaceModels.IModifySpaceDa
           property_name: pName,
           value,
         }))
-        // Internal model uses /root_item; MAPI's patch property is still web_spotlight_root_item.
-        .with(["root_item" as const, referencePattern], ([, value]) => ({
+        // MAPI accepts `root_item` as the patch property; SDK types are stale, hence the cast.
+        .with(["root_item" as const, referencePattern], ([pName, value]) => ({
           op: "replace" as const,
-          property_name: "web_spotlight_root_item" as const,
+          property_name: pName as unknown as "web_spotlight_root_item",
           value,
         }))
         .with(["collections" as const, P.array(referencePattern)], ([pName, value]) => ({

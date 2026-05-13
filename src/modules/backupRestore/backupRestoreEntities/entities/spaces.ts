@@ -1,4 +1,4 @@
-import type { SharedContracts, SpaceContracts } from "@kontent-ai/management-sdk";
+import type { SharedContracts, SpaceContracts, SpaceModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo } from "../../../../log.js";
@@ -61,17 +61,20 @@ export const spacesEntity = {
                 "collection",
               ),
             })),
-            // MAPI's add-space body still uses web_spotlight_root_item.
-            web_spotlight_root_item: importRootItem
+            // MAPI accepts `root_item`; SDK types still only expose `web_spotlight_root_item`,
+            // hence the cast.
+            ...(importRootItem
               ? {
-                  id: getRequired(
-                    context.contentItemContextByOldIds,
-                    importRootItem.id ?? "missing-ws-root-id",
-                    "item",
-                  ).selfId,
+                  root_item: {
+                    id: getRequired(
+                      context.contentItemContextByOldIds,
+                      importRootItem.id ?? "missing-ws-root-id",
+                      "item",
+                    ).selfId,
+                  },
                 }
-              : undefined,
-          })
+              : {}),
+          } as unknown as SpaceModels.IAddSpaceData)
           .toPromise();
       }),
     );
