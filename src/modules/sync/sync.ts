@@ -5,6 +5,7 @@ import type { SyncEntityName } from "./constants/entities.js";
 import { syncAssetFolders } from "./sync/assetFolders.js";
 import { syncAddAndReplaceCollections, syncRemoveCollections } from "./sync/collections.js";
 import { syncLanguages } from "./sync/languages.js";
+import { updateLivePreview } from "./sync/livePreview.js";
 import {
   addElementsIntoSnippetsWithoutReferences,
   addSnippetsReferences,
@@ -20,7 +21,6 @@ import {
   updateContentTypesAndAddReferences,
 } from "./sync/types.js";
 import { isOp } from "./sync/utils.js";
-import { updateWebSpotlight } from "./sync/webSpotlight.js";
 import { syncWorkflows } from "./sync/workflows.js";
 import type { DiffModel } from "./types/diffModel.js";
 
@@ -88,9 +88,8 @@ export const sync = async (
     await syncWorkflows(client, diff.workflows, logOptions);
   }
 
-  // uses a created/updated type when enabling and disables before deleting the root type
-  if (entities.has("webSpotlight")) {
-    await updateWebSpotlight(client, diff.webSpotlight, logOptions);
+  if (entities.has("livePreview")) {
+    await updateLivePreview(client, diff.livePreview, logOptions);
   }
 
   if (entities.has("contentTypes")) {

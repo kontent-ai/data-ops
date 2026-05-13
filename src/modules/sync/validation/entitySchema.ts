@@ -9,9 +9,9 @@ import type {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   LanguageSyncModel,
+  LivePreviewSyncModel,
   SpaceSyncModel,
   TaxonomySyncModel,
-  WebSpotlightSyncModel,
   WorkflowSyncModel,
 } from "../types/syncModel.js";
 import { CodenameReferenceSchema } from "./commonSchemas.js";
@@ -84,10 +84,18 @@ export const TypeSchema: z.ZodType<
   )
   .transform((obj) => omit(obj, ["groups_number"]));
 
-export const WebSpotlightSchema = z.object({
-  enabled: z.boolean(),
-  root_type: CodenameReferenceSchema.nullable(),
-} satisfies RequiredZodObject<WebSpotlightSyncModel>);
+export const LivePreviewSchema = z.object({
+  status: z.string(),
+} satisfies RequiredZodObject<LivePreviewSyncModel>);
+
+// Legacy webSpotlight.json shape; root_type is dropped silently because the
+// new live_preview endpoint has no global root concept (per-space root_item handles it).
+export const LegacyWebSpotlightSchema: z.ZodType<LivePreviewSyncModel, z.ZodTypeDef, unknown> = z
+  .object({
+    enabled: z.boolean(),
+    root_type: CodenameReferenceSchema.nullable(),
+  })
+  .transform(({ enabled }) => ({ status: enabled ? "enabled" : "disabled" }));
 
 export const CollectionSchema = z.object({
   name: z.string(),

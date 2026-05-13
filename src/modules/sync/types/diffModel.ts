@@ -19,11 +19,8 @@ export type DiffObject<AddModel> = Readonly<{
   deleted: ReadonlySet<Codename>;
 }>;
 
-export type WebSpotlightDiffModel = Readonly<
-  | { change: "none" }
-  | { change: "activate"; rootTypeCodename: Codename }
-  | { change: "changeRootType"; rootTypeCodename: Codename }
-  | { change: "deactivate" }
+export type LivePreviewDiffModel = Readonly<
+  { change: "none" } | { change: "update"; status: string }
 >;
 
 export type DiffModel = Readonly<{
@@ -33,7 +30,7 @@ export type DiffModel = Readonly<{
   >;
   contentTypes: DiffObject<RequiredCodename<ContentTypeModels.IAddContentTypeData>>;
   collections: ReadonlyArray<PatchOperation>;
-  webSpotlight: WebSpotlightDiffModel;
+  livePreview: LivePreviewDiffModel;
   assetFolders: ReadonlyArray<PatchOperation>;
   spaces: DiffObject<
     Replace<

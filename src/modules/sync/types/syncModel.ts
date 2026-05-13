@@ -7,7 +7,6 @@ import type {
   LanguageContracts,
   SpaceContracts,
   TaxonomyContracts,
-  WebSpotlightContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 
@@ -134,10 +133,7 @@ export type ContentTypeSyncModel = Replace<
   }>
 >;
 
-export type WebSpotlightSyncModel = Replace<
-  WebSpotlightContracts.IWebSpotlightStatus,
-  { root_type: Readonly<{ codename: string }> | null }
->;
+export type LivePreviewSyncModel = Readonly<{ status: string }>;
 
 export type CollectionSyncModel = Omit<CollectionContracts.ICollectionContract, "id">;
 

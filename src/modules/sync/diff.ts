@@ -11,6 +11,7 @@ import {
   wholeContentTypeSnippetsHandler,
 } from "./diff/contentTypeSnippet.js";
 import { languageHandler, wholeLanguageHandler } from "./diff/language.js";
+import { livePreviewHandler } from "./diff/livePreview.js";
 import { spaceHandler, wholeSpacesHandler } from "./diff/space.js";
 import { taxonomyGroupHandler, wholeTaxonomyGroupsHandler } from "./diff/taxonomy.js";
 import {
@@ -18,7 +19,6 @@ import {
   transformTaxonomyToAddModel,
   transformTypeToAddModel,
 } from "./diff/transformToAddModel.js";
-import { webSpotlightHandler } from "./diff/webSpotlight.js";
 import { wholeWorkflowsHandler, workflowHandler } from "./diff/workflow.js";
 import type { DiffModel, DiffObject } from "./types/diffModel.js";
 import type { FileContentModel } from "./types/fileContentModel.js";
@@ -71,9 +71,9 @@ export const diff = (params: DiffParams): DiffModel => {
     params.targetEnvModel.collections,
   );
 
-  const webSpotlightDiffModel = webSpotlightHandler(
-    params.sourceEnvModel.webSpotlight,
-    params.targetEnvModel.webSpotlight,
+  const livePreviewDiffModel = livePreviewHandler(
+    params.sourceEnvModel.livePreview,
+    params.targetEnvModel.livePreview,
   );
 
   const assetFoldersDiffModel = assetFoldersHandler(
@@ -107,7 +107,7 @@ export const diff = (params: DiffParams): DiffModel => {
     contentTypeSnippets: mapAdded(snippetsDiffModel, transformSnippetToAddModel(params)),
     contentTypes: mapAdded(typesDiffModel, transformTypeToAddModel(params)),
     collections: collectionDiffModel,
-    webSpotlight: webSpotlightDiffModel,
+    livePreview: livePreviewDiffModel,
     assetFolders: assetFoldersDiffModel,
     spaces: spacesDiffModel,
     languages: languageDiffModel,

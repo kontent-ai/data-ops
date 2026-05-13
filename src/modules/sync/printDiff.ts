@@ -68,25 +68,18 @@ export const printDiff = (
     printDiffEntity(diffModel.workflows, "workflows", logOptions);
   }
 
-  if (entities.has("webSpotlight")) {
-    if (diffModel.webSpotlight.change !== "none") {
-      logInfo(logOptions, "standard", chalk.blue.bold("\nWEB SPOTLIGHT:"));
+  if (entities.has("livePreview")) {
+    if (diffModel.livePreview.change !== "none") {
+      logInfo(logOptions, "standard", chalk.blue.bold("\nLIVE PREVIEW:"));
 
-      const messsage = match(diffModel.webSpotlight)
+      const message = match(diffModel.livePreview)
         .with(
-          { change: "activate" },
-          ({ rootTypeCodename }) =>
-            `Web Spotlight is to be activated with root type: ${chalk.green(rootTypeCodename)}`,
+          { change: "update" },
+          ({ status }) => `Live preview status is to be set to: ${chalk.green(status)}`,
         )
-        .with(
-          { change: "changeRootType" },
-          ({ rootTypeCodename }) =>
-            `Web Spotlight root type is changed to: ${chalk.green(rootTypeCodename)}`,
-        )
-        .with({ change: "deactivate" }, () => "Web Spotlight is to be deactivated")
         .exhaustive();
 
-      logInfo(logOptions, "standard", messsage);
+      logInfo(logOptions, "standard", message);
     }
   }
 };

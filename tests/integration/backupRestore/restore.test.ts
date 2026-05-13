@@ -80,7 +80,7 @@ describe("restore command", () => {
         exclude: [
           "assets",
           "spaces",
-          "webSpotlight",
+          "livePreview",
           "contentTypes",
           "contentTypeSnippets",
           "taxonomies",
@@ -105,7 +105,7 @@ describe("restore command", () => {
           "workflows",
           "previewUrls",
           "webhooks",
-          "webSpotlight",
+          "livePreview",
         ],
       });
 

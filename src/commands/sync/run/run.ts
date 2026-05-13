@@ -1,7 +1,8 @@
 import { match, P } from "ts-pattern";
 
-import { type LogOptions, logError } from "../../../log.js";
+import { type LogOptions, logError, logWarning } from "../../../log.js";
 import {
+  legacyWebSpotlightAlias,
   type SyncEntityName,
   syncEntityChoices,
 } from "../../../modules/sync/constants/entities.js";
@@ -92,7 +93,11 @@ type SyncModelRunCliParams = Readonly<{
   LogOptions;
 
 const syncRunCli = async (params: SyncModelRunCliParams) => {
-  const resolvedParams = resolveParams(params);
+  const normalizedParams = {
+    ...params,
+    entities: normalizeWebSpotlightAlias(params.entities, params),
+  };
+  const resolvedParams = resolveParams(normalizedParams);
 
   try {
     await syncRunInternal(resolvedParams, `sync-${commandName}`, async (diffModel) => {
@@ -134,9 +139,24 @@ const resolveParams = (params: SyncModelRunCliParams): SyncRunParams => {
 
 const createSyncEntitiesParameter = (entities: ReadonlyArray<SyncEntityName>): SyncEntities => {
   const filterEntries = [
-    ...entities.filter((a) => a !== "webSpotlight").map((e) => [e, () => true]),
-    ...(entities.includes("webSpotlight") ? [["webSpotlight", true]] : []),
+    ...entities.filter((a) => a !== "livePreview").map((e) => [e, () => true]),
+    ...(entities.includes("livePreview") ? [["livePreview", true]] : []),
   ] as const;
 
   return Object.fromEntries(filterEntries);
+};
+
+const normalizeWebSpotlightAlias = (
+  entities: ReadonlyArray<SyncEntityName>,
+  logOptions: LogOptions,
+): ReadonlyArray<SyncEntityName> => {
+  if (!entities.includes(legacyWebSpotlightAlias)) {
+    return entities;
+  }
+  logWarning(
+    logOptions,
+    "standard",
+    "--entities webSpotlight is deprecated; use livePreview instead.",
+  );
+  return entities.map((e) => (e === legacyWebSpotlightAlias ? "livePreview" : e));
 };

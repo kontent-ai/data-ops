@@ -45,9 +45,9 @@ export {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   LanguageSyncModel,
+  LivePreviewSyncModel,
   SpaceSyncModel,
   SyncSnippetElement,
   SyncTypeElement,
   TaxonomySyncModel,
-  WebSpotlightSyncModel,
 } from "./modules/sync/types/syncModel.js";
