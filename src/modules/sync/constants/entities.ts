@@ -5,12 +5,14 @@ import {
   contentTypeSnippetsFileName,
   contentTypesFileName,
   languagesFileName,
+  livePreviewFileName,
   spacesFileName,
   taxonomiesFileName,
-  webSpotlightFileName,
   workflowsFileName,
 } from "./filename.js";
 
+// "webSpotlight" remains a recognized choice as a deprecated alias for "livePreview".
+// The CLI layer translates it before any downstream code sees it.
 export const syncEntityChoices = [
   "contentTypes",
   "contentTypeSnippets",
@@ -19,17 +21,17 @@ export const syncEntityChoices = [
   "assetFolders",
   "spaces",
   "languages",
+  "livePreview",
   "webSpotlight",
   "workflows",
 ] as const;
 
 export type SyncEntityName = (typeof syncEntityChoices)[number];
 
+export const legacyWebSpotlightAlias = "webSpotlight" satisfies SyncEntityName;
+
 // includes transitive dependencies
-export const syncEntityDependencies: Record<
-  keyof SyncEntities,
-  ReadonlyArray<keyof SyncEntities>
-> = {
+export const syncEntityDependencies: Record<SyncEntityName, ReadonlyArray<keyof SyncEntities>> = {
   contentTypes: ["contentTypes", "contentTypeSnippets", "taxonomies"],
   contentTypeSnippets: ["contentTypeSnippets", "taxonomies", "contentTypes"],
   collections: ["collections"],
@@ -38,7 +40,8 @@ export const syncEntityDependencies: Record<
   workflows: ["workflows", "collections", "contentTypes", "contentTypeSnippets", "taxonomies"],
   assetFolders: ["assetFolders"],
   languages: ["languages"],
-  webSpotlight: ["webSpotlight", "contentTypes", "contentTypeSnippets", "taxonomies"],
+  livePreview: ["livePreview"],
+  webSpotlight: ["livePreview"],
 };
 
 export const entityToFilename = {
@@ -46,7 +49,8 @@ export const entityToFilename = {
   contentTypeSnippets: contentTypeSnippetsFileName,
   taxonomies: taxonomiesFileName,
   collections: collectionsFileName,
-  webSpotlight: webSpotlightFileName,
+  livePreview: livePreviewFileName,
+  webSpotlight: livePreviewFileName,
   assetFolders: assetFoldersFileName,
   spaces: spacesFileName,
   languages: languagesFileName,

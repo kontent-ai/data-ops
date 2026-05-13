@@ -10,17 +10,27 @@ import {
   ManagementClient,
   type PreviewContracts,
   type RoleContracts,
+  type SharedContracts,
   type SpaceContracts,
   type TaxonomyContracts,
   type WebhookContracts,
-  type WebSpotlightContracts,
   type WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
 import StreamZip, { type StreamZipAsync } from "node-stream-zip";
 
+import type { BackupSpace } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/spaces.ts";
 import { serially } from "../../../../src/utils/requests.ts";
 import type { FilterParam } from "./compare.ts";
+
+// MAPI is transitioning from `web_spotlight_root_item` to `root_item`; normalize to a single canonical key.
+const normalizeSpace = (space: SpaceContracts.ISpaceContract): BackupSpace => {
+  const { web_spotlight_root_item, ...rest } = space;
+  const rootItem =
+    (space as typeof space & { root_item?: SharedContracts.IReferenceObjectContract }).root_item ??
+    web_spotlight_root_item;
+  return { ...rest, root_item: rootItem };
+};
 
 dotenvConfig();
 
@@ -32,7 +42,7 @@ if (!API_KEY) {
 
 export type AllEnvData = Readonly<{
   collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
-  spaces: ReadonlyArray<SpaceContracts.ISpaceContract>;
+  spaces: ReadonlyArray<BackupSpace>;
   languages: ReadonlyArray<LanguageContracts.ILanguageModelContract>;
   previewUrls: PreviewContracts.IPreviewConfigurationContract;
   taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
@@ -45,7 +55,7 @@ export type AllEnvData = Readonly<{
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
   variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
   webhooks: ReadonlyArray<WebhookContracts.IWebhookContract>;
-  webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
+  livePreview: Readonly<{ status: string }>;
 }>;
 
 export const loadVariantsByItemCodename = async (
@@ -100,7 +110,7 @@ const loadData = async (
       ? await client
           .listSpaces()
           .toPromise()
-          .then((res) => res.rawData)
+          .then((res) => res.rawData.map(normalizeSpace))
       : [],
     languages: has("languages")
       ? await client
@@ -187,9 +197,9 @@ const loadData = async (
           .toPromise()
           .then((res) => res.data.webhooks.map((w) => w._raw))
       : [],
-    webSpotlight: has("webSpotlight")
-      ? (await client.checkWebSpotlightStatus().toPromise()).rawData
-      : { enabled: false, root_type: null },
+    livePreview: has("livePreview")
+      ? { status: (await client.getLivePreviewConfiguration().toPromise()).rawData.status }
+      : { status: "disabled" },
   };
 };
 
@@ -211,7 +221,17 @@ export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvDat
     assetFolders: await loadFile(zip, "assetFolders.json"),
     assets: await loadFile(zip, "assets.json"),
     webhooks: await loadFile(zip, "webhooks.json"),
-    webSpotlight: await loadFile(zip, "webSpotlight.json"),
+    // New backups produce `livePreview.json`; older backups produced `webSpotlight.json`
+    // with `{enabled, root_type}` and are normalized here for backward-compat tests.
+    livePreview: (await loadFile(zip, "livePreview.json")) ??
+      (await loadFile(zip, "webSpotlight.json").then((legacy: unknown) =>
+        legacy &&
+        typeof legacy === "object" &&
+        "enabled" in legacy &&
+        typeof (legacy as { enabled: unknown }).enabled === "boolean"
+          ? { status: (legacy as { enabled: boolean }).enabled ? "enabled" : "disabled" }
+          : undefined,
+      )) ?? { status: "disabled" },
   };
 };
 
@@ -237,5 +257,5 @@ export const emptyAllEnvData: AllEnvData = {
   items: [],
   variants: [],
   webhooks: [],
-  webSpotlight: { enabled: false, root_type: null },
+  livePreview: { status: "disabled" },
 };

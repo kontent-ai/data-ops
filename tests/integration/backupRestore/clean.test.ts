@@ -54,7 +54,7 @@ describe("clean command", () => {
   it.concurrent(
     "Cleans only entities specified in the include parameter.",
     withTestEnvironment(EXPORT_IMPORT_TEST_DATA_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `environment clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls webSpotlight contentTypes contentTypeSnippets webhooks -s`;
+      const command = `environment clean -e=${environmentId} -k=${API_KEY} --include spaces contentItems previewUrls livePreview contentTypes contentTypeSnippets webhooks -s`;
 
       await runCommand(command);
 
@@ -67,7 +67,7 @@ describe("clean command", () => {
           "previewUrls",
           "variants",
           "webhooks",
-          "webSpotlight",
+          "livePreview",
           "workflows", // workflows are dependent on types, so when types are deleted, invalid id references preserves to types in workflows.
         ],
       });

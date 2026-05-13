@@ -10,7 +10,6 @@ import type {
   LanguageVariantElements,
   PreviewContracts,
   RoleContracts,
-  SpaceContracts,
   TaxonomyContracts,
   WebhookContracts,
   WorkflowContracts,
@@ -18,7 +17,9 @@ import type {
 import { config as dotenvConfig } from "dotenv";
 import { expect } from "vitest";
 
+import type { BackupSpace } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/spaces.ts";
 import { replaceRichTextReferences } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/utils/richText.ts";
+import { omit } from "../../../../src/utils/object.ts";
 import { type AllEnvData, loadAllEnvData } from "./envData.ts";
 
 dotenvConfig();
@@ -100,7 +101,7 @@ export const expectSameAllEnvData = (
     expect(sortBy(data1.webhooks, (w) => w.name)).toStrictEqual(
       sortBy(data2.webhooks, (w) => w.name),
     );
-  has("webSpotlight") && expect(data1.webSpotlight).toStrictEqual(data2.webSpotlight);
+  has("livePreview") && expect(data1.livePreview).toStrictEqual(data2.livePreview);
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
@@ -160,7 +161,7 @@ export const expectDifferentAllEnvData = (
     expect(sortBy(data1.webhooks, (w) => w.name)).not.toStrictEqual(
       sortBy(data2.webhooks, (w) => w.name),
     );
-  has("webSpotlight") && expect(data1.webSpotlight).not.toStrictEqual(data2.webSpotlight);
+  has("livePreview") && expect(data1.livePreview).not.toStrictEqual(data2.livePreview);
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
@@ -204,33 +205,22 @@ export const prepareReferences = (data: AllEnvData, options?: EnvironmentsOption
   items: data.items.map(createPrepareItemReferences(data)),
   variants: data.variants.map(createPrepareVariantReferences(data)),
   webhooks: data.webhooks.map(createPrepareWebhookReferences(data)),
-  webSpotlight: {
-    enabled: data.webSpotlight.enabled,
-    root_type:
-      data.webSpotlight.root_type && data.webSpotlight.enabled
-        ? {
-            id:
-              data.types.find((t) => t.id === data.webSpotlight.root_type?.id)?.codename ??
-              "non-existing-type",
-          }
-        : null,
-  },
+  livePreview: data.livePreview,
 });
 
 type PrepareReferencesCreator<T> = (data: AllEnvData) => PrepareReferencesFnc<T>;
 type PrepareReferencesFnc<T> = (entity: T) => T;
 
-const createPrepareSpaceReferences: PrepareReferencesCreator<SpaceContracts.ISpaceContract> =
-  (data) => (space) => ({
-    ...space,
-    id: "-",
-    collections: space.collections?.map((c) => ({
-      id: data.collections.find((col) => col.id === c.id)?.codename,
-    })),
-    web_spotlight_root_item: space.web_spotlight_root_item
-      ? { id: data.items.find((i) => i.id === space.web_spotlight_root_item?.id)?.codename }
-      : undefined,
-  });
+const createPrepareSpaceReferences: PrepareReferencesCreator<BackupSpace> = (data) => (space) => ({
+  ...omit(space, ["root_item"]),
+  id: "-",
+  collections: space.collections?.map((c) => ({
+    id: data.collections.find((col) => col.id === c.id)?.codename,
+  })),
+  root_item: space.root_item
+    ? { id: data.items.find((i) => i.id === space.root_item?.id)?.codename }
+    : undefined,
+});
 
 const createPreparePreviewUrlReferences: PrepareReferencesCreator<
   PreviewContracts.IPreviewConfigurationContract

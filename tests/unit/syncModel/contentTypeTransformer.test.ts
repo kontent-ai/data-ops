@@ -40,10 +40,7 @@ const createEnvironmentModel = (contentTypes: ReadonlyArray<ContentTypeWithUnion
   assetFolders: [],
   collections: [],
   spaces: [],
-  webSpotlight: {
-    enabled: false,
-    root_type: null,
-  },
+  livePreview: { status: "disabled" },
   languages: [],
   assets: [],
   items: [],

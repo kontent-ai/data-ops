@@ -16,6 +16,7 @@ import {
   contentTypeSnippetsFileName,
   contentTypesFileName,
   languagesFileName,
+  livePreviewFileName,
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
@@ -27,11 +28,12 @@ import {
   SyncAssetFolderSchema,
   SyncCollectionsSchema,
   SyncLanguageSchema,
+  SyncLegacyWebSpotlightSchema,
+  SyncLivePreviewSchema,
   SyncSnippetsSchema,
   SyncSpacesSchema,
   SyncTaxonomySchema,
   SyncTypesSchema,
-  SyncWebSpotlightSchema,
   SyncWorkflowSchema,
 } from "../validation/syncSchemas.js";
 import { getRequiredCodenames } from "./contentTypeHelpers.js";
@@ -72,13 +74,19 @@ const readContentModelFromFolder = async (
         ] as const)
       : undefined;
 
+  // Prefer the new livePreview.json; fall back to the legacy webSpotlight.json shape
+  // (its `enabled` boolean becomes `status: "enabled" | "disabled"`, root_type is dropped).
+  const livePreviewEntry =
+    (await parseEntity("livePreview", livePreviewFileName, SyncLivePreviewSchema)) ??
+    (await parseEntity("livePreview", webSpotlightFileName, SyncLegacyWebSpotlightSchema));
+
   const parseResults = (
     [
       await parseEntity("contentTypes", contentTypesFileName, SyncTypesSchema),
       await parseEntity("contentTypeSnippets", contentTypeSnippetsFileName, SyncSnippetsSchema),
       await parseEntity("taxonomies", taxonomiesFileName, SyncTaxonomySchema),
       await parseEntity("collections", collectionsFileName, SyncCollectionsSchema),
-      await parseEntity("webSpotlight", webSpotlightFileName, SyncWebSpotlightSchema),
+      livePreviewEntry,
       await parseEntity("assetFolders", assetFoldersFileName, SyncAssetFolderSchema),
       await parseEntity("spaces", spacesFileName, SyncSpacesSchema),
       await parseEntity("languages", languagesFileName, SyncLanguageSchema),
@@ -105,10 +113,7 @@ const createFullContentModel = (partialModel: Partial<FileContentModel>): FileCo
   contentTypes: partialModel.contentTypes ?? [],
   contentTypeSnippets: partialModel.contentTypeSnippets ?? [],
   taxonomies: partialModel.taxonomies ?? [],
-  webSpotlight: partialModel.webSpotlight ?? {
-    root_type: { codename: "non-existent" },
-    enabled: false,
-  },
+  livePreview: partialModel.livePreview ?? { status: "disabled" },
   assetFolders: partialModel.assetFolders ?? [],
   collections: partialModel.collections ?? [],
   spaces: partialModel.spaces ?? [],
@@ -173,9 +178,7 @@ export const getSourceItemAndAssetCodenames = (
     {
       assetCodenames: new Set(),
       itemCodenames: new Set(
-        sourceModel.spaces
-          .map((s) => s.web_spotlight_root_item?.codename)
-          .filter(notNullOrUndefined),
+        sourceModel.spaces.map((s) => s.root_item?.codename).filter(notNullOrUndefined),
       ),
     },
   );

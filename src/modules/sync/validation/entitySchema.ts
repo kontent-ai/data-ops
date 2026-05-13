@@ -9,9 +9,9 @@ import type {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   LanguageSyncModel,
+  LivePreviewSyncModel,
   SpaceSyncModel,
   TaxonomySyncModel,
-  WebSpotlightSyncModel,
   WorkflowSyncModel,
 } from "../types/syncModel.js";
 import { CodenameReferenceSchema } from "./commonSchemas.js";
@@ -21,32 +21,32 @@ import {
   TypeElementWithGroupSchemasUnion,
 } from "./elementSchemas.js";
 
-export const AssetFolderSchema: z.ZodType<AssetFolderSyncModel> = z.strictObject({
+export const AssetFolderSchema: z.ZodType<AssetFolderSyncModel> = z.object({
   name: z.string(),
   folders: z.lazy(() => AssetFolderSchema.array()),
   codename: z.string(),
 } satisfies RequiredZodObject<AssetFolderSyncModel>);
 
-export const TaxonomySchema: z.ZodType<TaxonomySyncModel> = z.strictObject({
+export const TaxonomySchema: z.ZodType<TaxonomySyncModel> = z.object({
   name: z.string(),
   codename: z.string(),
   terms: z.lazy(() => TaxonomySchema.array()),
 } satisfies RequiredZodObject<TaxonomySyncModel>);
 
-export const SnippetSchema = z.strictObject({
+export const SnippetSchema = z.object({
   name: z.string(),
   codename: z.string(),
   elements: z.array(SnippetElementsSchemasUnion),
 } satisfies RequiredZodObject<ContentTypeSnippetsSyncModel>);
 
-const ContentGroupSchema = z.strictObject({ codename: z.string(), name: z.string() });
+const ContentGroupSchema = z.object({ codename: z.string(), name: z.string() });
 
 export const TypeSchema: z.ZodType<
   ContentTypeSyncModel,
   z.ZodTypeDef,
   Pick<ContentTypeSyncModel, "content_groups">
 > = z
-  .strictObject({ content_groups: z.array(ContentGroupSchema) })
+  .object({ content_groups: z.array(ContentGroupSchema) })
   .passthrough()
   .transform((obj) => ({
     ...obj,
@@ -55,14 +55,14 @@ export const TypeSchema: z.ZodType<
   .pipe(
     z
       .discriminatedUnion("groups_number", [
-        z.strictObject({
+        z.object({
           name: z.string(),
           codename: z.string(),
           groups_number: z.literal("zero"),
           content_groups: z.array(ContentGroupSchema).length(0),
           elements: z.array(TypeElementsSchemasUnion),
         }),
-        z.strictObject({
+        z.object({
           name: z.string(),
           codename: z.string(),
           groups_number: z.literal("multiple"),
@@ -84,31 +84,45 @@ export const TypeSchema: z.ZodType<
   )
   .transform((obj) => omit(obj, ["groups_number"]));
 
-export const WebSpotlightSchema = z.strictObject({
-  enabled: z.boolean(),
-  root_type: CodenameReferenceSchema.nullable(),
-} satisfies RequiredZodObject<WebSpotlightSyncModel>);
+export const LivePreviewSchema = z.object({
+  status: z.string(),
+} satisfies RequiredZodObject<LivePreviewSyncModel>);
 
-export const CollectionSchema = z.strictObject({
+// Legacy webSpotlight.json shape; root_type is dropped silently because the
+// new live_preview endpoint has no global root concept (per-space root_item handles it).
+export const LegacyWebSpotlightSchema: z.ZodType<LivePreviewSyncModel, z.ZodTypeDef, unknown> = z
+  .object({
+    enabled: z.boolean(),
+    root_type: CodenameReferenceSchema.nullable(),
+  })
+  .transform(({ enabled }) => ({ status: enabled ? "enabled" : "disabled" }));
+
+export const CollectionSchema = z.object({
   name: z.string(),
   codename: z.string(),
 } satisfies RequiredZodObject<CollectionSyncModel>);
 
-export const SpaceSchema = z.strictObject({
-  name: z.string(),
-  codename: z.string(),
-  web_spotlight_root_item: CodenameReferenceSchema.optional(),
-  collections: z.array(CodenameReferenceSchema),
-} satisfies RequiredZodObject<SpaceSyncModel>);
+export const SpaceSchema: z.ZodType<SpaceSyncModel, z.ZodTypeDef, unknown> = z
+  .object({
+    name: z.string(),
+    codename: z.string(),
+    web_spotlight_root_item: CodenameReferenceSchema.optional(),
+    root_item: CodenameReferenceSchema.optional(),
+    collections: z.array(CodenameReferenceSchema),
+  })
+  .transform(({ web_spotlight_root_item, root_item, ...rest }) => ({
+    ...rest,
+    root_item: root_item ?? web_spotlight_root_item,
+  }));
 
 export const LanguageSchema = z.discriminatedUnion("is_default", [
-  z.strictObject({
+  z.object({
     name: z.string(),
     codename: z.string(),
     is_active: z.boolean(),
     is_default: z.literal(true),
   } satisfies RequiredZodObject<Omit<LanguageSyncModel, "fallback_language">>),
-  z.strictObject({
+  z.object({
     name: z.string(),
     codename: z.string(),
     is_active: z.boolean(),
@@ -144,32 +158,32 @@ const WorkflowColorSchema = z.enum(
   >,
 );
 
-const WorkflowPublishedStepSchema = z.strictObject({
+const WorkflowPublishedStepSchema = z.object({
   name: z.string(),
   codename: z.string(),
   create_new_version_role_ids: z.array(z.string()).length(0),
   unpublish_role_ids: z.array(z.string()).length(0),
 } satisfies RequiredZodObject<Omit<WorkflowContracts.IWorkflowPublishedStepContract, "id">>);
 
-const WorkflowArchivedStepSchema = z.strictObject({
+const WorkflowArchivedStepSchema = z.object({
   name: z.string(),
   codename: z.string(),
   role_ids: z.array(z.string()).length(0),
 } satisfies RequiredZodObject<Omit<WorkflowContracts.IWorkflowArchivedStepContract, "id">>);
 
-const WorkflowStepSchema = z.strictObject({
+const WorkflowStepSchema = z.object({
   name: z.string(),
   codename: z.string(),
   color: WorkflowColorSchema,
-  transitions_to: z.array(z.strictObject({ step: CodenameReferenceSchema })),
+  transitions_to: z.array(z.object({ step: CodenameReferenceSchema })),
   role_ids: z.array(z.string()).length(0),
 } satisfies RequiredZodObject<Omit<WorkflowContracts.IWorkflowStepNewContract, "id">>);
 
-export const WorkflowSchema = z.strictObject({
+export const WorkflowSchema = z.object({
   name: z.string(),
   codename: z.string(),
   scopes: z.array(
-    z.strictObject({
+    z.object({
       content_types: z.array(CodenameReferenceSchema),
       collections: z.array(CodenameReferenceSchema),
     }),

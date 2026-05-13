@@ -4,11 +4,12 @@ import {
   AssetFolderSchema,
   CollectionSchema,
   LanguageSchema,
+  LegacyWebSpotlightSchema,
+  LivePreviewSchema,
   SnippetSchema,
   SpaceSchema,
   TaxonomySchema,
   TypeSchema,
-  WebSpotlightSchema,
   WorkflowSchema,
 } from "./entitySchema.js";
 
@@ -19,5 +20,6 @@ export const SyncCollectionsSchema = z.array(CollectionSchema);
 export const SyncLanguageSchema = z.array(LanguageSchema);
 export const SyncAssetFolderSchema = z.array(AssetFolderSchema);
 export const SyncSpacesSchema = z.array(SpaceSchema);
-export const SyncWebSpotlightSchema = WebSpotlightSchema;
+export const SyncLivePreviewSchema = LivePreviewSchema;
+export const SyncLegacyWebSpotlightSchema = LegacyWebSpotlightSchema;
 export const SyncWorkflowSchema = z.array(WorkflowSchema);

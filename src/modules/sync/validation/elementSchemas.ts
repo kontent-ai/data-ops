@@ -24,13 +24,13 @@ import type {
 } from "../types/syncModel.js";
 import { CodenameReferenceSchema } from "./commonSchemas.js";
 
-export const AssetElementDataSchema = z.strictObject({
+export const AssetElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("asset"),
   guidelines: z.string().optional(),
   asset_count_limit: z
-    .strictObject({
+    .object({
       value: z.number(),
       condition: z.enum(["at_most", "exactly", "at_least"]),
     })
@@ -38,13 +38,13 @@ export const AssetElementDataSchema = z.strictObject({
   maximum_file_size: z.number().optional(),
   allowed_file_types: z.enum(["adjustable", "any"]).optional(),
   image_width_limit: z
-    .strictObject({
+    .object({
       value: z.number(),
       condition: z.enum(["at_most", "exactly", "at_least"]),
     })
     .optional(),
   image_height_limit: z
-    .strictObject({
+    .object({
       value: z.number(),
       condition: z.enum(["at_most", "exactly", "at_least"]),
     })
@@ -52,15 +52,15 @@ export const AssetElementDataSchema = z.strictObject({
   is_required: z.boolean().optional(),
   is_non_localizable: z.boolean().optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.array(CodenameReferenceSchema.extend({ external_id: z.string() })),
       }),
     })
     .optional(),
 } satisfies RequiredZodObject<SyncSnippetAssetElement>);
 
-export const CustomElementDataSchema = z.strictObject({
+export const CustomElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("custom"),
@@ -72,7 +72,7 @@ export const CustomElementDataSchema = z.strictObject({
   allowed_elements: z.array(CodenameReferenceSchema).optional(),
 } satisfies RequiredZodObject<SyncSnippetCustomElement>);
 
-export const DateTimeElementDataSchema = z.strictObject({
+export const DateTimeElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("date_time"),
@@ -80,25 +80,25 @@ export const DateTimeElementDataSchema = z.strictObject({
   is_non_localizable: z.boolean().optional(),
   guidelines: z.string().optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.string(),
       }),
     })
     .optional(),
 } satisfies RequiredZodObject<SyncSnippetDateTimeElement>);
 
-export const GuidelinesElementDataSchema = z.strictObject({
+export const GuidelinesElementDataSchema = z.object({
   codename: z.string(),
   guidelines: z.string(),
   type: z.literal("guidelines"),
 } satisfies RequiredZodObject<SyncSnippetGuidelinesElement>);
 
-export const LinkedItemsElementDataSchema = z.strictObject({
+export const LinkedItemsElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   item_count_limit: z
-    .strictObject({
+    .object({
       value: z.number(),
       condition: z.enum(["at_most", "exactly", "at_least"]),
     })
@@ -109,20 +109,20 @@ export const LinkedItemsElementDataSchema = z.strictObject({
   is_required: z.boolean().optional(),
   is_non_localizable: z.boolean().optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.array(CodenameReferenceSchema.extend({ external_id: z.string() })),
       }),
     })
     .optional(),
 } satisfies RequiredZodObject<SyncSnippetLinkedItemsElement>);
 
-const MultipleChoiceOptionSchema = z.strictObject({
+const MultipleChoiceOptionSchema = z.object({
   name: z.string(),
   codename: z.string(),
 });
 
-export const MultipleChoiceElementDataSchema = z.strictObject({
+export const MultipleChoiceElementDataSchema = z.object({
   mode: z.enum(["single", "multiple"]),
   options: z.array(MultipleChoiceOptionSchema),
   codename: z.string(),
@@ -132,15 +132,15 @@ export const MultipleChoiceElementDataSchema = z.strictObject({
   is_non_localizable: z.boolean().optional(),
   guidelines: z.string().optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.array(CodenameReferenceSchema),
       }),
     })
     .optional(),
 } satisfies RequiredZodObject<SyncSnippetMultipleChoiceElement>);
 
-export const NumberElementDataSchema = z.strictObject({
+export const NumberElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("number"),
@@ -148,8 +148,8 @@ export const NumberElementDataSchema = z.strictObject({
   is_non_localizable: z.boolean().optional(),
   guidelines: z.string().optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.number(),
       }),
     })
@@ -230,21 +230,21 @@ const RichTextAllowedFormattingSchema = z.enum(
   >,
 );
 
-export const RichTextElementDataSchema = z.strictObject({
+export const RichTextElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("rich_text"),
   maximum_text_length: z
-    .strictObject({ value: z.number(), applies_to: z.enum(["words", "characters"]) })
+    .object({ value: z.number(), applies_to: z.enum(["words", "characters"]) })
     .optional(),
   maximum_image_size: z.number().optional(),
   allowed_content_types: z.array(CodenameReferenceSchema).optional(),
   allowed_item_link_types: z.array(CodenameReferenceSchema).optional(),
   image_width_limit: z
-    .strictObject({ value: z.number(), condition: RichTextImageConditionSchema })
+    .object({ value: z.number(), condition: RichTextImageConditionSchema })
     .optional(),
   image_height_limit: z
-    .strictObject({ value: z.number(), condition: RichTextImageConditionSchema })
+    .object({ value: z.number(), condition: RichTextImageConditionSchema })
     .optional(),
   allowed_image_types: z.enum(["adjustable", "any"]).optional(),
   is_required: z.boolean().optional(),
@@ -258,12 +258,12 @@ export const RichTextElementDataSchema = z.strictObject({
   allowed_table_formatting: z.array(RichTextAllowedFormattingSchema).optional(),
 } satisfies RequiredZodObject<SyncSnippetRichTextElement>);
 
-export const SubpagesElementDataSchema = z.strictObject({
+export const SubpagesElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("subpages"),
   item_count_limit: z
-    .strictObject({
+    .object({
       value: z.number(),
       condition: z.enum(["at_most", "exactly", "at_least"]),
     })
@@ -273,21 +273,21 @@ export const SubpagesElementDataSchema = z.strictObject({
   is_required: z.boolean().optional(),
   is_non_localizable: z.boolean().optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.array(CodenameReferenceSchema.extend({ external_id: z.string() })),
       }),
     })
     .optional(),
 } satisfies RequiredZodObject<Omit<SyncSubpagesElement, "content_group">>);
 
-export const SnippetElementDataSchema = z.strictObject({
+export const SnippetElementDataSchema = z.object({
   codename: z.string(),
   type: z.literal("snippet"),
   snippet: CodenameReferenceSchema,
 } satisfies RequiredZodObject<Omit<SyncTypeSnippetElement, "content_group">>);
 
-export const TaxonomyElementDataSchema = z.strictObject({
+export const TaxonomyElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("taxonomy"),
@@ -296,21 +296,21 @@ export const TaxonomyElementDataSchema = z.strictObject({
   is_required: z.boolean().optional(),
   is_non_localizable: z.boolean().optional(),
   term_count_limit: z
-    .strictObject({
+    .object({
       value: z.number(),
       condition: z.enum(["at_most", "exactly", "at_least"]),
     })
     .optional(),
   default: z
-    .strictObject({
-      global: z.strictObject({
+    .object({
+      global: z.object({
         value: z.array(CodenameReferenceSchema),
       }),
     })
     .optional(),
 } satisfies RequiredZodObject<SyncSnippetTaxonomyElement>);
 
-export const TextElementDataSchema = z.strictObject({
+export const TextElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("text"),
@@ -318,11 +318,11 @@ export const TextElementDataSchema = z.strictObject({
   is_non_localizable: z.boolean().optional(),
   guidelines: z.string().optional(),
   maximum_text_length: z
-    .strictObject({ value: z.number(), applies_to: z.enum(["words", "characters"]) })
+    .object({ value: z.number(), applies_to: z.enum(["words", "characters"]) })
     .optional(),
-  default: z.strictObject({ global: z.strictObject({ value: z.string() }) }).optional(),
+  default: z.object({ global: z.object({ value: z.string() }) }).optional(),
   validation_regex: z
-    .strictObject({
+    .object({
       is_active: z.boolean(),
       regex: z.string(),
       flags: z.string().nullable().optional(),
@@ -331,11 +331,11 @@ export const TextElementDataSchema = z.strictObject({
     .optional(),
 } satisfies RequiredZodObject<SyncSnippetTextElement>);
 
-export const UrlSlugElementDataSchema = z.strictObject({
+export const UrlSlugElementDataSchema = z.object({
   name: z.string(),
   codename: z.string(),
   type: z.literal("url_slug"),
-  depends_on: z.strictObject({
+  depends_on: z.object({
     element: CodenameReferenceSchema,
     snippet: CodenameReferenceSchema.optional(),
   }),
@@ -343,7 +343,7 @@ export const UrlSlugElementDataSchema = z.strictObject({
   is_non_localizable: z.boolean().optional(),
   guidelines: z.string().optional(),
   validation_regex: z
-    .strictObject({
+    .object({
       is_active: z.boolean(),
       regex: z.string(),
       flags: z.string().optional(),
@@ -372,7 +372,7 @@ const TypeElementSchemas = [
   UrlSlugElementDataSchema,
 ] as const;
 
-const ContentGroupSchema = z.strictObject({
+const ContentGroupSchema = z.object({
   content_group: CodenameReferenceSchema,
 });
 

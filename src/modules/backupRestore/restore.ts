@@ -1,6 +1,6 @@
 import type { ManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
-import StreamZip from "node-stream-zip";
+import StreamZip, { type StreamZipAsync } from "node-stream-zip";
 
 import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
@@ -19,11 +19,11 @@ import {
 } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
 import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
+import { livePreviewEntity } from "./backupRestoreEntities/entities/livePreview.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
 import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
-import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import {
   importWorkflowScopesEntity,
   workflowsEntity,
@@ -46,7 +46,7 @@ export const restoreEntityDefinitions = [
   assetsEntity,
   contentTypesSnippetsEntity,
   contentTypesEntity,
-  webSpotlightEntity,
+  livePreviewEntity,
   contentItemsEntity,
   updateItemAndTypeReferencesInSnippetsImportEntity,
   updateItemAndTypeReferencesInTypesImportEntity,
@@ -107,20 +107,16 @@ export const restoreEnvironmentInternal = async (
       logInfo(params, "standard", `Importing: ${chalk.yellow(def.displayName)}`);
 
       try {
+        const legacyName = (def as EntityDefinition<unknown>).legacyName;
+        const serialized = await readEntryWithLegacyFallback(root, def.name, legacyName);
         context =
-          (await root
-            .entryData(`${def.name}.json`)
-            .then((b) => b.toString("utf8"))
-            .then(def.deserializeEntities)
-            .then((e) =>
-              (def as EntityDefinition<unknown>).importEntities(client, {
-                entities: e,
-                context,
-                logOptions: params,
-                zip: root,
-                options: params.options,
-              }),
-            )) ?? context;
+          (await (def as EntityDefinition<unknown>).importEntities(client, {
+            entities: def.deserializeEntities(serialized),
+            context,
+            logOptions: params,
+            zip: root,
+            options: params.options,
+          })) ?? context;
       } catch (err) {
         throw new Error(`Failed to import entity ${chalk.red(def.displayName)}.
         ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`);
@@ -129,6 +125,27 @@ export const restoreEnvironmentInternal = async (
   );
 
   logInfo(params, "standard", chalk.green("All entities were successfully imported."));
+};
+
+// Reads `${name}.json` from the ZIP; if that entry is missing and a legacyName is
+// provided, falls back to `${legacyName}.json`. The entity's deserializeEntities is
+// responsible for shape normalization when the legacy entry is found.
+const readEntryWithLegacyFallback = async (
+  root: StreamZipAsync,
+  name: string,
+  legacyName: string | undefined,
+): Promise<string> => {
+  const primary = await root
+    .entryData(`${name}.json`)
+    .then((b) => b.toString("utf8"))
+    .catch(() => undefined);
+  if (primary !== undefined) {
+    return primary;
+  }
+  if (legacyName) {
+    return (await root.entryData(`${legacyName}.json`)).toString("utf8");
+  }
+  throw new Error(`ZIP entry "${name}.json" not found.`);
 };
 
 const createInitialContext = (): RestoreContext => ({

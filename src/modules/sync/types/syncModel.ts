@@ -7,7 +7,6 @@ import type {
   LanguageContracts,
   SpaceContracts,
   TaxonomyContracts,
-  WebSpotlightContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 
@@ -134,10 +133,7 @@ export type ContentTypeSyncModel = Replace<
   }>
 >;
 
-export type WebSpotlightSyncModel = Replace<
-  WebSpotlightContracts.IWebSpotlightStatus,
-  { root_type: Readonly<{ codename: string }> | null }
->;
+export type LivePreviewSyncModel = Readonly<{ status: string }>;
 
 export type CollectionSyncModel = Omit<CollectionContracts.ICollectionContract, "id">;
 
@@ -147,12 +143,12 @@ export type AssetFolderSyncModel = Replace<
 >;
 
 export type SpaceSyncModel = Replace<
-  Omit<SpaceContracts.ISpaceContract, "id">,
+  Omit<SpaceContracts.ISpaceContract, "id" | "web_spotlight_root_item">,
   Readonly<{
-    web_spotlight_root_item?: Readonly<{ codename: string }>;
     collections: ReadonlyArray<Readonly<{ codename: string }>>;
   }>
->;
+> &
+  Readonly<{ root_item?: Readonly<{ codename: string }> }>;
 
 export type LanguageSyncModel = Replace<
   Omit<LanguageContracts.ILanguageModelContract, "id" | "external_id">,

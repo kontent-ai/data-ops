@@ -29,7 +29,7 @@ describe("transformSpacesModel", () => {
       collections: [
         { id: "6b3df4c1-fa0a-4da6-8231-9526d0c91dfc", name: "collection", codename: "collection" },
       ],
-      webSpotlight: { enabled: false, root_type: null },
+      livePreview: { status: "disabled" },
       taxonomyGroups: [],
       contentTypes: [],
       languages: [],
@@ -45,7 +45,7 @@ describe("transformSpacesModel", () => {
       {
         name: "space1",
         codename: "space1",
-        web_spotlight_root_item: { codename: "rootItem" },
+        root_item: { codename: "rootItem" },
         collections: [{ codename: "collection" }],
       },
     ]);

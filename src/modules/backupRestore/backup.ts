@@ -17,12 +17,12 @@ import { contentTypesEntity } from "./backupRestoreEntities/entities/contentType
 import { contentTypesSnippetsEntity } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
 import { languageVariantsEntity } from "./backupRestoreEntities/entities/languageVariants.js";
+import { livePreviewEntity } from "./backupRestoreEntities/entities/livePreview.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { rolesExportEntity } from "./backupRestoreEntities/entities/roles.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
 import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
-import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import { workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
 import type {
   AnyEntityBackupDefinition,
@@ -47,7 +47,7 @@ export const backupEntityDefinitions = [
   assetFoldersEntity,
   assetsEntity,
   webhooksEntity,
-  webSpotlightEntity,
+  livePreviewEntity,
 ] as const satisfies ReadonlyArray<AnyEntityBackupDefinition>;
 
 export const backupEntityChoices = backupEntityDefinitions.map((e) => e.name);

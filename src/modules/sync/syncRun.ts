@@ -41,6 +41,7 @@ export type SyncEntities = Partial<
       spaces: (space: SpaceSyncModel) => boolean;
       languages: (language: LanguageSyncModel) => boolean;
       workflows: (workflow: WorkflowSyncModel) => boolean;
+      livePreview: boolean;
       webSpotlight: boolean;
     }
   >
