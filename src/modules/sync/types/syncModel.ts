@@ -147,12 +147,12 @@ export type AssetFolderSyncModel = Replace<
 >;
 
 export type SpaceSyncModel = Replace<
-  Omit<SpaceContracts.ISpaceContract, "id">,
+  Omit<SpaceContracts.ISpaceContract, "id" | "web_spotlight_root_item">,
   Readonly<{
-    web_spotlight_root_item?: Readonly<{ codename: string }>;
     collections: ReadonlyArray<Readonly<{ codename: string }>>;
   }>
->;
+> &
+  Readonly<{ root_item?: Readonly<{ codename: string }> }>;
 
 export type LanguageSyncModel = Replace<
   Omit<LanguageContracts.ILanguageModelContract, "id" | "external_id">,

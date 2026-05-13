@@ -1,10 +1,19 @@
-import type { SpaceContracts } from "@kontent-ai/management-sdk";
+import type { SharedContracts, SpaceContracts, SpaceModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo } from "../../../../log.js";
 import { serially } from "../../../../utils/requests.js";
 import { getRequired } from "../../utils/utils.js";
 import type { EntityDefinition } from "../entityDefinition.js";
+
+// SDK does not yet expose `root_item` on ISpaceContract; MAPI returns it during
+// the transition from `web_spotlight_root_item`. Read either, internally only use root_item.
+type SpaceWithRootItem = Readonly<{
+  root_item?: SharedContracts.IReferenceObjectContract;
+}>;
+
+export type BackupSpace = Omit<SpaceContracts.ISpaceContract, "web_spotlight_root_item"> &
+  SpaceWithRootItem;
 
 export const spacesEntity = {
   name: "spaces",
@@ -13,7 +22,14 @@ export const spacesEntity = {
     client
       .listSpaces()
       .toPromise()
-      .then((res) => res.rawData),
+      .then((res) =>
+        res.rawData.map((space): BackupSpace => {
+          const { web_spotlight_root_item, ...rest } = space;
+          const rootItem =
+            (space as typeof space & SpaceWithRootItem).root_item ?? web_spotlight_root_item;
+          return { ...rest, root_item: rootItem };
+        }),
+      ),
   serializeEntities: (spaces) => JSON.stringify(spaces),
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities, context, logOptions }) => {
@@ -24,6 +40,14 @@ export const spacesEntity = {
           "verbose",
           `Importing: space ${importSpace.id} (${chalk.yellow(importSpace.name)})`,
         );
+
+        // Older backups carry the legacy `web_spotlight_root_item`; newer ones carry `root_item`.
+        const legacyRoot = (
+          importSpace as BackupSpace & {
+            web_spotlight_root_item?: SharedContracts.IReferenceObjectContract;
+          }
+        ).web_spotlight_root_item;
+        const importRootItem = importSpace.root_item ?? legacyRoot;
 
         return client
           .addSpace()
@@ -37,16 +61,20 @@ export const spacesEntity = {
                 "collection",
               ),
             })),
-            web_spotlight_root_item: importSpace.web_spotlight_root_item
+            // MAPI accepts `root_item`; SDK types still only expose `web_spotlight_root_item`,
+            // hence the cast.
+            ...(importRootItem
               ? {
-                  id: getRequired(
-                    context.contentItemContextByOldIds,
-                    importSpace.web_spotlight_root_item.id ?? "missing-ws-root-id",
-                    "item",
-                  ).selfId,
+                  root_item: {
+                    id: getRequired(
+                      context.contentItemContextByOldIds,
+                      importRootItem.id ?? "missing-ws-root-id",
+                      "item",
+                    ).selfId,
+                  },
                 }
-              : undefined,
-          })
+              : {}),
+          } as unknown as SpaceModels.IAddSpaceData)
           .toPromise();
       }),
     );
@@ -77,4 +105,4 @@ export const spacesEntity = {
       spaces.map((space) => () => client.deleteSpace().bySpaceId(space.id).toPromise()),
     );
   },
-} as const satisfies EntityDefinition<ReadonlyArray<SpaceContracts.ISpaceContract>>;
+} as const satisfies EntityDefinition<ReadonlyArray<BackupSpace>>;

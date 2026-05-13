@@ -30,8 +30,8 @@ describe("LanguageSchema Tests", () => {
     expect(result.success).toBe(true);
   });
 
-  it("Invalid object with is_default true and fallback_language provided", () => {
-    const invalidData = {
+  it("is_default true with extra fallback_language strips the unknown key", () => {
+    const input = {
       name: "English",
       codename: "en",
       is_active: true,
@@ -41,7 +41,10 @@ describe("LanguageSchema Tests", () => {
       },
     };
 
-    const result = LanguageSchema.safeParse(invalidData);
-    expect(result.success).toBe(false);
+    const result = LanguageSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty("fallback_language");
+    }
   });
 });

@@ -10,6 +10,7 @@ import {
   ManagementClient,
   type PreviewContracts,
   type RoleContracts,
+  type SharedContracts,
   type SpaceContracts,
   type TaxonomyContracts,
   type WebhookContracts,
@@ -19,8 +20,18 @@ import {
 import { config as dotenvConfig } from "dotenv";
 import StreamZip, { type StreamZipAsync } from "node-stream-zip";
 
+import type { BackupSpace } from "../../../../src/modules/backupRestore/backupRestoreEntities/entities/spaces.ts";
 import { serially } from "../../../../src/utils/requests.ts";
 import type { FilterParam } from "./compare.ts";
+
+// MAPI is transitioning from `web_spotlight_root_item` to `root_item`; normalize to a single canonical key.
+const normalizeSpace = (space: SpaceContracts.ISpaceContract): BackupSpace => {
+  const { web_spotlight_root_item, ...rest } = space;
+  const rootItem =
+    (space as typeof space & { root_item?: SharedContracts.IReferenceObjectContract }).root_item ??
+    web_spotlight_root_item;
+  return { ...rest, root_item: rootItem };
+};
 
 dotenvConfig();
 
@@ -32,7 +43,7 @@ if (!API_KEY) {
 
 export type AllEnvData = Readonly<{
   collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
-  spaces: ReadonlyArray<SpaceContracts.ISpaceContract>;
+  spaces: ReadonlyArray<BackupSpace>;
   languages: ReadonlyArray<LanguageContracts.ILanguageModelContract>;
   previewUrls: PreviewContracts.IPreviewConfigurationContract;
   taxonomies: ReadonlyArray<TaxonomyContracts.ITaxonomyContract>;
@@ -100,7 +111,7 @@ const loadData = async (
       ? await client
           .listSpaces()
           .toPromise()
-          .then((res) => res.rawData)
+          .then((res) => res.rawData.map(normalizeSpace))
       : [],
     languages: has("languages")
       ? await client
