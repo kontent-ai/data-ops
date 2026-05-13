@@ -101,7 +101,7 @@ export const expectSameAllEnvData = (
     expect(sortBy(data1.webhooks, (w) => w.name)).toStrictEqual(
       sortBy(data2.webhooks, (w) => w.name),
     );
-  has("webSpotlight") && expect(data1.webSpotlight).toStrictEqual(data2.webSpotlight);
+  has("livePreview") && expect(data1.livePreview).toStrictEqual(data2.livePreview);
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
@@ -161,7 +161,7 @@ export const expectDifferentAllEnvData = (
     expect(sortBy(data1.webhooks, (w) => w.name)).not.toStrictEqual(
       sortBy(data2.webhooks, (w) => w.name),
     );
-  has("webSpotlight") && expect(data1.webSpotlight).not.toStrictEqual(data2.webSpotlight);
+  has("livePreview") && expect(data1.livePreview).not.toStrictEqual(data2.livePreview);
   /* eslint-enable @typescript-eslint/no-unused-expressions */
 };
 
@@ -205,17 +205,7 @@ export const prepareReferences = (data: AllEnvData, options?: EnvironmentsOption
   items: data.items.map(createPrepareItemReferences(data)),
   variants: data.variants.map(createPrepareVariantReferences(data)),
   webhooks: data.webhooks.map(createPrepareWebhookReferences(data)),
-  webSpotlight: {
-    enabled: data.webSpotlight.enabled,
-    root_type:
-      data.webSpotlight.root_type && data.webSpotlight.enabled
-        ? {
-            id:
-              data.types.find((t) => t.id === data.webSpotlight.root_type?.id)?.codename ??
-              "non-existing-type",
-          }
-        : null,
-  },
+  livePreview: data.livePreview,
 });
 
 type PrepareReferencesCreator<T> = (data: AllEnvData) => PrepareReferencesFnc<T>;

@@ -6,10 +6,16 @@ import chalk from "chalk";
 import { serially } from "../../utils/requests.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
 import { elementTypes } from "./constants/elements.js";
-import { entityToFilename, type SyncEntityName } from "./constants/entities.js";
+import { entityToFilenames, type SyncEntityName } from "./constants/entities.js";
 import type { ElementsTypes } from "./types/contractModels.js";
 import type { DiffModel } from "./types/diffModel.js";
 import { getTargetCodename, type PatchOperation } from "./types/patchOperation.js";
+
+const fileExists = (filePath: string): Promise<boolean> =>
+  fs.stat(filePath).then(
+    () => true,
+    () => false,
+  );
 
 export const validateSyncModelFolder = async (
   folderPath: string,
@@ -21,17 +27,22 @@ export const validateSyncModelFolder = async (
     return [`The provided path ${chalk.yellow(folderPath)} is not a valid content model folder`];
   }
 
-  const filenames = entities.map((entity) => entityToFilename[entity]);
+  const fileErrors = await Promise.all(
+    entities.map(async (entity) => {
+      const candidates = entityToFilenames[entity];
+      const presenceChecks = await Promise.all(
+        candidates.map((filename) => fileExists(path.resolve(folderPath, filename))),
+      );
+      const isAnyPresent = presenceChecks.some(Boolean);
 
-  const fileStatuses = await Promise.all(
-    filenames.map((filename) =>
-      fs.stat(path.resolve(folderPath, filename)).catch((e) => {
-        return `Could not find required file ${chalk.yellow(filename)} due to ${chalk.red(e)}`;
-      }),
-    ),
+      if (isAnyPresent) {
+        return undefined;
+      }
+      return `Could not find required file ${chalk.yellow(candidates.join(" or "))} in ${chalk.yellow(folderPath)}`;
+    }),
   );
 
-  return fileStatuses.filter((p): p is string => typeof p === "string");
+  return fileErrors.filter(notNullOrUndefined);
 };
 
 export const validateDiffedModel = async (client: ManagementClient, diffedModel: DiffModel) => {

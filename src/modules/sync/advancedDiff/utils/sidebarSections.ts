@@ -32,7 +32,7 @@ const entityMeta: ReadonlyArray<
   { entityName: "assetFolders", sectionId: "assetFolders", title: "Asset folders" },
   { entityName: "collections", sectionId: "collections-section", title: "Collections" },
   { entityName: "languages", sectionId: "languages", title: "Languages" },
-  { entityName: "webSpotlight", sectionId: "web-spotlight", title: "Web Spotlight" },
+  { entityName: "livePreview", sectionId: "live-preview", title: "Live Preview" },
   { entityName: "spaces", sectionId: "spaces", title: "Spaces" },
   { entityName: "workflows", sectionId: "workflows", title: "Workflows" },
 ];
@@ -57,14 +57,14 @@ const computeSidebarItem = (
   title: string,
   diffModel: DiffModel,
 ): SidebarItem => {
-  if (entityName === "webSpotlight") {
-    const ws = diffModel.webSpotlight;
+  if (entityName === "livePreview") {
+    const lp = diffModel.livePreview;
     return {
       kind: "label",
       entityName,
       sectionId,
       title,
-      changeLabel: ws.change === "none" ? null : ws.change,
+      changeLabel: lp.change === "none" ? null : lp.change,
     };
   }
 

@@ -1,13 +1,14 @@
 import { type LogOptions, logError } from "../../../log.js";
 import {
-  type SyncEntityName,
+  type SyncEntityChoice,
+  syncEntities,
   syncEntityChoices,
 } from "../../../modules/sync/constants/entities.js";
 import { syncSnapshotInternal } from "../../../modules/sync/syncSnapshot.js";
-import type { SyncEntities } from "../../../public.js";
 import type { RegisterCommand } from "../../../types/yargs.js";
 import { createClient } from "../../../utils/client.js";
 import { simplifyErrors } from "../../../utils/error.js";
+import { createSyncEntitiesParameter } from "../utils/createSyncEntitiesParameter.js";
 
 const commandName = "snapshot";
 
@@ -35,8 +36,8 @@ export const register: RegisterCommand = (yargs) =>
           type: "array",
           string: true,
           choices: syncEntityChoices,
-          describe: `Snapshot specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}.`,
-          demandOption: "You need to provide the what entities to snapshot.",
+          describe: `Snapshot specified entties. Allowed entities are: ${syncEntities.join(", ")}.`,
+          demandOption: "You need to provide the entities to snapshot.",
         })
         .option("folderName", {
           type: "string",
@@ -54,7 +55,7 @@ export const register: RegisterCommand = (yargs) =>
 type SyncSnapshotCliParams = Readonly<{
   environmentId: string;
   apiKey: string;
-  entities: ReadonlyArray<SyncEntityName>;
+  entities: ReadonlyArray<SyncEntityChoice>;
   folderName: string | undefined;
   kontentUrl: string | undefined;
 }> &
@@ -75,13 +76,4 @@ const syncSnapshotCli = async (params: SyncSnapshotCliParams) => {
     logError(params, JSON.stringify(e, Object.getOwnPropertyNames(e)));
     process.exit(1);
   }
-};
-
-const createSyncEntitiesParameter = (entities: ReadonlyArray<SyncEntityName>): SyncEntities => {
-  const filterEntries = [
-    ...entities.filter((a) => a !== "webSpotlight").map((e) => [e, () => true]),
-    ...(entities.includes("webSpotlight") ? [["webSpotlight", true]] : []),
-  ] as const;
-
-  return Object.fromEntries(filterEntries);
 };

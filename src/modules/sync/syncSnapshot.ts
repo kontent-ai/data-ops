@@ -6,6 +6,7 @@ import { createClient } from "../../utils/client.js";
 import { type SyncEntityName, syncEntityDependencies } from "./constants/entities.js";
 import { fetchModel, filterModel, saveSyncModel, transformSyncModel } from "./generateSyncModel.js";
 import type { SyncEntities } from "./syncRun.js";
+import { normalizeSyncEntitiesAlias } from "./utils/entityAlias.js";
 
 export type SyncSnapshotParams = Readonly<
   {
@@ -30,13 +31,18 @@ export const syncSnapshot = async (params: SyncSnapshotParams) => {
 };
 
 export const syncSnapshotInternal = async (
-  params: SyncSnapshotParams,
+  rawParams: SyncSnapshotParams,
   client: ManagementClient,
 ) => {
+  const params = {
+    ...rawParams,
+    entities: normalizeSyncEntitiesAlias(rawParams.entities, rawParams),
+  };
+
   logInfo(params, "standard", "Fetching the model from ", chalk.yellow(params.environmentId), ".");
 
   const fetchDependencies = new Set(
-    Object.keys(params.entities).flatMap((e) => syncEntityDependencies[e as SyncEntityName]),
+    (Object.keys(params.entities) as SyncEntityName[]).flatMap((e) => syncEntityDependencies[e]),
   );
 
   const environmentModel = await logOnError(chalk.red("Failed to fetch the model."), () =>

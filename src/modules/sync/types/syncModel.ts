@@ -134,6 +134,9 @@ export type ContentTypeSyncModel = Replace<
   }>
 >;
 
+export type LivePreviewSyncModel = Readonly<{ status: "enabled" | "disabled" }>;
+
+/** @deprecated Use {@link LivePreviewSyncModel} instead. */
 export type WebSpotlightSyncModel = Replace<
   WebSpotlightContracts.IWebSpotlightStatus,
   { root_type: Readonly<{ codename: string }> | null }

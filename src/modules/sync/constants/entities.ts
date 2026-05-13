@@ -1,17 +1,18 @@
-import type { SyncEntities } from "../syncRun.js";
+import type { NonEmptyReadonlyArray } from "../../../utils/types.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
   contentTypeSnippetsFileName,
   contentTypesFileName,
   languagesFileName,
+  livePreviewFileName,
   spacesFileName,
   taxonomiesFileName,
   webSpotlightFileName,
   workflowsFileName,
 } from "./filename.js";
 
-export const syncEntityChoices = [
+export const syncEntities = [
   "contentTypes",
   "contentTypeSnippets",
   "taxonomies",
@@ -19,17 +20,19 @@ export const syncEntityChoices = [
   "assetFolders",
   "spaces",
   "languages",
-  "webSpotlight",
+  "livePreview",
   "workflows",
 ] as const;
 
-export type SyncEntityName = (typeof syncEntityChoices)[number];
+export const syncEntityChoices = [...syncEntities, "webSpotlight"] as const;
+
+export type SyncEntityName = (typeof syncEntities)[number];
+export type SyncEntityChoice = (typeof syncEntityChoices)[number];
+
+export const legacyWebSpotlightAlias = "webSpotlight" satisfies SyncEntityChoice;
 
 // includes transitive dependencies
-export const syncEntityDependencies: Record<
-  keyof SyncEntities,
-  ReadonlyArray<keyof SyncEntities>
-> = {
+export const syncEntityDependencies: Record<SyncEntityName, ReadonlyArray<SyncEntityName>> = {
   contentTypes: ["contentTypes", "contentTypeSnippets", "taxonomies"],
   contentTypeSnippets: ["contentTypeSnippets", "taxonomies", "contentTypes"],
   collections: ["collections"],
@@ -38,17 +41,17 @@ export const syncEntityDependencies: Record<
   workflows: ["workflows", "collections", "contentTypes", "contentTypeSnippets", "taxonomies"],
   assetFolders: ["assetFolders"],
   languages: ["languages"],
-  webSpotlight: ["webSpotlight", "contentTypes", "contentTypeSnippets", "taxonomies"],
+  livePreview: ["livePreview"],
 };
 
-export const entityToFilename = {
-  contentTypes: contentTypesFileName,
-  contentTypeSnippets: contentTypeSnippetsFileName,
-  taxonomies: taxonomiesFileName,
-  collections: collectionsFileName,
-  webSpotlight: webSpotlightFileName,
-  assetFolders: assetFoldersFileName,
-  spaces: spacesFileName,
-  languages: languagesFileName,
-  workflows: workflowsFileName,
-} as const satisfies Record<SyncEntityName, string>;
+export const entityToFilenames = {
+  contentTypes: [contentTypesFileName],
+  contentTypeSnippets: [contentTypeSnippetsFileName],
+  taxonomies: [taxonomiesFileName],
+  collections: [collectionsFileName],
+  livePreview: [livePreviewFileName, webSpotlightFileName],
+  assetFolders: [assetFoldersFileName],
+  spaces: [spacesFileName],
+  languages: [languagesFileName],
+  workflows: [workflowsFileName],
+} as const satisfies Record<SyncEntityName, NonEmptyReadonlyArray<string>>;

@@ -2,18 +2,16 @@ import { match, P } from "ts-pattern";
 
 import { type LogOptions, logError } from "../../../log.js";
 import {
-  type SyncEntityName,
+  type SyncEntityChoice,
+  syncEntities,
   syncEntityChoices,
 } from "../../../modules/sync/constants/entities.js";
 import { printDiff } from "../../../modules/sync/printDiff.js";
-import {
-  type SyncEntities,
-  type SyncRunParams,
-  syncRunInternal,
-} from "../../../modules/sync/syncRun.js";
+import { type SyncRunParams, syncRunInternal } from "../../../modules/sync/syncRun.js";
 import { checkConfirmation } from "../../../modules/sync/utils/consoleHelpers.js";
 import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
+import { createSyncEntitiesParameter } from "../utils/createSyncEntitiesParameter.js";
 
 const commandName = "run";
 
@@ -63,8 +61,8 @@ export const register: RegisterCommand = (yargs) =>
           alias: "e",
           type: "array",
           choices: syncEntityChoices,
-          describe: `Sync specified entties. Allowed entities are: ${syncEntityChoices.join(", ")}.`,
-          demandOption: "You need to provide the what entities to sync.",
+          describe: `Sync specified entties. Allowed entities are: ${syncEntities.join(", ")}.`,
+          demandOption: "You need to provide the entities to sync.",
           conflicts: "exclude",
         })
         .option("skipConfirmation", {
@@ -82,7 +80,7 @@ export const register: RegisterCommand = (yargs) =>
 type SyncModelRunCliParams = Readonly<{
   targetEnvironmentId: string;
   targetApiKey: string;
-  entities: ReadonlyArray<SyncEntityName>;
+  entities: ReadonlyArray<SyncEntityChoice>;
   folderName: string | undefined;
   sourceEnvironmentId: string | undefined;
   sourceApiKey: string | undefined;
@@ -95,8 +93,8 @@ const syncRunCli = async (params: SyncModelRunCliParams) => {
   const resolvedParams = resolveParams(params);
 
   try {
-    await syncRunInternal(resolvedParams, `sync-${commandName}`, async (diffModel) => {
-      printDiff(diffModel, new Set(params.entities), params);
+    await syncRunInternal(resolvedParams, `sync-${commandName}`, async (diffModel, entities) => {
+      printDiff(diffModel, entities, params);
 
       await checkConfirmation({
         message: `⚠ Running this operation may result in irreversible changes to the content in environment ${params.targetEnvironmentId}. Mentioned changes might include:
@@ -130,13 +128,4 @@ const resolveParams = (params: SyncModelRunCliParams): SyncRunParams => {
     });
 
   return { ...x, entities };
-};
-
-const createSyncEntitiesParameter = (entities: ReadonlyArray<SyncEntityName>): SyncEntities => {
-  const filterEntries = [
-    ...entities.filter((a) => a !== "webSpotlight").map((e) => [e, () => true]),
-    ...(entities.includes("webSpotlight") ? [["webSpotlight", true]] : []),
-  ] as const;
-
-  return Object.fromEntries(filterEntries);
 };

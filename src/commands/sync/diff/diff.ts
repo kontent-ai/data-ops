@@ -2,7 +2,8 @@ import { match, P } from "ts-pattern";
 
 import { type LogOptions, logError } from "../../../log.js";
 import {
-  type SyncEntityName,
+  type SyncEntityChoice,
+  syncEntities,
   syncEntityChoices,
 } from "../../../modules/sync/constants/entities.js";
 import {
@@ -64,7 +65,7 @@ export const register: RegisterCommand = (yargs) =>
           type: "array",
           string: true,
           choices: syncEntityChoices,
-          describe: `Diff specified entities. Allowed entities are: ${syncEntityChoices.join(", ")}`,
+          describe: `Diff specified entities. Allowed entities are: ${syncEntities.join(", ")}`,
         })
         .option("outPath", {
           type: "string",
@@ -91,7 +92,7 @@ type syncDiffCliParams = Readonly<{
   folderName: string | undefined;
   sourceEnvironmentId: string | undefined;
   sourceApiKey: string | undefined;
-  entities: ReadonlyArray<SyncEntityName> | undefined;
+  entities: ReadonlyArray<SyncEntityChoice> | undefined;
   advanced: boolean | undefined;
   outPath: string | undefined;
   noOpen: boolean | undefined;
@@ -103,11 +104,11 @@ const syncDiffCli = async (params: syncDiffCliParams) => {
   const resolvedParams = resolveParams(params);
 
   try {
-    const diffModel = await syncDiffInternal(resolvedParams, commandName);
+    const { diffModel, entities } = await syncDiffInternal(resolvedParams, commandName);
 
     return params.advanced
-      ? createAdvancedDiffFile({ diffModel, params: resolvedParams })
-      : printDiff(diffModel, new Set(resolvedParams.entities), params);
+      ? createAdvancedDiffFile({ diffModel, params: { ...resolvedParams, entities } })
+      : printDiff(diffModel, new Set(entities), params);
   } catch (e) {
     logError(params, e instanceof Error ? e.message : JSON.stringify(e));
     process.exit(1);
@@ -115,7 +116,10 @@ const syncDiffCli = async (params: syncDiffCliParams) => {
 };
 
 const resolveParams = (params: syncDiffCliParams): SyncDiffParamsInternal => {
-  const updatedParams = { ...params, entities: params.entities ?? syncEntityChoices };
+  const updatedParams = {
+    ...params,
+    entities: params.entities ?? syncEntities,
+  };
 
   return match(updatedParams)
     .with(

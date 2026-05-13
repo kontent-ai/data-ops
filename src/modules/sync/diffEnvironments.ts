@@ -5,11 +5,14 @@ import { createClient } from "../../utils/client.js";
 import type { Replace } from "../../utils/types.js";
 import { renderDiffReport } from "./advancedDiff/renderDiffReport.js";
 import {
+  type SyncEntityChoice,
   type SyncEntityName,
-  syncEntityChoices,
+  syncEntities,
   syncEntityDependencies,
 } from "./constants/entities.js";
 import { diff } from "./diff.js";
+import type { DiffModel } from "./types/diffModel.js";
+import { normalizeEntityArrayAlias } from "./utils/entityAlias.js";
 import {
   fetchSourceSyncModel,
   getSourceItemAndAssetCodenames,
@@ -22,7 +25,7 @@ export type SyncDiffParams = Readonly<
   {
     targetEnvironmentId: string;
     targetApiKey: string;
-    entities?: ReadonlyArray<SyncEntityName>;
+    entities?: ReadonlyArray<SyncEntityChoice>;
     kontentUrl?: string;
   } & (
     | { folderName: string }
@@ -33,8 +36,13 @@ export type SyncDiffParams = Readonly<
 
 export type SyncDiffParamsInternal = Replace<
   SyncDiffParams,
-  { entities: ReadonlyArray<SyncEntityName> }
+  { entities: ReadonlyArray<SyncEntityChoice> }
 >;
+
+export type SyncDiffInternalResult = Readonly<{
+  diffModel: DiffModel;
+  entities: ReadonlyArray<SyncEntityName>;
+}>;
 
 /**
  * Compares two environments and generates an HTML representation of the differences.
@@ -44,13 +52,21 @@ export type SyncDiffParamsInternal = Replace<
  * @returns {Promise<string>} HTML string containing the visual representation of the diff between the two environments.
  */
 export const syncDiff = async (params: SyncDiffParams) => {
-  const resolvedParams = { ...params, entities: params.entities ?? syncEntityChoices };
-  const diffModel = await syncDiffInternal(resolvedParams, "diff-API");
+  const resolvedParams = { ...params, entities: params.entities ?? syncEntities };
+  const { diffModel, entities } = await syncDiffInternal(resolvedParams, "diff-API");
 
-  return renderDiffReport({ diffModel, params: resolvedParams });
+  return renderDiffReport({ diffModel, params: { ...resolvedParams, entities } });
 };
 
-export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandName: string) => {
+export const syncDiffInternal = async (
+  rawParams: SyncDiffParamsInternal,
+  commandName: string,
+): Promise<SyncDiffInternalResult> => {
+  const params = {
+    ...rawParams,
+    entities: normalizeEntityArrayAlias(rawParams.entities, rawParams),
+  };
+
   logInfo(
     params,
     "standard",
@@ -66,9 +82,7 @@ export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandNa
     }
   }
 
-  const fetchDependencies = new Set(
-    params.entities.flatMap((e) => syncEntityDependencies[e as SyncEntityName]),
-  );
+  const fetchDependencies = new Set(params.entities.flatMap((e) => syncEntityDependencies[e]));
 
   const sourceModel =
     "folderName" in params && params.folderName !== undefined
@@ -107,10 +121,12 @@ export const syncDiffInternal = async (params: SyncDiffParamsInternal, commandNa
     fetchDependencies,
   );
 
-  return diff({
+  const diffModel = diff({
     targetAssetsReferencedFromSourceByCodenames: assetsReferences,
     targetItemsReferencedFromSourceByCodenames: itemReferences,
     targetEnvModel: transformedTargetModel,
     sourceEnvModel: sourceModel,
   });
+
+  return { diffModel, entities: params.entities };
 };

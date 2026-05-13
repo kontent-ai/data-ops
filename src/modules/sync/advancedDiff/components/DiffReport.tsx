@@ -7,10 +7,10 @@ import { AssetFoldersSection } from "./entities/AssetFoldersSection.js";
 import { CollectionsSection } from "./entities/CollectionsSection.js";
 import { ContentTypesSection } from "./entities/ContentTypesSection.js";
 import { LanguagesSection } from "./entities/LanguagesSection.js";
+import { LivePreviewSection } from "./entities/LivePreviewSection.js";
 import { SnippetsSection } from "./entities/SnippetsSection.js";
 import { SpacesSection } from "./entities/SpacesSection.js";
 import { TaxonomiesSection } from "./entities/TaxonomiesSection.js";
-import { WebSpotlightSection } from "./entities/WebSpotlightSection.js";
 import { WorkflowsSection } from "./entities/WorkflowsSection.js";
 import { Sidebar } from "./Sidebar.js";
 
@@ -101,8 +101,8 @@ export const DiffReport = ({
               <CollectionsSection collections={diffModel.collections} />
             )}
             {entities.includes("languages") && <LanguagesSection languages={diffModel.languages} />}
-            {entities.includes("webSpotlight") && (
-              <WebSpotlightSection webSpotlight={diffModel.webSpotlight} />
+            {entities.includes("livePreview") && (
+              <LivePreviewSection livePreview={diffModel.livePreview} />
             )}
             {entities.includes("spaces") && <SpacesSection spaces={diffModel.spaces} />}
             {entities.includes("workflows") && <WorkflowsSection workflows={diffModel.workflows} />}

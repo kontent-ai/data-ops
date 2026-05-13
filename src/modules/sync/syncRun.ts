@@ -2,8 +2,12 @@ import type { ManagementClient } from "@kontent-ai/management-sdk";
 
 import { type LogOptions, logInfo } from "../../log.js";
 import { createClient } from "../../utils/client.js";
-import type { Expect } from "../../utils/types.js";
-import { type SyncEntityName, syncEntityDependencies } from "./constants/entities.js";
+import type { Expect, Replace } from "../../utils/types.js";
+import {
+  type SyncEntityChoice,
+  type SyncEntityName,
+  syncEntityDependencies,
+} from "./constants/entities.js";
 import { diff } from "./diff.js";
 import { filterModel } from "./generateSyncModel.js";
 import { sync } from "./sync.js";
@@ -18,6 +22,7 @@ import type {
   TaxonomySyncModel,
   WorkflowSyncModel,
 } from "./types/syncModel.js";
+import { normalizeSyncEntitiesAlias } from "./utils/entityAlias.js";
 import {
   fetchSourceSyncModel,
   getSourceItemAndAssetCodenames,
@@ -27,7 +32,7 @@ import {
 import { validateDiffedModel, validateSyncModelFolder } from "./validation.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: The entity is in contravariant position and we need to allow all types so unknown is not possible and the only alternative is any
-type ExpectedSyncEntities = Record<SyncEntityName, ((entity: any) => boolean) | boolean>;
+type ExpectedSyncEntities = Record<SyncEntityChoice, ((entity: any) => boolean) | boolean>;
 
 export type SyncEntities = Partial<
   Expect<
@@ -41,10 +46,14 @@ export type SyncEntities = Partial<
       spaces: (space: SpaceSyncModel) => boolean;
       languages: (language: LanguageSyncModel) => boolean;
       workflows: (workflow: WorkflowSyncModel) => boolean;
+      livePreview: boolean;
+      /** @deprecated Use `livePreview` instead. The alias is normalized to `livePreview` internally and will be removed in a future major version. */
       webSpotlight: boolean;
     }
   >
 >;
+
+export type SyncEntitiesInternal = Omit<SyncEntities, "webSpotlight">;
 
 export type SyncRunParams = Readonly<
   {
@@ -55,6 +64,8 @@ export type SyncRunParams = Readonly<
   } & ({ folderName: string } | { sourceEnvironmentId: string; sourceApiKey: string }) &
     LogOptions
 >;
+
+export type SyncRunParamsInternal = Replace<SyncRunParams, { entities: SyncEntitiesInternal }>;
 /**
  * Synchronizes content model between two environments. This function can either synchronize
  * from a source environment to a target environment or use a pre-defined folder containing the content model
@@ -76,10 +87,18 @@ export type SyncRunParams = Readonly<
 export const syncRun = (params: SyncRunParams) => syncRunInternal(params, "sync-run-API");
 
 export const syncRunInternal = async (
-  params: SyncRunParams,
+  rawParams: SyncRunParams,
   commandName: string,
-  withDiffModel: (diffModel: DiffModel) => Promise<void> = () => Promise.resolve(),
+  withDiffModel: (
+    diffModel: DiffModel,
+    entities: ReadonlySet<SyncEntityName>,
+  ) => Promise<void> = () => Promise.resolve(),
 ) => {
+  const params = {
+    ...rawParams,
+    entities: normalizeSyncEntitiesAlias(rawParams.entities, rawParams),
+  };
+
   const targetEnvironmentClient = createClient({
     apiKey: params.targetApiKey,
     environmentId: params.targetEnvironmentId,
@@ -97,18 +116,15 @@ export const syncRunInternal = async (
     throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
   }
 
-  await withDiffModel(diffModel);
+  const entitiesSet = new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>;
 
-  await sync(
-    targetEnvironmentClient,
-    diffModel,
-    new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-    params,
-  );
+  await withDiffModel(diffModel, entitiesSet);
+
+  await sync(targetEnvironmentClient, diffModel, entitiesSet, params);
 };
 
 const getDiffModel = async (
-  params: SyncRunParams,
+  params: SyncRunParamsInternal,
   targetClient: ManagementClient,
   commandName: string,
 ) => {
@@ -123,7 +139,7 @@ const getDiffModel = async (
   }
 
   const fetchDependencies = new Set(
-    Object.keys(params.entities).flatMap((e) => syncEntityDependencies[e as SyncEntityName]),
+    (Object.keys(params.entities) as SyncEntityName[]).flatMap((e) => syncEntityDependencies[e]),
   );
 
   const sourceModel =

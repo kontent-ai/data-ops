@@ -38,7 +38,7 @@ The following entities can be synchronized:
 - **Content Types**
 - **Content Type Snippets**
 - **Taxonomies**
-- **Web Spotlight**
+- **Live Preview**
 - **Asset Folders**
 - **Collections**
 - **Spaces**
@@ -48,7 +48,13 @@ The following entities can be synchronized:
 To successfully sync your environments, ensure your MAPI keys have the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
 
 > [!NOTE]
-> To sync Web Spotlight settings, your MAPI keys must have the Manage Environments permission enabled.
+> To sync Live Preview settings, your MAPI keys must have the Manage Environments permission enabled.
+
+> [!NOTE]
+> `webSpotlight` is a deprecated alias for `livePreview` and may be removed in a future major. See the [live preview docs](https://kontent.ai/learn/docs/apis/management-api-v2/web-spotlight#activate-web-spotlight).
+
+> [!NOTE]
+> Legacy `webSpotlight.json` still loads as live preview; `root_type` is ignored.
 
 ## Important Considerations
 
@@ -138,7 +144,7 @@ Create a `params.json` file:
     "assetFolders",
     "spaces",
     "languages",
-    "webSpotlight",
+    "livePreview",
     "workflows"
   ]
 }
@@ -159,7 +165,7 @@ npx @kontent-ai/data-ops@latest sync run --configFile params.json
 | `--sourceEnvironmentId`  | (Optional) The ID of the source environment to fetch the content model from.                                 |
 | `--sourceApiKey`         | (Optional) The Management API key for the source environment.                                                |
 | `--folderName`           | (Optional) Path to the folder containing the exported content model.                                         |
-| `--entities`             | List of entities to synchronize (`contentTypes`,`contentTypeSnippets`,`taxonomies`,`collections`,`assetFolders`,`spaces`,`languages`,`webSpotlight`,`workflows`).                                        |
+| `--entities`             | List of entities to synchronize (`contentTypes`,`contentTypeSnippets`,`taxonomies`,`collections`,`assetFolders`,`spaces`,`languages`,`livePreview`,`workflows`).                                        |
 | `--skipConfirmation`     | (Optional) Skip confirmation message.                                                                        |
 | `--configFile`           | (Optional) Path to a JSON configuration file containing parameters.                                          |
 
