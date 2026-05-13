@@ -54,29 +54,35 @@ describe("TypeSchema", () => {
     }
   });
 
-  it("should fail validation when additional property is involved", () => {
+  it("should strip unknown top-level properties and succeed", () => {
     const input = {
-      name: "Invalid Type",
-      codename: "invalid_type",
+      name: "Type With Extra Property",
+      codename: "type_with_extra",
       content_groups: [],
       non_existing_property: "",
       elements: [validElementWithoutGroup],
     };
 
     const result = TypeSchema.safeParse(input);
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty("non_existing_property");
+    }
   });
 
-  it("should fail validation when content_groups is empty but elements have content_group", () => {
+  it("should strip element.content_group when content_groups is empty", () => {
     const input = {
-      name: "Invalid Type",
-      codename: "invalid_type",
+      name: "Type Without Groups",
+      codename: "type_without_groups",
       content_groups: [],
       elements: [validElementWithGroup],
     };
 
     const result = TypeSchema.safeParse(input);
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.elements[0]).not.toHaveProperty("content_group");
+    }
   });
 
   it("should fail validation when content_groups is non-empty but elements lack content_group", () => {

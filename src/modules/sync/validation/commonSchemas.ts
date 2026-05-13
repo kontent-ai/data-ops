@@ -1,3 +1,3 @@
 import { z } from "zod";
 
-export const CodenameReferenceSchema = z.strictObject({ codename: z.string() });
+export const CodenameReferenceSchema = z.object({ codename: z.string() });
