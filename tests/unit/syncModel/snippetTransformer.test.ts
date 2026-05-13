@@ -42,10 +42,7 @@ describe("content type snippet transfomers", () => {
       assetFolders: [],
       collections: [],
       spaces: [],
-      webSpotlight: {
-        enabled: false,
-        root_type: null,
-      },
+      livePreview: { status: "disabled" },
       languages: [],
       assets: [],
       items: [],

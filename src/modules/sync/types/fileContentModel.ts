@@ -4,9 +4,9 @@ import type {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   LanguageSyncModel,
+  LivePreviewSyncModel,
   SpaceSyncModel,
   TaxonomySyncModel,
-  WebSpotlightSyncModel,
   WorkflowSyncModel,
 } from "./syncModel.js";
 
@@ -14,7 +14,7 @@ export type FileContentModel = Readonly<{
   taxonomies: ReadonlyArray<TaxonomySyncModel>;
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsSyncModel>;
   contentTypes: ReadonlyArray<ContentTypeSyncModel>;
-  webSpotlight: WebSpotlightSyncModel;
+  livePreview: LivePreviewSyncModel;
   assetFolders: ReadonlyArray<AssetFolderSyncModel>;
   collections: ReadonlyArray<CollectionSyncModel>;
   spaces: ReadonlyArray<SpaceSyncModel>;

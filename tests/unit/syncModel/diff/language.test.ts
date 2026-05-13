@@ -77,7 +77,7 @@ describe("diff function", () => {
     languages,
     spaces: [],
     taxonomies: [],
-    webSpotlight: { enabled: false, root_type: { codename: "non-existing" } },
+    livePreview: { status: "disabled" },
     workflows: [],
   });
 

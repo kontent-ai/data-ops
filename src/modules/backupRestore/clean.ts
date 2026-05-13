@@ -12,11 +12,11 @@ import { contentItemsEntity } from "./backupRestoreEntities/entities/contentItem
 import { contentTypesEntity } from "./backupRestoreEntities/entities/contentTypes.js";
 import { contentTypesSnippetsEntity } from "./backupRestoreEntities/entities/contentTypesSnippets.js";
 import { languagesEntity } from "./backupRestoreEntities/entities/languages.js";
+import { livePreviewEntity } from "./backupRestoreEntities/entities/livePreview.js";
 import { previewUrlsEntity } from "./backupRestoreEntities/entities/previewUrls.js";
 import { spacesEntity } from "./backupRestoreEntities/entities/spaces.js";
 import { taxonomiesEntity } from "./backupRestoreEntities/entities/taxonomies.js";
 import { webhooksEntity } from "./backupRestoreEntities/entities/webhooks.js";
-import { webSpotlightEntity } from "./backupRestoreEntities/entities/webSpotlight.js";
 import { workflowsEntity } from "./backupRestoreEntities/entities/workflows.js";
 import type {
   AnyEntityCleanDefinition,
@@ -28,7 +28,7 @@ import { type IncludeExclude, includeExcludePredicate } from "./utils/includeExc
  * order of this array corresponds with order of individual clean operations.
  */
 const cleanEntityDefinitions = [
-  webSpotlightEntity,
+  livePreviewEntity,
   spacesEntity,
   contentItemsEntity,
   taxonomiesEntity,

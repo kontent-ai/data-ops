@@ -17,7 +17,7 @@ The snapshot is cabable of containing following entities:
 - **Content Types**
 - **Content Type Snippets**
 - **Taxonomies**
-- **Web Spotlight**
+- **Live Preview**
 - **Asset Folders**
 - **Collections**
 - **Spaces**
@@ -27,7 +27,13 @@ The snapshot is cabable of containing following entities:
 To successfully snapshot your environment, ensure your MAPI key has the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
 
 > [!NOTE]
-> To snapshot Web Spotlight settings, your MAPI key needs to have the Manage Environments permission enabled.
+> To snapshot Live Preview settings, your MAPI key needs to have the Manage Environments permission enabled.
+
+> [!NOTE]
+> `webSpotlight` is a deprecated alias for `livePreview` and may be removed in a future major. See the [live preview docs](https://kontent.ai/learn/docs/apis/management-api-v2/web-spotlight#activate-web-spotlight).
+
+> [!NOTE]
+> Legacy `webSpotlight.json` still loads as live preview; `root_type` is ignored.
 
 ## How It Works
 
@@ -66,7 +72,7 @@ Create a `config.json` file:
     "assetFolders",
     "spaces",
     "languages",
-    "webSpotlight",
+    "livePreview",
     "workflows"
   ]
 }
@@ -84,7 +90,7 @@ npx @kontent-ai/data-ops@latest sync snapshot --configFile config.json
 |--------------------|-----------------------------------------------------------------------|
 | `--environmentId`  | The ID of the environment to export the content model from.           |
 | `--apiKey`         | The Management API key for the source environment.                    |
-| `--entities`       | List of entities to include in the snapshot (`contentTypes`,`contentTypeSnippets`, `taxonomies`, `collections`, `assetFolders`, `spaces`, `languages`,`webSpotlight`, `workflows`).                                                                                |
+| `--entities`       | List of entities to include in the snapshot (`contentTypes`,`contentTypeSnippets`, `taxonomies`, `collections`, `assetFolders`, `spaces`, `languages`,`livePreview`, `workflows`).                                                                                |
 | `--folderName`   | (Optional) The path to the folder where the content model will be saved. Defaults to `<date>-<environmentId>`. |
 | `--configFile`     | (Optional) Path to a JSON configuration file containing parameters.   |
 

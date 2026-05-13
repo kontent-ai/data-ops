@@ -7,8 +7,8 @@ import type {
   ContentItemContracts,
   LanguageContracts,
   ManagementClient,
+  PreviewContracts,
   TaxonomyContracts,
-  WebSpotlightContracts,
   WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
@@ -18,16 +18,16 @@ import { type LogOptions, logInfo } from "../../log.js";
 import type { SpaceContractWithRootItem } from "../../types/spaceContractOverrides.js";
 import { DateLevel, serializeDateForFileName } from "../../utils/files.js";
 import { notNullOrUndefined } from "../../utils/typeguards.js";
-import { type SyncEntityName, syncEntityChoices } from "./constants/entities.js";
+import { type SyncEntityName, syncEntities } from "./constants/entities.js";
 import {
   assetFoldersFileName,
   collectionsFileName,
   contentTypeSnippetsFileName,
   contentTypesFileName,
   languagesFileName,
+  livePreviewFileName,
   spacesFileName,
   taxonomiesFileName,
-  webSpotlightFileName,
   workflowsFileName,
 } from "./constants/filename.js";
 import { transformAssetFolderModel } from "./modelTransfomers/assetFolder.js";
@@ -35,11 +35,11 @@ import { transformCollectionsModel } from "./modelTransfomers/collections.js";
 import { transformContentTypeSnippetsModel } from "./modelTransfomers/contentTypeSnippets.js";
 import { transformContentTypeModel } from "./modelTransfomers/contentTypes.js";
 import { transformLanguageModel } from "./modelTransfomers/language.js";
+import { transformLivePreviewModel } from "./modelTransfomers/livePreview.js";
 import { transformSpacesModel } from "./modelTransfomers/spaceTransformers.js";
 import { transformTaxonomyGroupsModel } from "./modelTransfomers/taxonomyGroups.js";
-import { transformWebSpotlightModel } from "./modelTransfomers/webSpotlight.js";
 import { transformWorkflowModel } from "./modelTransfomers/workflow.js";
-import type { SyncEntities } from "./syncRun.js";
+import type { SyncEntitiesInternal } from "./syncRun.js";
 import type {
   ContentTypeSnippetsWithUnionElements,
   ContentTypeWithUnionElements,
@@ -52,11 +52,11 @@ import {
   fetchContentTypeSnippets,
   fetchContentTypes,
   fetchLanguages,
+  fetchLivePreview,
   fetchRequiredAssets,
   fetchRequiredContentItems,
   fetchSpaces,
   fetchTaxonomies,
-  fetchWebSpotlight,
   fetchWorkflows,
 } from "./utils/fetchers.js";
 
@@ -65,7 +65,7 @@ export type EnvironmentModel = {
   contentTypeSnippets: ReadonlyArray<ContentTypeSnippetsWithUnionElements>;
   contentTypes: ReadonlyArray<ContentTypeWithUnionElements>;
   collections: ReadonlyArray<CollectionContracts.ICollectionContract>;
-  webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
+  livePreview: PreviewContracts.ILivePreviewConfigurationContract;
   assetFolders: ReadonlyArray<AssetFolderContracts.IAssetFolderContract>;
   spaces: ReadonlyArray<SpaceContractWithRootItem>;
   assets: ReadonlyArray<AssetContracts.IAssetModelContract>;
@@ -76,7 +76,7 @@ export type EnvironmentModel = {
 
 export const fetchModel = async (
   client: ManagementClient,
-  entities: ReadonlySet<SyncEntityName> = new Set(syncEntityChoices),
+  entities: ReadonlySet<SyncEntityName> = new Set(syncEntities),
 ): Promise<EnvironmentModel> => {
   const contentTypes = entities.has("contentTypes")
     ? ((await fetchContentTypes(client)) as unknown as ContentTypeWithUnionElements[])
@@ -88,9 +88,9 @@ export const fetchModel = async (
     : [];
 
   const taxonomies = entities.has("taxonomies") ? await fetchTaxonomies(client) : [];
-  const webSpotlight = entities.has("webSpotlight")
-    ? await fetchWebSpotlight(client)
-    : { enabled: false, root_type: { id: "no-fetch" } };
+  const livePreview = entities.has("livePreview")
+    ? await fetchLivePreview(client)
+    : { status: "disabled" };
   const assetFolders = entities.has("assetFolders") ? await fetchAssetFolders(client) : [];
   const spaces = entities.has("spaces") ? await fetchSpaces(client) : [];
   const collections = entities.has("collections") ? await fetchCollections(client) : [];
@@ -123,7 +123,7 @@ export const fetchModel = async (
     contentTypeSnippets,
     taxonomyGroups: taxonomies,
     collections,
-    webSpotlight,
+    livePreview,
     spaces,
     assets,
     items,
@@ -141,7 +141,7 @@ export const transformSyncModel = (
   const contentTypeSnippetModel = transformContentTypeSnippetsModel(environmentModel, logOptions);
   const taxonomyGroupsModel = transformTaxonomyGroupsModel(environmentModel.taxonomyGroups);
   const collectionsModel = transformCollectionsModel(environmentModel.collections);
-  const webSpotlightModel = transformWebSpotlightModel(environmentModel);
+  const livePreviewModel = transformLivePreviewModel(environmentModel);
   const assetFoldersModel = environmentModel.assetFolders.map(transformAssetFolderModel);
   const spacesModel = transformSpacesModel(environmentModel);
   const languagesModel = transformLanguageModel(environmentModel.languages);
@@ -152,7 +152,7 @@ export const transformSyncModel = (
     contentTypeSnippets: contentTypeSnippetModel,
     taxonomies: taxonomyGroupsModel,
     collections: collectionsModel,
-    webSpotlight: webSpotlightModel,
+    livePreview: livePreviewModel,
     assetFolders: assetFoldersModel,
     spaces: spacesModel,
     languages: languagesModel,
@@ -198,7 +198,7 @@ export const saveSyncModel = async (params: SaveModelParams) => {
     finalModel.contentTypeSnippets,
   );
   await writeFile("taxonomies", taxonomiesFileName, finalModel.taxonomies);
-  await writeFile("webSpotlight", webSpotlightFileName, finalModel.webSpotlight);
+  await writeFile("livePreview", livePreviewFileName, finalModel.livePreview);
   await writeFile("assetFolders", assetFoldersFileName, finalModel.assetFolders);
   await writeFile("collections", collectionsFileName, finalModel.collections);
   await writeFile("spaces", spacesFileName, finalModel.spaces);
@@ -222,7 +222,10 @@ type FileContentWithMetadata = FileContentModel &
     }>;
   }>;
 
-export const filterModel = (model: FileContentModel, entities: SyncEntities): FileContentModel => ({
+export const filterModel = (
+  model: FileContentModel,
+  entities: SyncEntitiesInternal,
+): FileContentModel => ({
   contentTypes: filterEntities(model.contentTypes, entities.contentTypes),
   contentTypeSnippets: filterEntities(model.contentTypeSnippets, entities.contentTypeSnippets),
   taxonomies: filterEntities(model.taxonomies, entities.taxonomies),
@@ -230,10 +233,8 @@ export const filterModel = (model: FileContentModel, entities: SyncEntities): Fi
   collections: filterEntities(model.collections, entities.collections),
   spaces: filterEntities(model.spaces, entities.spaces),
   languages: filterEntities(model.languages, entities.languages),
-  // when turned syncning web-spotlight off, give default object - diff will find no patch operations for same objects.
-  webSpotlight: entities.webSpotlight
-    ? model.webSpotlight
-    : { enabled: false, root_type: { codename: "no-sync" } },
+  // When live preview sync is skipped, supply a default so diff produces no changes.
+  livePreview: entities.livePreview ? model.livePreview : { status: "disabled" },
   workflows: filterEntities(model.workflows, entities.workflows),
 });
 

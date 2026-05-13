@@ -94,7 +94,7 @@ describe("transformWorkflowModel", () => {
     const environmentModel: EnvironmentModel = {
       spaces: [],
       items: [],
-      webSpotlight: { enabled: false, root_type: null },
+      livePreview: { status: "disabled" },
       taxonomyGroups: [],
       languages: [],
       contentTypeSnippets: [],

@@ -45,6 +45,7 @@ export {
   ContentTypeSnippetsSyncModel,
   ContentTypeSyncModel,
   LanguageSyncModel,
+  LivePreviewSyncModel,
   SpaceSyncModel,
   SyncSnippetElement,
   SyncTypeElement,

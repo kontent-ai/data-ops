@@ -5,7 +5,13 @@ The `sync diff` command compares two environments and outputs the differences ei
 To successfully diff your environments, ensure your MAPI keys have the necessary permissions. For more information about API keys, visit our [learn portal](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#tag/API-keys).
 
 > [!NOTE]
-> To diff Web Spotlight settings, your MAPI keys must have the Manage Environments permission enabled.
+> To diff Live Preview settings, your MAPI keys must have the Manage Environments permission enabled.
+
+> [!NOTE]
+> `webSpotlight` is a deprecated alias for `livePreview` and may be removed in a future major. See the [live preview docs](https://kontent.ai/learn/docs/apis/management-api-v2/web-spotlight#activate-web-spotlight).
+
+> [!NOTE]
+> Legacy `webSpotlight.json` still loads as live preview; `root_type` is ignored.
 
 ## Default Output
 
@@ -63,7 +69,7 @@ npx @kontent-ai/data-ops@latest sync diff \
 | `--sourceEnvironmentId` | The ID of the source environment to compare. (Use either this or `--folderName`.)                                                                                          |
 | `--sourceApiKey`        | The Management API key for the source environment.                                                                                                                         |
 | `--folderName`          | The path to the local content model snapshot created with `sync snapshot`. (Use either this or `--sourceEnvironmentId` and `--sourceApiKey`.)                            |
-| `--entities`            | (Optional) List of entities to diff (`contentTypes`,`contentTypeSnippets`,`taxonomies`,`collections`,`assetFolders`,`spaces`,`languages`,`webSpotlight`,`workflows`).                                        |
+| `--entities`            | (Optional) List of entities to diff (`contentTypes`,`contentTypeSnippets`,`taxonomies`,`collections`,`assetFolders`,`spaces`,`languages`,`livePreview`,`workflows`).                                        |
 | `--advanced`, `-a`      | (Optional) Generates an advanced visual diff in HTML format.                                                                                                               |
 | `--outPath`, `-o`       | (Required if `--advanced` is used) Specifies the output path for the HTML diff file.                                                                                       |
 | `--noOpen`, `-n`        | (Optional) Prevents the generated HTML diff file from opening automatically.                                                                      

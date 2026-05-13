@@ -32,7 +32,7 @@ const allSyncEntities = [
   "types",
   "snippets",
   "taxonomies",
-  "webSpotlight",
+  "livePreview",
   "assetFolders",
   "collections",
   "languages",
@@ -47,7 +47,7 @@ const expectSameSyncEnvironments = async (
   environmentId2: string,
   include: ReadonlyArray<SyncEntityName> = allSyncEntities,
 ): Promise<void> => {
-  const coInclude = allSyncEntities.filter((e) => !include.includes(e) && e !== "webSpotlight");
+  const coInclude = allSyncEntities.filter((e) => !include.includes(e) && e !== "livePreview");
   const data1 = await loadAllEnvData(environmentId1, { include: allSyncEntities })
     .then(prepareReferences)
     .then(sortAssetFolders)
@@ -77,7 +77,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
   it.concurrent(
     "Sync source environment to target environment directly from source environment",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `sync run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows --verbose --skipConfirmation`;
+      const command = `sync run -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -t=${environmentId} --tk=${API_KEY} --entities=contentTypes contentTypeSnippets taxonomies livePreview assetFolders collections spaces languages workflows --verbose --skipConfirmation`;
 
       await runCommand(command);
 
@@ -118,7 +118,7 @@ describe.concurrent("Sync model of two environments with credentials", () => {
           spaces: () => true,
           languages: () => true,
           workflows: () => true,
-          webSpotlight: true,
+          livePreview: true,
         },
       });
 
@@ -151,7 +151,7 @@ describe.concurrent("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
   it.sequential("generate sync model test", async () => {
-    const command = `sync snapshot -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
+    const command = `sync snapshot -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies livePreview assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
     const folderExists = await fsPromises
@@ -163,17 +163,21 @@ describe.concurrent("Sync environment from folder", () => {
 
     const filesExistence = Object.fromEntries(
       await Promise.all(
-        Object.values(fileNames).map((filename) =>
-          fsPromises
-            .stat(`${folderPath}/${filename}`)
-            .then((stats) => [filename, stats.isFile()])
-            .catch((e) => [filename, e]),
-        ),
+        Object.values(fileNames)
+          .filter((filename) => filename !== fileNames.webSpotlightFileName)
+          .map((filename) =>
+            fsPromises
+              .stat(`${folderPath}/${filename}`)
+              .then((stats) => [filename, stats.isFile()])
+              .catch((e) => [filename, e]),
+          ),
       ),
     );
 
     const allFilesExist = Object.fromEntries(
-      Object.values(fileNames).map((value) => [value, true]),
+      Object.values(fileNames)
+        .filter((filename) => filename !== fileNames.webSpotlightFileName)
+        .map((value) => [value, true]),
     );
 
     expect(filesExistence).toEqual(allFilesExist);
@@ -182,7 +186,7 @@ describe.concurrent("Sync environment from folder", () => {
   it.sequential(
     "Sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
-      const command = `sync run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies webSpotlight assetFolders collections spaces languages workflows  --verbose --skipConfirmation`;
+      const command = `sync run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies livePreview assetFolders collections spaces languages workflows  --verbose --skipConfirmation`;
 
       await runCommand(command);
 

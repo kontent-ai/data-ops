@@ -14,7 +14,6 @@ import {
   type SpaceContracts,
   type TaxonomyContracts,
   type WebhookContracts,
-  type WebSpotlightContracts,
   type WorkflowContracts,
 } from "@kontent-ai/management-sdk";
 import { config as dotenvConfig } from "dotenv";
@@ -56,7 +55,7 @@ export type AllEnvData = Readonly<{
   items: ReadonlyArray<ContentItemContracts.IContentItemModelContract>;
   variants: ReadonlyArray<LanguageVariantContracts.ILanguageVariantModelContract>;
   webhooks: ReadonlyArray<WebhookContracts.IWebhookContract>;
-  webSpotlight: WebSpotlightContracts.IWebSpotlightStatus;
+  livePreview: Readonly<{ status: string }>;
 }>;
 
 export const loadVariantsByItemCodename = async (
@@ -198,9 +197,9 @@ const loadData = async (
           .toPromise()
           .then((res) => res.data.webhooks.map((w) => w._raw))
       : [],
-    webSpotlight: has("webSpotlight")
-      ? (await client.checkWebSpotlightStatus().toPromise()).rawData
-      : { enabled: false, root_type: null },
+    livePreview: has("livePreview")
+      ? { status: (await client.getLivePreviewConfiguration().toPromise()).rawData.status }
+      : { status: "disabled" },
   };
 };
 
@@ -222,7 +221,7 @@ export const loadAllEnvDataFromZip = async (fileName: string): Promise<AllEnvDat
     assetFolders: await loadFile(zip, "assetFolders.json"),
     assets: await loadFile(zip, "assets.json"),
     webhooks: await loadFile(zip, "webhooks.json"),
-    webSpotlight: await loadFile(zip, "webSpotlight.json"),
+    livePreview: (await loadFile(zip, "livePreview.json")) ?? { status: "disabled" },
   };
 };
 
@@ -248,5 +247,5 @@ export const emptyAllEnvData: AllEnvData = {
   items: [],
   variants: [],
   webhooks: [],
-  webSpotlight: { enabled: false, root_type: null },
+  livePreview: { status: "disabled" },
 };

@@ -41,6 +41,9 @@ type EntityRestoreParams<T> = {
 
 export type EntityRestoreDefinition<T> = Readonly<{
   name: string;
+  // Optional names of legacy ZIP entries to fall back to (in order) when `${name}.json` is absent.
+  // Used for backward compatibility when an entity's file name changes between versions.
+  legacyNames?: ReadonlyArray<string>;
   displayName: string;
   deserializeEntities: (serialized: string) => T;
   importEntities: (
