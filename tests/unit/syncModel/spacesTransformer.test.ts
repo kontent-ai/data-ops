@@ -46,6 +46,7 @@ describe("transformSpacesModel", () => {
         name: "space1",
         codename: "space1",
         root_item: { codename: "rootItem" },
+        web_spotlight_root_item: { codename: "rootItem" },
         collections: [{ codename: "collection" }],
       },
     ]);

@@ -8,18 +8,20 @@ export const transformSpacesModel = (
 ): ReadonlyArray<SpaceSyncModel> =>
   environmentModel.spaces.map((space) => {
     const rootItem = space.root_item;
+    const rootItemRef = rootItem
+      ? {
+          codename:
+            environmentModel.items.find((i) => i.id === rootItem.id)?.codename ??
+            throwError(
+              `Cannot find root item { id: ${rootItem.id} } for space { codename: ${space.codename}}.`,
+            ),
+        }
+      : undefined;
 
     return {
       ...omit(space, ["id", "web_spotlight_root_item"]),
-      root_item: rootItem
-        ? {
-            codename:
-              environmentModel.items.find((i) => i.id === rootItem.id)?.codename ??
-              throwError(
-                `Cannot find root item { id: ${rootItem.id} } for space { codename: ${space.codename}}.`,
-              ),
-          }
-        : undefined,
+      root_item: rootItemRef,
+      web_spotlight_root_item: rootItemRef,
       collections:
         space.collections?.map((collection) => ({
           codename:
