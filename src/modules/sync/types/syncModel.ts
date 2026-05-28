@@ -155,7 +155,11 @@ export type SpaceSyncModel = Replace<
     collections: ReadonlyArray<Readonly<{ codename: string }>>;
   }>
 > &
-  Readonly<{ root_item?: Readonly<{ codename: string }> }>;
+  Readonly<{
+    root_item?: Readonly<{ codename: string }>;
+    /** @deprecated Use {@link SpaceSyncModel.root_item} instead. */
+    web_spotlight_root_item?: Readonly<{ codename: string }>;
+  }>;
 
 export type LanguageSyncModel = Replace<
   Omit<LanguageContracts.ILanguageModelContract, "id" | "external_id">,

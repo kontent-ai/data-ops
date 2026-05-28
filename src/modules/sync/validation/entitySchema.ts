@@ -110,10 +110,14 @@ export const SpaceSchema: z.ZodType<SpaceSyncModel, z.ZodTypeDef, unknown> = z
     root_item: CodenameReferenceSchema.optional(),
     collections: z.array(CodenameReferenceSchema),
   })
-  .transform(({ web_spotlight_root_item, root_item, ...rest }) => ({
-    ...rest,
-    root_item: root_item ?? web_spotlight_root_item,
-  }));
+  .transform(({ web_spotlight_root_item, root_item, ...rest }) => {
+    const resolved = root_item ?? web_spotlight_root_item;
+    return {
+      ...rest,
+      root_item: resolved,
+      web_spotlight_root_item: resolved,
+    };
+  });
 
 export const LanguageSchema = z.discriminatedUnion("is_default", [
   z.object({
