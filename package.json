@@ -44,17 +44,17 @@
     ".": "./build/src/public.js"
   },
   "dependencies": {
-    "@kontent-ai/core-sdk": "^10.12.5",
-    "@kontent-ai/delivery-sdk": "^16.4.3",
-    "@kontent-ai/management-sdk": "^8.5.1",
-    "@kontent-ai/migration-toolkit": "^3.1.5",
+    "@kontent-ai/core-sdk": "^10.12.6",
+    "@kontent-ai/delivery-sdk": "^16.4.4",
+    "@kontent-ai/management-sdk": "^8.5.2",
+    "@kontent-ai/migration-toolkit": "^3.2.0",
     "@kontent-ai/rich-text-resolver": "3.0.2",
     "@kontent-ai/rich-text-resolver-markdown": "^3.0.2",
     "@kontent-ai/rich-text-resolver-react": "^3.0.3",
     "archiver": "^7.0.1",
-    "axios": "^1.16.1",
+    "axios": "^1.18.1",
     "chalk": "^5.6.2",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.3.0",
     "node-stream-zip": "^1.15.0",
     "open": "^11.0.0",
     "react": "^19.2.0",
@@ -81,7 +81,7 @@
     "eslint": "^8.57.1",
     "minimist": "^1.2.8",
     "typescript": "^5.9.3",
-    "vite": "^7.3.2",
+    "vite": "^7.3.6",
     "vitest": "^4.1.4"
   }
 }
