@@ -6,6 +6,8 @@ import type { MigrationStatus } from "../../../src/modules/migrations/models/sta
 import {
   executeMigrations,
   filterMigrations,
+  generateJavascriptMigration,
+  generateTypescriptMigration,
   getMigrationsToSkip,
   getMigrationsWithDuplicateOrders,
 } from "../../../src/modules/migrations/utils/migrationUtils.ts";
@@ -32,6 +34,15 @@ const createMigrationStatus = (
   success: boolean,
   lastOperation: "run" | "rollback",
 ): MigrationStatus => ({ name, order, time: new Date(), success, lastOperation });
+
+describe("migration templates", () => {
+  it.each([
+    ["javascript", generateJavascriptMigration],
+    ["typescript", generateTypescriptMigration],
+  ])("generates an async rollback handler in the %s template", (_, generate) => {
+    expect(generate(undefined)).toContain("rollback: async apiClient => {}");
+  });
+});
 
 describe("filterMigrations", () => {
   it("Correctly filters migrations for all parameter", () => {
