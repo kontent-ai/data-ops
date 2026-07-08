@@ -44,7 +44,7 @@ export const generateJavascriptMigration = (order: Date | number | undefined): s
   `const migration = {
   order: ${order === undefined ? "1" : createOrderPropertyValue(order)},
   run: async apiClient => {},
-  rollback: asyncapiClient => {},
+  rollback: async apiClient => {},
 };
 
 module.exports = migration;
