@@ -55,7 +55,10 @@ export const addSnippetsReferences = async (
   );
   const snippetsReplaceReferencesOps = addSnippets.map(createUpdateReferencesOps);
 
-  if (snippetsReplaceReferencesOps.every(([, arr]) => !arr.length)) {
+  if (
+    snippetsReplaceReferencesOps.every(([, arr]) => !arr.length) &&
+    snippetReplaceOpsAddIntoReferencingElements.every(([, arr]) => !arr.length)
+  ) {
     logInfo(logOptions, "standard", "No content type snippet's references to update");
     return;
   }
