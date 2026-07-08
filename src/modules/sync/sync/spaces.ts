@@ -55,8 +55,9 @@ export const syncSpaces = async (
         (spaceCodename) => () => client.deleteSpace().bySpaceCodename(spaceCodename).toPromise(),
       ),
     );
+  } else {
+    logInfo(logOptions, "standard", "No spaces to delete");
   }
-  logInfo(logOptions, "standard", "No spaces to delete");
 };
 
 const convertOperation = (operation: PatchOperation): SpaceModels.IModifySpaceData =>
