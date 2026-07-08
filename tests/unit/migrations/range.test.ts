@@ -68,4 +68,22 @@ describe("validateRange", () => {
       expect(validateRange(input)).toEqual(err);
     });
   });
+
+  [
+    { from: 0, to: 0 },
+    { from: 0, to: 1 },
+  ].forEach((input) => {
+    it("should return the range when both sides are non-negative orders", () => {
+      expect(validateRange(input)).toEqual(input);
+    });
+  });
+
+  [
+    { from: -1, to: 1 },
+    { from: 0, to: -1 },
+  ].forEach((input) => {
+    it("should return an error when an order is negative", () => {
+      expect(validateRange(input)).toEqual({ err: "Order must be greater or equal 0" });
+    });
+  });
 });
