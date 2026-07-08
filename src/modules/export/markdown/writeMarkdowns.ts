@@ -49,7 +49,24 @@ const writeMarkdownFiles = async (
   params: LogOptions,
 ): Promise<void> => {
   for (const { codename, markdown } of results) {
-    await fsPromises.writeFile(path.join(outputPath, `${codename}.md`), markdown);
+    await fsPromises.writeFile(resolveItemFilePath(outputPath, codename), markdown);
     logInfo(params, "verbose", `Wrote ${codename}.md`);
   }
+};
+
+// Codenames come from the Delivery API, whose server-side rules make them traversal-safe
+// today. Guard anyway, so this never becomes an arbitrary-write primitive if that changes.
+const resolveItemFilePath = (outputPath: string, codename: string): string => {
+  const filePath = path.resolve(outputPath, `${codename}.md`);
+  const relativePath = path.relative(outputPath, filePath);
+  const isEscapingOutputDir =
+    relativePath === ".." ||
+    relativePath.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativePath);
+
+  if (isEscapingOutputDir) {
+    throw new Error(`Invalid item codename "${codename}" resolves outside the output directory.`);
+  }
+
+  return filePath;
 };
