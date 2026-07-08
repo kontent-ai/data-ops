@@ -1,9 +1,8 @@
-import {
-  type ContentTypeContracts,
-  type ContentTypeElements,
-  type ElementContracts,
-  type ManagementClient,
-  SharedModels,
+import type {
+  ContentTypeContracts,
+  ContentTypeElements,
+  ElementContracts,
+  ManagementClient,
 } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
@@ -62,11 +61,6 @@ export const contentTypesEntity = {
 
     await serially(
       types.map((type) => () => client.deleteContentType().byTypeId(type.id).toPromise()),
-    ).then(
-      (res) =>
-        res
-          .filter((e) => e instanceof SharedModels.ContentManagementBaseKontentError)
-          .map((e) => Promise.reject(e))[0],
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<Type>>;
