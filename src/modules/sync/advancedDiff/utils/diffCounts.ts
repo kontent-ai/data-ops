@@ -16,6 +16,6 @@ export const countDiffObject = (diff: DiffObject<{ codename: string }>): DiffCou
 
 export const countPatchOps = (ops: ReadonlyArray<PatchOperation>): DiffCounts => ({
   added: ops.filter(isOp("addInto")).length,
-  modified: ops.filter(isOp("replace")).length,
+  modified: ops.filter((op) => op.op === "replace" || op.op === "move").length,
   removed: ops.filter(isOp("remove")).length,
 });
