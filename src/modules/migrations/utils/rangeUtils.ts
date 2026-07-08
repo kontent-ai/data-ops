@@ -54,7 +54,7 @@ const parseRangeOption = (option: string): WithErr<MigrationOrder | null> => {
 export const validateRange = (range: Range) => {
   if (
     (typeof range.from === "number" && range.from < 0) ||
-    (typeof range.to === "number" && range.to <= 0)
+    (typeof range.to === "number" && range.to < 0)
   ) {
     return { err: "Order must be greater or equal 0" };
   }
