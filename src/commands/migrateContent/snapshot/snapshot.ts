@@ -83,6 +83,11 @@ export const register: RegisterCommand = (yargs) =>
             "A filter to obtain a subset of items codenames. See Delivery API documentation for more information.",
           conflicts: itemsFilterParams.filter((p) => p !== "filter"),
         })
+        .option("tolerateMissingReferences", {
+          type: "boolean",
+          describe:
+            "When enabled, missing items and assets will be skipped instead of throwing errors.",
+        })
         .option("skipConfirmation", {
           type: "boolean",
           describe: "Skip confirmation message.",
@@ -106,6 +111,7 @@ type MigrateContentSnapshotCliParams = Readonly<{
   limit: number | undefined;
   byTypesCodenames: ReadonlyArray<string> | undefined;
   filter: string | undefined;
+  tolerateMissingReferences: boolean | undefined;
   skipConfirmation: boolean | undefined;
   kontentUrl: string | undefined;
 }> &
