@@ -1,6 +1,8 @@
 # local configuration files folder
 configs/
 
+playground/
+
 # Build output
 build/
 

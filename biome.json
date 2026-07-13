@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@kontent-ai/biome-config/base"],
   "files": {
-    "includes": ["src/**", "!**/package.json", "!**/*.snap.*"]
+    "includes": ["src/**", "!**/package.json", "!**/*.snap.*", "!playground"]
   },
   "linter": {
     "rules": {

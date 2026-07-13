@@ -14,6 +14,7 @@ import {
   type Migration,
   type MigrationModuleType,
   type MigrationOrder,
+  type ModuleFormat,
 } from "../models/migration.js";
 import type { MigrationOperation, MigrationStatus } from "../models/status.js";
 import type { RunMigrationFilterParams } from "../run.js";
@@ -29,7 +30,7 @@ export const getMigrationName = (
   `${prefix instanceof Date ? `${serializeDateForFileName(prefix, DateLevel.Second)}-` : (prefix ?? "")}${name}.${type}`;
 
 export const generateTypescriptMigration = (order: Date | number | undefined): string =>
-  `import { MigrationModule } from "@kontent-ai/data-ops";
+  `import type { MigrationModule } from "@kontent-ai/data-ops";
 
 const migration: MigrationModule = {
   order: ${order === undefined ? "1" : createOrderPropertyValue(order)},
@@ -40,14 +41,17 @@ const migration: MigrationModule = {
 export default migration;
 `;
 
-export const generateJavascriptMigration = (order: Date | number | undefined): string =>
+export const generateJavascriptMigration = (
+  order: Date | number | undefined,
+  moduleFormat: ModuleFormat,
+): string =>
   `const migration = {
   order: ${order === undefined ? "1" : createOrderPropertyValue(order)},
   run: async apiClient => {},
   rollback: async apiClient => {},
 };
 
-module.exports = migration;
+${moduleFormat === "esm" ? "export default migration;" : "module.exports = migration;"}
 `;
 
 const createOrderPropertyValue = (order: Date | number) =>

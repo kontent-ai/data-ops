@@ -37,10 +37,10 @@ const createMigrationStatus = (
 
 describe("migration templates", () => {
   it.each([
-    ["javascript", generateJavascriptMigration],
-    ["typescript", generateTypescriptMigration],
+    ["javascript", () => generateJavascriptMigration(undefined, "esm")],
+    ["typescript", () => generateTypescriptMigration(undefined)],
   ])("generates an async rollback handler in the %s template", (_, generate) => {
-    expect(generate(undefined)).toContain("rollback: async apiClient => {}");
+    expect(generate()).toContain("rollback: async apiClient => {}");
   });
 });
 

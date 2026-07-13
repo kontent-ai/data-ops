@@ -5,11 +5,11 @@ The `migrations` command provides tools to write and execute migration scripts f
 - [`add`](#migrations-add-command): Create a new migration script.
 - [`run`](#migrations-run-command): Execute migration scripts against a Kontent.ai environment.
 
-
 > [!CAUTION]
 >
-> The data-ops migration tools support only JavaScript files. If you write your migrations in TypeScript or any other language, you must transpile your code before running them.
-> Also, the tool can only work with ES Modules - ensure you use ES `.js` scripts or transpile your `.ts` files into ES Modules.
+> `migrations run` only loads JavaScript files. If you write your migrations in TypeScript or any other language, you must transpile them before running.
+>
+> Generated migrations are ES Modules by default. Pass `--moduleFormat cjs` to `migrations add` to get CommonJS instead.
 
 ---
 
@@ -18,7 +18,7 @@ The `migrations` command provides tools to write and execute migration scripts f
 The `migrations add` command creates a Kontent.ai migration script file in JavaScript or TypeScript. The generated script contains a module object with three properties:
 
 - **`order`**: Determines the sequence in which migrations are executed. The order can be specified as either a number or a date.
-- **`run`**: Implement this function to execute the migration script using the Kontent.ai Management SDK, which is provided via the `client` parameter.
+- **`run`**: Implement this function to execute the migration script using the Kontent.ai Management SDK, which is provided via the `apiClient` parameter.
 - **`rollback`** (optional): Implement this function to reverse the changes made by the migration, if necessary.
 
 ### Usage
@@ -39,10 +39,13 @@ npx @kontent-ai/data-ops@latest migrations add --help
 
 | Parameter               | Description                                                                                                     |
 |-------------------------|-----------------------------------------------------------------------------------------------------------------|
-| `--migrationsFolder`    | The path to the folder where the migration script will be created.                                               |
 | `--name`                | The name of the migration script.                                                                                |
-| `--timestamp`           | (Optional) Use date-based ordering for the migration script. The script file will be named with the current UTC date and time. |
+| `--migrationsFolder`    | (Optional) The path to the folder where the migration script will be created. Defaults to the current working directory. |
 | `--type`                | (Optional) Defines the Type of the script. Allowed values 'ts' or 'js'. Default ts.   |
+| `--moduleFormat`        | (Optional) The module format of the generated JavaScript migration. Allowed values 'esm' or 'cjs'. Default esm. Has no effect with `--type ts`. |
+| `--timestamp`           | (Optional) Use date-based ordering for the migration script. The script file will be named with the current UTC date and time. Conflicts with `--order`. |
+| `--order`               | (Optional) Sets the `order` property to the provided number. Conflicts with `--timestamp`.                        |
+| `--padWithLeadingZeros` | (Optional) The number of leading zeros for the order number in the migration file name. Requires `--order`.       |
 
 ### Ordering Rules
 
@@ -74,6 +77,36 @@ npx @kontent-ai/data-ops@latest migrations add \
 ```
 
 This will create a migration script named with the current UTC date and time, and the `order` property will be set to the corresponding date.
+
+### Generated Script
+
+With `--type ts`, the generated script is an ES module:
+
+```typescript
+import type { MigrationModule } from "@kontent-ai/data-ops";
+
+const migration: MigrationModule = {
+  order: 1,
+  run: async apiClient => {},
+  rollback: async apiClient => {},
+};
+
+export default migration;
+```
+
+With `--type js`, you get the same object without the type annotation. By default it is an ES module:
+
+```javascript
+const migration = {
+  order: 1,
+  run: async apiClient => {},
+  rollback: async apiClient => {},
+};
+
+export default migration;
+```
+
+Passing `--moduleFormat cjs` swaps only the last line for `module.exports = migration;`.
 
 ---
 

@@ -24,7 +24,11 @@ export {
   migrateContentSnapshot,
 } from "./modules/migrateContent/migrateContentSnapshot.js";
 export { AddMigrationParams, addMigration } from "./modules/migrations/add.js";
-export { MigrationModule, MigrationOrder } from "./modules/migrations/models/migration.js";
+export {
+  MigrationModule,
+  MigrationOrder,
+  ModuleFormat,
+} from "./modules/migrations/models/migration.js";
 export {
   MigrationStatus,
   ReadStatus,
