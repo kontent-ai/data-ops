@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 import { type LogOptions, logInfo } from "../../log.js";
 import { padWithLeadingZeros } from "../../utils/number.js";
-import type { MigrationModuleType } from "./models/migration.js";
+import type { MigrationModuleType, ModuleFormat } from "./models/migration.js";
 import { handleErr } from "./utils/errUtils.js";
 import { createFolder, saveFile } from "./utils/fileUtils.js";
 import {
@@ -18,6 +18,7 @@ export type AddMigrationParams = Readonly<
     name: string;
     migrationsFolder?: string;
     type: MigrationModuleType;
+    moduleFormat?: ModuleFormat;
   } & TimestampOrOrderParams &
     LogOptions
 >;
@@ -48,10 +49,11 @@ export const addMigration = async (params: AddMigrationParams) => {
         ? undefined
         : `${padWithLeadingZeros(params.order, params.padWithLeadingZeros)}-`,
   );
+  const migrationOrder = params.timestamp ? currentDate : params.order;
   const migrationData =
     params.type === "ts"
-      ? generateTypescriptMigration(params.timestamp ? currentDate : params.order)
-      : generateJavascriptMigration(params.timestamp ? currentDate : params.order);
+      ? generateTypescriptMigration(migrationOrder)
+      : generateJavascriptMigration(migrationOrder, params.moduleFormat ?? "esm");
 
   const migrationPath = path.join(folderPath, migrationName);
 

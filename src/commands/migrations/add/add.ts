@@ -1,6 +1,9 @@
 import { type LogOptions, logError } from "../../../log.js";
 import { type AddMigrationParams, addMigration } from "../../../modules/migrations/add.js";
-import type { MigrationModuleType } from "../../../modules/migrations/models/migration.js";
+import type {
+  MigrationModuleType,
+  ModuleFormat,
+} from "../../../modules/migrations/models/migration.js";
 import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -32,6 +35,13 @@ export const register: RegisterCommand = (yargs) =>
           default: "ts",
           choices: ["js", "ts"],
         })
+        .option("moduleFormat", {
+          type: "string",
+          describe:
+            "Specifies the module format of the generated JavaScript migration. Allowed values are 'esm' or 'cjs'. Has no effect with --type ts. Default is 'esm'.",
+          default: "esm",
+          choices: ["esm", "cjs"],
+        })
         .option("timestamp", {
           alias: "d",
           describe:
@@ -62,6 +72,7 @@ type AddMigrationCliParams = Readonly<{
   order: number | undefined;
   padWithLeadingZeros: number | undefined;
   type: string;
+  moduleFormat: string;
 }> &
   LogOptions;
 
@@ -81,6 +92,12 @@ const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
     );
   }
 
+  if (args.moduleFormat !== "esm" && args.moduleFormat !== "cjs") {
+    throw new Error(
+      `Invalid module format '${args.moduleFormat}'. Allowed values are 'esm' (ES modules) or 'cjs' (CommonJS).`,
+    );
+  }
+
   const orderParams = {
     timestamp: args.timestamp,
     order: args.order,
@@ -93,6 +110,7 @@ const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
   return {
     ...args,
     type: args.type as MigrationModuleType,
+    moduleFormat: args.moduleFormat as ModuleFormat,
     ...orderParams,
   };
 };

@@ -5,6 +5,8 @@ export type MigrationOrder = number | Date;
 
 export type MigrationModuleType = "js" | "ts";
 
+export type ModuleFormat = "esm" | "cjs";
+
 export type MigrationModule = Readonly<{
   order: MigrationOrder;
   run(apiClient: ManagementClient): Promise<void>;
