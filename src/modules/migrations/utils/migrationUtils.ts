@@ -7,6 +7,7 @@ import chalk from "chalk";
 import { match, P } from "ts-pattern";
 
 import { type LogOptions, logError, logInfo } from "../../../log.js";
+import { redactingReplacer } from "../../../utils/error.js";
 import { DateLevel, serializeDateForFileName } from "../../../utils/files.js";
 import { seriallyReduce } from "../../../utils/requests.js";
 import {
@@ -167,7 +168,7 @@ export const executeMigrations = async (
       } catch (e) {
         logError(
           logOptions,
-          `Error occured in ${migration.name}: ${e instanceof Error ? e.message : JSON.stringify(e)}`,
+          `Error occured in ${migration.name}: ${e instanceof Error ? e.message : JSON.stringify(e, redactingReplacer)}`,
         );
 
         return {

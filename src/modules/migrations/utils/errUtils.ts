@@ -1,4 +1,5 @@
 import { type LogOptions, logError } from "../../../log.js";
+import { redactingReplacer } from "../../../utils/error.js";
 
 type Err = { err: unknown };
 
@@ -8,7 +9,7 @@ export const handleErr = <T>(entity: WithErr<T>, logOptions: LogOptions, message
   if ("err" in entity) {
     logError(
       logOptions,
-      `${message ?? ""}${entity.err instanceof Error ? entity.err.message : JSON.stringify(entity.err)}`,
+      `${message ?? ""}${entity.err instanceof Error ? entity.err.message : JSON.stringify(entity.err, redactingReplacer)}`,
     );
 
     throw new Error(
