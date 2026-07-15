@@ -12,7 +12,7 @@ import {
 } from "../../../modules/sync/diffEnvironments.js";
 import { createAdvancedDiffFile, printDiff } from "../../../modules/sync/printDiff.js";
 import type { RegisterCommand } from "../../../types/yargs.js";
-import { simplifyErrors } from "../../../utils/error.js";
+import { redactingReplacer, simplifyErrors } from "../../../utils/error.js";
 
 const commandName = "diff";
 
@@ -110,7 +110,7 @@ const syncDiffCli = async (params: syncDiffCliParams) => {
       ? createAdvancedDiffFile({ diffModel, params: { ...resolvedParams, entities } })
       : printDiff(diffModel, new Set(entities), params);
   } catch (e) {
-    logError(params, e instanceof Error ? e.message : JSON.stringify(e));
+    logError(params, e instanceof Error ? e.message : JSON.stringify(e, redactingReplacer));
     process.exit(1);
   }
 };

@@ -2,7 +2,7 @@ import type { AssetFolderModels, ManagementClient } from "@kontent-ai/management
 import { match } from "ts-pattern";
 
 import { type LogOptions, logError, logInfo } from "../../../log.js";
-import { handleKontentErrors, throwError } from "../../../utils/error.js";
+import { handleKontentErrors, redactingReplacer, throwError } from "../../../utils/error.js";
 import { apply, not } from "../../../utils/function.js";
 import { omit } from "../../../utils/object.js";
 import { serially } from "../../../utils/requests.js";
@@ -37,7 +37,7 @@ export const syncAssetFolders = async (
                 logError(
                   logOptions,
                   "error",
-                  `Failed to remove asset folder "${operation.path}" error: ${JSON.stringify(err)}. Skipping it.`,
+                  `Failed to remove asset folder "${operation.path}" error: ${JSON.stringify(err, redactingReplacer)}. Skipping it.`,
                 );
 
                 return undefined;

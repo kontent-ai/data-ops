@@ -36,7 +36,28 @@ export const simplifyAxiosErrors = (error: unknown): unknown =>
         method: error.config?.method,
         responseBody: error.response?.config.data,
         requestBody: error.config?.data,
-        requestHeaders: error.config?.headers.normalize(true).toJSON(),
+        requestHeaders: redactSecrets(error.config?.headers.normalize(true).toJSON()),
         code: error.code,
       }
     : error;
+
+/**
+ * A `JSON.stringify` replacer that masks credential values at any depth. Pass it to every sink that
+ * serializes a raw error, whose nested request headers would otherwise expose the bearer token.
+ */
+export const redactingReplacer = (key: string, value: unknown): unknown =>
+  secretKeyPattern.test(key) ? redactedValue : value;
+
+const redactedValue = "***redacted***";
+
+const secretKeyPattern = /authorization|api[-_]?key/i;
+
+const redactSecrets = (headers: unknown): unknown =>
+  headers && typeof headers === "object"
+    ? Object.fromEntries(
+        Object.entries(headers).map(([key, value]) => [
+          key,
+          secretKeyPattern.test(key) ? redactedValue : value,
+        ]),
+      )
+    : headers;
