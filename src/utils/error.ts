@@ -1,5 +1,8 @@
 import { SharedModels } from "@kontent-ai/management-sdk";
 import { isAxiosError } from "axios";
+import chalk from "chalk";
+
+import { InvalidKontentUrlError } from "./kontentUrl.js";
 
 export const throwError = (msg: string) => {
   throw new Error(msg);
@@ -24,9 +27,19 @@ export const handleKontentErrors =
     throw simplifyAxiosErrors(error);
   };
 
-export const simplifyErrors = handleKontentErrors((err) => {
+const rethrowKontentErrors = handleKontentErrors((err) => {
   throw err as unknown;
 });
+
+export const simplifyErrors = (error: unknown) => {
+  if (error instanceof InvalidKontentUrlError) {
+    // eslint-disable-next-line no-restricted-syntax
+    console.error(`${chalk.red("Error:")} ${error.message}\n`);
+    process.exit(1);
+  }
+
+  return rethrowKontentErrors(error);
+};
 
 export const simplifyAxiosErrors = (error: unknown): unknown =>
   isAxiosError(error)

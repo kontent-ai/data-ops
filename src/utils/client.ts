@@ -5,6 +5,7 @@ import { isAxiosError } from "axios";
 
 import packageJson from "../../package.json" with { type: "json" };
 import { apply } from "./function.js";
+import { validateKontentUrl } from "./kontentUrl.js";
 
 type Params = Readonly<{
   environmentId: string;
@@ -73,6 +74,7 @@ const defaultHttpService = new HttpService({
 const resolveUrlParam = (
   url: string | undefined,
   resolver: (url: string) => string,
-): string | undefined => apply((u) => resolver(u.replace(/^https:\/\//, "")), url);
+): string | undefined => apply((u) => resolver(validateKontentUrl(u)), url);
 
-export const createManagementApiUrl = (baseUrl: string): string => `https://manage.${baseUrl}/v2`;
+export const createManagementApiUrl = (baseUrl: string): string =>
+  `https://manage.${validateKontentUrl(baseUrl)}/v2`;
