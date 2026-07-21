@@ -115,7 +115,7 @@ export const register: RegisterCommand = (yargs) =>
           }
           return true;
         }),
-    handler: (args) => exportMarkdownCli(args).catch(simplifyErrors),
+    handler: (args) => exportMarkdownCli(args).catch(simplifyErrors(args)),
   });
 
 export type ExportMarkdownCliParams = Readonly<{

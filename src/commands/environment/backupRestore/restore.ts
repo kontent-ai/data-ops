@@ -62,7 +62,7 @@ export const register: RegisterCommand = (yargs) =>
           type: "string",
           describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: (args) => restoreEnvironmentCli(args).catch(simplifyErrors),
+    handler: (args) => restoreEnvironmentCli(args).catch(simplifyErrors(args)),
   });
 
 type RestoreEnvironmentCliParams = Readonly<{

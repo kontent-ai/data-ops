@@ -83,7 +83,7 @@ export const register: RegisterCommand = (yargs) =>
           type: "string",
           describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: (args) => syncDiffCli(args).catch(simplifyErrors),
+    handler: (args) => syncDiffCli(args).catch(simplifyErrors(args)),
   });
 
 type syncDiffCliParams = Readonly<{

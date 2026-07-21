@@ -91,7 +91,7 @@ export const register: RegisterCommand = (yargs) =>
           type: "string",
           describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: (args) => migrateContentSnapshotCli(args).catch(simplifyErrors),
+    handler: (args) => migrateContentSnapshotCli(args).catch(simplifyErrors(args)),
   });
 
 type MigrateContentSnapshotCliParams = Readonly<{
