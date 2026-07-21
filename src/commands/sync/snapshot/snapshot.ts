@@ -49,7 +49,7 @@ export const register: RegisterCommand = (yargs) =>
           describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
 
-    handler: (args) => syncSnapshotCli(args).catch(simplifyErrors),
+    handler: (args) => syncSnapshotCli(args).catch(simplifyErrors(args)),
   });
 
 type SyncSnapshotCliParams = Readonly<{

@@ -126,7 +126,7 @@ export const register: RegisterCommand = (yargs) =>
           `${exampleMessagePrefix} --range 2:`,
           "Run all migrations with order from 2 (included).",
         ),
-    handler: (args) => runMigrationsCli(args).catch(simplifyErrors),
+    handler: (args) => runMigrationsCli(args).catch(simplifyErrors(args)),
   });
 
 type RunMigrationsCliParams = Readonly<{
