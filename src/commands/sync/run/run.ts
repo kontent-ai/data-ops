@@ -74,7 +74,7 @@ export const register: RegisterCommand = (yargs) =>
           type: "string",
           describe: 'Custom URL for Kontent.ai endpoints. Defaults to "kontent.ai".',
         }),
-    handler: (args) => syncRunCli(args).catch(simplifyErrors),
+    handler: (args) => syncRunCli(args).catch(simplifyErrors(args)),
   });
 
 type SyncModelRunCliParams = Readonly<{

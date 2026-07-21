@@ -62,7 +62,7 @@ export const register: RegisterCommand = (yargs) =>
           conflicts: ["timestamp"],
           implies: "order",
         }),
-    handler: (args) => addMigrationCli(args).catch(simplifyErrors),
+    handler: (args) => addMigrationCli(args).catch(simplifyErrors(args)),
   });
 
 type AddMigrationCliParams = Readonly<{
