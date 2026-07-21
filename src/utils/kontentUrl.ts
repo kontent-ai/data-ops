@@ -14,7 +14,7 @@ const parseUrl = (rawUrl: string): URL => {
     return new URL(`https://${withoutScheme}`);
   } catch {
     throw new InvalidKontentUrlError(
-      `Invalid kontentUrl "${rawUrl}": the value could not be parsed as a URL. The kontentUrl must be within an allowed domain: ${allowedKontentDomains.join(", ")}.`,
+      `Invalid kontentUrl "${rawUrl}": the value could not be parsed as a URL.`,
     );
   }
 };
