@@ -186,7 +186,7 @@ const getDiffModel = async (
 export const validateTargetEnvironment = async (
   diffModel: DiffModel,
   targetClient: ManagementClient,
-) => {
+): Promise<void> => {
   const diffErrors = await validateDiffedModel(targetClient, diffModel);
 
   if (diffErrors.length) {

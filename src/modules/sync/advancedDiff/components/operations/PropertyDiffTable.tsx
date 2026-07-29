@@ -26,6 +26,7 @@ export const PropertyDiffTable = ({ ops, elementCodename }: PropertyDiffTablePro
         {ops.replaces.map((op, i) => {
           const property = stripElementPrefix(op.path, elementCodename);
           return (
+            // biome-ignore lint/suspicious/noArrayIndexKey: render-once diff list, never reordered; op.path can repeat so the index disambiguates
             <tr key={`replace-${op.path}-${i}`}>
               <td className="prop-name">
                 {renderTaxonomyPropertyPath(property) ?? formatPropertyName(property)}

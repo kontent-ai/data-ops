@@ -27,7 +27,7 @@
     "data-ops": "./build/src/index.js"
   },
   "engines": {
-    "node": ">=20.10"
+    "node": ">=22"
   },
   "packageManager": "pnpm@10.33.2",
   "repository": {
@@ -44,44 +44,44 @@
     ".": "./build/src/public.js"
   },
   "dependencies": {
-    "@kontent-ai/core-sdk": "^10.12.6",
-    "@kontent-ai/delivery-sdk": "^16.4.4",
-    "@kontent-ai/management-sdk": "^8.5.2",
-    "@kontent-ai/migration-toolkit": "^3.2.0",
-    "@kontent-ai/rich-text-resolver": "3.0.2",
-    "@kontent-ai/rich-text-resolver-markdown": "^3.0.2",
-    "@kontent-ai/rich-text-resolver-react": "^3.0.3",
+    "@kontent-ai/core-sdk": "^10.12.8",
+    "@kontent-ai/delivery-sdk": "^16.4.6",
+    "@kontent-ai/management-sdk": "^8.5.4",
+    "@kontent-ai/migration-toolkit": "^3.2.1",
+    "@kontent-ai/rich-text-resolver": "3.0.3",
+    "@kontent-ai/rich-text-resolver-markdown": "^3.0.3",
+    "@kontent-ai/rich-text-resolver-react": "^3.0.4",
     "archiver": "^7.0.1",
     "axios": "^1.18.1",
     "chalk": "^5.6.2",
     "js-yaml": "^4.3.0",
-    "node-stream-zip": "^1.15.0",
+    "node-stream-zip": "^1.16.0",
     "open": "^11.0.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "ts-pattern": "^5.9.0",
-    "uuid": "^13.0.2",
-    "yargs": "^18.0.0",
+    "uuid": "^14.0.1",
+    "yargs": "^18.1.0",
     "zod": "^3.25.76",
     "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.11",
-    "@kontent-ai/biome-config": "^0.5.1",
+    "@biomejs/biome": "2.5.5",
+    "@kontent-ai/biome-config": "^0.7.3",
     "@kontent-ai/eslint-config": "^2.4.1",
     "@types/archiver": "^7.0.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^25.6.0",
-    "@types/react": "^19.2.7",
+    "@types/node": "^22.20.1",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/yargs": "^17.0.35",
-    "@typescript-eslint/eslint-plugin": "^8.59.4",
-    "@typescript-eslint/parser": "^8.59.4",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
     "dotenv": "^17.4.2",
     "eslint": "^8.57.1",
     "minimist": "^1.2.8",
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.10"
   }
 }
