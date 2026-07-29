@@ -53,6 +53,7 @@ export const MoveTable = ({ moves, elementCodename }: MoveTableProps) => {
             const { position, codename } = getMovePosition(op);
             const path = elementCodename ? stripElementPrefix(op.path, elementCodename) : op.path;
             return (
+              // biome-ignore lint/suspicious/noArrayIndexKey: render-once diff list, never reordered; op.path can repeat so the index disambiguates
               <tr key={`move-${op.path}-${i}`}>
                 <td className="move-item">{renderEntityPath(renderers, path)}</td>
                 <td>

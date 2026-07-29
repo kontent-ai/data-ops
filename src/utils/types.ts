@@ -107,10 +107,8 @@ export type Expect<T, U extends T> = U;
  * - If `Tuple` extends `ReadonlyArray<Object>`, meaning it is not a fixed-length tuple of objects,
  *   the resulting type is `never`.
  */
-export type AddPropToObjectTuple<
-  Tuple extends ReadonlyArray<unknown>,
-  ToAdd extends object,
-> = ReadonlyArray<unknown> extends Tuple ? never : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
+export type AddPropToObjectTuple<Tuple extends ReadonlyArray<unknown>, ToAdd extends object> =
+  ReadonlyArray<unknown> extends Tuple ? never : { [Key in keyof Tuple]: ToAdd & Tuple[Key] };
 
 /**
  * Maps a tuple of key-value pairs to an object type.

@@ -11,12 +11,12 @@ describe("validateKontentUrl", () => {
     { input: "devkontentmasters.com", expected: "devkontentmasters.com" },
     { input: "sub.devkontentmasters.com", expected: "sub.devkontentmasters.com" },
     { input: "kontent.ai/", expected: "kontent.ai" },
-  ] as const)("returns the normalized host $expected for allowed input $input", ({
-    input,
-    expected,
-  }) => {
-    expect(validateKontentUrl(input)).toBe(expected);
-  });
+  ] as const)(
+    "returns the normalized host $expected for allowed input $input",
+    ({ input, expected }) => {
+      expect(validateKontentUrl(input)).toBe(expected);
+    },
+  );
 
   it.each([
     { input: "evil.com" },

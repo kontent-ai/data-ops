@@ -26,7 +26,6 @@ export const renderTaxonomyPropertyPath = (propertyPath: string): ReactNode | nu
   const lastTerm = terms.at(-1);
   const lastMatch = termMatches.at(-1);
 
-  // biome-ignore lint/complexity/useSimplifiedLogicExpression: easier to read then suggestion
   if (!lastTerm || !lastMatch) {
     return null;
   }

@@ -13,16 +13,16 @@ import type {
 
 import type { CodenameReference, Replace } from "../../../utils/types.js";
 
-type ReplaceReferences<
-  T,
-  Reference extends CodenameReference = CodenameReference,
-> = T extends ReadonlyArray<infer R>
-  ? ReadonlyArray<ReplaceReferences<R>>
-  : T extends object
-    ? (T extends { id?: string; codename?: string; external_id?: string } ? Reference : object) & {
-        [K in keyof Omit<T, "id" | "codename" | "external_id">]: ReplaceReferences<T[K]>;
-      }
-    : T;
+type ReplaceReferences<T, Reference extends CodenameReference = CodenameReference> =
+  T extends ReadonlyArray<infer R>
+    ? ReadonlyArray<ReplaceReferences<R>>
+    : T extends object
+      ? (T extends { id?: string; codename?: string; external_id?: string }
+          ? Reference
+          : object) & {
+          [K in keyof Omit<T, "id" | "codename" | "external_id">]: ReplaceReferences<T[K]>;
+        }
+      : T;
 
 type SnippetElement<E> = Omit<E, "content_group">;
 // content item or asset reference

@@ -61,6 +61,7 @@ const mergeGroups = (
 
 const renderAddValues = (ops: ReadonlyArray<AddIntoPatchOperation>): ReactNode =>
   ops.map((op, i) => (
+    // biome-ignore lint/suspicious/noArrayIndexKey: render-once diff list, never reordered; op.path can repeat so the index disambiguates
     <span key={`add-${op.path}-${i}`}>
       {i > 0 && ", "}
       {renderValueOrIdentifier(op.value)}
@@ -69,6 +70,7 @@ const renderAddValues = (ops: ReadonlyArray<AddIntoPatchOperation>): ReactNode =
 
 const renderRemoveValues = (ops: ReadonlyArray<RemovePatchOperation>): ReactNode =>
   ops.map((op, i) => (
+    // biome-ignore lint/suspicious/noArrayIndexKey: render-once diff list, never reordered; op.path can repeat so the index disambiguates
     <span key={`rm-${op.path}-${i}`}>
       {i > 0 && ", "}
       {renderValueOrIdentifier(op.oldValue)}
