@@ -54,10 +54,9 @@ const baseTypeSchema = z.object({
   codename: z.string().optional(),
 });
 
-const snippetSchema: z.ZodType<ContentTypeSnippetModels.IAddContentTypeSnippetData> =
-  baseTypeSchema;
+const snippetSchema = baseTypeSchema;
 
-const contentTypeSchema: z.ZodType<ContentTypeModels.IAddContentTypeData> = baseTypeSchema.extend({
+const contentTypeSchema = baseTypeSchema.extend({
   content_groups: z
     .object({
       name: z.string(),
