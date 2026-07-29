@@ -43,11 +43,9 @@ const ContentGroupSchema = z.object({ codename: z.string(), name: z.string() });
 
 export const TypeSchema: z.ZodType<
   ContentTypeSyncModel,
-  z.ZodTypeDef,
   Pick<ContentTypeSyncModel, "content_groups">
 > = z
-  .object({ content_groups: z.array(ContentGroupSchema) })
-  .passthrough()
+  .looseObject({ content_groups: z.array(ContentGroupSchema) })
   .transform((obj) => ({
     ...obj,
     groups_number: obj.content_groups.length === 0 ? "zero" : "multiple",
@@ -90,7 +88,7 @@ export const LivePreviewSchema = z.object({
 
 // Legacy webSpotlight.json shape; root_type is dropped silently because the
 // new live_preview endpoint has no global root concept (per-space root_item handles it).
-export const LegacyWebSpotlightSchema: z.ZodType<LivePreviewSyncModel, z.ZodTypeDef, unknown> = z
+export const LegacyWebSpotlightSchema: z.ZodType<LivePreviewSyncModel> = z
   .object({
     enabled: z.boolean(),
     root_type: CodenameReferenceSchema.nullable(),
@@ -102,7 +100,7 @@ export const CollectionSchema = z.object({
   codename: z.string(),
 } satisfies RequiredZodObject<CollectionSyncModel>);
 
-export const SpaceSchema: z.ZodType<SpaceSyncModel, z.ZodTypeDef, unknown> = z
+export const SpaceSchema: z.ZodType<SpaceSyncModel> = z
   .object({
     name: z.string(),
     codename: z.string(),
@@ -110,10 +108,10 @@ export const SpaceSchema: z.ZodType<SpaceSyncModel, z.ZodTypeDef, unknown> = z
     root_item: CodenameReferenceSchema.optional(),
     collections: z.array(CodenameReferenceSchema),
   })
-  .transform(({ web_spotlight_root_item, root_item, ...rest }) => {
-    const resolved = root_item ?? web_spotlight_root_item;
+  .overwrite((space) => {
+    const resolved = space.root_item ?? space.web_spotlight_root_item;
     return {
-      ...rest,
+      ...space,
       root_item: resolved,
       web_spotlight_root_item: resolved,
     };
