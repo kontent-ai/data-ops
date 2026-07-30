@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import { finished } from "node:stream/promises";
 import type { ManagementClient } from "@kontent-ai/management-sdk";
-import archiver from "archiver";
+import { type Archiver, ZipArchive } from "archiver";
 import chalk from "chalk";
 
 import packageFile from "../../../package.json" with { type: "json" };
@@ -94,7 +94,7 @@ export const backupEnvironmentInternal = async (
     `${serializeDateForFileName(now, DateLevel.Minute)}-backup-${params.environmentId}.zip`;
 
   const outputStream = fs.createWriteStream(fileName);
-  const archive = archiver("zip");
+  const archive = new ZipArchive();
   archive.pipe(outputStream);
 
   await serially(
@@ -137,7 +137,7 @@ export const backupEnvironmentInternal = async (
   );
 };
 
-const exportMetadata = (archive: archiver.Archiver, environmentId: string) => {
+const exportMetadata = (archive: Archiver, environmentId: string) => {
   const metadata = {
     version: version,
     timestamp: new Date(),
