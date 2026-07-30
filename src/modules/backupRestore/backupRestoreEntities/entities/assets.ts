@@ -1,6 +1,6 @@
 import stream from "node:stream";
 import type { AssetContracts, ManagementClient } from "@kontent-ai/management-sdk";
-import type archiver from "archiver";
+import type { Archiver } from "archiver";
 import chalk from "chalk";
 import type { StreamZipAsync } from "node-stream-zip";
 
@@ -72,7 +72,7 @@ export const assetsEntity = {
 } as const satisfies EntityDefinition<ReadonlyArray<AssetWithElements>>;
 
 const saveAsset = async (
-  archive: archiver.Archiver,
+  archive: Archiver,
   logOptions: LogOptions,
   asset: AssetContracts.IAssetModelContract,
   secureAssetDeliveryKey: string | undefined,

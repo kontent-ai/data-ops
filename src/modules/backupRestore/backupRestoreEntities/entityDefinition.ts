@@ -1,5 +1,5 @@
 import type { ManagementClient } from "@kontent-ai/management-sdk";
-import type archiver from "archiver";
+import type { Archiver } from "archiver";
 import type { StreamZipAsync } from "node-stream-zip";
 
 import type { LogOptions } from "../../../log.js";
@@ -18,7 +18,7 @@ export type EntityBackupDefinition<T> = Readonly<{
   serializeEntities: (entities: T) => string;
   addOtherFiles?: (
     loadedEntities: T,
-    archive: archiver.Archiver,
+    archive: Archiver,
     secureAssetDeliveryKey: string | undefined,
     logOptions: LogOptions,
   ) => Promise<void>;
