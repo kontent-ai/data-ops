@@ -118,6 +118,7 @@ export const backupEnvironmentInternal = async (
             err,
             Object.getOwnPropertyNames(err),
           )}`,
+          { cause: err },
         );
       }
     }),

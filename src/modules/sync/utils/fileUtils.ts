@@ -20,6 +20,7 @@ export const createOutputFile = (path: string, content: string, logOptions: LogO
   } catch (err) {
     throw new Error(
       `Failed writing a diff file: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
+      { cause: err },
     );
   }
 };
@@ -41,6 +42,7 @@ export const createOutputDirectory = (path: string, logOptions: LogOptions) => {
   } catch (err) {
     throw new Error(
       `Failed to create directory '${path}': ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
+      { cause: err },
     );
   }
 };
