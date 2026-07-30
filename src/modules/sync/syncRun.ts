@@ -113,7 +113,7 @@ export const syncRunInternal = async (
   try {
     await validateTargetEnvironment(diffModel, targetEnvironmentClient);
   } catch (e) {
-    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
+    throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)), { cause: e });
   }
 
   const entitiesSet = new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>;

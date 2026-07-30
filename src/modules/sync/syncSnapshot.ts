@@ -74,6 +74,8 @@ const logOnError = <T>(errorMessage: string, action: () => Promise<T>): Promise<
   try {
     return action();
   } catch (e) {
-    throw new Error(`${errorMessage}: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`);
+    throw new Error(`${errorMessage}: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`, {
+      cause: e,
+    });
   }
 };

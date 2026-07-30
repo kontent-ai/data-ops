@@ -1,3 +1,6 @@
 # Supply-chain safeguard: refuse package versions published less than 3 days
 # (4320 minutes) ago, giving time for malicious releases to be caught.
 minimumReleaseAge: 4320
+# First-party packages we publish ourselves
+minimumReleaseAgeExclude:
+  - "@kontent-ai/*"

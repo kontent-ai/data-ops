@@ -118,8 +118,11 @@ export const restoreEnvironmentInternal = async (
             options: params.options,
           })) ?? context;
       } catch (err) {
-        throw new Error(`Failed to import entity ${chalk.red(def.displayName)}.
-        ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`);
+        throw new Error(
+          `Failed to import entity ${chalk.red(def.displayName)}.
+        ${JSON.stringify(err, Object.getOwnPropertyNames(err))}`,
+          { cause: err },
+        );
       }
     }),
   );
