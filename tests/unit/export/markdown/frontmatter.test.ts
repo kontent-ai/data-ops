@@ -122,7 +122,9 @@ describe("toFrontmatter", () => {
       images: [https://example.com/image?size=100#anchor]
       count: 42.5
       keyword: 'true'
-      description: "Don't forget the basics\\nThey're important"
+      description: |-
+        Don't forget the basics
+        They're important
       ---"
     `);
   });

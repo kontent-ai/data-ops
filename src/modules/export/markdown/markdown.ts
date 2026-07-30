@@ -4,7 +4,7 @@ import {
   type PortableTextMarkdownResolvers,
   toMarkdown as portableTextToMarkdown,
 } from "@kontent-ai/rich-text-resolver-markdown";
-import yaml from "js-yaml";
+import { dump } from "js-yaml";
 import { match } from "ts-pattern";
 import { notNull, notNullOrUndefined } from "../../../utils/typeguards.js";
 
@@ -166,7 +166,7 @@ export const toFrontmatter = <T extends IContentItem>(
       .filter(notNull),
   );
 
-  const yamlStr = yaml.dump(
+  const yamlStr = dump(
     { ...systemData, ...elementData },
     {
       lineWidth: -1,
