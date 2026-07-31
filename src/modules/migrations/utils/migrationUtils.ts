@@ -112,7 +112,10 @@ export const loadMigrationFiles = async (folderPath: string): Promise<WithErr<Mi
       .filter((file) => file.isFile() && file.name.endsWith("js"))
       .map(async (file) => {
         const migrationPath = path.join(folderPath, file.name);
-        const module = (await import(pathToFileURL(migrationPath).href)).default;
+        const importedModule = (await import(pathToFileURL(migrationPath).href)) as {
+          default: unknown;
+        };
+        const module = importedModule.default;
 
         if (isMigrationModule(module)) {
           return { name: file.name, module };
@@ -121,7 +124,7 @@ export const loadMigrationFiles = async (folderPath: string): Promise<WithErr<Mi
       }),
   )
     .then((res) => ({ value: res }))
-    .catch((error) => ({ err: error }));
+    .catch((error: unknown) => ({ err: error }));
 
 export type ExecuteMigrationOptions = {
   operation: MigrationOperation;
