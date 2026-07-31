@@ -148,7 +148,7 @@ const getDiffModel = async (
       ? await getSourceSyncModelFromFolder(params.folderName).catch((e) => {
           if (e instanceof AggregateError) {
             throw new Error(
-              `Parsing model validation errors:\n${e.errors.map((e) => e.message).join("\n")}`,
+              `Parsing model validation errors:\n${e.errors.map((e: Error) => e.message).join("\n")}`,
             );
           }
           throw new Error(JSON.stringify(e, Object.getOwnPropertyNames(e)));
