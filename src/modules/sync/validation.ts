@@ -11,7 +11,7 @@ import type { ElementsTypes } from "./types/contractModels.js";
 import type { DiffModel } from "./types/diffModel.js";
 import { getTargetCodename, type PatchOperation } from "./types/patchOperation.js";
 
-const fileExists = (filePath: string): Promise<boolean> =>
+const fileExists = async (filePath: string): Promise<boolean> =>
   fs.stat(filePath).then(
     () => true,
     () => false,
@@ -31,7 +31,7 @@ export const validateSyncModelFolder = async (
     entities.map(async (entity) => {
       const candidates = entityToFilenames[entity];
       const presenceChecks = await Promise.all(
-        candidates.map((filename) => fileExists(path.resolve(folderPath, filename))),
+        candidates.map(async (filename) => fileExists(path.resolve(folderPath, filename))),
       );
       const isAnyPresent = presenceChecks.some(Boolean);
 
@@ -108,7 +108,7 @@ const getUsedContentTypesCodenames = async (
   contentTypeCodenames: ReadonlySet<string>,
 ) => {
   const promises = [...contentTypeCodenames].map(
-    (typeCodename) => () =>
+    (typeCodename) => async () =>
       client
         .listLanguageVariantsOfContentType()
         .byTypeCodename(typeCodename)
@@ -124,7 +124,7 @@ const getUsedCollectionsCodenames = async (
   collectionCodenames: ReadonlySet<string>,
 ) => {
   const promises = [...collectionCodenames].map(
-    (collectionCodename) => () =>
+    (collectionCodename) => async () =>
       client
         .listLanguageVariantsByCollection()
         .byCollectionCodename(collectionCodename)

@@ -12,7 +12,7 @@ type Webhook = ReplaceReferences<WebhookContracts.IWebhookContract>;
 export const webhooksEntity = {
   name: "webhooks",
   displayName: "webhooks",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listWebhooks()
       .toPromise()
@@ -21,14 +21,14 @@ export const webhooksEntity = {
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities, context, logOptions }) => {
     await serially(
-      entities.map((webhook) => () => {
+      entities.map((webhook) => async () => {
         logInfo(
           logOptions,
           "verbose",
           `Importing: webhook ${webhook.id} (${chalk.yellow(webhook.name)})`,
         );
 
-        return client
+        return await client
           .addWebhook()
           .withData({
             name: webhook.name,
@@ -63,7 +63,7 @@ export const webhooksEntity = {
     }
 
     await serially(
-      webhooks.map((webhook) => () => client.deleteWebhook().byId(webhook.id).toPromise()),
+      webhooks.map((webhook) => async () => client.deleteWebhook().byId(webhook.id).toPromise()),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<Webhook>>;

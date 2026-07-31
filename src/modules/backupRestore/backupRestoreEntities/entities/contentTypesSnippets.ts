@@ -30,7 +30,7 @@ type SnippetElement = RequiredId<ReplaceReferences<ElementContracts.IContentType
 export const contentTypesSnippetsEntity = {
   name: "contentTypeSnippets",
   displayName: "contentTypeSnippets",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listContentTypeSnippets()
       .toAllPromise()
@@ -62,7 +62,7 @@ export const contentTypesSnippetsEntity = {
 
     await serially(
       contentTypeSnippets.map(
-        (snippet) => () => client.deleteContentTypeSnippet().byTypeId(snippet.id).toPromise(),
+        (snippet) => async () => client.deleteContentTypeSnippet().byTypeId(snippet.id).toPromise(),
       ),
     );
   },
@@ -124,37 +124,38 @@ type InsertSnippetParams = Readonly<{
   logOptions: LogOptions;
 }>;
 
-const createInsertSnippetFetcher = (params: InsertSnippetParams) => (snippet: Snippet) => () => {
-  logInfo(
-    params.logOptions,
-    "verbose",
-    `Importing: snippet ${snippet.id} (${chalk.yellow(snippet.name)})`,
-  );
+const createInsertSnippetFetcher =
+  (params: InsertSnippetParams) => (snippet: Snippet) => async () => {
+    logInfo(
+      params.logOptions,
+      "verbose",
+      `Importing: snippet ${snippet.id} (${chalk.yellow(snippet.name)})`,
+    );
 
-  return params.client
-    .addContentTypeSnippet()
-    .withData((builder) => ({
-      name: snippet.name,
-      codename: snippet.codename,
-      external_id: snippet.external_id ?? snippet.codename,
-      elements: snippet.elements.map(
-        createTransformTypeElement({
-          ...params,
-          builder,
-          typeOrSnippetCodename: snippet.codename,
-          elementExternalIdsByOldId: new Map(
-            snippet.elements.map((el) => [
-              el.id,
-              el.external_id ?? `${snippet.codename}_${el.codename}_element`,
-            ]),
-          ),
-          contentGroupExternalIdByOldId: new Map(),
-        }),
-      ),
-    }))
-    .toPromise()
-    .then((res) => res.rawData as Snippet);
-};
+    return await params.client
+      .addContentTypeSnippet()
+      .withData((builder) => ({
+        name: snippet.name,
+        codename: snippet.codename,
+        external_id: snippet.external_id ?? snippet.codename,
+        elements: snippet.elements.map(
+          createTransformTypeElement({
+            ...params,
+            builder,
+            typeOrSnippetCodename: snippet.codename,
+            elementExternalIdsByOldId: new Map(
+              snippet.elements.map((el) => [
+                el.id,
+                el.external_id ?? `${snippet.codename}_${el.codename}_element`,
+              ]),
+            ),
+            contentGroupExternalIdByOldId: new Map(),
+          }),
+        ),
+      }))
+      .toPromise()
+      .then((res) => res.rawData as Snippet);
+  };
 
 type UpdateSnippetParams = Readonly<{
   client: ManagementClient;
@@ -163,7 +164,7 @@ type UpdateSnippetParams = Readonly<{
 }>;
 
 const createUpdateSnippetItemAndTypeReferencesFetcher =
-  (params: UpdateSnippetParams) => (snippet: Snippet) => () => {
+  (params: UpdateSnippetParams) => (snippet: Snippet) => async () => {
     const patchOps = snippet.elements.flatMap(
       createPatchItemAndTypeReferencesInTypeElement(
         params.context,
@@ -183,7 +184,7 @@ const createUpdateSnippetItemAndTypeReferencesFetcher =
       `Patching: snippet ${snippet.id} (${chalk.yellow(snippet.name)}) with new references`,
     );
 
-    return params.client
+    return await params.client
       .modifyContentTypeSnippet()
       .byTypeCodename(snippet.codename)
       .withData(patchOps)

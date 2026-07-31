@@ -17,7 +17,7 @@ export const syncSpaces = async (
 
     await serially(
       model.added.map(
-        (space) => () =>
+        (space) => async () =>
           client
             .addSpace()
             // TODO(sdk-root-item): MAPI accepts `root_item`; SDK types still only expose `web_spotlight_root_item`.
@@ -35,7 +35,7 @@ export const syncSpaces = async (
     await serially(
       [...model.updated].map(
         ([spaceCodename, operations]) =>
-          () =>
+          async () =>
             client
               .modifySpace()
               .bySpaceCodename(spaceCodename)
@@ -52,7 +52,8 @@ export const syncSpaces = async (
 
     await serially(
       [...model.deleted].map(
-        (spaceCodename) => () => client.deleteSpace().bySpaceCodename(spaceCodename).toPromise(),
+        (spaceCodename) => async () =>
+          client.deleteSpace().bySpaceCodename(spaceCodename).toPromise(),
       ),
     );
   } else {

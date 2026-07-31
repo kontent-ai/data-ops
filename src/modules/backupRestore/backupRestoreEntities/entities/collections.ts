@@ -11,7 +11,7 @@ const defaultCollectionName = defaultName;
 export const collectionsEntity = {
   name: "collections",
   displayName: "collections",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listCollections()
       .toPromise()

@@ -29,7 +29,7 @@ export const languageVariantsEntity = {
       .then((res) => res.data.collections);
 
     const promises = collections.map(
-      (collection) => () =>
+      (collection) => async () =>
         client
           .listLanguageVariantsByCollection()
           .byCollectionCodename(collection.codename)
@@ -158,7 +158,7 @@ const createImportVariant =
     }
   };
 
-const publishVariant = (
+const publishVariant = async (
   client: ManagementClient,
   logOptions: LogOptions,
   variant: Variant,
@@ -179,32 +179,29 @@ const publishVariant = (
 
   const incompleteElementsErrorCodes = [4040027, 4040028];
 
-  return (
-    (
-      scheduleTo
-        ? sharedRequest
-            .withData({
-              scheduled_to: scheduleTo.toISOString(),
-            })
-            .toPromise()
-        : sharedRequest.withoutData().toPromise()
-    )
-      .then(() => true)
-      // remove this once we add element requirements after variants are imported
-      .catch(
-        handleKontentErrors(() => {
-          logWarning(
-            logOptions,
-            "standard",
-            `Skipping ${
-              scheduleTo ? "scheduling" : "publishing"
-            } of variant of item ${variant.item.id} of langauge ${variant.language.id}, because some of its elements are incomplete. Please check the variant's elements.`,
-          );
+  return await (scheduleTo
+    ? sharedRequest
+        .withData({
+          scheduled_to: scheduleTo.toISOString(),
+        })
+        .toPromise()
+    : sharedRequest.withoutData().toPromise()
+  )
+    .then(() => true)
+    // remove this once we add element requirements after variants are imported
+    .catch(
+      handleKontentErrors(async () => {
+        logWarning(
+          logOptions,
+          "standard",
+          `Skipping ${
+            scheduleTo ? "scheduling" : "publishing"
+          } of variant of item ${variant.item.id} of langauge ${variant.language.id}, because some of its elements are incomplete. Please check the variant's elements.`,
+        );
 
-          return Promise.resolve(false);
-        }, incompleteElementsErrorCodes),
-      )
-  );
+        return await Promise.resolve(false);
+      }, incompleteElementsErrorCodes),
+    );
 };
 
 type TransformElementParams = Readonly<{

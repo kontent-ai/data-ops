@@ -35,7 +35,7 @@ type ElementGroup = RequiredId<ContentTypeContracts.IContentTypeGroup>;
 export const contentTypesEntity = {
   name: "contentTypes",
   displayName: "contentTypes",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listContentTypes()
       .toAllPromise()
@@ -60,7 +60,7 @@ export const contentTypesEntity = {
     }
 
     await serially(
-      types.map((type) => () => client.deleteContentType().byTypeId(type.id).toPromise()),
+      types.map((type) => async () => client.deleteContentType().byTypeId(type.id).toPromise()),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<Type>>;
@@ -167,7 +167,7 @@ const createMakeTypeContextByOldIdEntry =
     ];
   };
 
-const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => () => {
+const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => async () => {
   logInfo(params.logOptions, "verbose", `Importing: type ${type.id} (${chalk.yellow(type.name)})`);
 
   const makeGroupFallbackExternalId = (groupCodename: string | undefined) =>
@@ -178,7 +178,7 @@ const createInsertTypeFetcher = (params: InsertTypeParams) => (type: Type) => ()
       (g) => g.id === (element as ContentTypeElements.Element).content_group?.id,
     )?.codename ?? "default";
 
-  return params.client
+  return await params.client
     .addContentType()
     .withData((builder) => ({
       name: type.name,
@@ -218,31 +218,32 @@ type UpdateTypeParams = Readonly<{
   logOptions: LogOptions;
 }>;
 
-const createUpdateTypeItemReferencesFetcher = (params: UpdateTypeParams) => (type: Type) => () => {
-  const patchOps = type.elements
-    .filter((el) => el.type !== "snippet") // We don't need to update snippet elements and snippets are expanded (not present) in the elementIdsByOldIds context
-    .flatMap(
-      createPatchItemAndTypeReferencesInTypeElement(
-        params.context,
-        getRequired(params.context.contentTypeContextByOldIds, type.id, "content type")
-          .elementIdsByOldIds,
-        params.logOptions,
-      ),
+const createUpdateTypeItemReferencesFetcher =
+  (params: UpdateTypeParams) => (type: Type) => async () => {
+    const patchOps = type.elements
+      .filter((el) => el.type !== "snippet") // We don't need to update snippet elements and snippets are expanded (not present) in the elementIdsByOldIds context
+      .flatMap(
+        createPatchItemAndTypeReferencesInTypeElement(
+          params.context,
+          getRequired(params.context.contentTypeContextByOldIds, type.id, "content type")
+            .elementIdsByOldIds,
+          params.logOptions,
+        ),
+      );
+
+    if (!patchOps.length) {
+      return Promise.resolve();
+    }
+
+    logInfo(
+      params.logOptions,
+      "verbose",
+      `Patching: type ${type.id} (${chalk.yellow(type.name)}) with new references`,
     );
 
-  if (!patchOps.length) {
-    return Promise.resolve();
-  }
-
-  logInfo(
-    params.logOptions,
-    "verbose",
-    `Patching: type ${type.id} (${chalk.yellow(type.name)}) with new references`,
-  );
-
-  return params.client
-    .modifyContentType()
-    .byTypeCodename(type.codename)
-    .withData(patchOps)
-    .toPromise();
-};
+    return await params.client
+      .modifyContentType()
+      .byTypeCodename(type.codename)
+      .withData(patchOps)
+      .toPromise();
+  };

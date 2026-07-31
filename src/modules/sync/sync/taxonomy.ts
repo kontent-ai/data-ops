@@ -12,7 +12,7 @@ export const syncTaxonomies = async (
 ) => {
   if (taxonomies.added.length) {
     logInfo(logOptions, "standard", "Adding taxonomies");
-    await serially(taxonomies.added.map((g) => () => addTaxonomyGroup(client, g)));
+    await serially(taxonomies.added.map((g) => async () => addTaxonomyGroup(client, g)));
   } else {
     logInfo(logOptions, "standard", "No taxonomies to add");
   }
@@ -22,7 +22,7 @@ export const syncTaxonomies = async (
     await serially(
       Array.from(taxonomies.updated.entries()).map(
         ([codename, operations]) =>
-          () =>
+          async () =>
             operations.length
               ? updateTaxonomyGroup(client, codename, operations.map(transformTaxonomyOperations))
               : Promise.resolve(),
@@ -34,24 +34,26 @@ export const syncTaxonomies = async (
 
   if (taxonomies.deleted.size) {
     logInfo(logOptions, "standard", "Deleting taxonomies");
-    await serially(Array.from(taxonomies.deleted).map((c) => () => deleteTaxonomyGroup(client, c)));
+    await serially(
+      Array.from(taxonomies.deleted).map((c) => async () => deleteTaxonomyGroup(client, c)),
+    );
   } else {
     logInfo(logOptions, "standard", "No taxonomies to delete");
   }
 };
 
-const addTaxonomyGroup = (
+const addTaxonomyGroup = async (
   client: ManagementClient,
   taxonomy: TaxonomyModels.IAddTaxonomyRequestModel,
 ) => client.addTaxonomy().withData(taxonomy).toPromise();
 
-const updateTaxonomyGroup = (
+const updateTaxonomyGroup = async (
   client: ManagementClient,
   codename: string,
   taxonomyData: TaxonomyModels.IModifyTaxonomyData[],
 ) => client.modifyTaxonomy().byTaxonomyCodename(codename).withData(taxonomyData).toPromise();
 
-const deleteTaxonomyGroup = (client: ManagementClient, codename: string) =>
+const deleteTaxonomyGroup = async (client: ManagementClient, codename: string) =>
   client.deleteTaxonomy().byTaxonomyCodename(codename).toPromise();
 
 const transformTaxonomyOperations = (

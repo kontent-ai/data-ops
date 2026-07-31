@@ -19,7 +19,7 @@ export const addTypesWithoutReferences = async (
   }
 
   logInfo(logOptions, "standard", "Adding content types");
-  await serially(addTypesWithoutReferences.map((t) => () => addContentType(client, t)));
+  await serially(addTypesWithoutReferences.map((t) => async () => addContentType(client, t)));
 };
 
 export const updateContentTypesAndAddReferences = async (
@@ -38,7 +38,7 @@ export const updateContentTypesAndAddReferences = async (
   await serially(
     [...typeOps.updated.entries(), ...typesReplaceReferencesOps].map(
       ([codename, operations]) =>
-        () =>
+        async () =>
           operations.length
             ? updateContentType(
                 client,
@@ -61,23 +61,28 @@ export const deleteContentTypes = async (
 ) => {
   if (typeOps.deleted.size) {
     logInfo(logOptions, "standard", "Deleting content types");
-    await serially(Array.from(typeOps.deleted).map((c) => () => deleteContentType(client, c)));
+    await serially(
+      Array.from(typeOps.deleted).map((c) => async () => deleteContentType(client, c)),
+    );
   } else {
     logInfo(logOptions, "standard", "No content types to delete");
   }
 };
 
-const addContentType = (client: ManagementClient, type: ContentTypeModels.IAddContentTypeData) =>
+const addContentType = async (
+  client: ManagementClient,
+  type: ContentTypeModels.IAddContentTypeData,
+) =>
   client
     .addContentType()
     .withData(() => type)
     .toPromise();
 
-const updateContentType = (
+const updateContentType = async (
   client: ManagementClient,
   codename: string,
   typeData: ContentTypeModels.IModifyContentTypeData[],
 ) => client.modifyContentType().byTypeCodename(codename).withData(typeData).toPromise();
 
-const deleteContentType = (client: ManagementClient, codename: string) =>
+const deleteContentType = async (client: ManagementClient, codename: string) =>
   client.deleteContentType().byTypeCodename(codename).toPromise();

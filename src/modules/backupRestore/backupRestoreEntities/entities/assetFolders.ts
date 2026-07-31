@@ -6,7 +6,7 @@ import type { EntityDefinition } from "../entityDefinition.js";
 export const assetFoldersEntity = {
   name: "assetFolders",
   displayName: "assetFolders",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listAssetFolders()
       .toPromise()

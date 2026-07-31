@@ -10,7 +10,7 @@ export const fetchRequiredAssets = async (
   assetIds: ReadonlyArray<string>,
 ) => {
   const promises = assetIds.map(
-    (id) => () =>
+    (id) => async () =>
       client
         .viewAsset()
         .byAssetId(id)
@@ -29,7 +29,7 @@ export const fetchRequiredAssetsByCodename = async (
   assetCodenames: ReadonlyArray<string>,
 ) => {
   const promises = assetCodenames.map(
-    (codename) => () =>
+    (codename) => async () =>
       client
         .viewAsset()
         .byAssetCodename(codename)
@@ -48,7 +48,7 @@ export const fetchRequiredContentItems = async (
   itemsIds: ReadonlyArray<string>,
 ) => {
   const promises = itemsIds.map(
-    (id) => () =>
+    (id) => async () =>
       client
         .viewContentItem()
         .byItemId(id)
@@ -66,7 +66,7 @@ export const fetchRequiredContentItemsByCodename = async (
   itemCodenames: ReadonlyArray<string>,
 ) => {
   const promises = itemCodenames.map(
-    (codename) => () =>
+    (codename) => async () =>
       client
         .viewContentItem()
         .byItemCodename(codename)
@@ -79,55 +79,55 @@ export const fetchRequiredContentItemsByCodename = async (
   return items.filter(notNullOrUndefined);
 };
 
-export const fetchContentTypes = (client: ManagementClient) =>
+export const fetchContentTypes = async (client: ManagementClient) =>
   client
     .listContentTypes()
     .toAllPromise()
     .then((res) => res.data.items.map((t) => t._raw));
 
-export const fetchContentTypeSnippets = (client: ManagementClient) =>
+export const fetchContentTypeSnippets = async (client: ManagementClient) =>
   client
     .listContentTypeSnippets()
     .toAllPromise()
     .then((res) => res.data.items.map((s) => s._raw));
 
-export const fetchTaxonomies = (client: ManagementClient) =>
+export const fetchTaxonomies = async (client: ManagementClient) =>
   client
     .listTaxonomies()
     .toAllPromise()
     .then((res) => res.data.items.map((t) => t._raw));
 
-export const fetchLivePreview = (client: ManagementClient) =>
+export const fetchLivePreview = async (client: ManagementClient) =>
   client
     .getLivePreviewConfiguration()
     .toPromise()
     .then((res) => res.rawData);
 
-export const fetchAssetFolders = (client: ManagementClient) =>
+export const fetchAssetFolders = async (client: ManagementClient) =>
   client
     .listAssetFolders()
     .toPromise()
     .then((res) => res.rawData.folders);
 
-export const fetchSpaces = (client: ManagementClient) =>
+export const fetchSpaces = async (client: ManagementClient) =>
   client
     .listSpaces()
     .toPromise()
     .then((res) => res.rawData as ReadonlyArray<SpaceContractWithRootItem>);
 
-export const fetchCollections = (client: ManagementClient) =>
+export const fetchCollections = async (client: ManagementClient) =>
   client
     .listCollections()
     .toPromise()
     .then((res) => res.rawData.collections);
 
-export const fetchLanguages = (client: ManagementClient) =>
+export const fetchLanguages = async (client: ManagementClient) =>
   client
     .listLanguages()
     .toAllPromise()
     .then((res) => res.data.items.map((l) => l._raw));
 
-export const fetchWorkflows = (client: ManagementClient) =>
+export const fetchWorkflows = async (client: ManagementClient) =>
   client
     .listWorkflows()
     .toPromise()

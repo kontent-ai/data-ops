@@ -41,7 +41,7 @@ export const migrateContentRun = async (params: MigrateContentRunParams) => {
 export const migrateContentRunInternal = async (
   params: MigrateContentRunParams,
   commandName: string,
-  withItemCodenames: (itemsCodenames: ReadonlyArray<string>) => Promise<void> = () =>
+  withItemCodenames: (itemsCodenames: ReadonlyArray<string>) => Promise<void> = async () =>
     Promise.resolve(),
 ) => {
   if ("filename" in params) {

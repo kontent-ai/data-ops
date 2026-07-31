@@ -9,7 +9,7 @@ import type { EntityDefinition } from "../entityDefinition.js";
 export const taxonomiesEntity = {
   name: "taxonomies",
   displayName: "taxonomies",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listTaxonomies()
       .toAllPromise()
@@ -19,14 +19,14 @@ export const taxonomiesEntity = {
     const projectTaxonomies = await serially<
       ReadonlyArray<() => Promise<TaxonomyContracts.ITaxonomyContract>>
     >(
-      fileTaxonomies.map((taxonomy) => () => {
+      fileTaxonomies.map((taxonomy) => async () => {
         logInfo(
           logOptions,
           "verbose",
           `Importing: taxonomy group ${taxonomy.id} (${chalk.yellow(taxonomy.name)})`,
         );
 
-        return client
+        return await client
           .addTaxonomy()
           .withData(createAddExternalIds(taxonomy)(taxonomy))
           .toPromise()
@@ -58,7 +58,7 @@ export const taxonomiesEntity = {
 
     await serially(
       taxonomies.map(
-        (taxonomy) => () => client.deleteTaxonomy().byTaxonomyId(taxonomy.id).toPromise(),
+        (taxonomy) => async () => client.deleteTaxonomy().byTaxonomyId(taxonomy.id).toPromise(),
       ),
     );
   },

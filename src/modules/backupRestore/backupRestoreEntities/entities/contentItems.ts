@@ -13,7 +13,7 @@ type Item = ReplaceReferences<ContentItemContracts.IContentItemModelContract>;
 export const contentItemsEntity = {
   name: "contentItems",
   displayName: "contentItems",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listContentItems()
       .toAllPromise()
@@ -42,7 +42,7 @@ export const contentItemsEntity = {
     }
 
     await serially(
-      items.map((item) => () => client.deleteContentItem().byItemId(item.id).toPromise()),
+      items.map((item) => async () => client.deleteContentItem().byItemId(item.id).toPromise()),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<Item>>;
@@ -50,14 +50,14 @@ export const contentItemsEntity = {
 const createImportItemFetcher =
   (client: ManagementClient, context: RestoreContext, logOptions: LogOptions) =>
   (fileItem: Item) =>
-  () => {
+  async () => {
     logInfo(
       logOptions,
       "verbose",
       `Importing: item ${fileItem.id} (${chalk.yellow(fileItem.name)})`,
     );
 
-    return client
+    return await client
       .addContentItem()
       .withData({
         ...fileItem,

@@ -5,7 +5,7 @@ import type { EntityBackupDefinition } from "../entityDefinition.js";
 export const rolesExportEntity = {
   name: "roles",
   displayName: "roles",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listRoles()
       .toPromise()

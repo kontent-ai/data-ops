@@ -17,7 +17,7 @@ const defaultLanguageCodename = defaultCodename;
 export const languagesEntity = {
   name: "languages",
   displayName: "languages",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listLanguages()
       .toAllPromise()
@@ -85,7 +85,7 @@ export const languagesEntity = {
       languages
         .filter((l) => !l.is_default && l.is_active)
         .map(
-          (lang) => () =>
+          (lang) => async () =>
             client
               .modifyLanguage()
               .byLanguageId(lang.id)
@@ -104,7 +104,7 @@ export const languagesEntity = {
           return l1.is_active ? -1 : 1;
         })
         .map(
-          (lang) => () =>
+          (lang) => async () =>
             client
               .modifyLanguage()
               .byLanguageId(lang.id)
@@ -199,7 +199,7 @@ const updateProjectLanguage = async (
   return;
 };
 
-const modifyByCodename = (
+const modifyByCodename = async (
   client: ManagementClient,
   projectLanguage: LanguageModels.LanguageModel,
   operations: LanguageModels.IModifyLanguageData[],
@@ -210,7 +210,7 @@ const modifyByCodename = (
     .withData(operations)
     .toPromise();
 
-const modifyByExternalId = (
+const modifyByExternalId = async (
   client: ManagementClient,
   projectLanguage: LanguageModels.LanguageModel,
   operations: LanguageModels.IModifyLanguageData[],
@@ -231,7 +231,7 @@ const importLanguagesToProject = async (
     .then((res) => res.data.items);
 
   await serially(
-    importLanguages.map((importLanguage) => () => {
+    importLanguages.map((importLanguage) => async () => {
       const languageByExternalId = projectLanguages.find(
         (l) => l.externalId === getLanguageExternalId(importLanguage),
       );
@@ -251,7 +251,7 @@ const importLanguagesToProject = async (
 
       switch (operation.operation) {
         case "add":
-          return client
+          return await client
             .addLanguage()
             .withData({
               name: importLanguage.name,
@@ -298,7 +298,7 @@ const updateFallbackLanguages = async (
         }
         return [importLanguage, projectLanguage] as const;
       })
-      .map(([importLanguage, projectLanguage]) => () => {
+      .map(([importLanguage, projectLanguage]) => async () => {
         const projectFallbackLanguage = projectLanguages.find(
           (l) => l.id === projectLanguage.fallbackLanguage?.id,
         );
@@ -311,7 +311,7 @@ const updateFallbackLanguages = async (
           importFallbackLanguage &&
           projectFallbackLanguage.codename !== importFallbackLanguage.codename
         ) {
-          return client
+          return await client
             .modifyLanguage()
             .byLanguageCodename(importLanguage.codename)
             .withData([createReplaceFallbackLanguageOperation(importFallbackLanguage.codename)])

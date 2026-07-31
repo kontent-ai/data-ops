@@ -5,7 +5,7 @@ import { omit } from "../../../utils/object.js";
 import type { DiffModel } from "../types/diffModel.js";
 import { getTargetCodename, type PatchOperation } from "../types/patchOperation.js";
 
-export const syncAddAndReplaceCollections = (
+export const syncAddAndReplaceCollections = async (
   client: ManagementClient,
   collections: DiffModel["collections"],
   logOptions: LogOptions,
@@ -14,18 +14,18 @@ export const syncAddAndReplaceCollections = (
 
   if (!collectionAddAndReplaceOps.length) {
     logInfo(logOptions, "standard", "No collections to add or update");
-    return Promise.resolve();
+    return;
   }
 
   logInfo(logOptions, "standard", "Adding and updating collections");
 
-  return client
+  await client
     .setCollections()
     .withData(collectionAddAndReplaceOps.map(transformCollectionsReferences))
     .toPromise();
 };
 
-export const syncRemoveCollections = (
+export const syncRemoveCollections = async (
   client: ManagementClient,
   collections: DiffModel["collections"],
   logOptions: LogOptions,
@@ -34,12 +34,12 @@ export const syncRemoveCollections = (
 
   if (!collectionsRemoveOps.length) {
     logInfo(logOptions, "standard", "No collections to delete");
-    return Promise.resolve();
+    return;
   }
 
   logInfo(logOptions, "standard", "Deleting collections");
 
-  return client
+  await client
     .setCollections()
     .withData(collectionsRemoveOps.map(transformCollectionsReferences))
     .toPromise();

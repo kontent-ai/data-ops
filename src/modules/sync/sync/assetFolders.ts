@@ -26,7 +26,7 @@ export const syncAssetFolders = async (
 
   await serially(
     removeOps.map(
-      (operation) => () =>
+      (operation) => async () =>
         client
           .modifyAssetFolders()
           .withData([convertOperation(operation)])
