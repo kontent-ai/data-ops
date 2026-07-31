@@ -17,7 +17,7 @@ const defaultStatusFilename = "status.json";
 export const loadStatus = async (getStatus: () => Promise<Status>): Promise<WithErr<Status>> =>
   getStatus()
     .then((r) => ({ value: r }))
-    .catch((err) => ({ err }));
+    .catch((err: unknown) => ({ err }));
 
 export const writeStatus = async (
   storeStatus: (status: Status) => Promise<void>,
@@ -25,7 +25,7 @@ export const writeStatus = async (
 ): Promise<WithErr<null>> =>
   storeStatus(status)
     .then(() => ({ value: null }))
-    .catch((err) => ({ err }));
+    .catch((err: unknown) => ({ err }));
 
 export const createDefaultReadStatus = (folderPath: string) => async (): Promise<Status> => {
   const statusPath = path.join(folderPath, defaultStatusFilename);
@@ -33,7 +33,9 @@ export const createDefaultReadStatus = (folderPath: string) => async (): Promise
   if (!(await fsPromises.stat(statusPath).catch(() => false))) {
     return {};
   }
-  const environmentsMigrationStatuses = JSON.parse(await fsPromises.readFile(statusPath, "utf-8"));
+  const environmentsMigrationStatuses: unknown = JSON.parse(
+    await fsPromises.readFile(statusPath, "utf-8"),
+  );
 
   return statusSchema.parse(environmentsMigrationStatuses);
 };
@@ -49,7 +51,7 @@ export const loadStatusPlugin = async (pluginsPath: string): Promise<WithErr<Sta
     return { err: `Provided plugins path ${pluginsPath} does not exist.` };
   }
 
-  const pluginModule = await import(pathToFileURL(pluginsPath).href);
+  const pluginModule: unknown = await import(pathToFileURL(pluginsPath).href);
 
   return { value: statusPluginSchema.parse(pluginModule) };
 };

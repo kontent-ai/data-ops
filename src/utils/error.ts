@@ -46,8 +46,8 @@ export const simplifyAxiosErrors = (error: unknown): unknown =>
         status: error.response?.status,
         url: error.config?.url,
         method: error.config?.method,
-        responseBody: error.response?.config.data,
-        requestBody: error.config?.data,
+        responseBody: error.response?.config.data as unknown,
+        requestBody: error.config?.data as unknown,
         requestHeaders: error.config?.headers.normalize(true).toJSON(),
         code: error.code,
       }

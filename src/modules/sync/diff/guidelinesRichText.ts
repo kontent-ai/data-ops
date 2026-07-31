@@ -38,10 +38,11 @@ const createReplaceReferences =
   (guidelines: string, replacer: (reference: OriginalReference) => Replacement) =>
     guidelines.replaceAll(params.referencesRegex, (match, ...[, , , , , , groups]) => {
       // In the arguments we must first skip the groups (4), offset and the whole string, then there is the groups object. See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_function_as_the_replacement for more details
-      const codename = groups[codenameGroupName] ?? groups[codename2GroupName];
-      const externalId = groups[externalIdGroupName] ?? groups[externalId2GroupName];
+      const namedGroups = groups as Record<string, string | undefined>;
+      const codename = namedGroups[codenameGroupName] ?? namedGroups[codename2GroupName];
+      const externalId = namedGroups[externalIdGroupName] ?? namedGroups[externalId2GroupName];
 
-      const result = replacer({ codename, externalId });
+      const result = replacer({ codename, externalId } as OriginalReference);
 
       const newValue =
         typeof result === "string"
