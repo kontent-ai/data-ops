@@ -1,5 +1,8 @@
-import type { GroupedElementOps } from "../../utils/groupOperations.js";
-import { formatPropertyName, stripElementPrefix } from "../../utils/groupOperations.js";
+import {
+  formatPropertyName,
+  type GroupedElementOps,
+  stripElementPrefix,
+} from "../../utils/groupOperations.js";
 import { renderTaxonomyPropertyPath } from "../../utils/pathRenderers.js";
 import { renderReplaceOpValue } from "../../utils/valueHelpers.js";
 
