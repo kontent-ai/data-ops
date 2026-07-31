@@ -11,5 +11,5 @@ export const createSyncEntitiesParameter = (
     booleanStyleEntities.includes(e) ? ([e, true] as const) : ([e, () => true] as const),
   );
 
-  return Object.fromEntries(entries);
+  return Object.fromEntries(entries) as SyncEntities;
 };

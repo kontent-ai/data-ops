@@ -23,7 +23,7 @@ export const languagesEntity = {
       .toAllPromise()
       .then((res) => res.data.items.map((l) => l._raw)),
   serializeEntities: (languages) => JSON.stringify(languages),
-  deserializeEntities: (serialized) => JSON.parse(serialized),
+  deserializeEntities: JSON.parse,
   importEntities: async (client, { entities, context, options }) => {
     const importDefaultLanguage = entities.find(
       (l) => l.id === defaultLanguageId,
