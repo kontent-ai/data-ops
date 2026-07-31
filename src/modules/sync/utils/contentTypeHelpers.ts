@@ -60,10 +60,9 @@ export const getRequiredIds = (elements: ReadonlyArray<ContentTypeElements.Eleme
   const assetElements = elements.filter(
     (element): element is ContentTypeElements.IAssetElement => element.type === "asset",
   );
-  // Use typeguard once types in SDKs are fixed
   const guidelinesElements = elements.filter(
-    (element) => element.type === "guidelines",
-  ) as unknown as ContentTypeElements.IGuidelinesElement[];
+    (element): element is ContentTypeElements.IGuidelinesElement => element.type === "guidelines",
+  );
   const linkedItemElements = elements.filter(
     (element): element is ContentTypeElements.ILinkedItemsElement =>
       // currently, the subpages type in SDK does not contain default property, therefore subpages are narrowed to ILinkedItemsElement.

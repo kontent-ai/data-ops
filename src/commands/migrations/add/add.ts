@@ -1,9 +1,5 @@
 import { type LogOptions, logError } from "../../../log.js";
 import { type AddMigrationParams, addMigration } from "../../../modules/migrations/add.js";
-import type {
-  MigrationModuleType,
-  ModuleFormat,
-} from "../../../modules/migrations/models/migration.js";
 import type { RegisterCommand } from "../../../types/yargs.js";
 import { simplifyErrors } from "../../../utils/error.js";
 
@@ -109,8 +105,8 @@ const resolveParams = (args: AddMigrationCliParams): AddMigrationParams => {
 
   return {
     ...args,
-    type: args.type as MigrationModuleType,
-    moduleFormat: args.moduleFormat as ModuleFormat,
+    type: args.type,
+    moduleFormat: args.moduleFormat,
     ...orderParams,
   };
 };

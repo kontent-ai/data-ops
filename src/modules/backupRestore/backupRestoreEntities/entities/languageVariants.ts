@@ -261,7 +261,7 @@ const createTransformElement =
           element: { id: projectElementId },
           value: typedElement.value,
           display_timezone: typedElement.display_timezone,
-        } as LanguageVariantElements.IDateTimeInVariantElement); // incorrect SDK types
+        });
       }
       case "modular_content": {
         const typedElement =
