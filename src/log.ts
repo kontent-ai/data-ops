@@ -50,6 +50,9 @@ const optionsToLogLevel = (options: LogOptions): LogLevel => {
     return "verbose";
   }
 
+  // `logLevel` is a raw string; an empty string should also fall back to the default,
+  // so falsy-coalescing `||` is intended here rather than `??`.
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   const logLevel = options.logLevel || defaultLogLevel;
   if (!isLogLevel(logLevel)) {
     throw new Error(

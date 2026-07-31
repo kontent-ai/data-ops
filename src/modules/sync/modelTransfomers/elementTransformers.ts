@@ -248,7 +248,7 @@ export const transformTaxonomyElement = (
     term.id === id
       ? term
       : (term.terms?.reduce<TaxonomyContracts.ITaxonomyContract | null>(
-          (res, term) => res || findTerm(term, id),
+          (res, term) => res ?? findTerm(term, id),
           null,
         ) ?? null);
 
