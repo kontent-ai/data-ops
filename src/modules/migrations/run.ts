@@ -163,9 +163,12 @@ const filterMigrationsToRun = (
 
   if (migrationsDuplicates.size) {
     throw new Error(
-      `Found multiple migrations having the same order: \n${[...migrationsDuplicates.entries()].map(
-        ([order, migrations]) => `Order ${order}: ${migrations.map((m) => m.name).join(", ")}`,
-      )}`,
+      `Found multiple migrations having the same order: \n${[...migrationsDuplicates.entries()]
+        .map(
+          ([order, migrations]) =>
+            `Order ${String(order)}: ${migrations.map((m) => m.name).join(", ")}`,
+        )
+        .join(",")}`,
     );
   }
 

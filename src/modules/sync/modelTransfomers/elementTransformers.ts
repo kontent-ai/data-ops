@@ -359,7 +359,7 @@ export const transformUrlSlugElement = (
 
   if (element.depends_on.snippet && !snippet) {
     throwError(
-      `Could not find snippet (id: ${element.depends_on.snippet}) which contains element (id: ${element.depends_on.element})`,
+      `Could not find snippet (id: ${String(element.depends_on.snippet)}) which contains element (id: ${String(element.depends_on.element)})`,
     );
   }
 

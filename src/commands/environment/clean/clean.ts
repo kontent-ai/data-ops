@@ -91,7 +91,7 @@ const cleanEnvironmentCli = async (params: CleanEnvironmentCliParams): Promise<v
 };
 
 const handleError = (logOptions: LogOptions, err: unknown) => {
-  logError(logOptions, `${err}\nStopping clean operation...`);
+  logError(logOptions, `${String(err)}\nStopping clean operation...`);
 
   process.exit(1);
 };

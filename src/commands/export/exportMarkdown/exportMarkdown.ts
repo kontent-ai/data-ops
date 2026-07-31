@@ -157,7 +157,7 @@ export const exportMarkdownCli = async (params: ExportMarkdownCliParams) => {
       `Successfully exported ${itemCount} markdown files to ${outputPath}.`,
     );
   } catch (error) {
-    logError(params, "standard", `Failed to write markdown files: ${error}`);
+    logError(params, "standard", `Failed to write markdown files: ${String(error)}`);
     process.exit(1);
   }
 };
