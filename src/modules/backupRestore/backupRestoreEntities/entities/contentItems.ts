@@ -17,7 +17,7 @@ export const contentItemsEntity = {
     client
       .listContentItems()
       .toAllPromise()
-      .then((res) => res.data.items.map((i) => i._raw as Item)),
+      .then((res) => res.data.items.map((i) => i._raw)),
   serializeEntities: (collections) => JSON.stringify(collections),
   deserializeEntities: JSON.parse,
   importEntities: async (client, { entities: fileItems, context, logOptions }) => {

@@ -174,9 +174,12 @@ export const transformAssetElement = (
 
       return {
         codename: asset.codename,
-        // external id should be optional in sdks.
-        external_id:
-          (asset.external_id as string | undefined) ?? createAssetExternalId(asset.codename),
+        // The SDK types `external_id` as required, but that is wrong it can be absent, so we
+        // fall back to a generated id. The disable is needed because the incorrect type
+        // tells eslint the left-hand side of `??` is never nullish.
+        // TODO: remove this once SDK types are fixed
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        external_id: asset.external_id ?? createAssetExternalId(asset.codename),
       };
     })
     .filter(notNullOrUndefined);

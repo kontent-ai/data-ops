@@ -216,8 +216,7 @@ const buildMarkdownOptions = (
     : params.frontmatterElements || params.frontmatterSystem
       ? ({
           system: (params.frontmatterSystem ?? []) as FrontMatterOptions<IContentItem>["system"],
-          elements: (params.frontmatterElements ??
-            []) as FrontMatterOptions<IContentItem>["elements"],
+          elements: params.frontmatterElements ?? [],
         } satisfies FrontMatterOptions<IContentItem>)
       : undefined;
 

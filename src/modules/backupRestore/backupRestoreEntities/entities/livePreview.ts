@@ -13,7 +13,7 @@ const isLegacyShape = (parsed: unknown): parsed is LegacyWebSpotlightEntity =>
   typeof parsed === "object" &&
   parsed !== null &&
   "enabled" in parsed &&
-  typeof (parsed as { enabled: unknown }).enabled === "boolean";
+  typeof parsed.enabled === "boolean";
 
 const parseStatus = (value: unknown): LivePreviewStatus => {
   if (value !== "enabled" && value !== "disabled") {

@@ -1,4 +1,4 @@
-import type { SharedContracts, SpaceContracts, SpaceModels } from "@kontent-ai/management-sdk";
+import type { SharedContracts, SpaceContracts } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 
 import { logInfo } from "../../../../log.js";
@@ -61,7 +61,8 @@ export const spacesEntity = {
               ),
             })),
             // TODO(sdk-root-item): MAPI accepts `root_item`; SDK types still only expose
-            // `web_spotlight_root_item`, hence the cast.
+            // `web_spotlight_root_item`, hence root_item is spread in (spreads bypass
+            // excess-property checks) rather than set as a normal property.
             ...(importSpace.root_item
               ? {
                   root_item: {
@@ -73,7 +74,7 @@ export const spacesEntity = {
                   },
                 }
               : {}),
-          } as unknown as SpaceModels.IAddSpaceData)
+          })
           .toPromise();
       }),
     );

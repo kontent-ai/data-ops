@@ -197,7 +197,7 @@ const resolveParams = (params: RunMigrationsCliParams): WithErr<RunMigrationsPar
     .returnType<WithErr<RunMigrationsParams>>()
     .with({ next: P.nonNullable }, ({ next }) => ({ value: { ...params, ...emptyParams, next } }))
     .with({ range: P.nonNullable }, ({ range }) => {
-      const parsedRange = parseRange(range as string);
+      const parsedRange = parseRange(range);
       if ("err" in parsedRange) {
         return parsedRange;
       }
