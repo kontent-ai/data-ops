@@ -147,7 +147,7 @@ const matchCollections = (
 
     default:
       throw new Error(
-        `Unknown external id comparison result "${externalIdComparison}". This should never happen, please report an issue if you see this.`,
+        `Unknown external id comparison result "${String(externalIdComparison)}". This should never happen, please report an issue if you see this.`,
       );
   }
 };
