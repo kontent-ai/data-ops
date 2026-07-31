@@ -25,7 +25,7 @@ type Workflow = ReplaceReferences<WorkflowContracts.IWorkflowContract>;
 export const workflowsEntity = {
   name: "workflows",
   displayName: "workflows",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listWorkflows()
       .toPromise()
@@ -97,14 +97,14 @@ export const workflowsEntity = {
   },
   cleanEntities: async (client, workflows) => {
     await serially(
-      workflows.map((workflow) => () => {
-        return workflow.id === defaultWorkflowId
+      workflows.map((workflow) => async () => {
+        return await (workflow.id === defaultWorkflowId
           ? client
               .updateWorkflow()
               .byWorkflowId(workflow.id)
               .withData(createDefaultWorkflowData(workflow))
               .toPromise()
-          : client.deleteWorkflow().byWorkflowId(workflow.id).toPromise();
+          : client.deleteWorkflow().byWorkflowId(workflow.id).toPromise());
       }),
     );
   },
@@ -125,14 +125,14 @@ export const importWorkflowScopesEntity = {
         .filter((wf) => !!wf.scopes.length)
         .map((wf) => [wf, oldProjectWfs.find((w) => w.codename === wf.codename)] as const)
         .filter(second(notNullOrUndefined))
-        .map(([wf, importedWf]) => () => {
+        .map(([wf, importedWf]) => async () => {
           logInfo(
             logOptions,
             "verbose",
             `Updating: workflow scopes of workflow ${wf.id} (${chalk.yellow(wf.name)})`,
           );
 
-          return updateWorkflow(client, importedWf, wf, context);
+          return await updateWorkflow(client, importedWf, wf, context);
         }),
     );
 

@@ -21,7 +21,7 @@ type AssetWithElements = ReplaceReferences<AssetContracts.IAssetModelContract> &
 export const assetsEntity = {
   name: "assets",
   displayName: "assets",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listAssets()
       .toAllPromise()
@@ -29,7 +29,7 @@ export const assetsEntity = {
   serializeEntities: JSON.stringify,
   addOtherFiles: async (assets, archive, secureAssetDeliveryKey, logOptions) => {
     await serially(
-      assets.map((a) => () => saveAsset(archive, logOptions, a, secureAssetDeliveryKey)),
+      assets.map((a) => async () => saveAsset(archive, logOptions, a, secureAssetDeliveryKey)),
     );
   },
   deserializeEntities: JSON.parse,
@@ -66,7 +66,7 @@ export const assetsEntity = {
     }
 
     await serially(
-      assets.map((asset) => () => client.deleteAsset().byAssetId(asset.id).toPromise()),
+      assets.map((asset) => async () => client.deleteAsset().byAssetId(asset.id).toPromise()),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<AssetWithElements>>;
@@ -84,7 +84,7 @@ const saveAsset = async (
       : undefined,
   };
   const file = await fetch(`${asset.url}?q=100`, options)
-    .then((res) => res.blob())
+    .then(async (res) => res.blob())
     .then((res) => res.stream());
   archive.append(stream.Readable.fromWeb(file), { name: createFileName(asset) });
 };

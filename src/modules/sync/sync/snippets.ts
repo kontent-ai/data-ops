@@ -30,7 +30,7 @@ export const addSnippetsWithoutReferences = async (
   }
   logInfo(logOptions, "standard", "Adding content type snippets");
   const addSnippetsWithoutReferences = addSnippets.map(removeReferencesFromAddOp);
-  await serially(addSnippetsWithoutReferences.map((s) => () => addSnippet(client, s)));
+  await serially(addSnippetsWithoutReferences.map((s) => async () => addSnippet(client, s)));
 };
 
 export const addSnippetsReferences = async (
@@ -67,7 +67,7 @@ export const addSnippetsReferences = async (
   await serially(
     [...snippetReplaceOpsAddIntoReferencingElements, ...snippetsReplaceReferencesOps].map(
       ([codename, operations]) =>
-        () =>
+        async () =>
           operations.length
             ? updateSnippet(
                 client,
@@ -114,7 +114,7 @@ export const addElementsIntoSnippetsWithoutReferences = async (
   await serially(
     addSnippetsOpsWithoutRefs.map(
       ([codename, operations]) =>
-        () =>
+        async () =>
           operations.length ? updateSnippet(client, codename, operations) : Promise.resolve(),
     ),
   );
@@ -138,7 +138,7 @@ export const updateSnippets = async (
   await serially(
     otherSnippetOps.map(
       ([codename, operations]) =>
-        () =>
+        async () =>
           operations.length
             ? updateSnippet(
                 client,
@@ -157,13 +157,13 @@ export const deleteContentTypeSnippets = async (
 ) => {
   if (snippetOps.deleted.size) {
     logInfo(logOptions, "standard", "Deleting content type snippets");
-    await serially(Array.from(snippetOps.deleted).map((c) => () => deleteSnippet(client, c)));
+    await serially(Array.from(snippetOps.deleted).map((c) => async () => deleteSnippet(client, c)));
   } else {
     logInfo(logOptions, "standard", "No content type snippets to delete");
   }
 };
 
-const addSnippet = (
+const addSnippet = async (
   client: ManagementClient,
   snippet: ContentTypeSnippetModels.IAddContentTypeSnippetData,
 ) =>
@@ -172,13 +172,13 @@ const addSnippet = (
     .withData(() => snippet)
     .toPromise();
 
-const updateSnippet = (
+const updateSnippet = async (
   client: ManagementClient,
   codename: string,
   snippetData: ContentTypeSnippetModels.IModifyContentTypeSnippetData[],
 ) => client.modifyContentTypeSnippet().byTypeCodename(codename).withData(snippetData).toPromise();
 
-const deleteSnippet = (client: ManagementClient, codename: string) =>
+const deleteSnippet = async (client: ManagementClient, codename: string) =>
   client.deleteContentTypeSnippet().byTypeCodename(codename).toPromise();
 
 const isElement = (entity: unknown): entity is ContentTypeElements.Element =>

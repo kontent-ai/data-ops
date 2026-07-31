@@ -12,7 +12,7 @@ export const syncWorkflows = async (
 ) => {
   if (operations.added.length) {
     logInfo(logOptions, "standard", "Adding workflows");
-    await serially(operations.added.map((w) => () => addWorkflow(client, w)));
+    await serially(operations.added.map((w) => async () => addWorkflow(client, w)));
   } else {
     logInfo(logOptions, "standard", "No workflows to add");
   }
@@ -25,12 +25,12 @@ export const syncWorkflows = async (
     logInfo(logOptions, "standard", "Updating workflows");
 
     await serially(
-      workflowCodenamesToUpdate.map((codename) => () => {
+      workflowCodenamesToUpdate.map((codename) => async () => {
         const sourceWorkflow =
           operations.sourceWorkflows.find((w) => w.codename === codename) ??
           throwError(`Workflow { codename: ${codename} } not found.`);
 
-        return modifyWorkflow(client, codename, sourceWorkflow);
+        return await modifyWorkflow(client, codename, sourceWorkflow);
       }),
     );
   } else {
@@ -40,21 +40,21 @@ export const syncWorkflows = async (
   if (operations.deleted.size) {
     logInfo(logOptions, "standard", "Deleting workflows");
     await serially(
-      [...operations.deleted].map((codename) => () => deleteWorkflow(client, codename)),
+      [...operations.deleted].map((codename) => async () => deleteWorkflow(client, codename)),
     );
   } else {
     logInfo(logOptions, "standard", "No workflows to delete");
   }
 };
 
-const addWorkflow = (client: ManagementClient, workflow: WorkflowModels.IAddWorkflowData) =>
+const addWorkflow = async (client: ManagementClient, workflow: WorkflowModels.IAddWorkflowData) =>
   client.addWorkflow().withData(workflow).toPromise();
 
-const modifyWorkflow = (
+const modifyWorkflow = async (
   client: ManagementClient,
   codename: string,
   workflow: WorkflowModels.IUpdateWorkflowData,
 ) => client.updateWorkflow().byWorkflowCodename(codename).withData(workflow).toPromise();
 
-const deleteWorkflow = (client: ManagementClient, codename: string) =>
+const deleteWorkflow = async (client: ManagementClient, codename: string) =>
   client.deleteWorkflow().byWorkflowCodename(codename).toPromise();

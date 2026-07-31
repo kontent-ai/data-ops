@@ -137,7 +137,7 @@ export const replaceEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    render: (matches: string[]) => renderTaxonomyPath(matches),
+    render: (matches: string[]): ReactNode => renderTaxonomyPath(matches),
   },
 ];
 
@@ -204,7 +204,7 @@ export const addEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    render: (matches: string[]) => renderTaxonomyPath(matches),
+    render: (matches: string[]): ReactNode => renderTaxonomyPath(matches),
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_formatting$/,
@@ -303,7 +303,7 @@ export const removeEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    render: (matches: string[]) => renderTaxonomyPath(matches),
+    render: (matches: string[]): ReactNode => renderTaxonomyPath(matches),
   },
   {
     regex: /^\/elements\/codename:([^/]+)\/allowed_blocks\/([^/]+)$/,
@@ -362,7 +362,7 @@ export const moveEntityPathRenderers: ReadonlyArray<EntityPathRenderer> = [
   },
   {
     regex: /\/terms\/codename:([^/]+)/g,
-    render: (matches: string[]) => renderTaxonomyPath(matches),
+    render: (matches: string[]): ReactNode => renderTaxonomyPath(matches),
   },
   {
     regex: /^\/codename:([^/]+)/,

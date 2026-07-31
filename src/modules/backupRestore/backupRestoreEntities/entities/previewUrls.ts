@@ -6,7 +6,7 @@ import type { EntityDefinition } from "../entityDefinition.js";
 export const previewUrlsEntity = {
   name: "previewUrls",
   displayName: "previewUrls",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .getPreviewConfiguration()
       .toPromise()

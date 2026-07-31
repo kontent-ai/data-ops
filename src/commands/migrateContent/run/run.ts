@@ -121,7 +121,7 @@ export const register: RegisterCommand = (yargs) =>
           }
           return true;
         }),
-    handler: (args) => migrateContentRunCli(args).catch(simplifyErrors(args)),
+    handler: async (args) => migrateContentRunCli(args).catch(simplifyErrors(args)),
   });
 
 type MigrateContentRunCliParams = Readonly<{

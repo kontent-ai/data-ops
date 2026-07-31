@@ -42,7 +42,7 @@ export const syncLanguages = async (
     logInfo(logOptions, "standard", "Updating languages");
     await serially(
       nonFallbackUpdates.map(
-        (u) => () =>
+        (u) => async () =>
           modifyLanguage(
             client,
             u.codename,
@@ -55,7 +55,7 @@ export const syncLanguages = async (
   if (operations.added.length) {
     logInfo(logOptions, "standard", "Adding languages");
     await serially(
-      operations.added.map((l) => () => addLanguage(client, omit(l, ["fallback_language"]))),
+      operations.added.map((l) => async () => addLanguage(client, omit(l, ["fallback_language"]))),
     );
   } else {
     logInfo(logOptions, "standard", "No languages to add");
@@ -83,7 +83,7 @@ export const syncLanguages = async (
     await serially(
       fallbackUpdates.map(
         ({ codename, op, isActive }) =>
-          () =>
+          async () =>
             modifyLanguage(client, codename, withActiveGuard([op], isActive, isActive)),
       ),
     );
@@ -92,7 +92,7 @@ export const syncLanguages = async (
   if (operations.deleted.size) {
     logInfo(logOptions, "standard", "Deactivating languages");
     await serially(
-      [...operations.deleted].map((codename) => () => deleteLanguage(client, codename)),
+      [...operations.deleted].map((codename) => async () => deleteLanguage(client, codename)),
     );
   } else {
     logInfo(logOptions, "standard", "No languages to deactivate");
@@ -115,18 +115,18 @@ const withActiveGuard = (
   return [...prefix, ...withoutIsActive, ...suffix];
 };
 
-const addLanguage = (client: ManagementClient, langauge: LanguageModels.IAddLanguageData) =>
+const addLanguage = async (client: ManagementClient, langauge: LanguageModels.IAddLanguageData) =>
   client.addLanguage().withData(langauge).toPromise();
 
-const modifyLanguage = (
+const modifyLanguage = async (
   client: ManagementClient,
   codename: string,
   operations: LanguageModels.IModifyLanguageData[],
 ) => client.modifyLanguage().byLanguageCodename(codename).withData(operations).toPromise();
 
-const deleteLanguage = (client: ManagementClient, codename: string) => {
+const deleteLanguage = async (client: ManagementClient, codename: string) => {
   const randomUuid = createUuid();
-  return client
+  return await client
     .modifyLanguage()
     .byLanguageCodename(codename)
     .withData([

@@ -84,7 +84,8 @@ export type SyncRunParamsInternal = Replace<SyncRunParams, { entities: SyncEntit
  *
  * @returns {Promise<void>} A promise that resolves when the synchronization is complete.
  */
-export const syncRun = (params: SyncRunParams) => syncRunInternal(params, "sync-run-API");
+export const syncRun = async (params: SyncRunParams) =>
+  await syncRunInternal(params, "sync-run-API");
 
 export const syncRunInternal = async (
   rawParams: SyncRunParams,
@@ -92,7 +93,7 @@ export const syncRunInternal = async (
   withDiffModel: (
     diffModel: DiffModel,
     entities: ReadonlySet<SyncEntityName>,
-  ) => Promise<void> = () => Promise.resolve(),
+  ) => Promise<void> = async () => Promise.resolve(),
 ) => {
   const params = {
     ...rawParams,

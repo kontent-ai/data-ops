@@ -45,7 +45,7 @@ export const syncSnapshotInternal = async (
     (Object.keys(params.entities) as SyncEntityName[]).flatMap((e) => syncEntityDependencies[e]),
   );
 
-  const environmentModel = await logOnError(chalk.red("Failed to fetch the model."), () =>
+  const environmentModel = await logOnError(chalk.red("Failed to fetch the model."), async () =>
     fetchModel(client, fetchDependencies),
   );
 
@@ -54,13 +54,15 @@ export const syncSnapshotInternal = async (
 
   const filteredModel = filterModel(syncModel, params.entities);
 
-  const folderName = await logOnError(chalk.red("Failed to save the model into the file."), () =>
-    saveSyncModel({
-      syncModel: filteredModel,
-      environmentId: params.environmentId,
-      folderName: params.folderName,
-      entities: new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
-    }),
+  const folderName = await logOnError(
+    chalk.red("Failed to save the model into the file."),
+    async () =>
+      saveSyncModel({
+        syncModel: filteredModel,
+        environmentId: params.environmentId,
+        folderName: params.folderName,
+        entities: new Set(Object.keys(params.entities)) as ReadonlySet<SyncEntityName>,
+      }),
   );
 
   logInfo(
@@ -70,9 +72,9 @@ export const syncSnapshotInternal = async (
   );
 };
 
-const logOnError = <T>(errorMessage: string, action: () => Promise<T>): Promise<T> => {
+const logOnError = async <T>(errorMessage: string, action: () => Promise<T>): Promise<T> => {
   try {
-    return action();
+    return await action();
   } catch (e) {
     throw new Error(`${errorMessage}: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`, {
       cause: e,

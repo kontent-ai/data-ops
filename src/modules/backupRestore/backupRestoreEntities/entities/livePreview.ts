@@ -38,7 +38,7 @@ export const livePreviewEntity = {
   name: "livePreview",
   legacyNames: ["webSpotlight"],
   displayName: "live preview",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .getLivePreviewConfiguration()
       .toPromise()

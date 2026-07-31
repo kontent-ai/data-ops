@@ -21,7 +21,7 @@ type LegacyFileSpace = BackupSpace & {
 export const spacesEntity = {
   name: "spaces",
   displayName: "spaces",
-  fetchEntities: (client) =>
+  fetchEntities: async (client) =>
     client
       .listSpaces()
       .toPromise()
@@ -41,14 +41,14 @@ export const spacesEntity = {
     ),
   importEntities: async (client, { entities, context, logOptions }) => {
     const newSpaces = await serially(
-      entities.map((importSpace) => () => {
+      entities.map((importSpace) => async () => {
         logInfo(
           logOptions,
           "verbose",
           `Importing: space ${importSpace.id} (${chalk.yellow(importSpace.name)})`,
         );
 
-        return client
+        return await client
           .addSpace()
           .withData({
             name: importSpace.name,
@@ -102,7 +102,7 @@ export const spacesEntity = {
     }
 
     await serially(
-      spaces.map((space) => () => client.deleteSpace().bySpaceId(space.id).toPromise()),
+      spaces.map((space) => async () => client.deleteSpace().bySpaceId(space.id).toPromise()),
     );
   },
 } as const satisfies EntityDefinition<ReadonlyArray<BackupSpace>>;
