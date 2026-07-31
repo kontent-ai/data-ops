@@ -28,21 +28,21 @@ type ReplaceRichTextReferencesParams = Readonly<{
 
 export const replaceRichTextReferences = (params: ReplaceRichTextReferencesParams): string =>
   params.richText
-    .replaceAll(assetRegex, (_, oldAssetId /* from the regex capture group*/) =>
+    .replaceAll(assetRegex, (_, oldAssetId: string /* from the regex capture group*/) =>
       params.replaceAssetId(
         oldAssetId,
         (id) => `${assetAttributeName}="${id}"`,
         (eId) => `${assetExternalIdAttributeName}="${eId}"`,
       ),
     )
-    .replaceAll(itemOrComponentRegex, (_, oldItemId /* from the regex capture group*/) =>
+    .replaceAll(itemOrComponentRegex, (_, oldItemId: string /* from the regex capture group*/) =>
       params.replaceItemId(
         oldItemId,
         (id) => `${itemOrComponentAttributeName}="${id}"`,
         (eId) => `${itemExternalIdAttributeName}="${eId}"`,
       ),
     )
-    .replaceAll(itemLinkRegex, (_, oldItemId /* from the regex capture group*/) =>
+    .replaceAll(itemLinkRegex, (_, oldItemId: string /* from the regex capture group*/) =>
       params.replaceItemLinkId(
         oldItemId,
         (id) => `${itemLinkAttributeName}="${id}"`,
