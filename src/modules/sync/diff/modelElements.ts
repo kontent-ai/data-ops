@@ -319,8 +319,8 @@ export const makeGuidelinesElementHandler = (
         sourceRefs.length === targetRefs.length &&
         zip(sourceRefs, targetRefs).every(
           ([s, t]) =>
-            (s.codename && s.codename === t.codename) ||
-            (s.externalId && s.externalId === t.externalId),
+            (Boolean(s.codename) && s.codename === t.codename) ||
+            (Boolean(s.externalId) && s.externalId === t.externalId),
         );
 
       if (areRefsSame && sourceWithoutRefs === targetWithoutRefs) {

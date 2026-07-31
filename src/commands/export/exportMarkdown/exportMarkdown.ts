@@ -198,10 +198,10 @@ const buildMarkdownOptions = (
   params: ExportMarkdownCliParams,
 ): ToMarkdownOptions<IContentItem> | undefined => {
   const hasMarkdownOptions =
-    params.elements ||
+    params.elements !== undefined ||
     params.noFrontmatter ||
-    params.frontmatterElements ||
-    params.frontmatterSystem;
+    params.frontmatterElements !== undefined ||
+    params.frontmatterSystem !== undefined;
 
   if (!hasMarkdownOptions) {
     return undefined;
