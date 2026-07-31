@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import kontentConfig from "@kontent-ai/eslint-config";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -7,6 +8,7 @@ export default defineConfig([
   globalIgnores(["build/**"]),
   js.configs.recommended,
   tsPlugin.configs["flat/eslint-recommended"],
+  kontentConfig,
   {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
