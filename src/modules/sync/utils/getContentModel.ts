@@ -124,7 +124,7 @@ const createFullContentModel = (partialModel: Partial<FileContentModel>): FileCo
 const loadSyncFilesFromFolder = async (
   folderName: string,
 ): Promise<ReadonlyMap<string, string>> => {
-  const filesPromises = await Object.entries(filenames).map(([, filename]) =>
+  const filesPromises = Object.entries(filenames).map(async ([, filename]) =>
     fs
       .stat(`${folderName}/${filename}`)
       .then(
