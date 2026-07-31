@@ -1,7 +1,6 @@
 import { isOp } from "../../../sync/utils.js";
 import type { DiffObject } from "../../../types/diffModel.js";
-import type { PatchOperation } from "../../../types/patchOperation.js";
-import { getTargetCodename } from "../../../types/patchOperation.js";
+import { getTargetCodename, type PatchOperation } from "../../../types/patchOperation.js";
 import { AddedEntity } from "../shared/added/AddedEntity.js";
 import { DiffObjectSection } from "../shared/DiffObjectSection.js";
 
