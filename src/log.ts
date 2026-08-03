@@ -10,7 +10,7 @@ const logLevelsPriority: Readonly<Record<LogLevel, number>> = {
   verbose: 20,
 };
 
-export const allLogLevels = Object.keys(logLevelsPriority);
+export const allLogLevels = Object.keys(logLevelsPriority) as readonly LogLevel[];
 
 type LoggableLogLevel = Exclude<LogLevel, "none">;
 
@@ -63,10 +63,10 @@ const optionsToLogLevel = (options: LogOptions): LogLevel => {
   return logLevel;
 };
 
-const isLogLevel = (input: string): input is LogLevel => allLogLevels.includes(input);
+const isLogLevel = (input: string): input is LogLevel => (allLogLevels as string[]).includes(input);
 
 export type LogOptions = Readonly<{
-  logLevel?: string;
+  logLevel?: LogLevel;
   verbose?: boolean;
 }>;
 
