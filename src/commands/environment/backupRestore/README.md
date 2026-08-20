@@ -142,6 +142,15 @@ You can check out a backup of an example environment in [the data for integratio
 >
 > To avoid backing up roles, you can specify the `--exclude roles` parameter or specify only the desired entities using the `--include` parameter.
 
+> [!CAUTION]
+>
+> **Backups can contain webhook secrets.** When the `webhooks` entity is included,
+> `webhooks.json` contains each webhook's signing secret in plaintext. Anyone who
+> can read the backup can forge webhook notifications your endpoints will accept.
+>
+> Treat backup files as credentials. Exclude webhooks with `--exclude webhooks` if
+> you don't need them, and regenerate secrets if a backup may have been exposed.
+
 ---
 
 ## Environment Restore Command
