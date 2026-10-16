@@ -60,12 +60,12 @@ describe("defaultReadStatus", () => {
     expect(readStatus).toStrictEqual(inputStatus);
   });
 
-  it("should throw when format of input file is incorrect", () => {
+  it("should throw when format of input file is incorrect", async () => {
     const inputStatus = { testStatus: [{ a: "incorrect" }] };
 
     mockFS.stat.mockResolvedValue({} as Stats);
     mockFS.readFile.mockResolvedValue(Buffer.from(JSON.stringify(inputStatus)));
 
-    expect(createDefaultReadStatus("testPath")()).rejects.toThrowError();
+    await expect(createDefaultReadStatus("testPath")()).rejects.toThrowError();
   });
 });

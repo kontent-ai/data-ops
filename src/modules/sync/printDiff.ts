@@ -107,7 +107,9 @@ const printDiffEntity = (
   if (Array.from(diffObject.updated.values()).some((o) => o.length)) {
     logInfo(logOptions, "standard", `${chalk.blue(entityName)} to update:`);
     Array.from(diffObject.updated.entries())
-      .sort()
+      .toSorted(([codename1], [codename2]) =>
+        codename1 < codename2 ? -1 : codename1 > codename2 ? 1 : 0,
+      )
       .forEach(([codename, value]) => {
         if (value.length) {
           logInfo(logOptions, "standard", `Entity codename: ${chalk.blue(codename)}`);
