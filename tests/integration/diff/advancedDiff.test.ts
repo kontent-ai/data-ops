@@ -38,7 +38,7 @@ describe("Advanced diff", () => {
     //
     // const result = await fmtPromise;
 
-    expect(generatedFileContent).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
+    await expect(generatedFileContent).toMatchFileSnapshot("advancedDiff.test.ts.snap.html");
   });
 
   afterAll(() => {

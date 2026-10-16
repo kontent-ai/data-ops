@@ -147,10 +147,10 @@ describe.concurrent("Sync model of two environments with credentials", () => {
   );
 });
 
-describe.concurrent("Sync environment from folder", () => {
+describe("Sync environment from folder", () => {
   const folderPath = path.join(__dirname, "data/sourceContentModel");
 
-  it.sequential("generate sync model test", async () => {
+  it("generate sync model test", async () => {
     const command = `sync snapshot -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies livePreview assetFolders collections spaces languages workflows -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
@@ -183,7 +183,7 @@ describe.concurrent("Sync environment from folder", () => {
     expect(filesExistence).toEqual(allFilesExist);
   });
 
-  it.sequential(
+  it(
     "Sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command = `sync run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies livePreview assetFolders collections spaces languages workflows  --verbose --skipConfirmation`;
@@ -195,10 +195,10 @@ describe.concurrent("Sync environment from folder", () => {
   );
 });
 
-describe.concurrent("Partial sync environment from folder", () => {
+describe("Partial sync environment from folder", () => {
   const folderPath = path.join(import.meta.dirname, "data/partialSourceContentModel");
 
-  it.sequential("generate  partial sync model test", async () => {
+  it("generate  partial sync model test", async () => {
     const command = `sync snapshot -e ${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --entities contentTypes contentTypeSnippets taxonomies collections -k ${API_KEY} -f ${folderPath}`;
     await runCommand(command);
 
@@ -238,7 +238,7 @@ describe.concurrent("Partial sync environment from folder", () => {
     expect(filesExistence).toEqual(expectedResults);
   });
 
-  it.sequential(
+  it(
     "Partial sync environment from folder",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command = `sync run -t=${environmentId} --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies --verbose --skipConfirmation`;
@@ -253,7 +253,7 @@ describe.concurrent("Partial sync environment from folder", () => {
     }),
   );
 
-  it.sequential("Partial sync environment from folder should throw due more entities than in exported folder", async () => {
+  it("Partial sync environment from folder should throw due more entities than in exported folder", async () => {
     const command = `sync run -t=00000000-0000-0000-0000-000000000000 --tk=${API_KEY} -f=${folderPath} --entities=contentTypes contentTypeSnippets taxonomies languages --verbose --skipConfirmation`;
 
     const result = await runCommand(command).catch((err) => err as CommandError);

@@ -117,11 +117,11 @@ describe.concurrent("Migrate content between two environments with credentials",
   );
 });
 
-describe.concurrent("Migrate content from zip", () => {
+describe("Migrate content from zip", () => {
   const relativeFolderPath = "./tests/integration/migrateContent/data";
   const relativeContentZipPath = `${relativeFolderPath}/sourceContent.zip`;
 
-  it.sequential("snapshot migrate content", async () => {
+  it("snapshot migrate content", async () => {
     await fsPromises.mkdir(relativeFolderPath, { recursive: true }); // recursive skips already created folders
 
     const command = `migrate-content snapshot -s=${SYNC_SOURCE_TEST_ENVIRONMENT_ID} --sk=${API_KEY} -f=${relativeContentZipPath} --sd=${DELIVERY_KEY} -l=${language} --byTypesCodenames no_change_linked_type no_change_base_type --skipConfirmation`;
@@ -135,7 +135,7 @@ describe.concurrent("Migrate content from zip", () => {
     expect(fileExists).toEqual(true);
   });
 
-  it.sequential(
+  it(
     "Run migrate content from zip",
     withTestEnvironment(SYNC_TARGET_TEST_ENVIRONMENT_ID, async (environmentId) => {
       const command = `migrate-content run -t=${environmentId} --tk=${API_KEY} -f=${relativeContentZipPath} -l=${language} --verbose --skipConfirmation`;
