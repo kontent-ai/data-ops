@@ -4,3 +4,6 @@ minimumReleaseAge: 4320
 # First-party packages we publish ourselves
 minimumReleaseAgeExclude:
   - "@kontent-ai/*"
+# archiver@8.0.0 (latest) still depends on readdir-glob@^3, which pins minimatch@^10 (CVE-2026-118764).
+overrides:
+  "readdir-glob>minimatch": ^11.0.1
